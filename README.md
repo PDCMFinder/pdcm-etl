@@ -21,6 +21,13 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
+Note: I had to run (on Mac)
+```sh
+env LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' pip install psycopg2==2.8.6
+```
+because the installation of psycopg2 was failing.
+
+
  - The execution parameters are currently in a configuration file. Edit luigi.cfg and set the respective values for:
 	 - data_dir: Directory where the tsv files with the data/metadata are
 	 - providers: List of providers to process
