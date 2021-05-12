@@ -2,6 +2,8 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
+from etl.jobs.util.cleaner import init_cap_and_trim_all
+from etl.jobs.util.dataframe_functions import join_left_dfs, transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -36,6 +38,7 @@ def transform_patient(
         ethnicity_df: DataFrame,
         provider_group_df: DataFrame) -> DataFrame:
     patient_df = add_id(raw_patient_df, "id")
+    patient_df = clean_data_before_join(patient_df)
     patient_df = set_fk_diagnosis(patient_df, diagnosis_df)
     patient_df = set_fk_ethnicity(patient_df, ethnicity_df)
     patient_df = set_fk_provider_group(patient_df, provider_group_df)
@@ -44,35 +47,25 @@ def transform_patient(
     return patient_df
 
 
+def clean_data_before_join(patient_df: DataFrame) -> DataFrame:
+    patient_df = patient_df.withColumn("ethnicity", init_cap_and_trim_all("ethnicity"))
+    return patient_df
+
+
 def set_fk_diagnosis(raw_patient_df: DataFrame, diagnosis_df: DataFrame) -> DataFrame:
-    diagnosis_df_ref = diagnosis_df \
-        .withColumnRenamed("name", "diagnosis_name_ref") \
-        .withColumnRenamed("id", "id_ref")
-    raw_patient_df_ref = raw_patient_df.withColumnRenamed("initial_diagnosis", "diagnosis_name_ref")
-    patient_df = raw_patient_df_ref.join(diagnosis_df_ref, on=['diagnosis_name_ref'], how='left')
-    patient_df = patient_df.withColumnRenamed("id_ref", "initial_diagnosis_id")
-    patient_df = patient_df.drop("diagnosis_name_ref")
+    patient_df = transform_to_fk(
+        raw_patient_df, diagnosis_df, "initial_diagnosis", "name", "id", "initial_diagnosis_id")
     return patient_df
 
 
 def set_fk_ethnicity(patient_df: DataFrame, ethnicity_df: DataFrame) -> DataFrame:
-    ethnicity_df_ref = ethnicity_df \
-        .withColumnRenamed("name", "ethnicity_name_ref") \
-        .withColumnRenamed("id", "id_ref")
-    patient_df_ref = patient_df.withColumnRenamed("ethnicity", "ethnicity_name_ref")
-    patient_df = patient_df_ref.join(ethnicity_df_ref, on=['ethnicity_name_ref'], how='left')
-    patient_df = patient_df.withColumnRenamed("id_ref", "ethnicity_id")
-    patient_df = patient_df.drop("ethnicity_name_ref")
+    patient_df = transform_to_fk(patient_df, ethnicity_df, "ethnicity", "name", "id", "ethnicity_id")
     return patient_df
 
 
 def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -> DataFrame:
-    provider_group_ref_df = provider_group_df \
-        .withColumnRenamed("abbreviation", "provider_name_ref") \
-        .withColumnRenamed("id", "id_ref")
-
-    patient_df_ref = patient_df.withColumnRenamed("data_source", "provider_name_ref")
-    patient_df = patient_df_ref.join(provider_group_ref_df, on=['provider_name_ref'], how='left')
+    provider_group_ref_df = provider_group_df.withColumnRenamed("id", "id_ref")
+    patient_df = join_left_dfs(patient_df, provider_group_ref_df, "data_source", "abbreviation")
     patient_df = patient_df.withColumnRenamed("id_ref", "provider_group_id")
     return patient_df
 

@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import col
 
 from etl.jobs.util.cleaner import trim_all
+from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -83,19 +84,13 @@ def join_sharing_loader(
     join_sharing_loader_df = data_from_sharing_df.join(
         data_from_loader_ref_df, on=['provider_abbreviation'])
     join_sharing_loader_df = join_sharing_loader_df.withColumnRenamed("provider_name", "name")
+
     return join_sharing_loader_df
 
 
 def set_fk_provider_type(provider_group_df, provider_type_df):
-    provider_group_ref_df = provider_group_df.withColumnRenamed(
-        "provider_type", "provider_type_name_ref")
-    provider_type_ref_df = provider_type_df.withColumnRenamed(
-        "name", "provider_type_name_ref")\
-        .withColumnRenamed("id", "id_ref")
-
-    provider_group_df = provider_group_ref_df.join(
-        provider_type_ref_df, on=['provider_type_name_ref'], how='left')
-    provider_group_df = provider_group_df.withColumnRenamed("id_ref", "provider_type_id")
+    provider_group_df = transform_to_fk(
+        provider_group_df, provider_type_df, "provider_type", "name", "id", "provider_type_id")
     return provider_group_df
 
 

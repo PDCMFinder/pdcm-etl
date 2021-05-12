@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import trim, initcap
 
+from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -30,15 +31,11 @@ def transform_ethnicity(raw_patient_df: DataFrame) -> DataFrame:
 
 
 def get_ethnicity_from_patient(raw_patient_df: DataFrame) -> DataFrame:
-    ethnicity_df = raw_patient_df.select(format_name_column("ethnicity").alias("name"))
+    ethnicity_df = raw_patient_df.select(init_cap_and_trim_all("ethnicity").alias("name"))
     ethnicity_df = ethnicity_df.select("name").where("name is not null")
     ethnicity_df = ethnicity_df.drop_duplicates()
     ethnicity_df.show()
     return ethnicity_df
-
-
-def format_name_column(column_name) -> Column:
-    return trim(initcap(column_name))
 
 
 def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:

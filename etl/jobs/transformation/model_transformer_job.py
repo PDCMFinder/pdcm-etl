@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import col, trim
 
+from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -34,12 +35,8 @@ def transform_model(raw_model_df: DataFrame, publication_group_df: DataFrame) ->
 
 
 def set_fk_publication_group(model_df: DataFrame, publication_group_df: DataFrame) -> DataFrame:
-    publication_group_df_ref = publication_group_df \
-        .withColumnRenamed("pub_med_ids", "pub_med_ids_ref") \
-        .withColumnRenamed("id", "id_ref")
-    model_df_ref = model_df.withColumnRenamed("publications", "pub_med_ids_ref")
-    model_df = model_df_ref.join(publication_group_df_ref, on=['pub_med_ids_ref'], how='left')
-    model_df = model_df.withColumnRenamed("id_ref", "publication_group_id")
+    model_df = transform_to_fk(
+        model_df, publication_group_df, "publications", "pub_med_ids", "id", "publication_group_id")
     return model_df
 
 
