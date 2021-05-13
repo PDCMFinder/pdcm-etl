@@ -50,8 +50,5 @@ def transform_to_fk(
     df_b_ref = df_b.withColumnRenamed(reference_column_id, "id_ref")
     join_df = join_left_dfs(df_a, df_b_ref, col_df_a, col_df_b)
     join_df = join_df.withColumnRenamed("id_ref", new_column_name)
-
-    print("FK CREATED")
-    join_df.show()
     return join_df
 

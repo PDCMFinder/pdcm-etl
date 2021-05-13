@@ -34,7 +34,6 @@ def get_ethnicity_from_patient(raw_patient_df: DataFrame) -> DataFrame:
     ethnicity_df = raw_patient_df.select(init_cap_and_trim_all("ethnicity").alias("name"))
     ethnicity_df = ethnicity_df.select("name").where("name is not null")
     ethnicity_df = ethnicity_df.drop_duplicates()
-    ethnicity_df.show()
     return ethnicity_df
 
 

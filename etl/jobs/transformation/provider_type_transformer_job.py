@@ -33,7 +33,6 @@ def get_provider_type_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
     provider_type_df = raw_sharing_df.select(format_name_column("provider_type").alias("name"))
     provider_type_df = provider_type_df.select("name").where("name is not null")
     provider_type_df = provider_type_df.drop_duplicates()
-    provider_type_df.show()
     return provider_type_df
 
 

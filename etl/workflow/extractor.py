@@ -59,7 +59,8 @@ def read_with_columns(session, path, columns):
     data_source = split[-2]
     df = session.read.option('sep', '\t').option('header', True).csv(path)
     df = df.select(columns).where("Field is null")
-    df = df.withColumn("data_source", lit(data_source))
+    # Add a data_source column that makes it easy to identify the provider in the modules
+    df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(data_source))
     return df
 
 

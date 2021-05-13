@@ -3,6 +3,8 @@ class Constants:
     TRANSFORMED_DIRECTORY = "transformed"
     DATABASE_FORMATTED = "database_formatted"
 
+    DATA_SOURCE_COLUMN = "data_source_tmp"
+
     DIAGNOSIS_ENTITY = "diagnosis"
     ETHNICITY_ENTITY = "ethnicity"
     MODEL_ENTITY = "model"

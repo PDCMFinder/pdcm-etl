@@ -2,6 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
+from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import join_left_dfs, transform_to_fk
 from etl.jobs.util.id_assigner import add_id
@@ -64,9 +65,13 @@ def set_fk_ethnicity(patient_df: DataFrame, ethnicity_df: DataFrame) -> DataFram
 
 
 def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -> DataFrame:
-    provider_group_ref_df = provider_group_df.withColumnRenamed("id", "id_ref")
-    patient_df = join_left_dfs(patient_df, provider_group_ref_df, "data_source", "abbreviation")
-    patient_df = patient_df.withColumnRenamed("id_ref", "provider_group_id")
+    patient_df = transform_to_fk(
+        patient_df,
+        provider_group_df,
+        Constants.DATA_SOURCE_COLUMN,
+        Constants.DATA_SOURCE_COLUMN,
+        "id",
+        "provider_group_id")
     return patient_df
 
 

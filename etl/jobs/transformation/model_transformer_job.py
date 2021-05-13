@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import col, trim
 
+from etl.constants import Constants
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
@@ -41,7 +42,7 @@ def set_fk_publication_group(model_df: DataFrame, publication_group_df: DataFram
 
 
 def get_data(raw_model_df) -> DataFrame:
-    model_df = raw_model_df.select("model_id", "publications", "data_source").drop_duplicates()
+    model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumnRenamed("model_id", "source_pdx_id")
     return model_df
 
@@ -50,7 +51,6 @@ def get_provider_type_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
     provider_type_df = raw_sharing_df.select(format_name_column("provider_type").alias("name"))
     provider_type_df = provider_type_df.select("name").where("name is not null")
     provider_type_df = provider_type_df.drop_duplicates()
-    provider_type_df.show()
     return provider_type_df
 
 
@@ -59,7 +59,8 @@ def format_name_column(column_name) -> Column:
 
 
 def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select("id", "source_pdx_id", "data_source", "publication_group_id")
+    return ethnicity_df.select(
+        "id", "source_pdx_id", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"), "publication_group_id")
 
 
 if __name__ == "__main__":
