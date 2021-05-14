@@ -9,7 +9,7 @@ from etl.jobs.util.id_assigner import add_id
 
 def main(argv):
     """
-    Creates a parquet file with diagnosis data.
+    Creates a parquet file with tissue data.
     :param list argv: the list elements should be:
                     [1]: Parquet file path with raw patient data
                     [2]: Parquet file path with raw sample data
