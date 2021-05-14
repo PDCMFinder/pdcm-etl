@@ -12,3 +12,4 @@ class Constants:
     PROVIDER_GROUP_ENTITY = "provider_group"
     PROVIDER_TYPE_ENTITY = "provider_type"
     PUBLICATION_GROUP_ENTITY = "publication_group"
+    TISSUE_ENTITY = "tissue"

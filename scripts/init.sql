@@ -71,3 +71,9 @@ ALTER TABLE model
     ADD CONSTRAINT fk_model_publication_group
     FOREIGN KEY (publication_group_id)
     REFERENCES publication_group (id);
+
+CREATE TABLE tissue (
+    id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
