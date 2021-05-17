@@ -98,5 +98,12 @@ class TransformModel(TransformEntity):
     entity_name = Constants.MODEL_ENTITY
 
 
+class TransformTissue(TransformEntity):
+    requiredTasks = [
+        ExtractSampleModuleSpark()
+    ]
+    entity_name = Constants.TISSUE_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

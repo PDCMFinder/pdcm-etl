@@ -12,7 +12,16 @@ def get_database_connection():
 
 def copy_all_tsv_to_database(data_dir_out: str):
     logger.info("Starts copying all data")
-    tables = ["provider_type", "provider_group", "publication_group", "diagnosis", "ethnicity", "patient", "model"]
+    tables = [
+        Constants.TISSUE_ENTITY,
+        Constants.PROVIDER_TYPE_ENTITY,
+        Constants.PROVIDER_GROUP_ENTITY,
+        Constants.PUBLICATION_GROUP_ENTITY,
+        Constants.DIAGNOSIS_ENTITY,
+        Constants.ETHNICITY_ENTITY,
+        Constants.PATIENT_ENTITY,
+        Constants.MODEL_ENTITY
+    ]
     connection = get_database_connection()
     delete_data(connection, tables)
     for table in tables:

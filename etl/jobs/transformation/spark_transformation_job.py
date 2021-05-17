@@ -7,6 +7,7 @@ import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
 import etl.jobs.transformation.patient_transformer_job
+import etl.jobs.transformation.tissue_transformer_job
 from etl.constants import Constants
 
 
@@ -41,6 +42,9 @@ def main1(argv):
 
     elif entity_name == Constants.PUBLICATION_GROUP_ENTITY:
         etl.jobs.transformation.publication_group_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.TISSUE_ENTITY:
+        etl.jobs.transformation.tissue_transformer_job.main(args_without_entity)
 
 
 if __name__ == "__main__":
