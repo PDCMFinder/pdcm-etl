@@ -4,7 +4,7 @@ from luigi.contrib.spark import SparkSubmitTask
 from etl.constants import Constants
 from etl.jobs.load.database_manager import copy_all_tsv_to_database
 from etl.workflow.transformer import TransformPatient, TransformDiagnosis, TransformEthnicity, TransformProviderType, \
-    TransformProviderGroup, TransformModel, TransformPublicationGroup, TransformTissue
+    TransformProviderGroup, TransformModel, TransformPublicationGroup, TransformTissue, TransformTumourType
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -32,6 +32,8 @@ class ParquetToTsv(SparkSubmitTask):
             return TransformModel(self.data_dir, self.providers, self.data_dir_out)
         elif Constants.TISSUE_ENTITY == self.name:
             return TransformTissue(self.data_dir, self.providers, self.data_dir_out)
+        elif Constants.TUMOUR_TYPE == self.name:
+            return TransformTumourType(self.data_dir, self.providers, self.data_dir_out)
 
     def app_options(self):
         return [
@@ -57,7 +59,8 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PROVIDER_GROUP_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PUBLICATION_GROUP_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.MODEL_ENTITY),
-            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TISSUE_ENTITY)
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TISSUE_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TUMOUR_TYPE)
         ]
 
     def run(self):

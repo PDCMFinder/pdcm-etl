@@ -130,3 +130,9 @@ dmypy.json
 
 # IDEA
 .idea/
+
+# Database files
+db-data/
+
+# Output files
+output/

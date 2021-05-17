@@ -77,3 +77,9 @@ CREATE TABLE tissue (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE tumour_type (
+    id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
