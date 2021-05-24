@@ -12,11 +12,13 @@ def main(argv):
     """
     Creates a parquet file with patient sample data.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw model data
+                    [1]: Parquet file path with raw sample data
                     [2]: Parquet file path with diagnosis data
-                    [3]: Parquet file path with ethnicity data
-                    [4]: Parquet file path with provider group data
-                    [5]: Output file
+                    [3]: Parquet file path with tissue data
+                    [4]: Parquet file path with tumour type data
+                    [5]: Parquet file path with model data
+                    [6]: Parquet file path with raw sample platform data
+                    [7]: Output file
     """
     raw_sample_parquet_path = argv[1]
     diagnosis_parquet_path = argv[2]
@@ -55,8 +57,6 @@ def transform_patient_sample(
     patient_sample_df = set_fk_model(patient_sample_df, model_df)
     patient_sample_df = set_raw_data_url(patient_sample_df, raw_sample_platform_df)
     patient_sample_df = get_columns_expected_order(patient_sample_df)
-    print("patient_sample_df!@!")
-    patient_sample_df.show()
     return patient_sample_df
 
 
@@ -88,9 +88,6 @@ def set_fk_diagnosis(patient_sample_df: DataFrame, diagnosis_df: DataFrame) -> D
 
 
 def set_fk_origin_tissue(patient_sample_df: DataFrame, tissue_df: DataFrame) -> DataFrame:
-    print("set_fk_origin_tissue")
-    patient_sample_df.show()
-    tissue_df.show()
     patient_sample_df = transform_to_fk(patient_sample_df, tissue_df, "origin_tissue", "name", "id", "origin_tissue_id")
     return patient_sample_df
 
@@ -106,15 +103,12 @@ def set_fk_tumour_type(patient_sample_df: DataFrame, tumour_type_df: DataFrame) 
 
 
 def set_fk_model(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    print("ABOUT JOIN")
-    patient_sample_df.show()
-    model_df.show()
     patient_sample_df = transform_to_fk(patient_sample_df, model_df, "model_name", "source_pdx_id", "id", "model_id")
     return patient_sample_df
 
 
 def set_raw_data_url(patient_sample_df: DataFrame, raw_sample_platform_df: DataFrame) -> DataFrame:
-    # To be implemented
+    # TODO: To be implemented
     return patient_sample_df.withColumn("raw_data_url", lit("to_be_implemented"))
 
 
