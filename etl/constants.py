@@ -3,6 +3,14 @@ class Constants:
     TRANSFORMED_DIRECTORY = "transformed"
     DATABASE_FORMATTED = "database_formatted"
 
+    # Module names
+    PLATFORM_SAMPLE_MODULE = "sampleplatform-data"
+    PATIENT_MODULE = "patient"
+    SAMPLE_MODULE = "sample"
+    SHARING_MODULE = "sharing"
+    LOADER_MODULE = "loader"
+    MODEL_MODULE = "model"
+
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
     DIAGNOSIS_ENTITY = "diagnosis"
@@ -13,4 +21,5 @@ class Constants:
     PROVIDER_TYPE_ENTITY = "provider_type"
     PUBLICATION_GROUP_ENTITY = "publication_group"
     TISSUE_ENTITY = "tissue"
-    TUMOUR_TYPE = "tumour_type"
+    TUMOUR_TYPE_ENTITY = "tumour_type"
+    PATIENT_SAMPLE_ENTITY = "patient_sample"

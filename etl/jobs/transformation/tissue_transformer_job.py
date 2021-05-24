@@ -1,9 +1,8 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
 
-from etl.jobs.util.cleaner import init_cap_and_trim_all
+from etl.jobs.util.cleaner import trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -33,11 +32,11 @@ def transform_tissue(raw_sample_df: DataFrame) -> DataFrame:
 
 
 def get_collection_site_from_sample(raw_sample_df: DataFrame) -> DataFrame:
-    return raw_sample_df.select(init_cap_and_trim_all("collection_site").alias("name"))
+    return raw_sample_df.select(trim_all("collection_site").alias("name"))
 
 
 def get_primary_type_from_sample(raw_sample_df: DataFrame) -> DataFrame:
-    return raw_sample_df.select(init_cap_and_trim_all("primary_site").alias("name"))
+    return raw_sample_df.select(trim_all("primary_site").alias("name"))
 
 
 if __name__ == "__main__":
