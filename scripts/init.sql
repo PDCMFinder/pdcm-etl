@@ -83,3 +83,44 @@ CREATE TABLE tumour_type (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE patient_sample (
+    id INTEGER NOT NULL,
+    diagnosis_id INTEGER,
+    source_sample_id TEXT,
+    grade TEXT,
+    grade_classification TEXT,
+    stage TEXT,
+    stage_classification TEXT,
+    origin_tissue_id INTEGER,
+    sample_site_id INTEGER,
+    raw_data_url TEXT,
+    tumour_type_id INTEGER,
+    model_id INTEGER,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE patient_sample
+    ADD CONSTRAINT fk_patient_sample_diagnosis
+    FOREIGN KEY (diagnosis_id)
+    REFERENCES diagnosis (id);
+
+ALTER TABLE patient_sample
+    ADD CONSTRAINT fk_patient_sample_tissue_ori
+    FOREIGN KEY (origin_tissue_id)
+    REFERENCES tissue (id);
+
+ALTER TABLE patient_sample
+    ADD CONSTRAINT fk_patient_sample_tissue_site
+    FOREIGN KEY (sample_site_id)
+    REFERENCES tissue (id);
+
+ALTER TABLE patient_sample
+    ADD CONSTRAINT fk_patient_sample_tumour_type
+    FOREIGN KEY (tumour_type_id)
+    REFERENCES tumour_type (id);
+
+ALTER TABLE patient_sample
+    ADD CONSTRAINT fk_patient_sample_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);

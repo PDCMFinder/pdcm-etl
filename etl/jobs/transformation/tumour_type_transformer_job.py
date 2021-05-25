@@ -29,8 +29,6 @@ def transform_tumour_type(raw_sample_df: DataFrame) -> DataFrame:
     tumour_type = tumour_type.drop_duplicates()
     tumour_type = add_id(tumour_type, "id")
     tumour_type = tumour_type.select("id", "name")
-    print("tumour_type")
-    tumour_type.show()
     return tumour_type
 
 
