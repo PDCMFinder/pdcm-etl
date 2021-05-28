@@ -124,5 +124,12 @@ class TransformPatientSample(TransformEntity):
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
+class TransformEngraftmentSite(TransformEntity):
+    requiredTasks = [
+        ExtractModelModuleSpark()
+    ]
+    entity_name = Constants.ENGRAFTMENT_SITE_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

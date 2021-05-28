@@ -124,3 +124,9 @@ ALTER TABLE patient_sample
     ADD CONSTRAINT fk_patient_sample_model
     FOREIGN KEY (model_id)
     REFERENCES model (id);
+
+CREATE TABLE engraftment_site (
+    id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
