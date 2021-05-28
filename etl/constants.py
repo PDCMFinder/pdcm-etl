@@ -23,3 +23,4 @@ class Constants:
     TISSUE_ENTITY = "tissue"
     TUMOUR_TYPE_ENTITY = "tumour_type"
     PATIENT_SAMPLE_ENTITY = "patient_sample"
+    ENGRAFTMENT_SITE_ENTITY = "engraftment_site"
