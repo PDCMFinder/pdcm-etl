@@ -5,7 +5,7 @@ from etl.constants import Constants
 from etl.jobs.load.database_manager import copy_all_tsv_to_database
 from etl.workflow.transformer import TransformPatient, TransformDiagnosis, TransformEthnicity, TransformProviderType, \
     TransformProviderGroup, TransformModel, TransformPublicationGroup, TransformTissue, TransformTumourType, \
-    TransformPatientSample
+    TransformPatientSample, TransformEngraftmentSite
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -38,7 +38,7 @@ class ParquetToTsv(SparkSubmitTask):
         elif Constants.PATIENT_SAMPLE_ENTITY == self.name:
             return TransformPatientSample(self.data_dir, self.providers, self.data_dir_out)
         elif Constants.ENGRAFTMENT_SITE_ENTITY == self.name:
-            return TransformModel(self.data_dir, self.providers, self.data_dir_out)
+            return TransformEngraftmentSite(self.data_dir, self.providers, self.data_dir_out)
 
     def app_options(self):
         return [
