@@ -11,9 +11,8 @@ def main(argv):
     """
     Creates a parquet file with tissue data.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw patient data
-                    [2]: Parquet file path with raw sample data
-                    [3]: Output file
+                    [1]: Parquet file path with raw sample data
+                    [2]: Output file
     """
     raw_sample_parquet_path = argv[1]
     output_path = argv[2]

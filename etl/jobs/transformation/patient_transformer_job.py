@@ -38,12 +38,13 @@ def transform_patient(
         diagnosis_df: DataFrame,
         ethnicity_df: DataFrame,
         provider_group_df: DataFrame) -> DataFrame:
-    patient_df = add_id(raw_patient_df, "id")
-    patient_df = clean_data_before_join(patient_df)
+
+    patient_df = clean_data_before_join(raw_patient_df)
     patient_df = set_fk_diagnosis(patient_df, diagnosis_df)
     patient_df = set_fk_ethnicity(patient_df, ethnicity_df)
     patient_df = set_fk_provider_group(patient_df, provider_group_df)
     patient_df = set_external_id(patient_df)
+    patient_df = add_id(patient_df, "id")
     patient_df = get_columns_expected_order(patient_df)
     return patient_df
 

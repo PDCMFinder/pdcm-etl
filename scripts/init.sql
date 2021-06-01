@@ -1,26 +1,26 @@
 CREATE TABLE diagnosis (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE ethnicity (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE provider_type (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE provider_group (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT,
     abbreviation TEXT,
-    provider_type_id INTEGER,
+    provider_type_id BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -30,15 +30,15 @@ ALTER TABLE provider_group
     REFERENCES provider_type (id);
 
 CREATE TABLE patient (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     external_id TEXT NOT NULL,
     sex TEXT NOT NULL,
     history TEXT,
-    ethnicity_id INTEGER,
+    ethnicity_id BIGINT,
     ethnicity_assessment_method TEXT,
-    initial_diagnosis_id INTEGER,
+    initial_diagnosis_id BIGINT,
     age_at_initial_diagnosis TEXT,
-    provider_group_id INTEGER,
+    provider_group_id BIGINT,
     PRIMARY KEY (id),
     CONSTRAINT uq_external_id UNIQUE(external_id)
 );
@@ -54,16 +54,16 @@ ALTER TABLE patient
     REFERENCES provider_group (id);
 
 CREATE TABLE publication_group (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     pub_med_id TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE model (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     source_pdx_id TEXT,
     data_source varchar,
-    publication_group_id INTEGER,
+    publication_group_id BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -73,30 +73,30 @@ ALTER TABLE model
     REFERENCES publication_group (id);
 
 CREATE TABLE tissue (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE tumour_type (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE patient_sample (
-    id INTEGER NOT NULL,
-    diagnosis_id INTEGER,
+    id BIGINT NOT NULL,
+    diagnosis_id BIGINT,
     source_sample_id TEXT,
     grade TEXT,
     grade_classification TEXT,
     stage TEXT,
     stage_classification TEXT,
-    origin_tissue_id INTEGER,
-    sample_site_id INTEGER,
+    origin_tissue_id BIGINT,
+    sample_site_id BIGINT,
     raw_data_url TEXT,
-    tumour_type_id INTEGER,
-    model_id INTEGER,
+    tumour_type_id BIGINT,
+    model_id BIGINT,
     PRIMARY KEY (id)
 );
 

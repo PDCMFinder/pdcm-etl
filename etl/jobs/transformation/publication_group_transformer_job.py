@@ -38,8 +38,8 @@ def format_name_column(column_name) -> Column:
     return trim(col(column_name))
 
 
-def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select("id", "pub_med_ids")
+def get_columns_expected_order(publication_group_df: DataFrame) -> DataFrame:
+    return publication_group_df.select("id", "pub_med_ids")
 
 
 if __name__ == "__main__":

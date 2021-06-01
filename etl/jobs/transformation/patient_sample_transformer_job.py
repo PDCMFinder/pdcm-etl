@@ -1,11 +1,12 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import col
 
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
+from etl.jobs.util.raw_data_url_builder import build_raw_data_url
 
 
 def main(argv):
@@ -108,8 +109,20 @@ def set_fk_model(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame
 
 
 def set_raw_data_url(patient_sample_df: DataFrame, raw_sample_platform_df: DataFrame) -> DataFrame:
-    # TODO: To be implemented
-    return patient_sample_df.withColumn("raw_data_url", lit("to_be_implemented"))
+    raw_sample_platform_ref_df = raw_sample_platform_df.withColumnRenamed("sample_id", "sample_id_ref")
+    raw_sample_platform_ref_df = raw_sample_platform_ref_df.withColumnRenamed("model_id", "model_id_ref")
+    raw_sample_platform_ref_df = raw_sample_platform_ref_df.withColumnRenamed("data_source_tmp", "data_source_tmp_ref")
+
+    patient_sample_df = patient_sample_df.join(
+        raw_sample_platform_ref_df,
+        (patient_sample_df.source_sample_id == raw_sample_platform_ref_df.sample_id_ref)
+        & (patient_sample_df.model_id == raw_sample_platform_ref_df.model_id_ref)
+        & (raw_sample_platform_ref_df.sample_origin == 'patient')
+        & (patient_sample_df.data_source == raw_sample_platform_ref_df.data_source_tmp_ref),  how='left')
+
+    patient_sample_df = build_raw_data_url(patient_sample_df, "raw_data_url")
+
+    return patient_sample_df
 
 
 def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:

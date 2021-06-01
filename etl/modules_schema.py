@@ -74,6 +74,7 @@ class ModulesSchema:
     PLATFORM_SAMPLE_SCHEMA = [
         StructField("sample_id", StringType(), True),
         StructField("model_id", StringType(), True),
+        StructField("sample_origin", StringType(), True),
         StructField("raw_data_file", StringType(), True)
     ]
 
