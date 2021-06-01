@@ -30,13 +30,13 @@ class CheckOptionalModuleFileExists(luigi.Task):
     provider = luigi.Parameter()
 
     def output(self):
-        file_name = f"{self.provider}_metadata-{self.module_name}.tsv"
+        file_name = f"{self.provider}_{self.module_name}.tsv"
         file_path = f"{self.data_dir}/data/UPDOG/{self.provider}/{file_name}"
         return luigi.LocalTarget(file_path)
 
     def run(self):
         if not self.output().exists():
-            print(f"File {self.output()} does not exist")
+            print(f"File {self.output().path} does not exist")
             f = self.output().open('w')
             f.close()
 
@@ -93,10 +93,9 @@ class ExtractModuleMetaDataSpark(PySparkTask):
             for stream_path in input_paths[1:]:
                 streams = streams.union(read_with_columns(spark, stream_path, schema))
         else:
-
+            print(f"Create empty df for {module_name}")
             empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
             streams = empty_df
-
         streams.write.mode("overwrite").parquet(output_path)
 
 
