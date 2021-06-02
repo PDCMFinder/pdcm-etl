@@ -126,19 +126,19 @@ ALTER TABLE patient_sample
     REFERENCES model (id);
 
 CREATE TABLE engraftment_site (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE engraftment_type (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE engraftment_material (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );

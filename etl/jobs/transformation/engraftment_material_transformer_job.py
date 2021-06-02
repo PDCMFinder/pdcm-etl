@@ -31,7 +31,7 @@ def transform_engraftment_material(raw_model_df: DataFrame) -> DataFrame:
 
 
 def get_engraftment_material_from_model(raw_model_df: DataFrame) -> DataFrame:
-    return raw_model_df.select(init_cap_and_trim_all("engraftment_material").alias("name"))
+    return raw_model_df.select(init_cap_and_trim_all("sample_type").alias("name"))
 
 
 if __name__ == "__main__":
