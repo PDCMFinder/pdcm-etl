@@ -131,5 +131,19 @@ class TransformEngraftmentSite(TransformEntity):
     entity_name = Constants.ENGRAFTMENT_SITE_ENTITY
 
 
+class TransformEngraftmentType(TransformEntity):
+    requiredTasks = [
+        ExtractModelModuleSpark()
+    ]
+    entity_name = Constants.ENGRAFTMENT_TYPE_ENTITY
+
+
+class TransformEngraftmentMaterial(TransformEntity):
+    requiredTasks = [
+        ExtractModelModuleSpark()
+    ]
+    entity_name = Constants.ENGRAFTMENT_MATERIAL_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

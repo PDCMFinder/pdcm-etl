@@ -130,3 +130,15 @@ CREATE TABLE engraftment_site (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE engraftment_type (
+    id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE engraftment_material (
+    id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);

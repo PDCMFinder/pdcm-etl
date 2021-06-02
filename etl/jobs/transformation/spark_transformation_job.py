@@ -57,6 +57,12 @@ def main1(argv):
     elif entity_name == Constants.ENGRAFTMENT_SITE_ENTITY:
         etl.jobs.transformation.engraftment_site_transformer_job.main(args_without_entity)
 
+    elif entity_name == Constants.ENGRAFTMENT_TYPE_ENTITY:
+        etl.jobs.transformation.engraftment_type_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.ENGRAFTMENT_MATERIAL_ENTITY:
+        etl.jobs.transformation.engraftment_material_transformer_job.main(args_without_entity)
+
 
 if __name__ == "__main__":
     sys.exit(main1(sys.argv))
