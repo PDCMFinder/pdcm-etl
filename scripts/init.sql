@@ -125,6 +125,29 @@ ALTER TABLE patient_sample
     FOREIGN KEY (model_id)
     REFERENCES model (id);
 
+CREATE TABLE patient_snapshot (
+    id BIGINT NOT NULL,
+    patient_id BIGINT,
+    age_at_collection TEXT,
+    collection_event TEXT,
+    date_at_collection TEXT,
+    elapsed_time TEXT,
+    treatment_naive TEXT,
+    virology_status TEXT,
+    sample_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE patient_snapshot
+    ADD CONSTRAINT fk_patient_snapshot_patient
+    FOREIGN KEY (patient_id)
+    REFERENCES patient (id);
+
+ALTER TABLE patient_snapshot
+    ADD CONSTRAINT fk_patient_snapshot_patient_sample
+    FOREIGN KEY (sample_id)
+    REFERENCES patient_sample (id);
+
 CREATE TABLE engraftment_site (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,
