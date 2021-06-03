@@ -124,6 +124,15 @@ class TransformPatientSample(TransformEntity):
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
+class TransformPatientSnapshot(TransformEntity):
+    requiredTasks = [
+        ExtractSampleModuleSpark(),
+        TransformPatientSample(),
+        TransformPatient()
+    ]
+    entity_name = Constants.PATIENT_SNAPSHOT_ENTITY
+
+
 class TransformEngraftmentSite(TransformEntity):
     requiredTasks = [
         ExtractModelModuleSpark()
