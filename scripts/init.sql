@@ -72,6 +72,21 @@ ALTER TABLE model
     FOREIGN KEY (publication_group_id)
     REFERENCES publication_group (id);
 
+CREATE TABLE quality_assurance (
+    id BIGINT NOT NULL,
+    description TEXT,
+    passages TEXT,
+    technology TEXT,
+    validation_host_strain TEXT,
+    model_id BIGINT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE quality_assurance
+    ADD CONSTRAINT fk_quality_assurance_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);
+
 CREATE TABLE tissue (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,

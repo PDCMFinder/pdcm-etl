@@ -6,6 +6,7 @@ import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
+import etl.jobs.transformation.quality_assurance_transformer_job
 import etl.jobs.transformation.patient_transformer_job
 import etl.jobs.transformation.tissue_transformer_job
 import etl.jobs.transformation.tumour_type_transformer_job
@@ -43,6 +44,9 @@ def main1(argv):
 
     elif entity_name == Constants.MODEL_ENTITY:
         etl.jobs.transformation.model_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.QUALITY_ASSURANCE_ENTITY:
+        etl.jobs.transformation.quality_assurance_transformer_job.main(args_without_entity)
 
     elif entity_name == Constants.PATIENT_ENTITY:
         etl.jobs.transformation.patient_transformer_job.main(args_without_entity)

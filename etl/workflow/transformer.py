@@ -3,7 +3,8 @@ from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
 from etl.workflow.extractor import ExtractPatientModuleSpark, ExtractSampleModuleSpark, ExtractSharingModuleSpark, \
-    ExtractLoaderModuleSpark, ExtractModelModuleSpark, ExtractSamplePlatformModuleSpark
+    ExtractLoaderModuleSpark, ExtractModelModuleSpark, ExtractSamplePlatformModuleSpark, \
+    ExtractModelModuleValidationSpark
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -96,6 +97,14 @@ class TransformModel(TransformEntity):
         TransformPublicationGroup()
     ]
     entity_name = Constants.MODEL_ENTITY
+
+
+class TransformQualityAssurance(TransformEntity):
+    requiredTasks = [
+        ExtractModelModuleValidationSpark(),
+        TransformModel()
+    ]
+    entity_name = Constants.QUALITY_ASSURANCE_ENTITY
 
 
 class TransformTissue(TransformEntity):

@@ -129,6 +129,10 @@ class ExtractModelModuleSpark(ExtractModuleMetaDataSpark):
     module_name = Constants.MODEL_MODULE
 
 
+class ExtractModelModuleValidationSpark(ExtractModuleMetaDataSpark):
+    module_name = Constants.MODEL_VALIDATION_MODULE
+
+
 class ExtractSamplePlatformModuleSpark(ExtractModuleMetaDataSpark):
     module_name = Constants.PLATFORM_SAMPLE_MODULE
     is_file_optional = True
