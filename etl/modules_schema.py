@@ -1,10 +1,9 @@
-from pyspark.sql.types import StructType, StructField, StringType, NumericType
+from pyspark.sql.types import StructField, StringType
 
 from etl.constants import Constants
 
 
 class ModulesSchema:
-
     PATIENT_SCHEMA = [
         StructField("patient_id", StringType(), True),
         StructField("sex", StringType(), True),
@@ -71,6 +70,14 @@ class ModulesSchema:
         StructField("publications", StringType(), True)
     ]
 
+    MODEL_VALIDATION_SCHEMA = [
+        StructField("model_id", StringType(), True),
+        StructField("validation_technique", StringType(), True),
+        StructField("description", StringType(), True),
+        StructField("passages_tested", StringType(), True),
+        StructField("validation_host_strain_full", StringType(), True)
+    ]
+
     PLATFORM_SAMPLE_SCHEMA = [
         StructField("sample_id", StringType(), True),
         StructField("model_id", StringType(), True),
@@ -84,5 +91,6 @@ class ModulesSchema:
         Constants.SHARING_MODULE: SHARING_SCHEMA,
         Constants.LOADER_MODULE: LOADER_SCHEMA,
         Constants.MODEL_MODULE: MODEL_SCHEMA,
+        Constants.MODEL_VALIDATION_MODULE : MODEL_VALIDATION_SCHEMA,
         Constants.PLATFORM_SAMPLE_MODULE: PLATFORM_SAMPLE_SCHEMA
     }

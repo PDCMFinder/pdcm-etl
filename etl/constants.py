@@ -10,6 +10,7 @@ class Constants:
     SHARING_MODULE = "sharing"
     LOADER_MODULE = "loader"
     MODEL_MODULE = "model"
+    MODEL_VALIDATION_MODULE = "model_validation"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -17,6 +18,7 @@ class Constants:
     DIAGNOSIS_ENTITY = "diagnosis"
     ETHNICITY_ENTITY = "ethnicity"
     MODEL_ENTITY = "model"
+    QUALITY_ASSURANCE_ENTITY = "quality_assurance"
     PATIENT_ENTITY = "patient"
     PROVIDER_GROUP_ENTITY = "provider_group"
     PROVIDER_TYPE_ENTITY = "provider_type"

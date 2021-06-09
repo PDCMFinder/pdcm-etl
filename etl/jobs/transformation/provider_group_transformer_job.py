@@ -36,8 +36,6 @@ def transform_provider_group(
         raw_sharing_df: DataFrame,
         raw_loader_df: DataFrame,
         provider_type_df: DataFrame) -> DataFrame:
-    raw_sharing_df.show()
-    raw_loader_df.show()
     data_from_sharing_df = extract_data_sharing(raw_sharing_df)
     data_from_loader_df = extract_data_loader(raw_loader_df)
 
