@@ -142,7 +142,7 @@ ALTER TABLE patient_sample
 
 CREATE TABLE xenograft_sample (
     id BIGINT NOT NULL,
-    external_id TEXT,
+    xenograft_sample_id TEXT,
     PRIMARY KEY (id)
 );
 
