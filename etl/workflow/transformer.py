@@ -133,6 +133,13 @@ class TransformPatientSample(TransformEntity):
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
+class TransformXenograftSample(TransformEntity):
+    requiredTasks = [
+        ExtractSamplePlatformModuleSpark()
+    ]
+    entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
+
+
 class TransformPatientSnapshot(TransformEntity):
     requiredTasks = [
         ExtractSampleModuleSpark(),
