@@ -140,6 +140,12 @@ ALTER TABLE patient_sample
     FOREIGN KEY (model_id)
     REFERENCES model (id);
 
+CREATE TABLE xenograft_sample (
+    id BIGINT NOT NULL,
+    xenograft_sample_id TEXT,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE patient_snapshot (
     id BIGINT NOT NULL,
     patient_id BIGINT,

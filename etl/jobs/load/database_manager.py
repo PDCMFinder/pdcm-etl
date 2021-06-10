@@ -24,6 +24,7 @@ def copy_all_tsv_to_database(data_dir_out: str):
         Constants.MODEL_ENTITY,
         Constants.QUALITY_ASSURANCE_ENTITY,
         Constants.PATIENT_SAMPLE_ENTITY,
+        Constants.XENOGRAFT_SAMPLE_ENTITY,
         Constants.PATIENT_SNAPSHOT_ENTITY,
         Constants.ENGRAFTMENT_SITE_ENTITY,
         Constants.ENGRAFTMENT_TYPE_ENTITY,

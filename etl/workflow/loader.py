@@ -6,7 +6,7 @@ from etl.jobs.load.database_manager import copy_all_tsv_to_database
 from etl.workflow.transformer import TransformPatient, TransformDiagnosis, TransformEthnicity, TransformProviderType, \
     TransformProviderGroup, TransformModel, TransformPublicationGroup, TransformTissue, TransformTumourType, \
     TransformPatientSample, TransformEngraftmentSite, TransformEngraftmentType, TransformEngraftmentMaterial, \
-    TransformPatientSnapshot, TransformQualityAssurance
+    TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -40,6 +40,8 @@ class ParquetToTsv(SparkSubmitTask):
             return TransformTumourType(self.data_dir, self.providers, self.data_dir_out)
         elif Constants.PATIENT_SAMPLE_ENTITY == self.name:
             return TransformPatientSample(self.data_dir, self.providers, self.data_dir_out)
+        elif Constants.XENOGRAFT_SAMPLE_ENTITY == self.name:
+            return TransformXenograftSample(self.data_dir, self.providers, self.data_dir_out)
         elif Constants.PATIENT_SNAPSHOT_ENTITY == self.name:
             return TransformPatientSnapshot(self.data_dir, self.providers, self.data_dir_out)
         elif Constants.ENGRAFTMENT_SITE_ENTITY == self.name:
@@ -77,6 +79,7 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TISSUE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TUMOUR_TYPE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PATIENT_SAMPLE_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.XENOGRAFT_SAMPLE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PATIENT_SNAPSHOT_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_SITE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_TYPE_ENTITY),

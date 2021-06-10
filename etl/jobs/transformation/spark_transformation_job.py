@@ -11,6 +11,7 @@ import etl.jobs.transformation.patient_transformer_job
 import etl.jobs.transformation.tissue_transformer_job
 import etl.jobs.transformation.tumour_type_transformer_job
 import etl.jobs.transformation.patient_sample_transformer_job
+import etl.jobs.transformation.xenograft_sample_transformer_job
 import etl.jobs.transformation.patient_snapshot_transformer_job
 import etl.jobs.transformation.engraftment_site_transformer_job
 import etl.jobs.transformation.engraftment_type_transformer_job
@@ -62,6 +63,9 @@ def main1(argv):
 
     elif entity_name == Constants.PATIENT_SAMPLE_ENTITY:
         etl.jobs.transformation.patient_sample_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.XENOGRAFT_SAMPLE_ENTITY:
+        etl.jobs.transformation.xenograft_sample_transformer_job.main(args_without_entity)
 
     elif entity_name == Constants.PATIENT_SNAPSHOT_ENTITY:
         etl.jobs.transformation.patient_snapshot_transformer_job.main(args_without_entity)
