@@ -75,9 +75,9 @@ ALTER TABLE model
 CREATE TABLE quality_assurance (
     id BIGINT NOT NULL,
     description TEXT,
-    passages TEXT,
-    technology TEXT,
-    validation_host_strain TEXT,
+    passages_tested TEXT,
+    validation_technique TEXT,
+    validation_host_strain_full TEXT,
     model_id BIGINT NOT NULL,
     PRIMARY KEY (id)
 );
