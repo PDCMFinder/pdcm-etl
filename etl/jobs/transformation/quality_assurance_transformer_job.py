@@ -35,11 +35,8 @@ def transform_quality_assurance(raw_model_validation_df: DataFrame, model_df: Da
 
 
 def extract_model_validation(raw_model_validation_df: DataFrame) -> DataFrame:
-    quality_assurance_df = raw_model_validation_df.withColumnRenamed("passages_tested", "passages")
-    quality_assurance_df = quality_assurance_df.withColumnRenamed("validation_technique", "technology")
-    quality_assurance_df = quality_assurance_df.withColumn("technology", init_cap_and_trim_all("technology"))
-    quality_assurance_df = quality_assurance_df.withColumnRenamed(
-        "validation_host_strain_full", "validation_host_strain")
+    quality_assurance_df = raw_model_validation_df.withColumn(
+        "validation_technique", init_cap_and_trim_all("validation_technique"))
 
     return quality_assurance_df
 
@@ -55,9 +52,9 @@ def get_columns_expected_order(quality_assurance_df: DataFrame) -> DataFrame:
     return quality_assurance_df.select(
         "id",
         "description",
-        "passages",
-        "technology",
-        "validation_host_strain",
+        "passages_tested",
+        "validation_technique",
+        "validation_host_strain_full",
         "model_id"
     )
 
