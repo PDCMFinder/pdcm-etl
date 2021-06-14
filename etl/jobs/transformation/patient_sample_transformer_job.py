@@ -104,7 +104,7 @@ def set_fk_tumour_type(patient_sample_df: DataFrame, tumour_type_df: DataFrame) 
 
 
 def set_fk_model(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    patient_sample_df = transform_to_fk(patient_sample_df, model_df, "model_name", "source_pdx_id", "id", "model_id")
+    patient_sample_df = transform_to_fk(patient_sample_df, model_df, "model_name", "external_model_id", "id", "model_id")
     return patient_sample_df
 
 

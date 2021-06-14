@@ -61,7 +61,7 @@ CREATE TABLE publication_group (
 
 CREATE TABLE model (
     id BIGINT NOT NULL,
-    source_pdx_id TEXT,
+    external_model_id TEXT,
     data_source varchar,
     publication_group_id BIGINT,
     PRIMARY KEY (id)
