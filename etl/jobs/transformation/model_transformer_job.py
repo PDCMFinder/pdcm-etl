@@ -43,7 +43,7 @@ def set_fk_publication_group(model_df: DataFrame, publication_group_df: DataFram
 
 def get_data(raw_model_df) -> DataFrame:
     model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
-    model_df = model_df.withColumnRenamed("model_id", "source_pdx_id")
+    model_df = model_df.withColumnRenamed("model_id", "external_model_id")
     return model_df
 
 
@@ -60,7 +60,7 @@ def format_name_column(column_name) -> Column:
 
 def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
     return ethnicity_df.select(
-        "id", "source_pdx_id", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"), "publication_group_id")
+        "id", "external_model_id", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"), "publication_group_id")
 
 
 if __name__ == "__main__":

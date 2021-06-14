@@ -44,7 +44,7 @@ def extract_model_validation(raw_model_validation_df: DataFrame) -> DataFrame:
 def set_fk_model(quality_assurance_df, model_df):
     quality_assurance_df = quality_assurance_df.withColumnRenamed("model_id", "model_id_ref")
     quality_assurance_df = transform_to_fk(
-        quality_assurance_df, model_df, "model_id_ref", "source_pdx_id", "id", "model_id")
+        quality_assurance_df, model_df, "model_id_ref", "external_model_id", "id", "model_id")
     return quality_assurance_df
 
 
