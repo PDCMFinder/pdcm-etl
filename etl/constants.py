@@ -31,3 +31,4 @@ class Constants:
     ENGRAFTMENT_SITE_ENTITY = "engraftment_site"
     ENGRAFTMENT_TYPE_ENTITY = "engraftment_type"
     ENGRAFTMENT_MATERIAL_ENTITY = "engraftment_material"
+    ENGRAFTMENT_SAMPLE_STATE_ENTITY = "engraftment_sample_state"

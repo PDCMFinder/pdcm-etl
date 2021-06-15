@@ -16,6 +16,7 @@ import etl.jobs.transformation.patient_snapshot_transformer_job
 import etl.jobs.transformation.engraftment_site_transformer_job
 import etl.jobs.transformation.engraftment_type_transformer_job
 import etl.jobs.transformation.engraftment_material_transformer_job
+import etl.jobs.transformation.engraftment_sample_state_transformer_job
 
 from etl.constants import Constants
 
@@ -78,6 +79,9 @@ def main1(argv):
 
     elif entity_name == Constants.ENGRAFTMENT_MATERIAL_ENTITY:
         etl.jobs.transformation.engraftment_material_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY:
+        etl.jobs.transformation.engraftment_sample_state_transformer_job.main(args_without_entity)
 
 
 if __name__ == "__main__":
