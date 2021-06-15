@@ -170,5 +170,12 @@ class TransformEngraftmentMaterial(TransformEntity):
     entity_name = Constants.ENGRAFTMENT_MATERIAL_ENTITY
 
 
+class TransformEngraftmentSampleState(TransformEntity):
+    requiredTasks = [
+        ExtractModelModuleSpark()
+    ]
+    entity_name = Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

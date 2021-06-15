@@ -186,3 +186,9 @@ CREATE TABLE engraftment_material (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE engraftment_sample_state (
+    id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
