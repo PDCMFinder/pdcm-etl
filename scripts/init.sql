@@ -31,7 +31,7 @@ ALTER TABLE provider_group
 
 CREATE TABLE patient (
     id BIGINT NOT NULL,
-    external_id TEXT NOT NULL,
+    external_patient_id TEXT NOT NULL,
     sex TEXT NOT NULL,
     history TEXT,
     ethnicity_id BIGINT,
@@ -40,7 +40,7 @@ CREATE TABLE patient (
     age_at_initial_diagnosis TEXT,
     provider_group_id BIGINT,
     PRIMARY KEY (id),
-    CONSTRAINT uq_external_id UNIQUE(external_id)
+    CONSTRAINT uq_external_patient_id UNIQUE(external_patient_id)
 );
 
 ALTER TABLE patient
