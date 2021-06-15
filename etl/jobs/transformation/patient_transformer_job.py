@@ -4,7 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
-from etl.jobs.util.dataframe_functions import join_left_dfs, transform_to_fk
+from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -77,13 +77,13 @@ def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -
 
 
 def set_external_id(patient_df: DataFrame) -> DataFrame:
-    return patient_df.withColumnRenamed("patient_id", "external_id")
+    return patient_df.withColumnRenamed("patient_id", "external_patient_id")
 
 
 def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
     return patient_df.select(
         "id",
-        "external_id",
+        "external_patient_id",
         "sex",
         "history",
         "ethnicity_id",

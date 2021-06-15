@@ -55,7 +55,7 @@ def clean_data_before_join(raw_sample_df: DataFrame) -> DataFrame:
 def set_fk_patient(sample_df: DataFrame, patient_df: DataFrame) -> DataFrame:
     patient_snapshot_df = sample_df.withColumnRenamed("patient_id", "patient_id_ref")
     patient_snapshot_df = transform_to_fk(
-        patient_snapshot_df, patient_df, "patient_id_ref", "external_id", "id", "patient_id")
+        patient_snapshot_df, patient_df, "patient_id_ref", "external_patient_id", "id", "patient_id")
     return patient_snapshot_df
 
 
