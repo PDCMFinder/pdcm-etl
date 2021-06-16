@@ -102,14 +102,15 @@ CREATE TABLE tumour_type (
 CREATE TABLE patient_sample (
     id BIGINT NOT NULL,
     diagnosis_id BIGINT,
-    source_sample_id TEXT,
+    external_patient_sample_id TEXT,
     grade TEXT,
-    grade_classification TEXT,
+    grading_system TEXT,
     stage TEXT,
-    stage_classification TEXT,
-    origin_tissue_id BIGINT,
-    sample_site_id BIGINT,
+    staging_system TEXT,
+    primary_site_id BIGINT,
+    collection_site_id BIGINT,
     raw_data_url TEXT,
+    prior_treatment TEXT,
     tumour_type_id BIGINT,
     model_id BIGINT,
     PRIMARY KEY (id)
@@ -121,13 +122,13 @@ ALTER TABLE patient_sample
     REFERENCES diagnosis (id);
 
 ALTER TABLE patient_sample
-    ADD CONSTRAINT fk_patient_sample_tissue_ori
-    FOREIGN KEY (origin_tissue_id)
+    ADD CONSTRAINT fk_patient_primary_site
+    FOREIGN KEY (primary_site_id)
     REFERENCES tissue (id);
 
 ALTER TABLE patient_sample
-    ADD CONSTRAINT fk_patient_sample_tissue_site
-    FOREIGN KEY (sample_site_id)
+    ADD CONSTRAINT fk_patient_collection_site
+    FOREIGN KEY (collection_site_id)
     REFERENCES tissue (id);
 
 ALTER TABLE patient_sample

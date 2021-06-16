@@ -62,7 +62,7 @@ def set_fk_patient(sample_df: DataFrame, patient_df: DataFrame) -> DataFrame:
 def set_fk_patient_sample(patient_snapshot_df: DataFrame, patient_sample_df: DataFrame) -> DataFrame:
     patient_snapshot_df = patient_snapshot_df.withColumnRenamed("sample_id", "sample_id_ref")
     patient_snapshot_df = transform_to_fk(
-        patient_snapshot_df, patient_sample_df, "sample_id_ref", "source_sample_id", "id", "sample_id")
+        patient_snapshot_df, patient_sample_df, "sample_id_ref", "external_patient_sample_id", "id", "sample_id")
     return patient_snapshot_df
 
 
