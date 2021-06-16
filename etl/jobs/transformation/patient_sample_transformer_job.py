@@ -1,7 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, lit
 
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
@@ -64,14 +64,15 @@ def transform_patient_sample(
 def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
     patient_sample_df = raw_sample_df.select(
         "diagnosis",
-        col("sample_id").alias("source_sample_id"),
+        col("sample_id").alias("external_patient_sample_id"),
         "grade",
-        col("grading_system").alias("grade_classification"),
+        "grading_system",
         "stage",
-        col("staging_system").alias("stage_classification"),
-        col("primary_site").alias("origin_tissue"),
-        col("collection_site").alias("sample_site"),
-        col("tumour_type"),
+        "staging_system",
+        "primary_site",
+        "collection_site",
+        init_cap_and_trim_all("prior_treatment").alias("prior_treatment"),
+        "tumour_type",
         col("model_id").alias("model_name")
     )
     return patient_sample_df
@@ -89,12 +90,13 @@ def set_fk_diagnosis(patient_sample_df: DataFrame, diagnosis_df: DataFrame) -> D
 
 
 def set_fk_origin_tissue(patient_sample_df: DataFrame, tissue_df: DataFrame) -> DataFrame:
-    patient_sample_df = transform_to_fk(patient_sample_df, tissue_df, "origin_tissue", "name", "id", "origin_tissue_id")
+    patient_sample_df = transform_to_fk(patient_sample_df, tissue_df, "primary_site", "name", "id", "primary_site_id")
     return patient_sample_df
 
 
 def set_fk_sample_site(patient_sample_df: DataFrame, tissue_df: DataFrame) -> DataFrame:
-    patient_sample_df = transform_to_fk(patient_sample_df, tissue_df, "sample_site", "name", "id", "sample_site_id")
+    patient_sample_df = transform_to_fk(
+        patient_sample_df, tissue_df, "collection_site", "name", "id", "collection_site_id")
     return patient_sample_df
 
 
@@ -115,7 +117,7 @@ def set_raw_data_url(patient_sample_df: DataFrame, raw_sample_platform_df: DataF
 
     patient_sample_df = patient_sample_df.join(
         raw_sample_platform_ref_df,
-        (patient_sample_df.source_sample_id == raw_sample_platform_ref_df.sample_id_ref)
+        (patient_sample_df.external_patient_sample_id == raw_sample_platform_ref_df.sample_id_ref)
         & (patient_sample_df.model_id == raw_sample_platform_ref_df.model_id_ref)
         & (raw_sample_platform_ref_df.sample_origin == 'patient')
         & (patient_sample_df.data_source == raw_sample_platform_ref_df.data_source_tmp_ref),  how='left')
@@ -129,14 +131,15 @@ def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
     return patient_df.select(
         "id",
         "diagnosis_id",
-        "source_sample_id",
+        "external_patient_sample_id",
         "grade",
-        "grade_classification",
+        "grading_system",
         "stage",
-        "stage_classification",
-        "origin_tissue_id",
-        "sample_site_id",
+        "staging_system",
+        "primary_site_id",
+        "collection_site_id",
         "raw_data_url",
+        "prior_treatment",
         "tumour_type_id",
         "model_id")
 
