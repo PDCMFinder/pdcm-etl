@@ -177,5 +177,12 @@ class TransformEngraftmentSampleState(TransformEntity):
     entity_name = Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY
 
 
+class TransformEngraftmentSampleType(TransformEntity):
+    requiredTasks = [
+        ExtractModelModuleSpark()
+    ]
+    entity_name = Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

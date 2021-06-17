@@ -6,7 +6,8 @@ from etl.jobs.load.database_manager import copy_all_tsv_to_database
 from etl.workflow.transformer import TransformPatient, TransformDiagnosis, TransformEthnicity, TransformProviderType, \
     TransformProviderGroup, TransformModel, TransformPublicationGroup, TransformTissue, TransformTumourType, \
     TransformPatientSample, TransformEngraftmentSite, TransformEngraftmentType, TransformEngraftmentMaterial, \
-    TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample, TransformEngraftmentSampleState
+    TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample, TransformEngraftmentSampleState, \
+    TransformEngraftmentSampleType
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -52,6 +53,8 @@ class ParquetToTsv(SparkSubmitTask):
             return TransformEngraftmentMaterial(self.data_dir, self.providers, self.data_dir_out)
         elif Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY == self.name:
             return TransformEngraftmentSampleState(self.data_dir, self.providers, self.data_dir_out)
+        elif Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY == self.name:
+            return TransformEngraftmentSampleType(self.data_dir, self.providers, self.data_dir_out)
 
     def app_options(self):
         return [
@@ -86,7 +89,8 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_SITE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_TYPE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_MATERIAL_ENTITY),
-            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY)
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY)
         ]
 
     def run(self):
