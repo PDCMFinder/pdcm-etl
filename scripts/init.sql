@@ -193,3 +193,9 @@ CREATE TABLE engraftment_sample_state (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE engraftment_sample_type (
+    id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
