@@ -150,11 +150,11 @@ CREATE TABLE xenograft_sample (
 CREATE TABLE patient_snapshot (
     id BIGINT NOT NULL,
     patient_id BIGINT,
-    age_at_collection TEXT,
+    age_in_years_at_collection TEXT,
     collection_event TEXT,
-    date_at_collection TEXT,
-    elapsed_time TEXT,
-    treatment_naive TEXT,
+    collection_date TEXT,
+    months_since_collection_1 TEXT,
+    treatment_naive_at_collection TEXT,
     virology_status TEXT,
     sample_id BIGINT,
     PRIMARY KEY (id)
