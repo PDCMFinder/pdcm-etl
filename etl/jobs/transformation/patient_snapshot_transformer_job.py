@@ -1,10 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-
-from etl.constants import Constants
-from etl.jobs.util.cleaner import init_cap_and_trim_all
-from etl.jobs.util.dataframe_functions import join_left_dfs, transform_to_fk
+from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -44,12 +41,7 @@ def transform_patient_snapshot(raw_sample_df: DataFrame, patient_sample_df: Data
 
 def clean_data_before_join(raw_sample_df: DataFrame) -> DataFrame:
     # TODO: Do we need a transformation for the age?
-    patient_snapshot_df = raw_sample_df.withColumnRenamed("age_in_years_at_collection", "age_at_collection")
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("collection_date", "date_at_collection")
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("months_since_collection_1", "elapsed_time")
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("treatment_naive_at_collection", "treatment_naive")
-    patient_snapshot_df = patient_snapshot_df.withColumn("treatment_naive", init_cap_and_trim_all("treatment_naive"))
-    return patient_snapshot_df
+    return raw_sample_df
 
 
 def set_fk_patient(sample_df: DataFrame, patient_df: DataFrame) -> DataFrame:
@@ -70,11 +62,11 @@ def get_columns_expected_order(patient_snapshot_df: DataFrame) -> DataFrame:
     return patient_snapshot_df.select(
         "id",
         "patient_id",
-        "age_at_collection",
+        "age_in_years_at_collection",
         "collection_event",
-        "date_at_collection",
-        "elapsed_time",
-        "treatment_naive",
+        "collection_date",
+        "months_since_collection_1",
+        "treatment_naive_at_collection",
         "virology_status",
         "sample_id")
 
