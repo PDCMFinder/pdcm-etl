@@ -184,5 +184,12 @@ class TransformEngraftmentSampleType(TransformEntity):
     entity_name = Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY
 
 
+class TransformAccessibilityGroup(TransformEntity):
+    requiredTasks = [
+        ExtractSharingModuleSpark()
+    ]
+    entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()
