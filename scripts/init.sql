@@ -199,3 +199,10 @@ CREATE TABLE engraftment_sample_type (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE accessibility_group (
+    id BIGINT NOT NULL,
+    europdx_access_modalities TEXT NOT NULL,
+    accessibility TEXT,
+    PRIMARY KEY (id)
+);

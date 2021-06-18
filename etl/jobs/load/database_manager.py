@@ -21,6 +21,7 @@ def copy_all_tsv_to_database(data_dir_out: str):
         Constants.DIAGNOSIS_ENTITY,
         Constants.ETHNICITY_ENTITY,
         Constants.PATIENT_ENTITY,
+        Constants.ACCESSIBILITY_GROUP_ENTITY,
         Constants.MODEL_ENTITY,
         Constants.QUALITY_ASSURANCE_ENTITY,
         Constants.PATIENT_SAMPLE_ENTITY,
