@@ -91,6 +91,27 @@ class TransformPublicationGroup(TransformEntity):
     entity_name = Constants.PUBLICATION_GROUP_ENTITY
 
 
+class TransformContactPeople(TransformEntity):
+    requiredTasks = [
+        ExtractSharingModuleSpark()
+    ]
+    entity_name = Constants.CONTACT_PEOPLE_ENTITY
+
+
+class TransformContactForm(TransformEntity):
+    requiredTasks = [
+        ExtractSharingModuleSpark()
+    ]
+    entity_name = Constants.CONTACT_FORM_ENTITY
+
+
+class TransformSourceDatabase(TransformEntity):
+    requiredTasks = [
+        ExtractSharingModuleSpark()
+    ]
+    entity_name = Constants.SOURCE_DATABASE_ENTITY
+
+
 class TransformModel(TransformEntity):
     requiredTasks = [
         ExtractModelModuleSpark(),
