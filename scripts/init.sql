@@ -59,6 +59,25 @@ CREATE TABLE publication_group (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE contact_people (
+    id BIGINT NOT NULL,
+    name_list TEXT NOT NULL,
+    email_list TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE contact_form (
+    id BIGINT NOT NULL,
+    form_url TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE source_database (
+    id BIGINT NOT NULL,
+    database_url TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE model (
     id BIGINT NOT NULL,
     external_model_id TEXT,

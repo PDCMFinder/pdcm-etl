@@ -7,7 +7,8 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformProviderGroup, TransformModel, TransformPublicationGroup, TransformTissue, TransformTumourType, \
     TransformPatientSample, TransformEngraftmentSite, TransformEngraftmentType, TransformEngraftmentMaterial, \
     TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample, TransformEngraftmentSampleState, \
-    TransformEngraftmentSampleType, TransformAccessibilityGroup
+    TransformEngraftmentSampleType, TransformAccessibilityGroup, TransformContactPeople, TransformContactForm, \
+    TransformSourceDatabase
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -21,40 +22,67 @@ class ParquetToTsv(SparkSubmitTask):
     def requires(self):
         if Constants.DIAGNOSIS_ENTITY == self.name:
             return TransformDiagnosis(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ETHNICITY_ENTITY == self.name:
             return TransformEthnicity(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.PATIENT_ENTITY == self.name:
             return TransformPatient(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.PROVIDER_TYPE_ENTITY == self.name:
             return TransformProviderType(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.PROVIDER_GROUP_ENTITY == self.name:
             return TransformProviderGroup(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.PUBLICATION_GROUP_ENTITY == self.name:
             return TransformPublicationGroup(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.MODEL_ENTITY == self.name:
             return TransformModel(self.data_dir, self.providers, self.data_dir_out)
+
+        elif Constants.CONTACT_PEOPLE_ENTITY == self.name:
+            return TransformContactPeople(self.data_dir, self.providers, self.data_dir_out)
+
+        elif Constants.CONTACT_FORM_ENTITY == self.name:
+            return TransformContactForm(self.data_dir, self.providers, self.data_dir_out)
+
+        elif Constants.SOURCE_DATABASE_ENTITY == self.name:
+            return TransformSourceDatabase(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.QUALITY_ASSURANCE_ENTITY == self.name:
             return TransformQualityAssurance(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.TISSUE_ENTITY == self.name:
             return TransformTissue(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.TUMOUR_TYPE_ENTITY == self.name:
             return TransformTumourType(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.PATIENT_SAMPLE_ENTITY == self.name:
             return TransformPatientSample(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.XENOGRAFT_SAMPLE_ENTITY == self.name:
             return TransformXenograftSample(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.PATIENT_SNAPSHOT_ENTITY == self.name:
             return TransformPatientSnapshot(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ENGRAFTMENT_SITE_ENTITY == self.name:
             return TransformEngraftmentSite(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ENGRAFTMENT_TYPE_ENTITY == self.name:
             return TransformEngraftmentType(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ENGRAFTMENT_MATERIAL_ENTITY == self.name:
             return TransformEngraftmentMaterial(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY == self.name:
             return TransformEngraftmentSampleState(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY == self.name:
             return TransformEngraftmentSampleType(self.data_dir, self.providers, self.data_dir_out)
+
         elif Constants.ACCESSIBILITY_GROUP_ENTITY == self.name:
             return TransformAccessibilityGroup(self.data_dir, self.providers, self.data_dir_out)
 
@@ -82,6 +110,9 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PROVIDER_GROUP_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PUBLICATION_GROUP_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.MODEL_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.CONTACT_PEOPLE_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.CONTACT_FORM_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.SOURCE_DATABASE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.QUALITY_ASSURANCE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TISSUE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TUMOUR_TYPE_ENTITY),

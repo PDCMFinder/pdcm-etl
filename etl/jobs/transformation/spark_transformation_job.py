@@ -6,6 +6,9 @@ import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
+import etl.jobs.transformation.contact_people_transformer_job
+import etl.jobs.transformation.contact_form_transformer_job
+import etl.jobs.transformation.source_database_transformer_job
 import etl.jobs.transformation.quality_assurance_transformer_job
 import etl.jobs.transformation.patient_transformer_job
 import etl.jobs.transformation.tissue_transformer_job
@@ -57,6 +60,15 @@ def main1(argv):
 
     elif entity_name == Constants.PUBLICATION_GROUP_ENTITY:
         etl.jobs.transformation.publication_group_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.CONTACT_PEOPLE_ENTITY:
+        etl.jobs.transformation.contact_people_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.CONTACT_FORM_ENTITY:
+        etl.jobs.transformation.contact_form_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.SOURCE_DATABASE_ENTITY:
+        etl.jobs.transformation.source_database_transformer_job.main(args_without_entity)
 
     elif entity_name == Constants.TISSUE_ENTITY:
         etl.jobs.transformation.tissue_transformer_job.main(args_without_entity)
