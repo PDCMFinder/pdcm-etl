@@ -83,6 +83,9 @@ CREATE TABLE model (
     external_model_id TEXT,
     data_source varchar,
     publication_group_id BIGINT,
+    contact_people_id BIGINT,
+    contact_form_id BIGINT,
+    source_database_id BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -90,6 +93,21 @@ ALTER TABLE model
     ADD CONSTRAINT fk_model_publication_group
     FOREIGN KEY (publication_group_id)
     REFERENCES publication_group (id);
+
+ALTER TABLE model
+    ADD CONSTRAINT fk_model_contact_people
+    FOREIGN KEY (contact_people_id)
+    REFERENCES contact_people (id);
+
+ALTER TABLE model
+    ADD CONSTRAINT fk_model_contact_form
+    FOREIGN KEY (contact_form_id)
+    REFERENCES contact_form (id);
+
+ALTER TABLE model
+    ADD CONSTRAINT fk_model_source_database
+    FOREIGN KEY (source_database_id)
+    REFERENCES source_database (id);
 
 CREATE TABLE quality_assurance (
     id BIGINT NOT NULL,

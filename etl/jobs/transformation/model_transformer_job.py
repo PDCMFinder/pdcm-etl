@@ -17,21 +17,58 @@ def main(argv):
                     [3]: Output file
     """
     raw_model_parquet_path = argv[1]
-    publication_group_parquet_path = argv[2]
-    output_path = argv[3]
+    raw_sharing_parquet_path = argv[2]
+    publication_group_parquet_path = argv[3]
+    contact_people_parquet_path = argv[4]
+    contact_form_parquet_path = argv[5]
+    source_database_parquet_path = argv[6]
+    output_path = argv[7]
 
     spark = SparkSession.builder.getOrCreate()
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
+    raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
     publication_group_df = spark.read.parquet(publication_group_parquet_path)
-    model_df = transform_model(raw_model_df, publication_group_df)
+    contact_people_df = spark.read.parquet(contact_people_parquet_path)
+    contact_form_df = spark.read.parquet(contact_form_parquet_path)
+    source_database_df = spark.read.parquet(source_database_parquet_path)
+    model_df = transform_model(
+        raw_model_df,
+        raw_sharing_df,
+        publication_group_df,
+        contact_people_df,
+        contact_form_df,
+        source_database_df)
     model_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_model(raw_model_df: DataFrame, publication_group_df: DataFrame) -> DataFrame:
-    model_df = get_data(raw_model_df)
-    model_df = set_fk_publication_group(model_df, publication_group_df)
+def transform_model(
+        raw_model_df: DataFrame,
+        raw_sharing_df: DataFrame,
+        publication_group_df: DataFrame,
+        contact_people_df: DataFrame,
+        contact_form_df: DataFrame,
+        source_database_df: DataFrame) -> DataFrame:
+    
+    model_df = get_data_from_model(raw_model_df)
+    model_df = join_model_with_sharing(model_df, raw_sharing_df)
     model_df = add_id(model_df, "id")
+    model_df = set_fk_publication_group(model_df, publication_group_df)
+    model_df = set_fk_contact_people(model_df, contact_people_df)
+    model_df = set_fk_contact_form(model_df, contact_form_df)
+    model_df = set_fk_source_database(model_df, source_database_df)
     model_df = get_columns_expected_order(model_df)
+
+    return model_df
+
+
+def join_model_with_sharing(model_df: DataFrame, raw_sharing_df: DataFrame) -> DataFrame:
+    raw_sharing_ref_df = raw_sharing_df.withColumnRenamed(
+        Constants.DATA_SOURCE_COLUMN, Constants.DATA_SOURCE_COLUMN + '_ref')
+
+    model_df = model_df.join(
+        raw_sharing_ref_df,
+        model_df.external_model_id == raw_sharing_ref_df.model_id,
+        how='inner')
     return model_df
 
 
@@ -41,7 +78,25 @@ def set_fk_publication_group(model_df: DataFrame, publication_group_df: DataFram
     return model_df
 
 
-def get_data(raw_model_df) -> DataFrame:
+def set_fk_contact_people(model_df: DataFrame, contact_people_df: DataFrame) -> DataFrame:
+    model_df = transform_to_fk(
+        model_df, contact_people_df, "email", "email_list", "id", "contact_people_id")
+    return model_df
+
+
+def set_fk_contact_form(model_df: DataFrame, contact_form_df: DataFrame) -> DataFrame:
+    model_df = transform_to_fk(
+        model_df, contact_form_df, "form_url", "form_url", "id", "contact_form_id")
+    return model_df
+
+
+def set_fk_source_database(model_df: DataFrame, source_database_df: DataFrame) -> DataFrame:
+    model_df = transform_to_fk(
+        model_df, source_database_df, "database_url", "database_url", "id", "source_database_id")
+    return model_df
+
+
+def get_data_from_model(raw_model_df) -> DataFrame:
     model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
     return model_df
@@ -58,9 +113,15 @@ def format_name_column(column_name) -> Column:
     return trim(col(column_name))
 
 
-def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select(
-        "id", "external_model_id", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"), "publication_group_id")
+def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
+    return model_df.select(
+        "id",
+        "external_model_id",
+        col(Constants.DATA_SOURCE_COLUMN).alias("data_source"),
+        "publication_group_id",
+        "contact_people_id",
+        "contact_form_id",
+        "source_database_id")
 
 
 if __name__ == "__main__":
