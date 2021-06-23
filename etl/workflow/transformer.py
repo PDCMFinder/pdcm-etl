@@ -115,7 +115,11 @@ class TransformSourceDatabase(TransformEntity):
 class TransformModel(TransformEntity):
     requiredTasks = [
         ExtractModelModuleSpark(),
-        TransformPublicationGroup()
+        ExtractSharingModuleSpark(),
+        TransformPublicationGroup(),
+        TransformContactPeople(),
+        TransformContactForm(),
+        TransformSourceDatabase()
     ]
     entity_name = Constants.MODEL_ENTITY
 
