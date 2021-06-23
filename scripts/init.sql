@@ -59,6 +59,13 @@ CREATE TABLE publication_group (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE accessibility_group (
+    id BIGINT NOT NULL,
+    europdx_access_modalities TEXT NOT NULL,
+    accessibility TEXT,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE contact_people (
     id BIGINT NOT NULL,
     name_list TEXT NOT NULL,
@@ -83,6 +90,7 @@ CREATE TABLE model (
     external_model_id TEXT,
     data_source varchar,
     publication_group_id BIGINT,
+    accessibility_group_id BIGINT,
     contact_people_id BIGINT,
     contact_form_id BIGINT,
     source_database_id BIGINT,
@@ -93,6 +101,11 @@ ALTER TABLE model
     ADD CONSTRAINT fk_model_publication_group
     FOREIGN KEY (publication_group_id)
     REFERENCES publication_group (id);
+
+ALTER TABLE model
+    ADD CONSTRAINT fk_model_accessibility_group
+    FOREIGN KEY (accessibility_group_id)
+    REFERENCES accessibility_group (id);
 
 ALTER TABLE model
     ADD CONSTRAINT fk_model_contact_people
@@ -234,12 +247,5 @@ CREATE TABLE engraftment_sample_state (
 CREATE TABLE engraftment_sample_type (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE TABLE accessibility_group (
-    id BIGINT NOT NULL,
-    europdx_access_modalities TEXT NOT NULL,
-    accessibility TEXT,
     PRIMARY KEY (id)
 );
