@@ -19,15 +19,17 @@ def main(argv):
     raw_model_parquet_path = argv[1]
     raw_sharing_parquet_path = argv[2]
     publication_group_parquet_path = argv[3]
-    contact_people_parquet_path = argv[4]
-    contact_form_parquet_path = argv[5]
-    source_database_parquet_path = argv[6]
-    output_path = argv[7]
+    accessibility_group_parquet_path = argv[4]
+    contact_people_parquet_path = argv[5]
+    contact_form_parquet_path = argv[6]
+    source_database_parquet_path = argv[7]
+    output_path = argv[8]
 
     spark = SparkSession.builder.getOrCreate()
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
     raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
     publication_group_df = spark.read.parquet(publication_group_parquet_path)
+    accessibility_group_df = spark.read.parquet(accessibility_group_parquet_path)
     contact_people_df = spark.read.parquet(contact_people_parquet_path)
     contact_form_df = spark.read.parquet(contact_form_parquet_path)
     source_database_df = spark.read.parquet(source_database_parquet_path)
@@ -35,6 +37,7 @@ def main(argv):
         raw_model_df,
         raw_sharing_df,
         publication_group_df,
+        accessibility_group_df,
         contact_people_df,
         contact_form_df,
         source_database_df)
@@ -45,6 +48,7 @@ def transform_model(
         raw_model_df: DataFrame,
         raw_sharing_df: DataFrame,
         publication_group_df: DataFrame,
+        accessibility_group_df: DataFrame,
         contact_people_df: DataFrame,
         contact_form_df: DataFrame,
         source_database_df: DataFrame) -> DataFrame:
@@ -53,6 +57,7 @@ def transform_model(
     model_df = join_model_with_sharing(model_df, raw_sharing_df)
     model_df = add_id(model_df, "id")
     model_df = set_fk_publication_group(model_df, publication_group_df)
+    model_df = set_fk_accessibility_group(model_df, accessibility_group_df)
     model_df = set_fk_contact_people(model_df, contact_people_df)
     model_df = set_fk_contact_form(model_df, contact_form_df)
     model_df = set_fk_source_database(model_df, source_database_df)
@@ -75,6 +80,13 @@ def join_model_with_sharing(model_df: DataFrame, raw_sharing_df: DataFrame) -> D
 def set_fk_publication_group(model_df: DataFrame, publication_group_df: DataFrame) -> DataFrame:
     model_df = transform_to_fk(
         model_df, publication_group_df, "publications", "pub_med_ids", "id", "publication_group_id")
+    return model_df
+
+
+def set_fk_accessibility_group(model_df: DataFrame, accessibility_group_df: DataFrame) -> DataFrame:
+    model_df = model_df.withColumnRenamed("europdx_access_modality", "europdx_access_modalities")
+    accessibility_group_df = accessibility_group_df.withColumnRenamed("id", "accessibility_group_id")
+    model_df = model_df.join(accessibility_group_df, on=['accessibility', 'europdx_access_modalities'], how='left')
     return model_df
 
 
@@ -119,6 +131,7 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "external_model_id",
         col(Constants.DATA_SOURCE_COLUMN).alias("data_source"),
         "publication_group_id",
+        "accessibility_group_id",
         "contact_people_id",
         "contact_form_id",
         "source_database_id")

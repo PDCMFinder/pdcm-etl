@@ -112,11 +112,19 @@ class TransformSourceDatabase(TransformEntity):
     entity_name = Constants.SOURCE_DATABASE_ENTITY
 
 
+class TransformAccessibilityGroup(TransformEntity):
+    requiredTasks = [
+        ExtractSharingModuleSpark()
+    ]
+    entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
+
+
 class TransformModel(TransformEntity):
     requiredTasks = [
         ExtractModelModuleSpark(),
         ExtractSharingModuleSpark(),
         TransformPublicationGroup(),
+        TransformAccessibilityGroup(),
         TransformContactPeople(),
         TransformContactForm(),
         TransformSourceDatabase()
@@ -207,13 +215,6 @@ class TransformEngraftmentSampleType(TransformEntity):
         ExtractModelModuleSpark()
     ]
     entity_name = Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY
-
-
-class TransformAccessibilityGroup(TransformEntity):
-    requiredTasks = [
-        ExtractSharingModuleSpark()
-    ]
-    entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
 
 
 if __name__ == "__main__":
