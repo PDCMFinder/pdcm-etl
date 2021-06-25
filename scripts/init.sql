@@ -249,3 +249,10 @@ CREATE TABLE engraftment_sample_type (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE host_strain (
+    id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    nomenclature TEXT NOT NULL,
+    PRIMARY KEY (id)
+);

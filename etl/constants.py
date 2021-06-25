@@ -37,3 +37,4 @@ class Constants:
     ENGRAFTMENT_SAMPLE_STATE_ENTITY = "engraftment_sample_state"
     ENGRAFTMENT_SAMPLE_TYPE_ENTITY = "engraftment_sample_type"
     ACCESSIBILITY_GROUP_ENTITY = "accessibility_group"
+    HOST_STRAIN_ENTITY = "host_strain"
