@@ -61,7 +61,7 @@ CREATE TABLE publication_group (
 
 CREATE TABLE accessibility_group (
     id BIGINT NOT NULL,
-    europdx_access_modalities TEXT NOT NULL,
+    europdx_access_modalities TEXT,
     accessibility TEXT,
     PRIMARY KEY (id)
 );

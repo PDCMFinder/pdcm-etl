@@ -91,8 +91,10 @@ def set_fk_accessibility_group(model_df: DataFrame, accessibility_group_df: Data
 
 
 def set_fk_contact_people(model_df: DataFrame, contact_people_df: DataFrame) -> DataFrame:
-    model_df = transform_to_fk(
-        model_df, contact_people_df, "email", "email_list", "id", "contact_people_id")
+    model_df = model_df.withColumnRenamed("email", "email_list")
+    model_df = model_df.withColumnRenamed("name", "name_list")
+    contact_people_df = contact_people_df.withColumnRenamed("id", "contact_people_id")
+    model_df = model_df.join(contact_people_df, on=['name_list', 'email_list'])
     return model_df
 
 
