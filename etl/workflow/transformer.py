@@ -219,7 +219,7 @@ class TransformEngraftmentSampleType(TransformEntity):
 
 class TransformHostStrain(TransformEntity):
     requiredTasks = [
-        ExtractSampleModuleSpark()
+        ExtractModelModuleSpark()
     ]
     entity_name = Constants.HOST_STRAIN_ENTITY
 
