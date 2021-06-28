@@ -70,7 +70,7 @@ def extract_data_loader(raw_loader_df: DataFrame) -> DataFrame:
         "abbreviation",
         "internal_url",
         Constants.DATA_SOURCE_COLUMN
-    )
+    ).where("abbreviation is not null")
     data_from_loader_df = data_from_loader_df.drop_duplicates()
     return data_from_loader_df
 
