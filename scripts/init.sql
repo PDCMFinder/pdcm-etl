@@ -251,7 +251,7 @@ CREATE TABLE engraftment_sample_type (
 );
 
 CREATE TABLE host_strain (
-    id INTEGER NOT NULL,
+    id BIGINT NOT NULL,
     name TEXT NOT NULL,
     nomenclature TEXT NOT NULL,
     PRIMARY KEY (id)
