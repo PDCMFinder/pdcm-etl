@@ -224,5 +224,12 @@ class TransformHostStrain(TransformEntity):
     entity_name = Constants.HOST_STRAIN_ENTITY
 
 
+class TransformProjectGroup(TransformEntity):
+    requiredTasks = [
+        ExtractSharingModuleSpark()
+    ]
+    entity_name = Constants.PROVIDER_GROUP_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

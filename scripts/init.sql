@@ -256,3 +256,9 @@ CREATE TABLE host_strain (
     nomenclature TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE project_group (
+    id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
