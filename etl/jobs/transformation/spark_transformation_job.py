@@ -107,6 +107,9 @@ def main1(argv):
     elif entity_name == Constants.HOST_STRAIN_ENTITY:
         etl.jobs.transformation.host_strain_transformer_job.main(args_without_entity)
 
+    elif entity_name == Constants.PROJECT_GROUP_ENTITY:
+        etl.jobs.transformation.provider_group_transformer_job.main(args_without_entity)
+
 
 if __name__ == "__main__":
     sys.exit(main1(sys.argv))
