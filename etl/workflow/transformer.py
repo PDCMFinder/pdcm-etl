@@ -2,9 +2,8 @@ import luigi
 from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
-from etl.workflow.extractor import ExtractPatientModuleSpark, ExtractSampleModuleSpark, ExtractSharingModuleSpark, \
-    ExtractLoaderModuleSpark, ExtractModelModuleSpark, ExtractSamplePlatformModuleSpark, \
-    ExtractModelModuleValidationSpark
+from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractLoader, ExtractModel, \
+    ExtractModelValidation, ExtractSample, ExtractPlatformSample
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -45,30 +44,30 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
 
 class TransformDiagnosis(TransformEntity):
     requiredTasks = [
-            ExtractPatientModuleSpark(),
-            ExtractSampleModuleSpark()
+            ExtractPatient(),
+            ExtractSample()
         ]
     entity_name = Constants.DIAGNOSIS_ENTITY
 
 
 class TransformEthnicity(TransformEntity):
     requiredTasks = [
-        ExtractPatientModuleSpark()
+        ExtractPatient()
     ]
     entity_name = Constants.ETHNICITY_ENTITY
 
 
 class TransformProviderType(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark()
+        ExtractSharing()
     ]
     entity_name = Constants.PROVIDER_TYPE_ENTITY
 
 
 class TransformProviderGroup(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark(),
-        ExtractLoaderModuleSpark(),
+        ExtractSharing(),
+        ExtractLoader(),
         TransformProviderType()
     ]
     entity_name = Constants.PROVIDER_GROUP_ENTITY
@@ -76,7 +75,7 @@ class TransformProviderGroup(TransformEntity):
 
 class TransformPatient(TransformEntity):
     requiredTasks = [
-        ExtractPatientModuleSpark(),
+        ExtractPatient(),
         TransformDiagnosis(),
         TransformEthnicity(),
         TransformProviderGroup()
@@ -86,43 +85,43 @@ class TransformPatient(TransformEntity):
 
 class TransformPublicationGroup(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.PUBLICATION_GROUP_ENTITY
 
 
 class TransformContactPeople(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark()
+        ExtractSharing()
     ]
     entity_name = Constants.CONTACT_PEOPLE_ENTITY
 
 
 class TransformContactForm(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark()
+        ExtractSharing()
     ]
     entity_name = Constants.CONTACT_FORM_ENTITY
 
 
 class TransformSourceDatabase(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark()
+        ExtractSharing()
     ]
     entity_name = Constants.SOURCE_DATABASE_ENTITY
 
 
 class TransformAccessibilityGroup(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark()
+        ExtractSharing()
     ]
     entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
 
 
 class TransformModel(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark(),
-        ExtractSharingModuleSpark(),
+        ExtractModel(),
+        ExtractSharing(),
         TransformPublicationGroup(),
         TransformAccessibilityGroup(),
         TransformContactPeople(),
@@ -134,7 +133,7 @@ class TransformModel(TransformEntity):
 
 class TransformQualityAssurance(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleValidationSpark(),
+        ExtractModelValidation(),
         TransformModel()
     ]
     entity_name = Constants.QUALITY_ASSURANCE_ENTITY
@@ -142,40 +141,40 @@ class TransformQualityAssurance(TransformEntity):
 
 class TransformTissue(TransformEntity):
     requiredTasks = [
-        ExtractSampleModuleSpark()
+        ExtractSample()
     ]
     entity_name = Constants.TISSUE_ENTITY
 
 
 class TransformTumourType(TransformEntity):
     requiredTasks = [
-        ExtractSampleModuleSpark()
+        ExtractSample()
     ]
     entity_name = Constants.TUMOUR_TYPE_ENTITY
 
 
 class TransformPatientSample(TransformEntity):
     requiredTasks = [
-        ExtractSampleModuleSpark(),
+        ExtractSample(),
         TransformDiagnosis(),
         TransformTissue(),
         TransformTumourType(),
         TransformModel(),
-        ExtractSamplePlatformModuleSpark()
+        ExtractPlatformSample()
     ]
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
 class TransformXenograftSample(TransformEntity):
     requiredTasks = [
-        ExtractSamplePlatformModuleSpark()
+        ExtractPlatformSample()
     ]
     entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
 
 
 class TransformPatientSnapshot(TransformEntity):
     requiredTasks = [
-        ExtractSampleModuleSpark(),
+        ExtractSample(),
         TransformPatientSample(),
         TransformPatient()
     ]
@@ -184,51 +183,51 @@ class TransformPatientSnapshot(TransformEntity):
 
 class TransformEngraftmentSite(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.ENGRAFTMENT_SITE_ENTITY
 
 
 class TransformEngraftmentType(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.ENGRAFTMENT_TYPE_ENTITY
 
 
 class TransformEngraftmentMaterial(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.ENGRAFTMENT_MATERIAL_ENTITY
 
 
 class TransformEngraftmentSampleState(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY
 
 
 class TransformEngraftmentSampleType(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY
 
 
 class TransformHostStrain(TransformEntity):
     requiredTasks = [
-        ExtractModelModuleSpark()
+        ExtractModel()
     ]
     entity_name = Constants.HOST_STRAIN_ENTITY
 
 
 class TransformProjectGroup(TransformEntity):
     requiredTasks = [
-        ExtractSharingModuleSpark()
+        ExtractSharing()
     ]
-    entity_name = Constants.PROVIDER_GROUP_ENTITY
+    entity_name = Constants.PROJECT_GROUP_ENTITY
 
 
 if __name__ == "__main__":

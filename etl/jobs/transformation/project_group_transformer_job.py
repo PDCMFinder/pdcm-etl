@@ -32,7 +32,7 @@ def transform_project_group(raw_sharing_df: DataFrame) -> DataFrame:
 
 
 def get_project_group_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
-    return raw_sharing_df.select(init_cap_and_trim_all("project").alias("name"))
+    return raw_sharing_df.select(init_cap_and_trim_all("project").alias("name")).where("project is not null")
 
 
 if __name__ == "__main__":

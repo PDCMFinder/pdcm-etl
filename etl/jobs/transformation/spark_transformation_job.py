@@ -23,6 +23,7 @@ import etl.jobs.transformation.engraftment_sample_state_transformer_job
 import etl.jobs.transformation.engraftment_sample_type_transformer_job
 import etl.jobs.transformation.accessibility_group_transformer_job
 import etl.jobs.transformation.host_strain_transformer_job
+import etl.jobs.transformation.project_group_transformer_job
 
 from etl.constants import Constants
 
@@ -108,7 +109,7 @@ def main1(argv):
         etl.jobs.transformation.host_strain_transformer_job.main(args_without_entity)
 
     elif entity_name == Constants.PROJECT_GROUP_ENTITY:
-        etl.jobs.transformation.provider_group_transformer_job.main(args_without_entity)
+        etl.jobs.transformation.project_group_transformer_job.main(args_without_entity)
 
 
 if __name__ == "__main__":
