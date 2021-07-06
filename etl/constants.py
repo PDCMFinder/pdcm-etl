@@ -3,8 +3,8 @@ class Constants:
     TRANSFORMED_DIRECTORY = "transformed"
     DATABASE_FORMATTED = "database_formatted"
 
-    # Module names
-    PLATFORM_SAMPLE_MODULE = "sampleplatform-data"
+    # File ids names
+    PLATFORM_SAMPLE_MODULE = "sampleplatform"
     PATIENT_MODULE = "patient"
     SAMPLE_MODULE = "sample"
     SHARING_MODULE = "sharing"
