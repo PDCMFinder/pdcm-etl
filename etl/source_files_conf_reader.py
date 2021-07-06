@@ -10,10 +10,3 @@ def read_groups():
     return conf["groups"]
 
 
-def build_schema_by_group_file(file_id: str):
-    conf_groups = read_groups()
-    for group in conf_groups:
-        for file in group["files"]:
-            if file["id"] == file_id:
-                columns = file["columns"]
-
