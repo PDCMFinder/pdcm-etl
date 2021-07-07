@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -30,6 +31,7 @@ def transform_treatment(drug_dosing_df: DataFrame, patient_treatment_df: DataFra
     treatment_df = get_treatment_from_drug_dosing(drug_dosing_df).union(
         get_treatment_patient_treatment(patient_treatment_df)
     )
+    treatment_df = treatment_df.withColumn("name", lower_and_trim_all("name"))
     treatment_df = treatment_df.drop_duplicates()
     treatment_df = add_id(treatment_df, "id")
     treatment_df = treatment_df.select("id", "name")

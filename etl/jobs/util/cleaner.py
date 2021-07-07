@@ -1,5 +1,5 @@
 from pyspark.sql import Column
-from pyspark.sql.functions import regexp_replace, col, trim, initcap
+from pyspark.sql.functions import regexp_replace, col, trim, initcap, lower
 
 
 def remove_no_break_space(column_name: str) -> Column:
@@ -12,3 +12,7 @@ def trim_all(column_name: str) -> Column:
 
 def init_cap_and_trim_all(column_name: str) -> Column:
     return initcap(trim_all(column_name))
+
+
+def lower_and_trim_all(column_name: str) -> Column:
+    return lower(trim_all(column_name))
