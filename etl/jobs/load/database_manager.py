@@ -36,7 +36,8 @@ def copy_all_tsv_to_database(data_dir_out: str):
         Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY,
         Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY,
         Constants.HOST_STRAIN_ENTITY,
-        Constants.PROJECT_GROUP_ENTITY
+        Constants.PROJECT_GROUP_ENTITY,
+        Constants.TREATMENT_ENTITY
     ]
     connection = get_database_connection()
     delete_data(connection, tables)
