@@ -11,6 +11,8 @@ class Constants:
     LOADER_MODULE = "loader"
     MODEL_MODULE = "model"
     MODEL_VALIDATION_MODULE = "model_validation"
+    DRUG_DOSING_MODULE = "drug-dosing"
+    PATIENT_TREATMENT_MODULE = "patient-treatment"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -39,3 +41,4 @@ class Constants:
     ACCESSIBILITY_GROUP_ENTITY = "accessibility_group"
     HOST_STRAIN_ENTITY = "host_strain"
     PROJECT_GROUP_ENTITY = "project_group"
+    TREATMENT_ENTITY = "treatment"

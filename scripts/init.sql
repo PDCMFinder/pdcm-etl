@@ -262,3 +262,9 @@ CREATE TABLE project_group (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE treatment (
+    id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);

@@ -40,7 +40,7 @@ def get_datasource_from_path(path: str):
 
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
-    if "field" in df.columns:
+    if "Field" in df.columns:
         df = df.select(columns).where("Field is null")
     else:
         df = df.select(columns)
@@ -105,7 +105,8 @@ def get_tasks_to_run(data_dir, providers, data_dir_out):
                 filePattern = file["name_pattern"]
                 columns = file["columns"]
                 paths = get_paths(data_dir, list(providers), filePattern)
-                tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
+                if paths:
+                    tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
     return tasks
 
 
@@ -158,6 +159,14 @@ class ExtractModelValidation(ExtractFile):
 
 class ExtractPlatformSample(ExtractFile):
     file_id = Constants.PLATFORM_SAMPLE_MODULE
+
+
+class ExtractDrugDosing(ExtractFile):
+    file_id = Constants.DRUG_DOSING_MODULE
+
+
+class ExtractPatientTreatment(ExtractFile):
+    file_id = Constants.PATIENT_TREATMENT_MODULE
 
 
 if __name__ == "__main__":

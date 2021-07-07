@@ -8,7 +8,7 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformPatientSample, TransformEngraftmentSite, TransformEngraftmentType, TransformEngraftmentMaterial, \
     TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample, TransformEngraftmentSampleState, \
     TransformEngraftmentSampleType, TransformAccessibilityGroup, TransformContactPeople, TransformContactForm, \
-    TransformSourceDatabase, TransformHostStrain, TransformProjectGroup
+    TransformSourceDatabase, TransformHostStrain, TransformProjectGroup, TransformTreatment
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -92,6 +92,8 @@ class ParquetToTsv(SparkSubmitTask):
         elif Constants.PROJECT_GROUP_ENTITY == self.name:
             return TransformProjectGroup(self.data_dir, self.providers, self.data_dir_out)
 
+        elif Constants.TREATMENT_ENTITY == self.name:
+            return TransformTreatment(self.data_dir, self.providers, self.data_dir_out)
 
     def app_options(self):
         return [
@@ -133,7 +135,8 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.ACCESSIBILITY_GROUP_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.HOST_STRAIN_ENTITY),
-            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PROJECT_GROUP_ENTITY)
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PROJECT_GROUP_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TREATMENT_ENTITY)
         ]
 
     def run(self):
