@@ -268,3 +268,10 @@ CREATE TABLE treatment (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE response (
+    id BIGINT NOT NULL,
+    description TEXT NOT NULL,
+    classification TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
