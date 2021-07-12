@@ -42,3 +42,4 @@ class Constants:
     HOST_STRAIN_ENTITY = "host_strain"
     PROJECT_GROUP_ENTITY = "project_group"
     TREATMENT_ENTITY = "treatment"
+    RESPONSE_ENTITY = "response"

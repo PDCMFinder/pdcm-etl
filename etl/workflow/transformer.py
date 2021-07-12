@@ -238,5 +238,13 @@ class TransformTreatment(TransformEntity):
     entity_name = Constants.TREATMENT_ENTITY
 
 
+class TransformResponse(TransformEntity):
+    requiredTasks = [
+        ExtractDrugDosing(),
+        ExtractPatientTreatment()
+    ]
+    entity_name = Constants.RESPONSE_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()
