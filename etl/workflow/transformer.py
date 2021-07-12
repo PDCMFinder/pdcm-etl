@@ -246,5 +246,9 @@ class TransformResponse(TransformEntity):
     entity_name = Constants.RESPONSE_ENTITY
 
 
+class TransformMolecularCharacterizationType(TransformEntity):
+    entity_name = Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()
