@@ -275,3 +275,9 @@ CREATE TABLE response (
     classification TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE molecular_characterization_type (
+    id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);

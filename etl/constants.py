@@ -43,3 +43,4 @@ class Constants:
     PROJECT_GROUP_ENTITY = "project_group"
     TREATMENT_ENTITY = "treatment"
     RESPONSE_ENTITY = "response"
+    MOLECULAR_CHARACTERIZATION_TYPE_ENTITY = "molecular_characterization_type"
