@@ -157,8 +157,8 @@ class ExtractModelValidation(ExtractFile):
     file_id = Constants.MODEL_VALIDATION_MODULE
 
 
-class ExtractPlatformSample(ExtractFile):
-    file_id = Constants.PLATFORM_SAMPLE_MODULE
+class ExtractSamplePlatform(ExtractFile):
+    file_id = Constants.SAMPLE_PLATFORM_MODULE
 
 
 class ExtractDrugDosing(ExtractFile):

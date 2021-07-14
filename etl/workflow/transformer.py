@@ -3,7 +3,7 @@ from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractLoader, ExtractModel, \
-    ExtractModelValidation, ExtractSample, ExtractPlatformSample, ExtractDrugDosing, ExtractPatientTreatment
+    ExtractModelValidation, ExtractSample, ExtractSamplePlatform, ExtractDrugDosing, ExtractPatientTreatment
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -160,14 +160,14 @@ class TransformPatientSample(TransformEntity):
         TransformTissue(),
         TransformTumourType(),
         TransformModel(),
-        ExtractPlatformSample()
+        ExtractSamplePlatform()
     ]
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
 class TransformXenograftSample(TransformEntity):
     requiredTasks = [
-        ExtractPlatformSample()
+        ExtractSamplePlatform()
     ]
     entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
 
@@ -248,6 +248,14 @@ class TransformResponse(TransformEntity):
 
 class TransformMolecularCharacterizationType(TransformEntity):
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY
+
+
+class TransformPlatform(TransformEntity):
+    requiredTasks = [
+        ExtractSamplePlatform(),
+        TransformProviderGroup()
+    ]
+    entity_name = Constants.PLATFORM_ENTITY
 
 
 if __name__ == "__main__":

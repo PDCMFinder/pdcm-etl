@@ -4,7 +4,7 @@ class Constants:
     DATABASE_FORMATTED = "database_formatted"
 
     # File ids names
-    PLATFORM_SAMPLE_MODULE = "sampleplatform"
+    SAMPLE_PLATFORM_MODULE = "sampleplatform"
     PATIENT_MODULE = "patient"
     SAMPLE_MODULE = "sample"
     SHARING_MODULE = "sharing"
@@ -44,3 +44,4 @@ class Constants:
     TREATMENT_ENTITY = "treatment"
     RESPONSE_ENTITY = "response"
     MOLECULAR_CHARACTERIZATION_TYPE_ENTITY = "molecular_characterization_type"
+    PLATFORM_ENTITY = "platform"
