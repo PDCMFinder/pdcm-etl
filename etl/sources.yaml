@@ -124,6 +124,8 @@ groups:
           - "model_id"
           - "sample_origin"
           - "raw_data_file"
+          - "platform"
+          - "platform_type"
 
   - group: "molecular-data"
     skip: False

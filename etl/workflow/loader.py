@@ -9,7 +9,7 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample, TransformEngraftmentSampleState, \
     TransformEngraftmentSampleType, TransformAccessibilityGroup, TransformContactPeople, TransformContactForm, \
     TransformSourceDatabase, TransformHostStrain, TransformProjectGroup, TransformTreatment, TransformResponse, \
-    TransformMolecularCharacterizationType
+    TransformMolecularCharacterizationType, TransformPlatform
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -102,6 +102,9 @@ class ParquetToTsv(SparkSubmitTask):
         elif Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY == self.name:
             return TransformMolecularCharacterizationType(self.data_dir, self.providers, self.data_dir_out)
 
+        elif Constants.PLATFORM_ENTITY == self.name:
+            return TransformPlatform(self.data_dir, self.providers, self.data_dir_out)
+
     def app_options(self):
         return [
             self.input().path,
@@ -146,7 +149,8 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.TREATMENT_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.RESPONSE_ENTITY),
             ParquetToTsv(
-                self.data_dir, self.providers, self.data_dir_out, Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY)
+                self.data_dir, self.providers, self.data_dir_out, Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PLATFORM_ENTITY),
         ]
 
     def run(self):

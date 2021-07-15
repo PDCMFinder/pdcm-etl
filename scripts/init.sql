@@ -271,8 +271,8 @@ CREATE TABLE treatment (
 
 CREATE TABLE response (
     id BIGINT NOT NULL,
-    description TEXT NOT NULL,
-    classification TEXT NOT NULL,
+    description TEXT,
+    classification TEXT,
     PRIMARY KEY (id)
 );
 
@@ -281,3 +281,17 @@ CREATE TABLE molecular_characterization_type (
     name TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE platform (
+    id BIGINT NOT NULL,
+    library_strategy TEXT NOT NULL,
+    provider_group_id BIGINT,
+    instrument_model TEXT,
+    library_selection TEXT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE platform
+    ADD CONSTRAINT fk_platform_provider_group
+    FOREIGN KEY (provider_group_id)
+    REFERENCES provider_group (id);
