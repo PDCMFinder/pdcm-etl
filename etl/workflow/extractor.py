@@ -80,17 +80,20 @@ class ReadWithSpark(PySparkTask):
 
         # Only work with paths that have data. Some files are empty because they are optional so we create them emtpy
         # so the task that checks their existence does not fail
-        input_paths = get_not_empty_files(input_paths)
+        non_empty_paths = []
+        if input_paths != ['']:
+            non_empty_paths = get_not_empty_files(input_paths)
+
         schema = build_schema_from_cols(columns_to_read)
 
-        if len(input_paths) > 0:
-            streams = read_with_columns(spark, input_paths[0], schema)
-            for stream_path in input_paths[1:]:
+        if len(non_empty_paths) > 0:
+            streams = read_with_columns(spark, non_empty_paths[0], schema)
+            for stream_path in non_empty_paths[1:]:
                 streams = streams.union(read_with_columns(spark, stream_path, schema))
         else:
-
             empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
             streams = empty_df
+            streams = streams.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
         streams.write.mode("overwrite").parquet(output_path)
 
 
@@ -104,9 +107,9 @@ def get_tasks_to_run(data_dir, providers, data_dir_out):
                 file_id = file["id"]
                 filePattern = file["name_pattern"]
                 columns = file["columns"]
+
                 paths = get_paths(data_dir, list(providers), filePattern)
-                if paths:
-                    tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
+                tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
     return tasks
 
 
@@ -167,6 +170,10 @@ class ExtractDrugDosing(ExtractFile):
 
 class ExtractPatientTreatment(ExtractFile):
     file_id = Constants.PATIENT_TREATMENT_MODULE
+
+
+class ExtractCna(ExtractFile):
+    file_id = Constants.CNA_MODULE
 
 
 if __name__ == "__main__":

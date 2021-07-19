@@ -9,7 +9,7 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformPatientSnapshot, TransformQualityAssurance, TransformXenograftSample, TransformEngraftmentSampleState, \
     TransformEngraftmentSampleType, TransformAccessibilityGroup, TransformContactPeople, TransformContactForm, \
     TransformSourceDatabase, TransformHostStrain, TransformProjectGroup, TransformTreatment, TransformResponse, \
-    TransformMolecularCharacterizationType, TransformPlatform
+    TransformMolecularCharacterizationType, TransformPlatform, TransformMolecularCharacterization
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -105,6 +105,9 @@ class ParquetToTsv(SparkSubmitTask):
         elif Constants.PLATFORM_ENTITY == self.name:
             return TransformPlatform(self.data_dir, self.providers, self.data_dir_out)
 
+        elif Constants.MOLECULAR_CHARACTERIZATION_ENTITY == self.name:
+            return TransformMolecularCharacterization(self.data_dir, self.providers, self.data_dir_out)
+
     def app_options(self):
         return [
             self.input().path,
@@ -151,6 +154,7 @@ class Load(luigi.Task):
             ParquetToTsv(
                 self.data_dir, self.providers, self.data_dir_out, Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PLATFORM_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.MOLECULAR_CHARACTERIZATION_ENTITY)
         ]
 
     def run(self):
