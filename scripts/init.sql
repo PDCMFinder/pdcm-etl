@@ -193,7 +193,7 @@ ALTER TABLE patient_sample
 
 CREATE TABLE xenograft_sample (
     id BIGINT NOT NULL,
-    xenograft_sample_id TEXT,
+    external_xenograft_sample_id TEXT,
     PRIMARY KEY (id)
 );
 
@@ -295,3 +295,32 @@ ALTER TABLE platform
     ADD CONSTRAINT fk_platform_provider_group
     FOREIGN KEY (provider_group_id)
     REFERENCES provider_group (id);
+
+CREATE TABLE molecular_characterization (
+    id BIGINT NOT NULL,
+    molecular_characterization_type_id BIGINT NOT NULL,
+    platform_id BIGINT NOT NULL,
+    patient_sample_id BIGINT,
+    xenograft_sample_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE molecular_characterization
+    ADD CONSTRAINT fk_molecular_characterization_mchar_type
+    FOREIGN KEY (molecular_characterization_type_id)
+    REFERENCES molecular_characterization_type (id);
+
+ALTER TABLE molecular_characterization
+    ADD CONSTRAINT fk_molecular_characterization_platform
+    FOREIGN KEY (platform_id)
+    REFERENCES platform (id);
+
+ALTER TABLE molecular_characterization
+    ADD CONSTRAINT fk_molecular_characterization_patient_sample
+    FOREIGN KEY (patient_sample_id)
+    REFERENCES patient_sample (id);
+
+ALTER TABLE molecular_characterization
+    ADD CONSTRAINT fk_molecular_characterization_xenograft_sample
+    FOREIGN KEY (xenograft_sample_id)
+    REFERENCES xenograft_sample (id);

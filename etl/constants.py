@@ -13,6 +13,7 @@ class Constants:
     MODEL_VALIDATION_MODULE = "model_validation"
     DRUG_DOSING_MODULE = "drug-dosing"
     PATIENT_TREATMENT_MODULE = "patient-treatment"
+    CNA_MODULE = "cna"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -45,3 +46,4 @@ class Constants:
     RESPONSE_ENTITY = "response"
     MOLECULAR_CHARACTERIZATION_TYPE_ENTITY = "molecular_characterization_type"
     PLATFORM_ENTITY = "platform"
+    MOLECULAR_CHARACTERIZATION_ENTITY = "molecular_characterization"

@@ -32,7 +32,7 @@ def transform_xenograft_sample(raw_sample_platform_df: DataFrame) -> DataFrame:
 def get_xenograft_sample_from_sample_platform(raw_sample_platform_df: DataFrame) -> DataFrame:
     xenograft_sample_df = raw_sample_platform_df.select("sample_id").where("sample_origin = 'xenograft'")
     xenograft_sample_df = xenograft_sample_df.drop_duplicates()
-    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("sample_id", "xenograft_sample_id")
+    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("sample_id", "external_xenograft_sample_id")
     return xenograft_sample_df
 
 
@@ -41,7 +41,7 @@ def format_name_column(column_name) -> Column:
 
 
 def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select("id", "xenograft_sample_id")
+    return ethnicity_df.select("id", "external_xenograft_sample_id")
 
 
 if __name__ == "__main__":

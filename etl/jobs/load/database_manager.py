@@ -40,7 +40,8 @@ def copy_all_tsv_to_database(data_dir_out: str):
         Constants.TREATMENT_ENTITY,
         Constants.RESPONSE_ENTITY,
         Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY,
-        Constants.PLATFORM_ENTITY
+        Constants.PLATFORM_ENTITY,
+        Constants.MOLECULAR_CHARACTERIZATION_ENTITY
     ]
     connection = get_database_connection()
     delete_data(connection, tables)
