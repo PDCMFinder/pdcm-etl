@@ -153,5 +153,22 @@ groups:
           - "genome_assembly"
           - "platform"
 
+      - id: "cyto"
+        name_pattern: "cyto/*cyto*.tsv"
+        columns:
+          - "sample_id"
+          - "sample_origin"
+          - "passage"
+          - "host_strain_nomenclature"
+          - "model_id"
+          - "symbol"
+          - "marker_status"
+          - "essential_or_additional_marker"
+          - "platform"
+          - "protocol_file_name"
+          - "result_file_name"
+
+
+
 
 
