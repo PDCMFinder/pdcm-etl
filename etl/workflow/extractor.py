@@ -7,6 +7,7 @@ from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import trim_all_str
 from etl.jobs.util.file_manager import get_not_empty_files
 from etl.source_files_conf_reader import read_groups
 
@@ -41,15 +42,25 @@ def get_datasource_from_path(path: str):
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
     if "Field" in df.columns:
+        print("Field in columns. Selecting ", columns)
+        print("from!@ ",df.columns)
         df = df.select(columns).where("Field is null")
     else:
         df = df.select(columns)
     return df
 
 
+def clean_column_names(df: DataFrame):
+    columns = df.columns
+    for column in columns:
+        df = df.withColumnRenamed(column, trim_all_str(column))
+    return df
+
+
 def read_with_columns(session, path, schema):
     data_source = get_datasource_from_path(path)
     df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(path)
+    df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
     # Add a data_source column that makes it easy to identify the provider in the modules
     df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(data_source))
@@ -174,6 +185,10 @@ class ExtractPatientTreatment(ExtractFile):
 
 class ExtractCna(ExtractFile):
     file_id = Constants.CNA_MODULE
+
+
+class ExtractCytogenetics(ExtractFile):
+    file_id = Constants.CYTOGENETICS_MODULE
 
 
 if __name__ == "__main__":

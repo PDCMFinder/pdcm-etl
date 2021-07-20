@@ -14,6 +14,7 @@ class Constants:
     DRUG_DOSING_MODULE = "drug-dosing"
     PATIENT_TREATMENT_MODULE = "patient-treatment"
     CNA_MODULE = "cna"
+    CYTOGENETICS_MODULE = "cyto"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
