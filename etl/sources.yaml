@@ -5,8 +5,8 @@ groups:
         name_pattern: "*metadata-model.tsv"
         columns:
           - "model_id"
-          - "host_strain"
-          - "host_strain_full"
+          - "host_strain_name"
+          - "host_strain_nomenclature"
           - "engraftment_site"
           - "engraftment_type"
           - "sample_type"
@@ -21,7 +21,7 @@ groups:
           - "validation_technique"
           - "description"
           - "passages_tested"
-          - "validation_host_strain_full"
+          - "validation_host_strain_nomenclature"
 
       - id: "patient"
         name_pattern: "*metadata-patient.tsv"

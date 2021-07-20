@@ -54,7 +54,7 @@ def get_columns_expected_order(quality_assurance_df: DataFrame) -> DataFrame:
         "description",
         "passages_tested",
         "validation_technique",
-        "validation_host_strain_full",
+        "validation_host_strain_nomenclature",
         "model_id"
     )
 

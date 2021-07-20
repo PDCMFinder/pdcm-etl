@@ -41,7 +41,7 @@ def get_datasource_from_path(path: str):
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
     if "Field" in df.columns:
-        df = df.select(columns).where("Field is null")
+        df = df.select(columns).where("nvl(field, '') not like '#%'")
     else:
         df = df.select(columns)
     return df

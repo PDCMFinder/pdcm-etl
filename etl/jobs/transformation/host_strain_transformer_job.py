@@ -1,10 +1,10 @@
 import sys
 
-from pyspark.sql import DataFrame, SparkSession, Column
-from pyspark.sql.functions import trim, initcap
+from pyspark.sql import DataFrame, SparkSession
 
-from etl.jobs.util.cleaner import init_cap_and_trim_all, trim_all
+from etl.jobs.util.cleaner import trim_all
 from etl.jobs.util.id_assigner import add_id
+
 
 def main(argv):
     """
@@ -30,9 +30,9 @@ def transform_host_strain(raw_model_df: DataFrame) -> DataFrame:
 
 
 def extract_host_strain(raw_model_df: DataFrame) -> DataFrame:
-    host_strain_df = raw_model_df.select("host_strain", "host_strain_full")
-    host_strain_df = host_strain_df.withColumn("name", trim_all("host_strain"))
-    host_strain_df = host_strain_df.withColumn("nomenclature", trim_all("host_strain_full"))
+    host_strain_df = raw_model_df.select("host_strain_name", "host_strain_nomenclature")
+    host_strain_df = host_strain_df.withColumn("name", trim_all("host_strain_name"))
+    host_strain_df = host_strain_df.withColumn("nomenclature", trim_all("host_strain_nomenclature"))
     host_strain_df = host_strain_df.drop_duplicates()
     return host_strain_df
 

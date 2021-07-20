@@ -127,7 +127,7 @@ CREATE TABLE quality_assurance (
     description TEXT,
     passages_tested TEXT,
     validation_technique TEXT,
-    validation_host_strain_full TEXT,
+    validation_host_strain_nomenclature TEXT,
     model_id BIGINT NOT NULL,
     PRIMARY KEY (id)
 );
