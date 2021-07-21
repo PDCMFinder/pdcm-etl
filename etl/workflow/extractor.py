@@ -19,15 +19,6 @@ def get_data_dir_path(data_dir: str, provider: str, ):
     return "{0}/{1}/{2}".format(data_dir, ROOT_FOLDER, provider)
 
 
-def get_paths(data_dir, providers, file_pattern):
-    data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
-    filesList = []
-    for provider in providers:
-        pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
-        filesList += (glob.glob(pattern))
-    return filesList
-
-
 def get_paths_by_patterns(data_dir, providers, file_patterns):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
     filesList = []
@@ -103,7 +94,6 @@ class ReadWithSpark(PySparkTask):
         non_empty_paths = []
         if input_paths != ['']:
             non_empty_paths = get_not_empty_files(input_paths)
-        print("non_empty_paths", non_empty_paths)
 
         schema = build_schema_from_cols(columns_to_read)
 
@@ -129,15 +119,11 @@ def get_tasks_to_run(data_dir, providers, data_dir_out):
                 filePatterns = file["name_patterns"]
 
                 columns = file["columns"]
-                print("file_id", file_id)
 
-                print("filePatterns", filePatterns)
                 if file_id == 'expression':
                     paths = get_paths_by_patterns(data_dir, list(providers), filePatterns)
                     chunked_path_lists = [paths[i:i+LIST_MAX_SIZE] for i in range(0, len(paths), LIST_MAX_SIZE)]
-                    print("chunked_path_lists", chunked_path_lists)
                     for chunked_path_list in chunked_path_lists:
-                        print("chunked_path_list--->", chunked_path_list)
                         tasks.append(ReadWithSpark(file_id, chunked_path_list, columns, data_dir_out))
     return tasks
 
