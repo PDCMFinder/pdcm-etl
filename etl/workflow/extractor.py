@@ -12,6 +12,7 @@ from etl.jobs.util.file_manager import get_not_empty_files
 from etl.source_files_conf_reader import read_groups
 
 ROOT_FOLDER = "data/UPDOG"
+LIST_MAX_SIZE = 100
 
 
 def get_data_dir_path(data_dir: str, provider: str, ):
@@ -24,6 +25,16 @@ def get_paths(data_dir, providers, file_pattern):
     for provider in providers:
         pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
         filesList += (glob.glob(pattern))
+    return filesList
+
+
+def get_paths_by_patterns(data_dir, providers, file_patterns):
+    data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
+    filesList = []
+    for provider in providers:
+        for file_pattern in file_patterns:
+            pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
+            filesList += (glob.glob(pattern))
     return filesList
 
 
@@ -42,8 +53,6 @@ def get_datasource_from_path(path: str):
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
     if "Field" in df.columns:
-        print("Field in columns. Selecting ", columns)
-        print("from!@ ",df.columns)
         df = df.select(columns).where("Field is null")
     else:
         df = df.select(columns)
@@ -94,6 +103,7 @@ class ReadWithSpark(PySparkTask):
         non_empty_paths = []
         if input_paths != ['']:
             non_empty_paths = get_not_empty_files(input_paths)
+        print("non_empty_paths", non_empty_paths)
 
         schema = build_schema_from_cols(columns_to_read)
 
@@ -116,11 +126,19 @@ def get_tasks_to_run(data_dir, providers, data_dir_out):
         if skip is None or not skip:
             for file in group["files"]:
                 file_id = file["id"]
-                filePattern = file["name_pattern"]
-                columns = file["columns"]
+                filePatterns = file["name_patterns"]
 
-                paths = get_paths(data_dir, list(providers), filePattern)
-                tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
+                columns = file["columns"]
+                print("file_id", file_id)
+
+                print("filePatterns", filePatterns)
+                if file_id == 'expression':
+                    paths = get_paths_by_patterns(data_dir, list(providers), filePatterns)
+                    chunked_path_lists = [paths[i:i+LIST_MAX_SIZE] for i in range(0, len(paths), LIST_MAX_SIZE)]
+                    print("chunked_path_lists", chunked_path_lists)
+                    for chunked_path_list in chunked_path_lists:
+                        print("chunked_path_list--->", chunked_path_list)
+                        tasks.append(ReadWithSpark(file_id, chunked_path_list, columns, data_dir_out))
     return tasks
 
 
@@ -189,6 +207,10 @@ class ExtractCna(ExtractFile):
 
 class ExtractCytogenetics(ExtractFile):
     file_id = Constants.CYTOGENETICS_MODULE
+
+
+class ExtractExpression(ExtractFile):
+    file_id = Constants.EXPRESSION_MODULE
 
 
 if __name__ == "__main__":

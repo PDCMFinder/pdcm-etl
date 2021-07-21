@@ -21,8 +21,9 @@ def main(argv):
     mol_char_type_path = argv[4]
     raw_cna_parquet_path = argv[5]
     raw_cytogenetics_parquet_path = argv[6]
+    raw_expression_parquet_path = argv[7]
 
-    output_path = argv[7]
+    output_path = argv[8]
 
     spark = SparkSession.builder.getOrCreate()
     platform_df = spark.read.parquet(platform_parquet_path)
@@ -32,13 +33,16 @@ def main(argv):
 
     raw_cna_df = spark.read.parquet(raw_cna_parquet_path)
     raw_cytogenetics_df = spark.read.parquet(raw_cytogenetics_parquet_path)
+    raw_expression_df = spark.read.parquet(raw_expression_parquet_path)
+
     molecular_characterization_df = transform_molecular_characterization(
         platform_df,
         patient_sample_df,
         xenograft_sample_df,
         mol_char_type_df,
         raw_cna_df,
-        raw_cytogenetics_df)
+        raw_cytogenetics_df,
+        raw_expression_df)
     molecular_characterization_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -48,13 +52,15 @@ def transform_molecular_characterization(
         xenograft_sample_df: DataFrame,
         mol_char_type_df: DataFrame,
         raw_cna_df: DataFrame,
-        raw_cytogenetics_df: DataFrame) -> DataFrame:
+        raw_cytogenetics_df: DataFrame,
+        raw_expression_df: DataFrame) -> DataFrame:
 
     cna_df = get_cna_df(raw_cna_df)
     cytogenetics_df = get_cytogenetics_df(raw_cytogenetics_df)
+    expression_df = get_expression_df(raw_expression_df)
 
     # This will be an union
-    molecular_characterization_df = cna_df.union(cytogenetics_df)
+    molecular_characterization_df = cna_df.union(cytogenetics_df).union(expression_df)
 
     columns = [
         "sample_origin", "molchar_type", "platform", "data_source_tmp", "patient_sample_id", "xenograft_sample_id"]
@@ -89,6 +95,15 @@ def get_cytogenetics_df(raw_cytogenetics_df: DataFrame) -> DataFrame:
         "sample_id",
         "sample_origin",
         lit("cytogenetics").alias("molchar_type"),
+        "platform",
+        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+
+
+def get_expression_df(raw_expression_df: DataFrame) -> DataFrame:
+    return raw_expression_df.select(
+        "sample_id",
+        "sample_origin",
+        lit("expression").alias("molchar_type"),
         "platform",
         Constants.DATA_SOURCE_COLUMN).drop_duplicates()
 
