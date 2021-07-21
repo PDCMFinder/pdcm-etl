@@ -2,7 +2,7 @@ groups:
   - group: "metadata"
     files:
       - id: "model"
-        name_pattern: "*metadata-model.tsv"
+        name_patterns: ["*metadata-model.tsv"]
         columns:
           - "model_id"
           - "host_strain"
@@ -15,7 +15,7 @@ groups:
           - "publications"
 
       - id: "model_validation"
-        name_pattern: "*metadata-model_validation.tsv"
+        name_patterns: ["*metadata-model_validation.tsv"]
         columns:
           - "model_id"
           - "validation_technique"
@@ -24,7 +24,7 @@ groups:
           - "validation_host_strain_full"
 
       - id: "patient"
-        name_pattern: "*metadata-patient.tsv"
+        name_patterns: ["*metadata-patient.tsv"]
         columns:
           - "patient_id"
           - "sex"
@@ -35,7 +35,7 @@ groups:
           - "age_at_initial_diagnosis"
 
       - id: "sample"
-        name_pattern: "*metadata-sample.tsv"
+        name_patterns: ["*metadata-sample.tsv"]
         columns:
           - "patient_id"
           - "sample_id"
@@ -59,7 +59,7 @@ groups:
           - "model_id"
 
       - id: "sharing"
-        name_pattern: "*metadata-sharing.tsv"
+        name_patterns: ["*metadata-sharing.tsv"]
         columns:
           - "model_id"
           - "provider_type"
@@ -74,7 +74,7 @@ groups:
           - "project"
 
       - id: "loader"
-        name_pattern: "*metadata-loader.tsv"
+        name_patterns: ["*metadata-loader.tsv"]
         columns:
           - "name"
           - "abbreviation"
@@ -84,7 +84,7 @@ groups:
   - group: "treatment"
     files:
       - id: "drug-dosing"
-        name_pattern: "drug/*drugdosing-Sheet1.tsv"
+        name_patterns: ["drug/*drugdosing-Sheet1.tsv"]
         columns:
           - "abbreviation"
           - "model_id"
@@ -103,7 +103,7 @@ groups:
           - "internal_treatment_url"
 
       - id: "patient-treatment"
-        name_pattern: "treatment/*patienttreatment-Sheet1.tsv"
+        name_patterns: ["treatment/*patienttreatment-Sheet1.tsv"]
         columns:
           - "patient_id"
           - "treatment_name"
@@ -118,7 +118,7 @@ groups:
   - group: "sampleplatform"
     files:
       - id: "sampleplatform"
-        name_pattern: "*sampleplatform-data.tsv"
+        name_patterns: ["*sampleplatform-data.tsv"]
         columns:
           - "sample_id"
           - "model_id"
@@ -131,7 +131,7 @@ groups:
     skip: False
     files:
       - id: "cna"
-        name_pattern: "cna/*cna*.tsv"
+        name_patterns: ["cna/*cna*.tsv"]
         columns:
           - "model_id"
           - "sample_id"
@@ -154,7 +154,7 @@ groups:
           - "platform"
 
       - id: "cyto"
-        name_pattern: "cyto/*cyto*.tsv"
+        name_patterns: ["cyto/*cyto*.tsv"]
         columns:
           - "sample_id"
           - "sample_origin"
@@ -167,6 +167,34 @@ groups:
           - "platform"
           - "protocol_file_name"
           - "result_file_name"
+
+      - id: "expression"
+        name_patterns: ["expression/*expression*.tsv", "expression/*/*expression*.tsv"]
+        columns:
+          - "model_id"
+          - "sample_id"
+          - "sample_origin"
+          - "host_strain_nomenclature"
+          - "passage"
+          - "chromosome"
+          - "strand"
+          - "seq_start_position"
+          - "seq_end_position"
+          - "symbol"
+          - "ucsc_gene_id"
+          - "ncbi_gene_id"
+          - "ensembl_gene_id"
+          - "rnaseq_coverage"
+          - "rnaseq_fpkm"
+          - "rnaseq_tpm"
+          - "rnaseq_count"
+          - "affy_hgea_probe_id"
+          - "affy_hgea_expression_value"
+          - "illumina_hgea_probe_id"
+          - "illumina_hgea_expression_value"
+          - "z_score"
+          - "genome_assembly"
+          - "platform"
 
 
 

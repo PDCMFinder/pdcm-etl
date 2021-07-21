@@ -18,12 +18,13 @@ def get_data_dir_path(data_dir: str, provider: str, ):
     return "{0}/{1}/{2}".format(data_dir, ROOT_FOLDER, provider)
 
 
-def get_paths(data_dir, providers, file_pattern):
+def get_paths_by_patterns(data_dir, providers, file_patterns):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
     filesList = []
     for provider in providers:
-        pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
-        filesList += (glob.glob(pattern))
+        for file_pattern in file_patterns:
+            pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
+            filesList += (glob.glob(pattern))
     return filesList
 
 
@@ -42,8 +43,6 @@ def get_datasource_from_path(path: str):
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
     if "Field" in df.columns:
-        print("Field in columns. Selecting ", columns)
-        print("from!@ ",df.columns)
         df = df.select(columns).where("Field is null")
     else:
         df = df.select(columns)
@@ -108,7 +107,7 @@ class ReadWithSpark(PySparkTask):
         streams.write.mode("overwrite").parquet(output_path)
 
 
-def get_tasks_to_run(data_dir, providers, data_dir_out):
+def get_tasks_to_run(data_dir, providers, data_dir_out, batch_size):
     tasks = []
     groups = read_groups()
     for group in groups:
@@ -116,11 +115,18 @@ def get_tasks_to_run(data_dir, providers, data_dir_out):
         if skip is None or not skip:
             for file in group["files"]:
                 file_id = file["id"]
-                filePattern = file["name_pattern"]
+                filePatterns = file["name_patterns"]
+
                 columns = file["columns"]
 
-                paths = get_paths(data_dir, list(providers), filePattern)
-                tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
+                paths = get_paths_by_patterns(data_dir, list(providers), filePatterns)
+                if batch_size:
+                    batch_size = int(batch_size)
+                    chunked_path_lists = [paths[i:i + batch_size] for i in range(0, len(paths), batch_size)]
+                    for chunked_path_list in chunked_path_lists:
+                        tasks.append(ReadWithSpark(file_id, chunked_path_list, columns, data_dir_out))
+                else:
+                    tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
     return tasks
 
 
@@ -128,9 +134,10 @@ class Extract(luigi.WrapperTask):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
+    LIST_MAX_SIZE = luigi.Parameter()
 
     def requires(self):
-        tasks = get_tasks_to_run(self.data_dir, self.providers, self.data_dir_out)
+        tasks = get_tasks_to_run(self.data_dir, self.providers, self.data_dir_out, self.LIST_MAX_SIZE)
         yield tasks
 
 
@@ -189,6 +196,10 @@ class ExtractCna(ExtractFile):
 
 class ExtractCytogenetics(ExtractFile):
     file_id = Constants.CYTOGENETICS_MODULE
+
+
+class ExtractExpression(ExtractFile):
+    file_id = Constants.EXPRESSION_MODULE
 
 
 if __name__ == "__main__":
