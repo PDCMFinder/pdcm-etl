@@ -16,6 +16,7 @@ class Constants:
     CNA_MODULE = "cna"
     CYTOGENETICS_MODULE = "cyto"
     EXPRESSION_MODULE = "expression"
+    MUTATION_MODULE = "mutation"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
