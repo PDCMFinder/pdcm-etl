@@ -107,6 +107,19 @@ class ReadWithSpark(PySparkTask):
         streams.write.mode("overwrite").parquet(output_path)
 
 
+def get_files_matching_patterns_batch(data_dir, providers, file_patterns, batch_size):
+    # List of lists with the found paths
+    list_in_batches = [[]]
+    all_matching_paths = get_paths_by_patterns(data_dir, list(providers), file_patterns)
+    if not all_matching_paths:
+        return list_in_batches
+    if not batch_size:
+        return [all_matching_paths]
+    else:
+        batch_size = int(batch_size)
+        return [all_matching_paths[i:i + batch_size] for i in range(0, len(all_matching_paths), batch_size)]
+
+
 def get_tasks_to_run(data_dir, providers, data_dir_out, batch_size):
     tasks = []
     groups = read_groups()
@@ -116,16 +129,9 @@ def get_tasks_to_run(data_dir, providers, data_dir_out, batch_size):
             for file in group["files"]:
                 file_id = file["id"]
                 filePatterns = file["name_patterns"]
-
                 columns = file["columns"]
-
-                paths = get_paths_by_patterns(data_dir, list(providers), filePatterns)
-                if batch_size:
-                    batch_size = int(batch_size)
-                    chunked_path_lists = [paths[i:i + batch_size] for i in range(0, len(paths), batch_size)]
-                    for chunked_path_list in chunked_path_lists:
-                        tasks.append(ReadWithSpark(file_id, chunked_path_list, columns, data_dir_out))
-                else:
+                list_in_batches = get_files_matching_patterns_batch(data_dir, list(providers), filePatterns, batch_size)
+                for paths in list_in_batches:
                     tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
     return tasks
 
@@ -200,6 +206,10 @@ class ExtractCytogenetics(ExtractFile):
 
 class ExtractExpression(ExtractFile):
     file_id = Constants.EXPRESSION_MODULE
+
+
+class ExtractMutation(ExtractFile):
+    file_id = Constants.MUTATION_MODULE
 
 
 if __name__ == "__main__":
