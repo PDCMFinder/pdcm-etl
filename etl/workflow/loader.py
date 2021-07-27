@@ -111,6 +111,7 @@ class ParquetToTsv(SparkSubmitTask):
     def app_options(self):
         return [
             self.input().path,
+            self.name,
             self.output().path
         ]
 
