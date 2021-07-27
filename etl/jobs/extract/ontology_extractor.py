@@ -5,7 +5,12 @@ from pyspark.sql import DataFrame, SparkSession
 
 
 ONTOLOGIES = [
-    {"id": "ncit", "format": "obo", "top_level_terms": ["NCIT:C9305"]}
+
+    {"id": "ncit_treatment", "format": "obo", "top_level_terms": ["NCIT:C1932","NCIT:C1505", "NCIT:C1913", "NCIT:C45678"]},
+                                                                  #"NCIT:C1909", "NCIT:C1899", "NCIT:C15431", "NCIT:C49236",
+                                                                  #"NCIT:C15206", "NCIT:C26548"]},
+
+    {"id": "ncit_regimen", "format": "obo", "top_level_terms": []}
 ]
 
 
@@ -40,13 +45,36 @@ def extract_ncit_graph(input_path):
     return graph
 
 
+def extract_subgraph_from_graph(graph, top_term):
+    branch_terms = nx.descendants(graph, top_term)
+    sub_graph = nx.subgraph(graph, branch_terms)
+    return sub_graph
+
+
 def extract_cancer_ontology_graph(graph):
-    cancer_branch_terms = nx.descendants(graph, "NCIT:C9305")
-    cancer_graph = nx.subgraph(graph, cancer_branch_terms)
-    return cancer_graph
+    return extract_subgraph_from_graph(graph, "NCIT:C9305")
+
+
+def extract_treatment_ontology_terms(graph):
+    terms = []
+    for ont in ONTOLOGIES:
+        branch_terms = ont["top_level_terms"]
+        for top_term in branch_terms:
+            branch_graph = extract_subgraph_from_graph(graph, top_term)
+            branch_terms = get_terms_from_graph(branch_graph)
+            print(top_term + "=>"+str(len(branch_terms)))
+            terms += branch_terms
+    return terms
 
 
 def create_diagnosis_term_dataframe(terms) -> DataFrame:
+    spark = SparkSession.builder.getOrCreate()
+    columns = ["ncit_id", "ncit_label"]
+    df = spark.createDataFrame(data=terms, schema=columns)
+    return df
+
+
+def create_treatment_term_dataframe(terms) -> DataFrame:
     spark = SparkSession.builder.getOrCreate()
     columns = ["ncit_id", "ncit_label"]
     df = spark.createDataFrame(data=terms, schema=columns)
@@ -65,6 +93,13 @@ def get_diagnosis_term_dataframe(input_path) -> DataFrame:
     cancer_graph = extract_cancer_ontology_graph(ncit_graph)
     cancer_terms_list = get_terms_from_graph(cancer_graph)
     return create_diagnosis_term_dataframe(cancer_terms_list)
+
+
+def get_treatment_term_dataframe(input_path) -> DataFrame:
+    ncit_graph = extract_ncit_graph(input_path)
+    treatment_terms_list = extract_treatment_ontology_terms(ncit_graph)
+    print(len(treatment_terms_list))
+    return create_treatment_term_dataframe(treatment_terms_list)
 
 
 def main(argv):
