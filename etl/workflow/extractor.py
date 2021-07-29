@@ -63,6 +63,7 @@ def read_with_columns(session, path, schema):
     df = select_rows_with_data(df, schema.fieldNames())
     # Add a data_source column that makes it easy to identify the provider in the modules
     df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(data_source))
+    print("read from path {0} count: {1}".format(path, df.count()))
     return df
 
 

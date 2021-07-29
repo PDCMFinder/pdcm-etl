@@ -324,3 +324,16 @@ ALTER TABLE molecular_characterization
     ADD CONSTRAINT fk_molecular_characterization_xenograft_sample
     FOREIGN KEY (xenograft_sample_id)
     REFERENCES xenograft_sample (id);
+
+CREATE TABLE cna_molecular_data (
+    id BIGINT NOT NULL,
+    log10r_cna TEXT,
+    log2r_cna TEXT,
+    copy_number_status TEXT,
+    gistic_value TEXT,
+    picnic_value TEXT,
+    --gene_marker_id BIGINT,
+    molecular_characterization BIGINT,
+    --loci_marker_id BIGINT,
+    PRIMARY KEY (id)
+);

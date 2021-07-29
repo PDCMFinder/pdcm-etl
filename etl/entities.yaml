@@ -191,3 +191,13 @@ entities:
       - "patient_sample_id"
       - "xenograft_sample_id"
 
+  - entity: "cna_molecular_data"
+    columns:
+      - "id"
+      - "log10r_cna"
+      - "log2r_cna"
+      - "copy_number_status"
+      - "gistic_value"
+      - "picnic_value"
+      - "molecular_characterization_id"
+
