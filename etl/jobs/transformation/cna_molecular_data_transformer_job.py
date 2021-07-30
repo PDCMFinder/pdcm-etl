@@ -3,7 +3,6 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit
 
-from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -70,44 +69,6 @@ def set_fk_molecular_characterization(cna_df: DataFrame, molecular_characterizat
 
     cna_df = cna_patient_sample_df.union(cna_xenograft_sample_df)
     return cna_df
-
-
-def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_sample_df: DataFrame) -> DataFrame:
-    molecular_characterization_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
-    molecular_characterization_patient_df = \
-        molecular_characterization_patient_df.withColumn("xenograft_sample_id", lit(""))
-
-    return transform_to_fk(
-        molecular_characterization_patient_df,
-        patient_sample_df,
-        "sample_id",
-        "external_patient_sample_id",
-        "id",
-        "patient_sample_id")
-
-
-def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_sample_df: DataFrame) -> DataFrame:
-    molecular_characterization_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
-    molecular_characterization_xenograft_df = \
-        molecular_characterization_xenograft_df.withColumn("patient_sample_id", lit(""))
-
-    return transform_to_fk(
-        molecular_characterization_xenograft_df,
-        xenograft_sample_df,
-        "sample_id",
-        "external_xenograft_sample_id",
-        "id",
-        "xenograft_sample_id")
-
-
-def set_fk_mol_char_type(molecular_characterization_df: DataFrame, mol_char_type_df: DataFrame) -> DataFrame:
-    return transform_to_fk(
-        molecular_characterization_df,
-        mol_char_type_df,
-        "molchar_type",
-        "name",
-        "id",
-        "molecular_characterization_type_id")
 
 
 def get_expected_columns(ethnicity_df: DataFrame) -> DataFrame:

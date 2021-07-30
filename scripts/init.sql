@@ -333,7 +333,27 @@ CREATE TABLE cna_molecular_data (
     gistic_value TEXT,
     picnic_value TEXT,
     --gene_marker_id BIGINT,
-    molecular_characterization BIGINT,
+    molecular_characterization_id BIGINT,
     --loci_marker_id BIGINT,
     PRIMARY KEY (id)
 );
+
+ALTER TABLE cna_molecular_data
+    ADD CONSTRAINT fk_cna_molecular_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);
+
+CREATE TABLE cytogenetics_molecular_data (
+    id BIGINT NOT NULL,
+    marker_status TEXT,
+    essential_or_additional_marker TEXT,
+    --gene_marker_id BIGINT,
+    tmp_symbol TEXT,
+    molecular_characterization_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE cytogenetics_molecular_data
+    ADD CONSTRAINT fk_cytogenetics_molecular_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);

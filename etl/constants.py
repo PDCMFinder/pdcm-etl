@@ -51,3 +51,4 @@ class Constants:
     PLATFORM_ENTITY = "platform"
     MOLECULAR_CHARACTERIZATION_ENTITY = "molecular_characterization"
     CNA_MOLECULAR_DATA_ENTITY = "cna_molecular_data"
+    CYTOGENETICS_MOLECULAR_DATA_ENTITY = "cytogenetics_molecular_data"

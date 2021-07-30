@@ -201,3 +201,11 @@ entities:
       - "picnic_value"
       - "molecular_characterization_id"
 
+  - entity: "cytogenetics_molecular_data"
+    columns:
+      - "id"
+      - "marker_status"
+      - "essential_or_additional_marker"
+      - "tmp_symbol"
+      - "molecular_characterization_id"
+
