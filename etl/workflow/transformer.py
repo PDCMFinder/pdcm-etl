@@ -281,5 +281,13 @@ class TransformCnaMolecularData(TransformEntity):
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
 
+class TransformCytogeneticsMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        ExtractCytogenetics()
+    ]
+    entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()
