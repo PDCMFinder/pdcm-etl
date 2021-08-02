@@ -209,3 +209,19 @@ entities:
       - "tmp_symbol"
       - "molecular_characterization_id"
 
+  - entity: "expression_molecular_data"
+    columns:
+      - "id"
+      - "z_score"
+      - "rnaseq_coverage"
+      - "rnaseq_fpkm"
+      - "rnaseq_tpm"
+      - "rnaseq_count"
+      - "affy_hgea_probe_id"
+      - "affy_hgea_expression_value"
+      - "illumina_hgea_probe_id"
+      - "illumina_hgea_expression_value"
+      - "tmp_symbol"
+      - "molecular_characterization_id"
+
+
