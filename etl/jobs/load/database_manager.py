@@ -43,7 +43,8 @@ def copy_all_tsv_to_database(data_dir_out: str):
         Constants.PLATFORM_ENTITY,
         Constants.MOLECULAR_CHARACTERIZATION_ENTITY,
         Constants.CNA_MOLECULAR_DATA_ENTITY,
-        Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
+        Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY,
+        Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
     ]
     connection = get_database_connection()
     delete_data(connection, tables)

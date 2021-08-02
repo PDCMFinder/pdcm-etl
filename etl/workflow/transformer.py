@@ -289,5 +289,13 @@ class TransformCytogeneticsMolecularData(TransformEntity):
     entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
 
 
+class TransformExpressionMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        ExtractExpression()
+    ]
+    entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

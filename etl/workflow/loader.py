@@ -10,7 +10,7 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformEngraftmentSampleType, TransformAccessibilityGroup, TransformContactPeople, TransformContactForm, \
     TransformSourceDatabase, TransformHostStrain, TransformProjectGroup, TransformTreatment, TransformResponse, \
     TransformMolecularCharacterizationType, TransformPlatform, TransformMolecularCharacterization, \
-    TransformCnaMolecularData, TransformCytogeneticsMolecularData
+    TransformCnaMolecularData, TransformCytogeneticsMolecularData, TransformExpressionMolecularData
 
 
 class ParquetToTsv(SparkSubmitTask):
@@ -115,6 +115,9 @@ class ParquetToTsv(SparkSubmitTask):
         elif Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY == self.name:
             return TransformCytogeneticsMolecularData(self.data_dir, self.providers, self.data_dir_out)
 
+        elif Constants.EXPRESSION_MOLECULAR_DATA_ENTITY == self.name:
+            return TransformExpressionMolecularData(self.data_dir, self.providers, self.data_dir_out)
+
     def app_options(self):
         return [
             self.input().path,
@@ -164,7 +167,8 @@ class Load(luigi.Task):
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.PLATFORM_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.MOLECULAR_CHARACTERIZATION_ENTITY),
             ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.CNA_MOLECULAR_DATA_ENTITY),
-            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY)
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY),
+            ParquetToTsv(self.data_dir, self.providers, self.data_dir_out, Constants.EXPRESSION_MOLECULAR_DATA_ENTITY)
         ]
 
     def run(self):
