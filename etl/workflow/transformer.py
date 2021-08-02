@@ -297,5 +297,12 @@ class TransformExpressionMolecularData(TransformEntity):
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
 
 
+class TransformMutationMarker(TransformEntity):
+    requiredTasks = [
+        ExtractMutation()
+    ]
+    entity_name = Constants.MUTATION_MARKER_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()
