@@ -224,4 +224,23 @@ entities:
       - "tmp_symbol"
       - "molecular_characterization_id"
 
+  - entity: "mutation_marker"
+    columns:
+      - "id"
+      - "biotype"
+      - "coding_sequence_change"
+      - "variant_class"
+      - "codon_change"
+      - "amino_acid_change"
+      - "consequence"
+      - "functional_prediction"
+      - "seq_start_position"
+      - "ref_allele"
+      - "alt_allele"
+      - "ncbi_transcript_id"
+      - "ensembl_transcript_id"
+      - "variation_id"
+      - "tmp_symbol"
+
+
 

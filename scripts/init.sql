@@ -380,3 +380,24 @@ ALTER TABLE expression_molecular_data
     ADD CONSTRAINT fk_expression_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
+
+CREATE TABLE mutation_marker (
+    id BIGINT NOT NULL,
+    biotype TEXT,
+    coding_sequence_change TEXT,
+    variant_class TEXT,
+    codon_change TEXT,
+    aminoacid_change TEXT,
+    consequence TEXT,
+    functional_prediction TEXT,
+    seq_start_position TEXT,
+    ref_allele TEXT,
+    alt_allele TEXT,
+    ncbi_transcript_id TEXT,
+    ensembl_transcript_id TEXT,
+    variation_id TEXT,
+    --gene_marker_id BIGINT,
+    tmp_symbol TEXT,
+    --loci_marker_id BIGINT,
+    PRIMARY KEY (id)
+);
