@@ -29,6 +29,10 @@ import etl.jobs.transformation.response_transformer_job
 import etl.jobs.transformation.molecular_characterization_type_transformer_job
 import etl.jobs.transformation.platform_transformer_job
 import etl.jobs.transformation.molecular_characterization_transformer_job
+import etl.jobs.transformation.cna_molecular_data_transformer_job
+import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
+import etl.jobs.transformation.expression_molecular_data_transformer_job
+import etl.jobs.transformation.mutation_marker_transformer_job
 from etl.constants import Constants
 
 
@@ -129,6 +133,18 @@ def main1(argv):
 
     elif entity_name == Constants.MOLECULAR_CHARACTERIZATION_ENTITY:
         etl.jobs.transformation.molecular_characterization_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.CNA_MOLECULAR_DATA_ENTITY:
+        etl.jobs.transformation.cna_molecular_data_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY:
+        etl.jobs.transformation.cytogenetics_molecular_data_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.EXPRESSION_MOLECULAR_DATA_ENTITY:
+        etl.jobs.transformation.expression_molecular_data_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.MUTATION_MARKER_ENTITY:
+        etl.jobs.transformation.mutation_marker_transformer_job.main(args_without_entity)
 
 
 if __name__ == "__main__":

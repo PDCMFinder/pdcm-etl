@@ -14,6 +14,9 @@ class Constants:
     DRUG_DOSING_MODULE = "drug-dosing"
     PATIENT_TREATMENT_MODULE = "patient-treatment"
     CNA_MODULE = "cna"
+    CYTOGENETICS_MODULE = "cyto"
+    EXPRESSION_MODULE = "expression"
+    MUTATION_MODULE = "mutation"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -47,3 +50,7 @@ class Constants:
     MOLECULAR_CHARACTERIZATION_TYPE_ENTITY = "molecular_characterization_type"
     PLATFORM_ENTITY = "platform"
     MOLECULAR_CHARACTERIZATION_ENTITY = "molecular_characterization"
+    CNA_MOLECULAR_DATA_ENTITY = "cna_molecular_data"
+    CYTOGENETICS_MOLECULAR_DATA_ENTITY = "cytogenetics_molecular_data"
+    EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
+    MUTATION_MARKER_ENTITY = "mutation_marker"

@@ -3,7 +3,8 @@ from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractLoader, ExtractModel, \
-    ExtractModelValidation, ExtractSample, ExtractSamplePlatform, ExtractDrugDosing, ExtractPatientTreatment, ExtractCna
+    ExtractModelValidation, ExtractSample, ExtractSamplePlatform, ExtractDrugDosing, ExtractPatientTreatment, \
+    ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -264,9 +265,43 @@ class TransformMolecularCharacterization(TransformEntity):
         TransformPatientSample(),
         TransformXenograftSample(),
         TransformMolecularCharacterizationType(),
-        ExtractCna()
+        ExtractCna(),
+        ExtractCytogenetics(),
+        ExtractExpression(),
+        ExtractMutation()
     ]
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_ENTITY
+
+
+class TransformCnaMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        ExtractCna()
+    ]
+    entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
+
+
+class TransformCytogeneticsMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        ExtractCytogenetics()
+    ]
+    entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
+
+
+class TransformExpressionMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        ExtractExpression()
+    ]
+    entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
+
+
+class TransformMutationMarker(TransformEntity):
+    requiredTasks = [
+        ExtractMutation()
+    ]
+    entity_name = Constants.MUTATION_MARKER_ENTITY
 
 
 if __name__ == "__main__":

@@ -324,3 +324,80 @@ ALTER TABLE molecular_characterization
     ADD CONSTRAINT fk_molecular_characterization_xenograft_sample
     FOREIGN KEY (xenograft_sample_id)
     REFERENCES xenograft_sample (id);
+
+CREATE TABLE cna_molecular_data (
+    id BIGINT NOT NULL,
+    log10r_cna TEXT,
+    log2r_cna TEXT,
+    copy_number_status TEXT,
+    gistic_value TEXT,
+    picnic_value TEXT,
+    --gene_marker_id BIGINT,
+    molecular_characterization_id BIGINT,
+    --loci_marker_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE cna_molecular_data
+    ADD CONSTRAINT fk_cna_molecular_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);
+
+CREATE TABLE cytogenetics_molecular_data (
+    id BIGINT NOT NULL,
+    marker_status TEXT,
+    essential_or_additional_marker TEXT,
+    --gene_marker_id BIGINT,
+    tmp_symbol TEXT,
+    molecular_characterization_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE cytogenetics_molecular_data
+    ADD CONSTRAINT fk_cytogenetics_molecular_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);
+
+CREATE TABLE expression_molecular_data (
+    id BIGINT NOT NULL,
+    z_score TEXT,
+    rnaseq_coverage TEXT,
+    rnaseq_fpkm TEXT,
+    rnaseq_tpm TEXT,
+    rnaseq_count TEXT,
+    affy_hgea_probe_id TEXT,
+    affy_hgea_expression_value TEXT,
+    illumina_hgea_probe_id TEXT,
+    illumina_hgea_expression_value TEXT,
+    --gene_marker_id BIGINT,
+    tmp_symbol TEXT,
+    molecular_characterization_id BIGINT,
+    --loci_marker_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE expression_molecular_data
+    ADD CONSTRAINT fk_expression_molecular_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);
+
+CREATE TABLE mutation_marker (
+    id BIGINT NOT NULL,
+    biotype TEXT,
+    coding_sequence_change TEXT,
+    variant_class TEXT,
+    codon_change TEXT,
+    aminoacid_change TEXT,
+    consequence TEXT,
+    functional_prediction TEXT,
+    seq_start_position TEXT,
+    ref_allele TEXT,
+    alt_allele TEXT,
+    ncbi_transcript_id TEXT,
+    ensembl_transcript_id TEXT,
+    variation_id TEXT,
+    --gene_marker_id BIGINT,
+    tmp_symbol TEXT,
+    --loci_marker_id BIGINT,
+    PRIMARY KEY (id)
+);

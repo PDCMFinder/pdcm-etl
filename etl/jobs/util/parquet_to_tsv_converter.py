@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import SparkSession
 
 from etl.constants import Constants
+from etl.entities_conf_reader import get_columns_by_entity
 
 
 def main(argv):
@@ -14,10 +15,14 @@ def main(argv):
                     [3]: Output file
     """
     parquet_path = argv[1]
-    output_path = argv[2]
+    entity = argv[2]
+    output_path = argv[3]
 
     spark = SparkSession.builder.getOrCreate()
+
     df = spark.read.parquet(parquet_path).drop(Constants.DATA_SOURCE_COLUMN)
+    columns = get_columns_by_entity(entity)
+    df = df.select(columns)
     df.coalesce(1).write \
         .option('sep', '\t') \
         .option('header', 'false') \

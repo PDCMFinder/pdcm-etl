@@ -7,6 +7,7 @@ from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import trim_all_str
 from etl.jobs.util.file_manager import get_not_empty_files
 from etl.source_files_conf_reader import read_groups
 
@@ -17,12 +18,13 @@ def get_data_dir_path(data_dir: str, provider: str, ):
     return "{0}/{1}/{2}".format(data_dir, ROOT_FOLDER, provider)
 
 
-def get_paths(data_dir, providers, file_pattern):
+def get_paths_by_patterns(data_dir, providers, file_patterns):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
     filesList = []
     for provider in providers:
-        pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
-        filesList += (glob.glob(pattern))
+        for file_pattern in file_patterns:
+            pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)
+            filesList += (glob.glob(pattern))
     return filesList
 
 
@@ -47,12 +49,21 @@ def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
     return df
 
 
+def clean_column_names(df: DataFrame):
+    columns = df.columns
+    for column in columns:
+        df = df.withColumnRenamed(column, trim_all_str(column))
+    return df
+
+
 def read_with_columns(session, path, schema):
     data_source = get_datasource_from_path(path)
     df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(path)
+    df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
     # Add a data_source column that makes it easy to identify the provider in the modules
     df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(data_source))
+    print("read from path {0} count: {1}".format(path, df.count()))
     return df
 
 
@@ -97,7 +108,20 @@ class ReadWithSpark(PySparkTask):
         streams.write.mode("overwrite").parquet(output_path)
 
 
-def get_tasks_to_run(data_dir, providers, data_dir_out):
+def get_files_matching_patterns_batch(data_dir, providers, file_patterns, batch_size):
+    # List of lists with the found paths
+    list_in_batches = [[]]
+    all_matching_paths = get_paths_by_patterns(data_dir, list(providers), file_patterns)
+    if not all_matching_paths:
+        return list_in_batches
+    if not batch_size:
+        return [all_matching_paths]
+    else:
+        batch_size = int(batch_size)
+        return [all_matching_paths[i:i + batch_size] for i in range(0, len(all_matching_paths), batch_size)]
+
+
+def get_tasks_to_run(data_dir, providers, data_dir_out, batch_size):
     tasks = []
     groups = read_groups()
     for group in groups:
@@ -105,11 +129,11 @@ def get_tasks_to_run(data_dir, providers, data_dir_out):
         if skip is None or not skip:
             for file in group["files"]:
                 file_id = file["id"]
-                filePattern = file["name_pattern"]
+                filePatterns = file["name_patterns"]
                 columns = file["columns"]
-
-                paths = get_paths(data_dir, list(providers), filePattern)
-                tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
+                list_in_batches = get_files_matching_patterns_batch(data_dir, list(providers), filePatterns, batch_size)
+                for paths in list_in_batches:
+                    tasks.append(ReadWithSpark(file_id, paths, columns, data_dir_out))
     return tasks
 
 
@@ -117,9 +141,10 @@ class Extract(luigi.WrapperTask):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
+    LIST_MAX_SIZE = luigi.Parameter()
 
     def requires(self):
-        tasks = get_tasks_to_run(self.data_dir, self.providers, self.data_dir_out)
+        tasks = get_tasks_to_run(self.data_dir, self.providers, self.data_dir_out, self.LIST_MAX_SIZE)
         yield tasks
 
 
@@ -174,6 +199,18 @@ class ExtractPatientTreatment(ExtractFile):
 
 class ExtractCna(ExtractFile):
     file_id = Constants.CNA_MODULE
+
+
+class ExtractCytogenetics(ExtractFile):
+    file_id = Constants.CYTOGENETICS_MODULE
+
+
+class ExtractExpression(ExtractFile):
+    file_id = Constants.EXPRESSION_MODULE
+
+
+class ExtractMutation(ExtractFile):
+    file_id = Constants.MUTATION_MODULE
 
 
 if __name__ == "__main__":
