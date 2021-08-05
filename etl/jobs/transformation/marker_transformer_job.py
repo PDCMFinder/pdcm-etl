@@ -18,7 +18,7 @@ def main(argv):
     markers_list = biomarker_extractor.extract_markers(input_path)
     markers_df = biomarker_extractor.create_marker_dataframe(markers_list)
     markers_df = add_id(markers_df, "id")
-    markers_df.write.mode("overwrite").parquet(output_path)
+    markers_df.write.mode("overwrite").parquet(output_path+"/markers")
 
     marker_aliases_df = biomarker_extractor.create_marker_aliases_dataframe(markers_list)
     marker_aliases_df = add_id(marker_aliases_df, "id")
