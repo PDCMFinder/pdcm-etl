@@ -17,8 +17,9 @@ def create_marker_aliases_dataframe(markers) -> DataFrame:
         approved_symbol = marker[1]
         alias_list = marker[5].split(",")
         for alias in alias_list:
-            symbol_alias_pair = [approved_symbol, alias]
-            aliases.append(symbol_alias_pair)
+            if alias != "":
+                symbol_alias_pair = [approved_symbol, alias]
+                aliases.append(symbol_alias_pair)
 
     columns = ["approved_symbol", "alias_symbol"]
     df = spark.createDataFrame(data=aliases, schema=columns)
@@ -31,12 +32,14 @@ def create_marker_prev_symbols_dataframe(markers) -> DataFrame:
     for marker in markers:
         approved_symbol = marker[1]
         prev_symbol_list = marker[4].split(",")
+
         for prev_symbol in prev_symbol_list:
-            symbol_prev_symbol_pair = [approved_symbol, prev_symbol]
-            prev_symbols.append(symbol_prev_symbol_pair)
+            if prev_symbol != "":
+                symbol_prev_symbol_pair = [approved_symbol, prev_symbol]
+                prev_symbols.append(symbol_prev_symbol_pair)
 
     columns = ["approved_symbol", "previous_symbol"]
-    df = spark.createDataFrame(data=prev_symbol, schema=columns)
+    df = spark.createDataFrame(data=prev_symbols, schema=columns)
     return df
 
 
