@@ -17,6 +17,9 @@ class Constants:
     CYTOGENETICS_MODULE = "cyto"
     EXPRESSION_MODULE = "expression"
     MUTATION_MODULE = "mutation"
+    MOLECULAR_DATA_SAMPLE_MODULE = "molchar_sample"
+    MOLECULAR_DATA_PLATFORM_MODULE = "molchar_platform"
+    MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 

@@ -35,7 +35,7 @@ groups:
           - "age_at_initial_diagnosis"
 
       - id: "sample"
-        name_patterns: ["*metadata-sample.tsv"]
+        name_patterns: ["*[A-Z]_metadata-sample.tsv"]
         columns:
           - "patient_id"
           - "sample_id"
@@ -127,17 +127,46 @@ groups:
           - "platform"
           - "platform_type"
 
-  - group: "molecular-data"
-    skip: False
+  - group: "molecular-metadata"
     files:
-      - id: "cna"
-        name_patterns: ["cna/*cna*.tsv"]
+      - id: "molchar_sample"
+        name_patterns: [ "*_molecular_metadata-sample.tsv" ]
         columns:
           - "model_id"
           - "sample_id"
           - "sample_origin"
           - "passage"
+          - "host_strain_name"
           - "host_strain_nomenclature"
+          - "engrafted_tumor_collection_site"
+          - "raw_data_url"
+          - "platform_id"
+
+      - id: "molchar_platform"
+        name_patterns: [ "*_molecular_metadata-platform.tsv" ]
+        columns:
+          - "platform_id"
+          - "molecular_characterisation_type"
+          - "instrument_model"
+          - "library_strategy"
+          - "library_selection"
+          - "library_notes"
+          - "genome_assembly"
+
+      - id: "molchar_platform_web"
+        name_patterns: [ "*_molecular_metadata-platform_web.tsv" ]
+        columns:
+          - "platform_id"
+          - "molecular_methods_description"
+          - "analysis_description"
+
+
+  - group: "molecular-data"
+    files:
+      - id: "cna"
+        name_patterns: ["cna/*cna*.tsv"]
+        columns:
+          - "sample_id"
           - "chromosome"
           - "seq_start_position"
           - "seq_end_position"
@@ -157,10 +186,6 @@ groups:
         name_patterns: ["cyto/*cyto*.tsv"]
         columns:
           - "sample_id"
-          - "sample_origin"
-          - "passage"
-          - "host_strain_nomenclature"
-          - "model_id"
           - "symbol"
           - "marker_status"
           - "essential_or_additional_marker"
@@ -171,11 +196,7 @@ groups:
       - id: "expression"
         name_patterns: ["expression/*expression*.tsv", "expression/*/*expression*.tsv"]
         columns:
-          - "model_id"
           - "sample_id"
-          - "sample_origin"
-          - "host_strain_nomenclature"
-          - "passage"
           - "chromosome"
           - "strand"
           - "seq_start_position"
@@ -198,11 +219,7 @@ groups:
       - id: "mutation"
         name_patterns: [ "mut/*mut*.tsv", "mut/*/*mut*.tsv" ]
         columns:
-          - "model_id"
           - "sample_id"
-          - "sample_origin"
-          - "host_strain_nomenclature"
-          - "passage"
           - "symbol"
           - "biotype"
           - "coding_sequence_change"

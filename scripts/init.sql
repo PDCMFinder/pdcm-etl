@@ -139,13 +139,13 @@ ALTER TABLE quality_assurance
 
 CREATE TABLE tissue (
     id BIGINT NOT NULL,
-    name TEXT NOT NULL,
+    name TEXT,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE tumour_type (
     id BIGINT NOT NULL,
-    name TEXT NOT NULL,
+    name TEXT,
     PRIMARY KEY (id)
 );
 
@@ -284,7 +284,7 @@ CREATE TABLE molecular_characterization_type (
 
 CREATE TABLE platform (
     id BIGINT NOT NULL,
-    library_strategy TEXT NOT NULL,
+    library_strategy TEXT,
     provider_group_id BIGINT,
     instrument_model TEXT,
     library_selection TEXT,
@@ -333,6 +333,7 @@ CREATE TABLE cna_molecular_data (
     gistic_value TEXT,
     picnic_value TEXT,
     --gene_marker_id BIGINT,
+    tmp_symbol TEXT,
     molecular_characterization_id BIGINT,
     --loci_marker_id BIGINT,
     PRIMARY KEY (id)

@@ -42,8 +42,6 @@ def transform_expression_molecular_data(
 def get_expression_df(raw_expression_df: DataFrame) -> DataFrame:
     return raw_expression_df.select(
         "sample_id",
-        "sample_origin",
-        lit("expression").alias("molchar_type"),
         "seq_start_position",
         "seq_end_position",
         "rnaseq_coverage",
@@ -62,23 +60,15 @@ def get_expression_df(raw_expression_df: DataFrame) -> DataFrame:
 def set_fk_molecular_characterization(expression_df: DataFrame, molecular_characterization_df: DataFrame) -> DataFrame:
     molecular_characterization_df = molecular_characterization_df.withColumnRenamed(
         "id", "molecular_characterization_id")
-    expression_patient_sample_df = expression_df.where("sample_origin = 'patient'")
-    expression_patient_sample_df = expression_patient_sample_df.drop("sample_origin")
-    expression_patient_sample_df = expression_patient_sample_df.withColumnRenamed(
-        "sample_id", "external_patient_sample_id")
+    mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
+    mol_char_patient_df = mol_char_patient_df.withColumnRenamed("patient_sample_id", "sample_id")
+    expression_patient_sample_df = mol_char_patient_df.join(expression_df, on=["sample_id"])
 
-    expression_patient_sample_df = expression_patient_sample_df.join(
-        molecular_characterization_df, on=['molchar_type', 'platform', 'external_patient_sample_id'])
+    mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
+    mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
+    expression_xenograft_sample_df = mol_char_xenograft_df.join(expression_df, on=["sample_id"])
 
-    expression_xenograft_sample_df = expression_df.where("sample_origin = 'xenograft'")
-    expression_xenograft_sample_df = expression_xenograft_sample_df.drop("sample_origin")
-    expression_xenograft_sample_df = expression_xenograft_sample_df.withColumnRenamed(
-        "sample_id", "external_xenograft_sample_id")
-
-    expression_xenograft_sample_df = expression_xenograft_sample_df.join(
-        molecular_characterization_df, on=['molchar_type', 'platform', 'external_xenograft_sample_id'])
     expression_df = expression_patient_sample_df.union(expression_xenograft_sample_df)
-
     return expression_df
 
 

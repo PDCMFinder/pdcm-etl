@@ -189,6 +189,18 @@ class ExtractSamplePlatform(ExtractFile):
     file_id = Constants.SAMPLE_PLATFORM_MODULE
 
 
+class ExtractMolecularMetadataSample(ExtractFile):
+    file_id = Constants.MOLECULAR_DATA_SAMPLE_MODULE
+
+
+class ExtractMolecularMetadataPlatform(ExtractFile):
+    file_id = Constants.MOLECULAR_DATA_PLATFORM_MODULE
+
+
+class ExtractMolecularMetadataPlatformWeb(ExtractFile):
+    file_id = Constants.MOLECULAR_DATA_PLATFORM_WEB_MODULE
+
+
 class ExtractDrugDosing(ExtractFile):
     file_id = Constants.DRUG_DOSING_MODULE
 
