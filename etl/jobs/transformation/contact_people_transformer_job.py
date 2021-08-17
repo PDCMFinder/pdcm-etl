@@ -1,6 +1,8 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
+
+from etl.constants import Constants
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -29,7 +31,8 @@ def transform_contact_people(raw_sharing_df: DataFrame) -> DataFrame:
 
 
 def extract_contact_people(raw_sharing_df: DataFrame) -> DataFrame:
-    contact_people_df = raw_sharing_df.select("name", "email").where("name is not null and email is not null")
+    contact_people_df = raw_sharing_df.select(
+        "name", "email", Constants.DATA_SOURCE_COLUMN).where("name is not null and email is not null")
     contact_people_df = contact_people_df.withColumnRenamed("name", "name_list")
     contact_people_df = contact_people_df.withColumnRenamed("email", "email_list")
     contact_people_df = contact_people_df.drop_duplicates()
@@ -38,7 +41,7 @@ def extract_contact_people(raw_sharing_df: DataFrame) -> DataFrame:
 
 
 def get_columns_expected_order(provider_group_df: DataFrame) -> DataFrame:
-    return provider_group_df.select("id", "name_list", "email_list")
+    return provider_group_df.select("id", "name_list", "email_list", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

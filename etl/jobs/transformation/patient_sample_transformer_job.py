@@ -1,8 +1,9 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import col
 
+from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
@@ -73,7 +74,8 @@ def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
         "collection_site",
         init_cap_and_trim_all("prior_treatment").alias("prior_treatment"),
         "tumour_type",
-        col("model_id").alias("model_name")
+        col("model_id").alias("model_name"),
+        Constants.DATA_SOURCE_COLUMN
     )
     return patient_sample_df
 
@@ -106,7 +108,12 @@ def set_fk_tumour_type(patient_sample_df: DataFrame, tumour_type_df: DataFrame) 
 
 
 def set_fk_model(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    patient_sample_df = transform_to_fk(patient_sample_df, model_df, "model_name", "external_model_id", "id", "model_id")
+    model_df = model_df.select(
+        col("id").alias("model_id_ref"),
+        col("external_model_id").alias("model_name"),
+        col("data_source").alias(Constants.DATA_SOURCE_COLUMN))
+    patient_sample_df = patient_sample_df.join(model_df, on=['model_name', Constants.DATA_SOURCE_COLUMN], how='left')
+    patient_sample_df = patient_sample_df.withColumnRenamed("model_id_ref", "model_id")
     return patient_sample_df
 
 
@@ -120,7 +127,7 @@ def set_raw_data_url(patient_sample_df: DataFrame, raw_sample_platform_df: DataF
         (patient_sample_df.external_patient_sample_id == raw_sample_platform_ref_df.sample_id_ref)
         & (patient_sample_df.model_id == raw_sample_platform_ref_df.model_id_ref)
         & (raw_sample_platform_ref_df.sample_origin == 'patient')
-        & (patient_sample_df.data_source == raw_sample_platform_ref_df.data_source_tmp_ref),  how='left')
+        & (patient_sample_df.data_source_tmp == raw_sample_platform_ref_df.data_source_tmp_ref),  how='left')
 
     patient_sample_df = build_raw_data_url(patient_sample_df, "raw_data_url")
 
