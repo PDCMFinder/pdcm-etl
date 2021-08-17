@@ -2,7 +2,7 @@ groups:
   - group: "metadata"
     modules:
       - name: "model"
-        name_patterns: ["*metadata-pdx_models.tsv"]
+        name_patterns: ["$provider_metadata-pdx_models.tsv"]
         columns:
           - "model_id"
           - "host_strain_name"
@@ -15,7 +15,7 @@ groups:
           - "publications"
 
       - name: "model_validation"
-        name_patterns: ["*metadata-model_validation.tsv"]
+        name_patterns: ["$provider_metadata-model_validation.tsv"]
         columns:
           - "model_id"
           - "validation_technique"
@@ -24,7 +24,7 @@ groups:
           - "validation_host_strain_nomenclature"
 
       - name: "patient"
-        name_patterns: ["*metadata-patient.tsv"]
+        name_patterns: ["$provider_metadata-patient.tsv"]
         columns:
           - "patient_id"
           - "sex"
@@ -35,7 +35,7 @@ groups:
           - "age_at_initial_diagnosis"
 
       - name: "sample"
-        name_patterns: ["*[A-Z]_metadata-sample.tsv"]
+        name_patterns: ["$provider_metadata-sample.tsv"]
         columns:
           - "patient_id"
           - "sample_id"
@@ -59,7 +59,7 @@ groups:
           - "model_id"
 
       - name: "sharing"
-        name_patterns: ["*metadata-sharing.tsv"]
+        name_patterns: ["$provider_metadata-sharing.tsv"]
         columns:
           - "model_id"
           - "provider_type"
@@ -74,7 +74,7 @@ groups:
           - "project"
 
       - name: "drug-dosing"
-        name_patterns: [ "drug/*drugdosing-Sheet1.tsv" ]
+        name_patterns: [ "drug/$provider_drugdosing-Sheet1.tsv" ]
         columns:
           - "abbreviation"
           - "model_id"
@@ -93,7 +93,7 @@ groups:
           - "internal_treatment_url"
 
       - name: "patient-treatment"
-        name_patterns: [ "treatment/*patienttreatment-Sheet1.tsv" ]
+        name_patterns: [ "treatment/$provider_patienttreatment-Sheet1.tsv" ]
         columns:
           - "patient_id"
           - "treatment_name"
@@ -108,7 +108,7 @@ groups:
   - group: "molecular-metadata"
     modules:
       - name: "molchar_sample"
-        name_patterns: [ "*_molecular_metadata-sample.tsv" ]
+        name_patterns: [ "$provider__molecular_metadata-sample.tsv" ]
         columns:
           - "model_id"
           - "sample_id"
@@ -121,7 +121,7 @@ groups:
           - "platform_id"
 
       - name: "molchar_platform"
-        name_patterns: [ "*_molecular_metadata-platform.tsv" ]
+        name_patterns: [ "$provider__molecular_metadata-platform.tsv" ]
         columns:
           - "platform_id"
           - "molecular_characterisation_type"
@@ -132,7 +132,7 @@ groups:
           - "genome_assembly"
 
       - name: "molchar_platform_web"
-        name_patterns: [ "*_molecular_metadata-platform_web.tsv" ]
+        name_patterns: [ "$provider__molecular_metadata-platform_web.tsv" ]
         columns:
           - "platform_id"
           - "molecular_methods_description"
@@ -142,7 +142,7 @@ groups:
   - group: "molecular-data"
     modules:
       - name: "cna"
-        name_patterns: ["cna/*cna*.tsv"]
+        name_patterns: ["cna/$provider_cna*.tsv"]
         columns:
           - "sample_id"
           - "chromosome"
@@ -161,7 +161,7 @@ groups:
           - "platform"
 
       - name: "cyto"
-        name_patterns: ["cyto/*cyto*.tsv"]
+        name_patterns: ["cyto/$provider_cyto*.tsv"]
         columns:
           - "sample_id"
           - "symbol"
@@ -172,7 +172,7 @@ groups:
           - "result_file_name"
 
       - name: "expression"
-        name_patterns: ["expression/*expression*.tsv", "expression/*/*expression*.tsv"]
+        name_patterns: ["expression/$provider_expression*.tsv", "expression/*/$provider_expression*.tsv"]
         columns:
           - "sample_id"
           - "chromosome"
@@ -195,7 +195,7 @@ groups:
           - "platform"
 
       - name: "mutation"
-        name_patterns: [ "mut/*mut*.tsv", "mut/*/*mut*.tsv" ]
+        name_patterns: [ "mut/$provider_mut*.tsv", "mut/*/$provider_mut*.tsv" ]
         columns:
           - "sample_id"
           - "symbol"

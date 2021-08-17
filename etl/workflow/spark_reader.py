@@ -10,7 +10,7 @@ from pyspark.sql.types import StructType, StructField, StringType
 from etl import logger
 from etl.constants import Constants
 from etl.jobs.util.cleaner import trim_all_str
-from etl.source_files_conf_reader import read_groups, read_module
+from etl.source_files_conf_reader import read_module
 
 ROOT_FOLDER = "data/UPDOG"
 
@@ -48,7 +48,6 @@ def read_files(session, path_patterns, schema):
     datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
     df = df.withColumn(Constants.DATA_SOURCE_COLUMN, regexp_extract("_data_source", datasource_pattern, 1))
     df = df.drop("_data_source")
-    df.show()
     end = time.time()
     logger.info(
         "Read from path {0} count: {1} in {2} seconds".format(path_patterns, df.count(), round(end - start, 4)))
@@ -94,38 +93,17 @@ def build_path_patterns(data_dir, providers, file_patterns):
     paths_patterns = []
 
     for file_pattern in file_patterns:
-        print("checking pattern", file_pattern)
         matching_providers = []
         for provider in providers:
-            print("...check ", file_pattern, "--", provider)
-            print("does this exist??", "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern))
-            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, file_pattern)):
+            current_file_pattern = str(file_pattern).replace("$provider", provider)
+            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
                 matching_providers.append(provider)
-        print("matching_providers",matching_providers)
+
         if matching_providers:
             joined_providers_list = ','.join([p for p in matching_providers])
             providers_pattern = "{" + joined_providers_list + "}"
-            path_pattern = "{0}/{1}/{2}".format(data_dir_root, providers_pattern, file_pattern)
-            print("this should exist", path_pattern)
-            paths_patterns.append(path_pattern)
-
-    print("nre paths_patterns", paths_patterns)
-    return paths_patterns
-
-
-    providers_where_matches = []
-    for provider in providers:
-        for pattern in file_patterns:
-            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, pattern)):
-                providers_where_matches.append(provider)
-
-    print("Build pattern for {0} {1}. Pattern where matches {2}".format(providers, file_patterns, providers_where_matches))
-    if providers_where_matches:
-        joined_providers_list = ','.join([p for p in providers_where_matches])
-        providers_pattern = "{" + joined_providers_list + "}"
-
-        for file_pattern in file_patterns:
-            path_pattern = "{0}/{1}/{2}".format(data_dir_root, providers_pattern, file_pattern)
+            path_pattern = "{0}/{1}/{2}".format(
+                data_dir_root, providers_pattern, file_pattern.replace("$provider", providers_pattern))
             paths_patterns.append(path_pattern)
 
     return paths_patterns
@@ -137,20 +115,6 @@ def get_tsv_extraction_task_by_module(data_dir, providers, data_dir_out, module_
     columns = module["columns"]
     path_patterns = build_path_patterns(data_dir, list(providers), file_patterns)
     return ReadByModuleAndPathPatterns(module_name, path_patterns, columns, data_dir_out)
-
-def get_tasks_to_run(data_dir, providers, data_dir_out):
-    tasks = []
-    groups = read_groups()
-    for group in groups:
-        skip = group.get("skip")
-        if skip is None or not skip:
-            for file in group["modules"]:
-                file_id = file["name"]
-                file_patterns = file["name_patterns"]
-                columns = file["columns"]
-                path_patterns = build_path_patterns(data_dir, list(providers), file_patterns)
-                tasks.append(ReadByModuleAndPathPatterns(file_id, path_patterns, columns, data_dir_out))
-    return tasks
 
 
 if __name__ == "__main__":
