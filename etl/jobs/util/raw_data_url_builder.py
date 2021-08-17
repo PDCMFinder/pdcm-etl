@@ -3,11 +3,7 @@ import re
 from pyspark.sql import DataFrame
 from pyspark.sql import Column
 from pyspark.sql.functions import col, udf, lit, when
-from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType
-
-import findspark
-findspark.init()
 
 
 def build_raw_data_url(df: DataFrame, col_name) -> DataFrame:
@@ -15,8 +11,8 @@ def build_raw_data_url(df: DataFrame, col_name) -> DataFrame:
     df = df.withColumn(
         col_name,
         when(
-            col("raw_data_file").isNotNull(),
-            convert_raw_data_value_to_url_udf(df.raw_data_file))
+            col("raw_data_url").isNotNull(),
+            convert_raw_data_value_to_url_udf(df.raw_data_url))
         .otherwise(None))
     return df
 
@@ -44,18 +40,3 @@ def convert_raw_data_value_to_url(raw_data_value: str) -> Column:
     print("formattedAccesionLink ", formattedAccesionLink)
     return lit("") if raw_data_value == "" else lit(f"{raw_data_value},{formattedAccesionLink}")
 
-def test():
-    spark = SparkSession.builder.getOrCreate()
-    df = spark.createDataFrame(
-        [
-            (1, "foo", "EGA123"),  # create your data here, be consistent in the types.
-            (2, "bar", None),
-        ],
-        ["id", "label", "raw_data_file"]  # add your column names here
-    )
-    df = build_raw_data_url(df, "d")
-    df.show()
-
-if __name__ == "__main__":
-
-    test()

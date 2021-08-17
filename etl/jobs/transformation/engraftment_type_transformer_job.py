@@ -1,10 +1,10 @@
 import sys
 
-from pyspark.sql import DataFrame, SparkSession, Column
-from pyspark.sql.functions import trim, initcap
+from pyspark.sql import DataFrame, SparkSession
 
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.id_assigner import add_id
+
 
 def main(argv):
     """
@@ -26,7 +26,7 @@ def transform_engraftment_type(raw_model_df: DataFrame) -> DataFrame:
     engraftment_type = get_engraftment_type_from_model(raw_model_df)
     engraftment_type = engraftment_type.drop_duplicates()
     engraftment_type = add_id(engraftment_type, "id")
-    engraftment_type = engraftment_type.select("id", "name")
+    engraftment_type = engraftment_type.select("id", "name").where("name is not null")
     return engraftment_type
 
 

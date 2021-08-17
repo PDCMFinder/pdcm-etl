@@ -26,7 +26,7 @@ def transform_engraftment_sample_type(raw_model_df: DataFrame) -> DataFrame:
     engraftment_sample_type_df = get_engraftment_sample_type_from_model(raw_model_df)
     engraftment_sample_type_df = engraftment_sample_type_df.drop_duplicates()
     engraftment_sample_type_df = add_id(engraftment_sample_type_df, "id")
-    engraftment_sample_type_df = engraftment_sample_type_df.select("id", "name")
+    engraftment_sample_type_df = engraftment_sample_type_df.select("id", "name").where("name is not null")
     return engraftment_sample_type_df
 
 

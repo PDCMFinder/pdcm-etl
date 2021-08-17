@@ -8,7 +8,6 @@ class Constants:
     PATIENT_MODULE = "patient"
     SAMPLE_MODULE = "sample"
     SHARING_MODULE = "sharing"
-    LOADER_MODULE = "loader"
     MODEL_MODULE = "model"
     MODEL_VALIDATION_MODULE = "model_validation"
     DRUG_DOSING_MODULE = "drug-dosing"

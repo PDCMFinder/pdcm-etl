@@ -38,7 +38,7 @@ def extract_host_strain(raw_model_df: DataFrame) -> DataFrame:
 
 
 def get_columns_expected_order(host_strain_df: DataFrame) -> DataFrame:
-    return host_strain_df.select("id", "name", "nomenclature")
+    return host_strain_df.select("id", "name", "nomenclature").where("name is not null")
 
 
 if __name__ == "__main__":

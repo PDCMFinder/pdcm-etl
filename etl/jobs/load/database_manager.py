@@ -1,4 +1,5 @@
 import glob
+import time
 
 import psycopg2
 from etl import logger
@@ -11,6 +12,7 @@ def get_database_connection():
 
 
 def copy_all_tsv_to_database(data_dir_out: str):
+    start = time.time()
     logger.info("Starts copying all data")
     tables = [
         Constants.TUMOUR_TYPE_ENTITY,
@@ -48,17 +50,72 @@ def copy_all_tsv_to_database(data_dir_out: str):
         Constants.MUTATION_MARKER_ENTITY
     ]
     connection = get_database_connection()
-    delete_data(connection, tables)
+    truncate_tables(connection, tables)
+    # disable_triggers(connection, tables)
+    delete_indexes(connection)
+    delete_fks(connection)
+
     for table in tables:
         copy_to_database(connection, table, data_dir_out)
+    # enable_triggers(connection, tables)
+    end = time.time()
+    print("All data copied in {0} seconds".format(round(end - start, 4)))
+    create_indexes(connection)
+    create_fks(connection)
     connection.commit()
     connection.close()
 
 
-def delete_data(connection, tables):
+def delete_indexes(connection):
+
+    print("deleting indexes")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/del_indexes.sql", "r").read())
+
+
+def delete_fks(connection):
+
+    print("deleting fks")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/del_fks.sql", "r").read())
+
+
+def create_indexes(connection):
+    start = time.time()
+    print("creating indexes")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/cr_indexes.sql", "r").read())
+    end = time.time()
+    print("Indexes created in {0} seconds".format(round(end - start, 4)))
+
+
+def create_fks(connection):
+    start = time.time()
+    print("creating fks")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/cr_fks.sql", "r").read())
+    end = time.time()
+    print("Fkd created in {0} seconds".format(round(end - start, 4)))
+
+
+def disable_triggers(connection, tables):
+    cur = connection.cursor()
+    for table in tables:
+        print("ALTER TABLE {0} DISABLE TRIGGER ALL;".format(table))
+        cur.execute("ALTER TABLE {0} DISABLE TRIGGER ALL;".format(table))
+
+
+def enable_triggers(connection, tables):
+    cur = connection.cursor()
+    for table in tables:
+        print("ALTER TABLE {0} ENABLE TRIGGER ALL;".format(table))
+        cur.execute("ALTER TABLE {0} ENABLE TRIGGER ALL;".format(table))
+
+
+def truncate_tables(connection, tables):
     for table in reversed(tables):
         cur = connection.cursor()
-        cur.execute("DELETE FROM {0}".format(table))
+        cur.execute("TRUNCATE {0} CASCADE".format(table))
 
 
 def copy_to_database(connection, table_name: str, data_dir_out):
@@ -67,7 +124,11 @@ def copy_to_database(connection, table_name: str, data_dir_out):
     cur = connection.cursor()
 
     for file in tsv_files:
+        start = time.time()
         print("open file", file)
         f = open(file, 'r')
         cur.copy_from(f, table_name, sep='\t', columns=None, null='""')
         f.close()
+        end = time.time()
+        print("Copied {0} in {1} seconds".format(table_name, round(end - start, 4)))
+

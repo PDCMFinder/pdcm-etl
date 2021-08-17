@@ -30,6 +30,8 @@ def main(argv):
     ethnicity_df = spark.read.parquet(ethnicity_parquet_path)
     provider_group_df = spark.read.parquet(provider_group_parquet_path)
     patient_df = transform_patient(raw_patient_df, diagnosis_df, ethnicity_df, provider_group_df)
+    # Temporary fix to remove null rows
+    patient_df = patient_df.where("external_patient_id is not null")
     patient_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -66,11 +68,12 @@ def set_fk_ethnicity(patient_df: DataFrame, ethnicity_df: DataFrame) -> DataFram
 
 
 def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -> DataFrame:
+
     patient_df = transform_to_fk(
         patient_df,
         provider_group_df,
         Constants.DATA_SOURCE_COLUMN,
-        Constants.DATA_SOURCE_COLUMN,
+        "abbreviation",
         "id",
         "provider_group_id")
     return patient_df

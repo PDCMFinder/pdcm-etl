@@ -23,7 +23,8 @@ def main(argv):
     df = spark.read.parquet(parquet_path).drop(Constants.DATA_SOURCE_COLUMN)
     columns = get_columns_by_entity(entity)
     df = df.select(columns)
-    df.coalesce(1).write \
+    # df.coalesce(1).write \
+    df.write \
         .option('sep', '\t') \
         .option('header', 'false') \
         .mode("overwrite").csv(output_path)

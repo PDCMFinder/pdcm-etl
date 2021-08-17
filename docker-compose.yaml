@@ -3,6 +3,14 @@ version: "3.1"
 services:
   db:
     image: postgres
+    command: >
+      -c wal_level=minimal
+      -c archive_mode=off
+      -c max_wal_senders=0
+      -c synchronous_commit=off
+      -c wal_writer_delay=10000
+      -c shared_buffers=264144
+      -c max_wal_size=264144
     environment:
       POSTGRES_DB: pdx
       POSTGRES_USER: pdx_admin
