@@ -2,9 +2,10 @@ import luigi
 from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
-from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractLoader, ExtractModel, \
-    ExtractModelValidation, ExtractSample, ExtractSamplePlatform, ExtractDrugDosing, ExtractPatientTreatment, \
-    ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation
+from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
+    ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
+    ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
+    ExtractMolecularMetadataSample
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -68,7 +69,6 @@ class TransformProviderType(TransformEntity):
 class TransformProviderGroup(TransformEntity):
     requiredTasks = [
         ExtractSharing(),
-        ExtractLoader(),
         TransformProviderType()
     ]
     entity_name = Constants.PROVIDER_GROUP_ENTITY
@@ -161,14 +161,14 @@ class TransformPatientSample(TransformEntity):
         TransformTissue(),
         TransformTumourType(),
         TransformModel(),
-        ExtractSamplePlatform()
+        ExtractMolecularMetadataSample()
     ]
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
 class TransformXenograftSample(TransformEntity):
     requiredTasks = [
-        ExtractSamplePlatform()
+        ExtractMolecularMetadataSample()
     ]
     entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
 
@@ -253,7 +253,7 @@ class TransformMolecularCharacterizationType(TransformEntity):
 
 class TransformPlatform(TransformEntity):
     requiredTasks = [
-        ExtractSamplePlatform(),
+        ExtractMolecularMetadataPlatform(),
         TransformProviderGroup()
     ]
     entity_name = Constants.PLATFORM_ENTITY
@@ -261,14 +261,11 @@ class TransformPlatform(TransformEntity):
 
 class TransformMolecularCharacterization(TransformEntity):
     requiredTasks = [
+        ExtractMolecularMetadataSample(),
         TransformPlatform(),
         TransformPatientSample(),
         TransformXenograftSample(),
-        TransformMolecularCharacterizationType(),
-        ExtractCna(),
-        ExtractCytogenetics(),
-        ExtractExpression(),
-        ExtractMutation()
+        TransformMolecularCharacterizationType()
     ]
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_ENTITY
 

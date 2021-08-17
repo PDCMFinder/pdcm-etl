@@ -94,7 +94,7 @@ def set_fk_contact_people(model_df: DataFrame, contact_people_df: DataFrame) -> 
     model_df = model_df.withColumnRenamed("email", "email_list")
     model_df = model_df.withColumnRenamed("name", "name_list")
     contact_people_df = contact_people_df.withColumnRenamed("id", "contact_people_id")
-    model_df = model_df.join(contact_people_df, on=['name_list', 'email_list'])
+    model_df = model_df.join(contact_people_df, on=['name_list', 'email_list'], how='left')
     return model_df
 
 

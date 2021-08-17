@@ -42,7 +42,7 @@ entities:
         - "description"
         - "passages_tested"
         - "validation_technique"
-        - "validation_host_strain_full"
+        - "validation_host_strain_nomenclature"
         - "model_id"
 
   - entity: "patient"
@@ -199,6 +199,7 @@ entities:
       - "copy_number_status"
       - "gistic_value"
       - "picnic_value"
+      - "tmp_symbol"
       - "molecular_characterization_id"
 
   - entity: "cytogenetics_molecular_data"

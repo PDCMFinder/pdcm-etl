@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
+from pyspark.sql.functions import lit, input_file_name, col
 
 
 def main(argv):
@@ -42,9 +43,13 @@ def extract_model_validation(raw_model_validation_df: DataFrame) -> DataFrame:
 
 
 def set_fk_model(quality_assurance_df, model_df):
+    quality_assurance_df = quality_assurance_df.withColumn("_data_source", lit(input_file_name()))
+
     quality_assurance_df = quality_assurance_df.withColumnRenamed("model_id", "model_id_ref")
+    quality_assurance_df = quality_assurance_df.withColumn("xyz", col("model_id_ref"))
     quality_assurance_df = transform_to_fk(
         quality_assurance_df, model_df, "model_id_ref", "external_model_id", "id", "model_id")
+    quality_assurance_df.show()
     return quality_assurance_df
 
 
@@ -54,7 +59,7 @@ def get_columns_expected_order(quality_assurance_df: DataFrame) -> DataFrame:
         "description",
         "passages_tested",
         "validation_technique",
-        "validation_host_strain_full",
+        "validation_host_strain_nomenclature",
         "model_id"
     )
 

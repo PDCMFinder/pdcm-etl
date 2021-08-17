@@ -8,7 +8,6 @@ class Constants:
     PATIENT_MODULE = "patient"
     SAMPLE_MODULE = "sample"
     SHARING_MODULE = "sharing"
-    LOADER_MODULE = "loader"
     MODEL_MODULE = "model"
     MODEL_VALIDATION_MODULE = "model_validation"
     DRUG_DOSING_MODULE = "drug-dosing"
@@ -17,6 +16,9 @@ class Constants:
     CYTOGENETICS_MODULE = "cyto"
     EXPRESSION_MODULE = "expression"
     MUTATION_MODULE = "mutation"
+    MOLECULAR_DATA_SAMPLE_MODULE = "molchar_sample"
+    MOLECULAR_DATA_PLATFORM_MODULE = "molchar_platform"
+    MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 

@@ -10,3 +10,11 @@ def read_groups():
     return conf["groups"]
 
 
+def read_module(module_name):
+    groups = read_groups()
+    for group in groups:
+        for module in group["modules"]:
+            if module_name == module["name"]:
+                return module
+    return None
+

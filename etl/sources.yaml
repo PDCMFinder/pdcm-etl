@@ -1,12 +1,12 @@
 groups:
   - group: "metadata"
-    files:
-      - id: "model"
-        name_patterns: ["*metadata-model.tsv"]
+    modules:
+      - name: "model"
+        name_patterns: ["*metadata-pdx_models.tsv"]
         columns:
           - "model_id"
-          - "host_strain"
-          - "host_strain_full"
+          - "host_strain_name"
+          - "host_strain_nomenclature"
           - "engraftment_site"
           - "engraftment_type"
           - "sample_type"
@@ -14,16 +14,16 @@ groups:
           - "passage_number"
           - "publications"
 
-      - id: "model_validation"
+      - name: "model_validation"
         name_patterns: ["*metadata-model_validation.tsv"]
         columns:
           - "model_id"
           - "validation_technique"
           - "description"
           - "passages_tested"
-          - "validation_host_strain_full"
+          - "validation_host_strain_nomenclature"
 
-      - id: "patient"
+      - name: "patient"
         name_patterns: ["*metadata-patient.tsv"]
         columns:
           - "patient_id"
@@ -34,8 +34,8 @@ groups:
           - "initial_diagnosis"
           - "age_at_initial_diagnosis"
 
-      - id: "sample"
-        name_patterns: ["*metadata-sample.tsv"]
+      - name: "sample"
+        name_patterns: ["*[A-Z]_metadata-sample.tsv"]
         columns:
           - "patient_id"
           - "sample_id"
@@ -58,7 +58,7 @@ groups:
           - "prior_treatment"
           - "model_id"
 
-      - id: "sharing"
+      - name: "sharing"
         name_patterns: ["*metadata-sharing.tsv"]
         columns:
           - "model_id"
@@ -73,18 +73,8 @@ groups:
           - "provider_abbreviation"
           - "project"
 
-      - id: "loader"
-        name_patterns: ["*metadata-loader.tsv"]
-        columns:
-          - "name"
-          - "abbreviation"
-          - "internal_url"
-          - "internal_dosing_url"
-
-  - group: "treatment"
-    files:
-      - id: "drug-dosing"
-        name_patterns: ["drug/*drugdosing-Sheet1.tsv"]
+      - name: "drug-dosing"
+        name_patterns: [ "drug/*drugdosing-Sheet1.tsv" ]
         columns:
           - "abbreviation"
           - "model_id"
@@ -102,8 +92,8 @@ groups:
           - "raw_data_file"
           - "internal_treatment_url"
 
-      - id: "patient-treatment"
-        name_patterns: ["treatment/*patienttreatment-Sheet1.tsv"]
+      - name: "patient-treatment"
+        name_patterns: [ "treatment/*patienttreatment-Sheet1.tsv" ]
         columns:
           - "patient_id"
           - "treatment_name"
@@ -115,29 +105,46 @@ groups:
           - "treatment_response"
           - "response_classification"
 
-  - group: "sampleplatform"
-    files:
-      - id: "sampleplatform"
-        name_patterns: ["*sampleplatform-data.tsv"]
-        columns:
-          - "sample_id"
-          - "model_id"
-          - "sample_origin"
-          - "raw_data_file"
-          - "platform"
-          - "platform_type"
-
-  - group: "molecular-data"
-    skip: False
-    files:
-      - id: "cna"
-        name_patterns: ["cna/*cna*.tsv"]
+  - group: "molecular-metadata"
+    modules:
+      - name: "molchar_sample"
+        name_patterns: [ "*_molecular_metadata-sample.tsv" ]
         columns:
           - "model_id"
           - "sample_id"
           - "sample_origin"
           - "passage"
+          - "host_strain_name"
           - "host_strain_nomenclature"
+          - "engrafted_tumor_collection_site"
+          - "raw_data_url"
+          - "platform_id"
+
+      - name: "molchar_platform"
+        name_patterns: [ "*_molecular_metadata-platform.tsv" ]
+        columns:
+          - "platform_id"
+          - "molecular_characterisation_type"
+          - "instrument_model"
+          - "library_strategy"
+          - "library_selection"
+          - "library_notes"
+          - "genome_assembly"
+
+      - name: "molchar_platform_web"
+        name_patterns: [ "*_molecular_metadata-platform_web.tsv" ]
+        columns:
+          - "platform_id"
+          - "molecular_methods_description"
+          - "analysis_description"
+
+
+  - group: "molecular-data"
+    modules:
+      - name: "cna"
+        name_patterns: ["cna/*cna*.tsv"]
+        columns:
+          - "sample_id"
           - "chromosome"
           - "seq_start_position"
           - "seq_end_position"
@@ -153,14 +160,10 @@ groups:
           - "genome_assembly"
           - "platform"
 
-      - id: "cyto"
+      - name: "cyto"
         name_patterns: ["cyto/*cyto*.tsv"]
         columns:
           - "sample_id"
-          - "sample_origin"
-          - "passage"
-          - "host_strain_nomenclature"
-          - "model_id"
           - "symbol"
           - "marker_status"
           - "essential_or_additional_marker"
@@ -168,14 +171,10 @@ groups:
           - "protocol_file_name"
           - "result_file_name"
 
-      - id: "expression"
+      - name: "expression"
         name_patterns: ["expression/*expression*.tsv", "expression/*/*expression*.tsv"]
         columns:
-          - "model_id"
           - "sample_id"
-          - "sample_origin"
-          - "host_strain_nomenclature"
-          - "passage"
           - "chromosome"
           - "strand"
           - "seq_start_position"
@@ -195,14 +194,10 @@ groups:
           - "genome_assembly"
           - "platform"
 
-      - id: "mutation"
+      - name: "mutation"
         name_patterns: [ "mut/*mut*.tsv", "mut/*/*mut*.tsv" ]
         columns:
-          - "model_id"
           - "sample_id"
-          - "sample_origin"
-          - "host_strain_nomenclature"
-          - "passage"
           - "symbol"
           - "biotype"
           - "coding_sequence_change"

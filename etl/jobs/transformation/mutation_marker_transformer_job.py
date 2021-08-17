@@ -1,7 +1,6 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
 
 from etl.jobs.util.id_assigner import add_id
 

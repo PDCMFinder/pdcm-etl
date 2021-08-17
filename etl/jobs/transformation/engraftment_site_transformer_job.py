@@ -26,7 +26,7 @@ def transform_engraftment_site(raw_model_df: DataFrame) -> DataFrame:
     engraftment_site = get_engraftment_site_from_model(raw_model_df)
     engraftment_site = engraftment_site.drop_duplicates()
     engraftment_site = add_id(engraftment_site, "id")
-    engraftment_site = engraftment_site.select("id", "name")
+    engraftment_site = engraftment_site.select("id", "name").where("name is not null")
     return engraftment_site
 
 

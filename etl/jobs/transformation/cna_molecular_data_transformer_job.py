@@ -1,8 +1,9 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import lit
+from pyspark.sql.functions import col
 
+from etl.constants import Constants
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -30,6 +31,7 @@ def transform_cna_molecular_data(molecular_characterization_df: DataFrame, raw_c
     cna_df = get_cna_df(raw_cna_df)
     cna_df = set_fk_molecular_characterization(cna_df, molecular_characterization_df)
     cna_df = add_id(cna_df, "id")
+    cna_df = cna_df.withColumn("tmp_symbol", col("symbol"))
     cna_df = get_expected_columns(cna_df)
     return cna_df
 
@@ -37,8 +39,7 @@ def transform_cna_molecular_data(molecular_characterization_df: DataFrame, raw_c
 def get_cna_df(raw_cna_df: DataFrame) -> DataFrame:
     return raw_cna_df.select(
         "sample_id",
-        "sample_origin",
-        lit("cna").alias("molchar_type"),
+        Constants.DATA_SOURCE_COLUMN,
         "seq_start_position",
         "seq_end_position",
         "symbol",
@@ -47,25 +48,23 @@ def get_cna_df(raw_cna_df: DataFrame) -> DataFrame:
         "log2r_cna",
         "copy_number_status",
         "gistic_value",
-        "picnic_value")
+        "picnic_value").drop_duplicates()
 
 
 def set_fk_molecular_characterization(cna_df: DataFrame, molecular_characterization_df: DataFrame) -> DataFrame:
     molecular_characterization_df = molecular_characterization_df.withColumnRenamed(
-        "id", "molecular_characterization_id")
-    cna_patient_sample_df = cna_df.where("sample_origin = 'patient'")
-    cna_patient_sample_df = cna_patient_sample_df.drop("sample_origin")
-    cna_patient_sample_df = cna_patient_sample_df.withColumnRenamed("sample_id", "external_patient_sample_id")
+        "id", "molecular_characterization_id").where("molecular_characterisation_type = 'copy number alteration'")
 
-    cna_patient_sample_df = cna_patient_sample_df.join(
-        molecular_characterization_df, on=['molchar_type', 'platform', 'external_patient_sample_id'])
+    molecular_characterization_df = molecular_characterization_df.select(
+        "molecular_characterization_id", "sample_origin", "patient_sample_id", "external_xenograft_sample_id")
 
-    cna_xenograft_sample_df = cna_df.where("sample_origin = 'xenograft'")
-    cna_xenograft_sample_df = cna_xenograft_sample_df.drop("sample_origin")
-    cna_xenograft_sample_df = cna_xenograft_sample_df.withColumnRenamed("sample_id", "external_xenograft_sample_id")
+    mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
+    mol_char_patient_df = mol_char_patient_df.withColumnRenamed("patient_sample_id", "sample_id")
+    cna_patient_sample_df = mol_char_patient_df.join(cna_df, on=["sample_id"])
 
-    cna_xenograft_sample_df = cna_xenograft_sample_df.join(
-        molecular_characterization_df, on=['molchar_type', 'platform', 'external_xenograft_sample_id'])
+    mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
+    mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
+    cna_xenograft_sample_df = mol_char_xenograft_df.join(cna_df, on=["sample_id"])
 
     cna_df = cna_patient_sample_df.union(cna_xenograft_sample_df)
     return cna_df
@@ -73,7 +72,7 @@ def set_fk_molecular_characterization(cna_df: DataFrame, molecular_characterizat
 
 def get_expected_columns(ethnicity_df: DataFrame) -> DataFrame:
     return ethnicity_df.select(
-        "id", "log10r_cna", "log2r_cna", "copy_number_status", "gistic_value", "picnic_value",
+        "id", "log10r_cna", "log2r_cna", "copy_number_status", "gistic_value", "picnic_value", "tmp_symbol",
         "molecular_characterization_id")
 
 
