@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import col, trim
 
+from etl.constants import Constants
 from etl.jobs.util.cleaner import trim_all
 from etl.jobs.util.id_assigner import add_id
 
@@ -33,7 +34,8 @@ def transform_accessibility_group(raw_sharing_df: DataFrame) -> DataFrame:
 def get_accessibility_group_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
     accessibility_group_df = raw_sharing_df.withColumn("europdx_access_modalities", trim_all("europdx_access_modality"))
     accessibility_group_df = accessibility_group_df.withColumn("accessibility", trim_all("accessibility"))
-    accessibility_group_df = accessibility_group_df.select("europdx_access_modalities", "accessibility")
+    accessibility_group_df = accessibility_group_df.select(
+        "europdx_access_modalities", "accessibility", Constants.DATA_SOURCE_COLUMN)
     accessibility_group_df = accessibility_group_df.drop_duplicates()
     return accessibility_group_df
 
@@ -42,8 +44,11 @@ def format_name_column(column_name) -> Column:
     return trim(col(column_name))
 
 
-def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select("id", "europdx_access_modalities", "accessibility")
+def get_columns_expected_order(accessibility_group_df: DataFrame) -> DataFrame:
+    print("accessibility_group_df")
+    accessibility_group_df.show()
+    return accessibility_group_df.select(
+        "id", "europdx_access_modalities", "accessibility", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":
