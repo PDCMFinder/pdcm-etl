@@ -1,17 +1,7 @@
 import luigi
 
 from etl.constants import Constants
-from etl.workflow.spark_reader import get_tasks_to_run, get_tsv_extraction_task_by_module
-
-
-class Extract(luigi.WrapperTask):
-    data_dir = luigi.Parameter()
-    providers = luigi.ListParameter()
-    data_dir_out = luigi.Parameter()
-
-    def requires(self):
-        tasks = get_tasks_to_run(self.data_dir, self.providers, self.data_dir_out)
-        yield tasks
+from etl.workflow.spark_reader import get_tsv_extraction_task_by_module
 
 
 class ExtractModule(luigi.Task):
@@ -24,7 +14,6 @@ class ExtractModule(luigi.Task):
         return luigi.LocalTarget("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
 
     def requires(self):
-        # return Extract(self.data_dir, self.providers, self.data_dir_out)
         return get_tsv_extraction_task_by_module(
             self.data_dir, self.providers, self.data_dir_out, self.module_name)
 
