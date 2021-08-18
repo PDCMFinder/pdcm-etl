@@ -28,7 +28,9 @@ def main(argv):
 
 def transform_platform(raw_molecular_metadata_platform_df: DataFrame, provider_group_df) -> DataFrame:
     platform_df = get_platform_data(raw_molecular_metadata_platform_df)
+
     platform_df = set_fk_provider_group(platform_df, provider_group_df)
+
     platform_df = add_id(platform_df, "id")
     platform_df = get_columns_expected_order(platform_df)
     return platform_df
