@@ -108,7 +108,7 @@ groups:
   - group: "molecular-metadata"
     modules:
       - name: "molchar_sample"
-        name_patterns: [ "$provider__molecular_metadata-sample.tsv" ]
+        name_patterns: [ "$provider_molecular_metadata-sample.tsv" ]
         columns:
           - "model_id"
           - "sample_id"
@@ -121,7 +121,7 @@ groups:
           - "platform_id"
 
       - name: "molchar_platform"
-        name_patterns: [ "$provider__molecular_metadata-platform.tsv" ]
+        name_patterns: [ "$provider_molecular_metadata-platform.tsv" ]
         columns:
           - "platform_id"
           - "molecular_characterisation_type"
@@ -132,7 +132,7 @@ groups:
           - "genome_assembly"
 
       - name: "molchar_platform_web"
-        name_patterns: [ "$provider__molecular_metadata-platform_web.tsv" ]
+        name_patterns: [ "$provider_molecular_metadata-platform_web.tsv" ]
         columns:
           - "platform_id"
           - "molecular_methods_description"
