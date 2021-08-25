@@ -78,7 +78,7 @@ def get_molchar_sample(molchar_metadata_sample_df: DataFrame) -> DataFrame:
         "passage",
         "platform_id",
         Constants.DATA_SOURCE_COLUMN
-    )
+    ).drop_duplicates()
 
 
 def join_with_platform(molchar_metadata_sample_df: DataFrame, platform_df: DataFrame) -> DataFrame:

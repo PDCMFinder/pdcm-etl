@@ -1,7 +1,6 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import lit
 
 from etl.jobs.util.id_assigner import add_id
 
@@ -52,10 +51,10 @@ def set_fk_molecular_characterization(cytogenetics_df: DataFrame, molecular_char
         "id", "molecular_characterization_id").where("molecular_characterisation_type = 'cytogenetics'")
 
     molecular_characterization_df = molecular_characterization_df.select(
-        "molecular_characterization_id", "sample_origin", "patient_sample_id", "external_xenograft_sample_id")
+        "molecular_characterization_id", "sample_origin", "external_patient_sample_id", "external_xenograft_sample_id")
 
     mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
-    mol_char_patient_df = mol_char_patient_df.withColumnRenamed("patient_sample_id", "sample_id")
+    mol_char_patient_df = mol_char_patient_df.withColumnRenamed("external_patient_sample_id", "sample_id")
     cytogenetics_patient_sample_df = mol_char_patient_df.join(cytogenetics_df, on=["sample_id"])
 
     mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")

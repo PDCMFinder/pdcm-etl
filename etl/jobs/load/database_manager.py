@@ -11,6 +11,25 @@ def get_database_connection():
         "host='localhost' port='5438' dbname='pdx' user='pdx_admin' password='pdx_admin'")
 
 
+con = get_database_connection()
+#
+# def get_or_create_connection():
+#     if not con:
+#         con = get_database_connection():
+
+
+def copy_entity_to_database(entity_name, data_dir_out):
+    start = time.time()
+    logger.info("Starts copying data for {0}".format(entity_name))
+    connection = get_database_connection()
+    cur = connection.cursor()
+    cur.execute("TRUNCATE {0} CASCADE".format(entity_name))
+    copy_to_database(connection, entity_name, data_dir_out)
+    connection.commit()
+    connection.close()
+    end = time.time()
+    print("{0} data copied in {1} seconds".format(entity_name, round(end - start, 4)))
+
 def copy_all_tsv_to_database(data_dir_out: str):
     start = time.time()
     logger.info("Starts copying all data")
@@ -78,6 +97,7 @@ def delete_fks(connection):
     print("deleting fks")
     with connection.cursor() as cursor:
         cursor.execute(open("scripts/del_fks.sql", "r").read())
+    print("Deleted fks")
 
 
 def create_indexes(connection):
@@ -118,9 +138,11 @@ def truncate_tables(connection, tables):
         cur.execute("TRUNCATE {0} CASCADE".format(table))
 
 
-def copy_to_database(connection, table_name: str, data_dir_out):
-    path_with_tsv_files = "{0}/{1}/{2}/".format(data_dir_out, Constants.DATABASE_FORMATTED, table_name)
-    tsv_files = glob.glob(path_with_tsv_files + "*.csv")
+def copy_to_database(connection, table_name: str, csv_path):
+    path_with_csv_files = csv_path
+    if not csv_path.endswith("/"):
+        path_with_csv_files = path_with_csv_files + "/"
+    tsv_files = glob.glob(path_with_csv_files + "*.csv")
     cur = connection.cursor()
 
     for file in tsv_files:
