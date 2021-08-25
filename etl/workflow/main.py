@@ -1,6 +1,6 @@
 import luigi
 
-from etl.workflow.loader import Load
+from etl.workflow.loader import CreateFksAndIndexes
 
 
 class PdcmEtl(luigi.Task):
@@ -10,7 +10,7 @@ class PdcmEtl(luigi.Task):
     providers = luigi.ListParameter()
 
     def requires(self):
-        return Load(self.data_dir, self.providers, self.data_dir_out)
+        return CreateFksAndIndexes(self.data_dir_out)
 
 
 if __name__ == "__main__":
