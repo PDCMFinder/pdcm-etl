@@ -17,6 +17,7 @@ CREATE TABLE provider_group (
     id BIGINT NOT NULL,
     name TEXT,
     abbreviation TEXT,
+    description TEXT,
     provider_type_id BIGINT
 );
 

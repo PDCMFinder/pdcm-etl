@@ -44,6 +44,7 @@ transform_classes = {
     Constants.TREATMENT_ENTITY: TransformTreatment(),
     Constants.RESPONSE_ENTITY: TransformResponse(),
     Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY: TransformMolecularCharacterizationType(),
+    Constants.MOLECULAR_CHARACTERIZATION_ENTITY: TransformMolecularCharacterization(),
     Constants.PLATFORM_ENTITY: TransformPlatform(),
     Constants.CNA_MOLECULAR_DATA_ENTITY: TransformCnaMolecularData(),
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: TransformCytogeneticsMolecularData(),

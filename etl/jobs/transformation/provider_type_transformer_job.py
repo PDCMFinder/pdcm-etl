@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import col, trim
 
+from etl.constants import Constants
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -30,8 +31,8 @@ def transform_provider_group(raw_sharing_df: DataFrame) -> DataFrame:
 
 
 def get_provider_type_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
-    provider_type_df = raw_sharing_df.select(format_name_column("provider_type").alias("name"))
-    provider_type_df = provider_type_df.select("name").where("name is not null")
+    provider_type_df = raw_sharing_df.select(
+        format_name_column("provider_type").alias("name"), Constants.DATA_SOURCE_COLUMN).where("name is not null")
     provider_type_df = provider_type_df.drop_duplicates()
     return provider_type_df
 
@@ -40,8 +41,8 @@ def format_name_column(column_name) -> Column:
     return trim(col(column_name))
 
 
-def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select("id", "name")
+def get_columns_expected_order(provider_type_df: DataFrame) -> DataFrame:
+    return provider_type_df.select("id", "name", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

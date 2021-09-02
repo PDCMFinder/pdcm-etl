@@ -5,7 +5,7 @@ from etl.constants import Constants
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
-    ExtractMolecularMetadataSample
+    ExtractMolecularMetadataSample, ExtractSource
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -68,6 +68,7 @@ class TransformProviderType(TransformEntity):
 
 class TransformProviderGroup(TransformEntity):
     requiredTasks = [
+        ExtractSource(),
         ExtractSharing(),
         TransformProviderType()
     ]
@@ -114,6 +115,7 @@ class TransformSourceDatabase(TransformEntity):
 
 class TransformAccessibilityGroup(TransformEntity):
     requiredTasks = [
+        ExtractSharing(),
         ExtractSharing()
     ]
     entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
@@ -226,7 +228,7 @@ class TransformHostStrain(TransformEntity):
 
 class TransformProjectGroup(TransformEntity):
     requiredTasks = [
-        ExtractSharing()
+        ExtractSource()
     ]
     entity_name = Constants.PROJECT_GROUP_ENTITY
 

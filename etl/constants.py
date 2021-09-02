@@ -4,6 +4,7 @@ class Constants:
     DATABASE_FORMATTED = "database_formatted"
 
     # File ids names
+    SOURCE_MODULE = "source"
     SAMPLE_PLATFORM_MODULE = "sampleplatform"
     PATIENT_MODULE = "patient"
     SAMPLE_MODULE = "sample"

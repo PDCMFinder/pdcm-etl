@@ -13,24 +13,24 @@ def main(argv):
                     [1]: Parquet file path with raw sample data
                     [2]: Output file
     """
-    raw_sharing_parquet_path = argv[1]
+    raw_source_parquet_path = argv[1]
     output_path = argv[2]
 
     spark = SparkSession.builder.getOrCreate()
-    raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
-    project_group_df = transform_project_group(raw_sharing_df)
+    raw_source_df = spark.read.parquet(raw_source_parquet_path)
+    project_group_df = transform_project_group(raw_source_df)
     project_group_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_project_group(raw_sharing_df: DataFrame) -> DataFrame:
-    project_group = get_project_group_from_sharing(raw_sharing_df)
+def transform_project_group(raw_source_df: DataFrame) -> DataFrame:
+    project_group = get_project_group_from_source(raw_source_df)
     project_group = project_group.drop_duplicates()
     project_group = add_id(project_group, "id")
     project_group = project_group.select("id", "name")
     return project_group
 
 
-def get_project_group_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
+def get_project_group_from_source(raw_sharing_df: DataFrame) -> DataFrame:
     return raw_sharing_df.select(init_cap_and_trim_all("project").alias("name")).where("project is not null")
 
 
