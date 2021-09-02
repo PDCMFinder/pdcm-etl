@@ -16,10 +16,12 @@ def main(argv):
                     [2]: Output file
     """
     raw_sharing_parquet_path = argv[1]
-    output_path = argv[2]
+
+    output_path = argv[3]
 
     spark = SparkSession.builder.getOrCreate()
     raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
+
     accessibility_group_df = transform_accessibility_group(raw_sharing_df)
     accessibility_group_df.write.mode("overwrite").parquet(output_path)
 
@@ -45,8 +47,6 @@ def format_name_column(column_name) -> Column:
 
 
 def get_columns_expected_order(accessibility_group_df: DataFrame) -> DataFrame:
-    print("accessibility_group_df")
-    accessibility_group_df.show()
     return accessibility_group_df.select(
         "id", "europdx_access_modalities", "accessibility", Constants.DATA_SOURCE_COLUMN)
 

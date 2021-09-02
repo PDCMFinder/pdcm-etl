@@ -5,7 +5,6 @@ from pyspark.sql.functions import col
 
 from etl.constants import Constants
 from etl.jobs.util.cleaner import trim_all
-from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -13,42 +12,44 @@ def main(argv):
     """
     Creates a parquet file with provider group data.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw sharing data
-                    [2]: Parquet file path with provider type data
-                    [3]: Output file
+                    [1]: Parquet file path with source data
+                    [2]: Output file
     """
-    raw_sharing_parquet_path = argv[1]
-    provider_type_parquet_path = argv[2]
-    output_path = argv[3]
+    raw_source_parquet_path = argv[1]
+    sharing_parquet_path = argv[2]
+    provider_type_parquet_path = argv[3]
+    output_path = argv[4]
 
     spark = SparkSession.builder.getOrCreate()
-    raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
+    raw_source_df = spark.read.parquet(raw_source_parquet_path)
+    sharing_df = spark.read.parquet(sharing_parquet_path)
     provider_type_df = spark.read.parquet(provider_type_parquet_path)
-    provider_group_df = transform_provider_group(raw_sharing_df, provider_type_df)
+    provider_group_df = transform_provider_group(raw_source_df, sharing_df, provider_type_df)
     provider_group_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_provider_group(raw_sharing_df: DataFrame, provider_type_df: DataFrame) -> DataFrame:
-    provider_group_df = extract_data_sharing(raw_sharing_df)
-
-    provider_group_df = set_fk_provider_type(
-        provider_group_df, provider_type_df)
+def transform_provider_group(raw_source_df: DataFrame, sharing_df: DataFrame, provider_type_df: DataFrame) -> DataFrame:
+    provider_group_df = extract_data_source(raw_source_df)
+    sharing_data_df = extract_data_sharing(sharing_df)
+    provider_group_df = set_fk_provider_type(provider_group_df, provider_type_df)
 
     provider_group_df = add_id(provider_group_df, "id")
     provider_group_df = get_columns_expected_order(provider_group_df)
     return provider_group_df
 
 
-def extract_data_sharing(raw_sharing_df: DataFrame) -> DataFrame:
-    data_from_sharing_df = raw_sharing_df.select(
-        format_column("provider_abbreviation").alias("provider_abbreviation"),
-        format_column("provider_type").alias("provider_type"),
-        format_column("provider_name").alias("provider_name"),
-        Constants.DATA_SOURCE_COLUMN
-    )
-    data_from_sharing_df = data_from_sharing_df.distinct()
+def extract_data_source(raw_source_df: DataFrame) -> DataFrame:
+    provider_group_df = raw_source_df.select(
+        trim_all("provider_name").alias("name"),
+        trim_all("provider_abbreviation").alias("provider_abbreviation"),
+        trim_all("provider_description").alias("provider_description")
+    ).drop_duplicates()
+    provider_group_df = provider_group_df.withColumn(Constants.DATA_SOURCE_COLUMN, col("provider_abbreviation"))
+    return provider_group_df
 
-    return data_from_sharing_df
+
+def extract_data_sharing(sharing_df: DataFrame) -> DataFrame:
+    return sharing_df.select("provider_type", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
 
 
 def format_column(column_name) -> Column:
@@ -67,8 +68,9 @@ def join_sharing_loader(
 
 
 def set_fk_provider_type(provider_group_df, provider_type_df):
-    provider_group_df = transform_to_fk(
-        provider_group_df, provider_type_df, "provider_type", "name", "id", "provider_type_id")
+    provider_type_df = provider_type_df.withColumnRenamed("id", "provider_type_id")
+    provider_type_df = provider_type_df.withColumnRenamed("name", "provider_type_name")
+    provider_group_df = provider_group_df.join(provider_type_df, on=Constants.DATA_SOURCE_COLUMN, how='left')
     provider_group_df = provider_group_df.withColumnRenamed("provider_name", "name")
     return provider_group_df
 
@@ -78,7 +80,8 @@ def get_columns_expected_order(provider_group_df: DataFrame) -> DataFrame:
         col("id"),
         col("name"),
         col("provider_abbreviation").alias("abbreviation"),
-        col("provider_type_id"),
+        col("provider_description").alias("description"),
+        "provider_type_id",
         Constants.DATA_SOURCE_COLUMN
     )
 

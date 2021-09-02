@@ -1,7 +1,19 @@
 groups:
   - group: "metadata"
     modules:
+      - name: "source"
+        type: "yaml"
+        name_patterns: [ "web/$provider_source.yaml" ]
+        columns:
+          - "provider_name"
+          - "provider_abbreviation"
+          - "project"
+          - "provider_page_title"
+          - "provider_description"
+          - "pdcm_resource_description"
+
       - name: "model"
+        type: "tsv"
         name_patterns: ["$provider_metadata-pdx_models.tsv"]
         columns:
           - "model_id"
@@ -15,6 +27,7 @@ groups:
           - "publications"
 
       - name: "model_validation"
+        type: "tsv"
         name_patterns: ["$provider_metadata-model_validation.tsv"]
         columns:
           - "model_id"
@@ -24,6 +37,7 @@ groups:
           - "validation_host_strain_nomenclature"
 
       - name: "patient"
+        type: "tsv"
         name_patterns: ["$provider_metadata-patient.tsv"]
         columns:
           - "patient_id"
@@ -35,6 +49,7 @@ groups:
           - "age_at_initial_diagnosis"
 
       - name: "sample"
+        type: "tsv"
         name_patterns: ["$provider_metadata-sample.tsv"]
         columns:
           - "patient_id"
@@ -59,6 +74,7 @@ groups:
           - "model_id"
 
       - name: "sharing"
+        type: "tsv"
         name_patterns: ["$provider_metadata-sharing.tsv"]
         columns:
           - "model_id"
@@ -69,14 +85,11 @@ groups:
           - "name"
           - "form_url"
           - "database_url"
-          - "provider_name"
-          - "provider_abbreviation"
-          - "project"
 
       - name: "drug-dosing"
+        type: "tsv"
         name_patterns: [ "drug/$provider_drugdosing-Sheet1.tsv" ]
         columns:
-          - "abbreviation"
           - "model_id"
           - "passage_range"
           - "treatment_name"
@@ -87,12 +100,9 @@ groups:
           - "treatment_length"
           - "treatment_response"
           - "response_classification"
-          - "analysis_protocol"
-          - "raw_data_access"
-          - "raw_data_file"
-          - "internal_treatment_url"
 
       - name: "patient-treatment"
+        type: "tsv"
         name_patterns: [ "treatment/$provider_patienttreatment-Sheet1.tsv" ]
         columns:
           - "patient_id"
@@ -108,6 +118,7 @@ groups:
   - group: "molecular-metadata"
     modules:
       - name: "molchar_sample"
+        type: "tsv"
         name_patterns: [ "$provider_molecular_metadata-sample.tsv" ]
         columns:
           - "model_id"
@@ -121,6 +132,7 @@ groups:
           - "platform_id"
 
       - name: "molchar_platform"
+        type: "tsv"
         name_patterns: [ "$provider_molecular_metadata-platform.tsv" ]
         columns:
           - "platform_id"
@@ -132,6 +144,7 @@ groups:
           - "genome_assembly"
 
       - name: "molchar_platform_web"
+        type: "tsv"
         name_patterns: [ "$provider_molecular_metadata-platform_web.tsv" ]
         columns:
           - "platform_id"
@@ -142,6 +155,7 @@ groups:
   - group: "molecular-data"
     modules:
       - name: "cna"
+        type: "tsv"
         name_patterns: ["cna/$provider_cna*.tsv"]
         columns:
           - "sample_id"
@@ -161,6 +175,7 @@ groups:
           - "platform"
 
       - name: "cyto"
+        type: "tsv"
         name_patterns: ["cyto/$provider_cyto*.tsv"]
         columns:
           - "sample_id"
@@ -168,10 +183,9 @@ groups:
           - "marker_status"
           - "essential_or_additional_marker"
           - "platform"
-          - "protocol_file_name"
-          - "result_file_name"
 
       - name: "expression"
+        type: "tsv"
         name_patterns: ["expression/$provider_expression*.tsv", "expression/*/$provider_expression*.tsv"]
         columns:
           - "sample_id"
@@ -195,6 +209,7 @@ groups:
           - "platform"
 
       - name: "mutation"
+        type: "tsv"
         name_patterns: [ "mut/$provider_mut*.tsv", "mut/*/$provider_mut*.tsv" ]
         columns:
           - "sample_id"
