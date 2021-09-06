@@ -1,4 +1,5 @@
 import glob
+import json
 import time
 
 import yaml
@@ -57,8 +58,8 @@ def read_files(session, path_patterns, schema):
     return df
 
 
-def read_json(session, json):
-    df = session.read.json(session.sparkContext.parallelize([json]))
+def read_json(session, json_content):
+    df = session.read.option("multiline", True).json(session.sparkContext.parallelize([json_content]))
     return df
 
 
@@ -156,13 +157,13 @@ class ReadYamlByModule(PySparkTask):
         columns_to_read = args[1].split(',')
         output_path = args[2]
 
-        yaml_as_json = ""
-
         with open(yaml_file_path, 'r') as stream:
             yaml_as_json = yaml.safe_load(stream)
-            print("data_loaded", yaml_as_json)
+            yaml_as_json = json.dumps(yaml_as_json)
 
         df = read_json(spark, yaml_as_json)
+        print("DF from json")
+        df.show()
         df.write.mode("overwrite").parquet(output_path)
 
 

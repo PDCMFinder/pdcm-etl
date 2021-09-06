@@ -53,7 +53,7 @@ def get_expression_df(raw_expression_df: DataFrame) -> DataFrame:
         "illumina_hgea_expression_value",
         "z_score",
         "symbol",
-        "platform").drop_duplicates()
+        "platform_id").drop_duplicates()
 
 
 def set_fk_molecular_characterization(expression_df: DataFrame, molecular_characterization_df: DataFrame) -> DataFrame:
