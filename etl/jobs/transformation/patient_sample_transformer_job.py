@@ -76,7 +76,7 @@ def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
         "tumour_type",
         col("model_id").alias("model_name"),
         Constants.DATA_SOURCE_COLUMN
-    )
+    ).where("sample_id is not null")
     return patient_sample_df
 
 
