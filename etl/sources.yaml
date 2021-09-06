@@ -50,7 +50,7 @@ groups:
 
       - name: "sample"
         type: "tsv"
-        name_patterns: ["$provider_metadata-sample.tsv"]
+        name_patterns: ["$provider_metadata-patient_sample.tsv"]
         columns:
           - "patient_id"
           - "sample_id"
@@ -171,8 +171,7 @@ groups:
           - "copy_number_status"
           - "gistic_value"
           - "picnic_value"
-          - "genome_assembly"
-          - "platform"
+          - "platform_id"
 
       - name: "cyto"
         type: "tsv"
@@ -182,7 +181,7 @@ groups:
           - "symbol"
           - "marker_status"
           - "essential_or_additional_marker"
-          - "platform"
+          - "platform_id"
 
       - name: "expression"
         type: "tsv"
@@ -205,8 +204,7 @@ groups:
           - "illumina_hgea_probe_id"
           - "illumina_hgea_expression_value"
           - "z_score"
-          - "genome_assembly"
-          - "platform"
+          - "platform_id"
 
       - name: "mutation"
         type: "tsv"
@@ -233,8 +231,7 @@ groups:
           - "ensembl_gene_id"
           - "ensembl_transcript_id"
           - "variation_id"
-          - "genome_assembly"
-          - "platform"
+          - "platform_id"
 
 
 

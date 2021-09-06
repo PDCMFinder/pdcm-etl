@@ -43,7 +43,7 @@ def get_cna_df(raw_cna_df: DataFrame) -> DataFrame:
         "seq_start_position",
         "seq_end_position",
         "symbol",
-        "platform",
+        "platform_id",
         "log10r_cna",
         "log2r_cna",
         "copy_number_status",

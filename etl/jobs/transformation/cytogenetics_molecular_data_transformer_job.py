@@ -42,7 +42,7 @@ def get_cytogenetics_df(raw_cytogenetics_df: DataFrame) -> DataFrame:
         "sample_id",
         "marker_status",
         "symbol",
-        "platform",
+        "platform_id",
         "essential_or_additional_marker").drop_duplicates()
 
 

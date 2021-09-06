@@ -18,7 +18,7 @@ class ExtractModuleFromTsv(luigi.Task):
             self.data_dir, self.providers, self.data_dir_out, self.module_name)
 
 
-class ExtractModuleSourceFromYaml(luigi.Task):
+class ExtractModuleFromYaml(luigi.Task):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
@@ -32,7 +32,7 @@ class ExtractModuleSourceFromYaml(luigi.Task):
             self.data_dir, self.providers, self.data_dir_out, self.module_name)
 
 
-class ExtractSource(ExtractModuleSourceFromYaml):
+class ExtractSource(ExtractModuleFromYaml):
     module_name = Constants.SOURCE_MODULE
 
 
