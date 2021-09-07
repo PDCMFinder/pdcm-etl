@@ -61,7 +61,7 @@ class TransformEthnicity(TransformEntity):
 
 class TransformProviderType(TransformEntity):
     requiredTasks = [
-        ExtractSharing()
+        ExtractSource()
     ]
     entity_name = Constants.PROVIDER_TYPE_ENTITY
 
@@ -69,7 +69,6 @@ class TransformProviderType(TransformEntity):
 class TransformProviderGroup(TransformEntity):
     requiredTasks = [
         ExtractSource(),
-        ExtractSharing(),
         TransformProviderType()
     ]
     entity_name = Constants.PROVIDER_GROUP_ENTITY

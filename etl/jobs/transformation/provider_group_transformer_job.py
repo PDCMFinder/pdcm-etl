@@ -16,21 +16,18 @@ def main(argv):
                     [2]: Output file
     """
     raw_source_parquet_path = argv[1]
-    sharing_parquet_path = argv[2]
-    provider_type_parquet_path = argv[3]
-    output_path = argv[4]
+    provider_type_parquet_path = argv[2]
+    output_path = argv[3]
 
     spark = SparkSession.builder.getOrCreate()
     raw_source_df = spark.read.parquet(raw_source_parquet_path)
-    sharing_df = spark.read.parquet(sharing_parquet_path)
     provider_type_df = spark.read.parquet(provider_type_parquet_path)
-    provider_group_df = transform_provider_group(raw_source_df, sharing_df, provider_type_df)
+    provider_group_df = transform_provider_group(raw_source_df, provider_type_df)
     provider_group_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_provider_group(raw_source_df: DataFrame, sharing_df: DataFrame, provider_type_df: DataFrame) -> DataFrame:
+def transform_provider_group(raw_source_df: DataFrame, provider_type_df: DataFrame) -> DataFrame:
     provider_group_df = extract_data_source(raw_source_df)
-    sharing_data_df = extract_data_sharing(sharing_df)
     provider_group_df = set_fk_provider_type(provider_group_df, provider_type_df)
 
     provider_group_df = add_id(provider_group_df, "id")
@@ -42,14 +39,11 @@ def extract_data_source(raw_source_df: DataFrame) -> DataFrame:
     provider_group_df = raw_source_df.select(
         trim_all("provider_name").alias("name"),
         trim_all("provider_abbreviation").alias("provider_abbreviation"),
-        trim_all("provider_description").alias("provider_description")
+        trim_all("provider_description").alias("provider_description"),
+        trim_all("provider_type").alias("provider_type")
     ).drop_duplicates()
     provider_group_df = provider_group_df.withColumn(Constants.DATA_SOURCE_COLUMN, col("provider_abbreviation"))
     return provider_group_df
-
-
-def extract_data_sharing(sharing_df: DataFrame) -> DataFrame:
-    return sharing_df.select("provider_type", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
 
 
 def format_column(column_name) -> Column:

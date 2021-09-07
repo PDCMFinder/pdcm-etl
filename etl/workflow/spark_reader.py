@@ -138,6 +138,7 @@ class ReadYamlByModule(PySparkTask):
     raw_folder_name = luigi.Parameter()
     path_pattern = luigi.Parameter()
     columns_to_read = luigi.ListParameter()
+    provider = luigi.Parameter()
     data_dir_out = luigi.Parameter()
 
     def output(self):
@@ -147,45 +148,37 @@ class ReadYamlByModule(PySparkTask):
         return [
             self.path_pattern,
             ','.join(self.columns_to_read),
+            self.provider,
             self.output().path]
 
     def main(self, sc, *args):
-        print("INSIDE THE SPARK JON")
         spark = SparkSession(sc)
 
         yaml_file_path = args[0]
         columns_to_read = args[1].split(',')
-        output_path = args[2]
+        provider = args[2]
+        output_path = args[3]
 
         with open(yaml_file_path, 'r') as stream:
             yaml_as_json = yaml.safe_load(stream)
             yaml_as_json = json.dumps(yaml_as_json)
 
         df = read_json(spark, yaml_as_json)
-        print("DF from json")
-        df.show()
+        df = df.select(columns_to_read)
+        df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
         df.write.mode("overwrite").parquet(output_path)
 
 
 def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module_name):
-    print("called get_yaml_extraction_task_by_module::", data_dir, providers, data_dir_out, module_name)
     module = read_module(module_name)
     file_patterns = module["name_patterns"]
     columns = module["columns"]
-    print("Need to read a yaml with pattern", file_patterns, "providers", providers, "columns", columns)
     # There should be only one yaml file by module
     file_path = str(file_patterns[0])
-    print("file_path->", file_path)
 
-    # print("path_patterns", path_patterns)
     for provider in providers:
-        print("provider:", provider)
         yaml_file_path = build_path_pattern_by_provider(data_dir, provider, file_path)
-        print("yaml_file_path", yaml_file_path)
-        # with open(yaml_file_path, 'r') as stream:
-        #     data_loaded = yaml.safe_load(stream)
-        #     print("data_loaded", data_loaded)
-        return ReadYamlByModule(module_name, yaml_file_path, columns, data_dir_out)
+        return ReadYamlByModule(module_name, yaml_file_path, columns, provider, data_dir_out)
 
 
 if __name__ == "__main__":
