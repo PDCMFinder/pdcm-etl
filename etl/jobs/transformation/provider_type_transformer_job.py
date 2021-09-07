@@ -14,25 +14,26 @@ def main(argv):
                     [1]: Parquet file path with raw sharing data
                     [2]: Output file
     """
-    raw_sharing_parquet_path = argv[1]
+    raw_source_parquet_path = argv[1]
     output_path = argv[2]
 
     spark = SparkSession.builder.getOrCreate()
-    raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
-    provider_group_df = transform_provider_group(raw_sharing_df)
+    raw_source_df = spark.read.parquet(raw_source_parquet_path)
+    provider_group_df = transform_provider_group(raw_source_df)
+    provider_group_df.show()
     provider_group_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_provider_group(raw_sharing_df: DataFrame) -> DataFrame:
-    provider_type_df = get_provider_type_from_sharing(raw_sharing_df)
+def transform_provider_group(raw_source_df: DataFrame) -> DataFrame:
+    provider_type_df = get_provider_type_from_source(raw_source_df)
     provider_type_df = add_id(provider_type_df, "id")
     provider_type_df = get_columns_expected_order(provider_type_df)
     return provider_type_df
 
 
-def get_provider_type_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
-    provider_type_df = raw_sharing_df.select(
-        format_name_column("provider_type").alias("name"), Constants.DATA_SOURCE_COLUMN).where("name is not null")
+def get_provider_type_from_source(raw_source_df: DataFrame) -> DataFrame:
+    provider_type_df = raw_source_df.select(
+        format_name_column("provider_type").alias("name"), Constants.DATA_SOURCE_COLUMN)
     provider_type_df = provider_type_df.drop_duplicates()
     return provider_type_df
 

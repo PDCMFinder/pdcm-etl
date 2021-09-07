@@ -7,6 +7,7 @@ groups:
         columns:
           - "provider_name"
           - "provider_abbreviation"
+          - "provider_type"
           - "project"
           - "provider_page_title"
           - "provider_description"
@@ -78,7 +79,6 @@ groups:
         name_patterns: ["$provider_metadata-sharing.tsv"]
         columns:
           - "model_id"
-          - "provider_type"
           - "accessibility"
           - "europdx_access_modality"
           - "email"
