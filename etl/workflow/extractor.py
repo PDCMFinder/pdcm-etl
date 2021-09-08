@@ -2,6 +2,7 @@ import luigi
 
 from etl.constants import Constants
 from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module
+from etl.workflow.config import PdcmConfig
 
 
 class ExtractModuleFromTsv(luigi.Task):
@@ -11,7 +12,7 @@ class ExtractModuleFromTsv(luigi.Task):
     module_name = luigi.Parameter()
 
     def output(self):
-        return luigi.LocalTarget("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
 
     def requires(self):
         return get_tsv_extraction_task_by_module(
@@ -25,7 +26,7 @@ class ExtractModuleFromYaml(luigi.Task):
     module_name = luigi.Parameter()
 
     def output(self):
-        return luigi.LocalTarget("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
 
     def requires(self):
         return get_yaml_extraction_task_by_module(
