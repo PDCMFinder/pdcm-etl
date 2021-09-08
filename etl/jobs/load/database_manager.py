@@ -3,25 +3,18 @@ import time
 
 import psycopg2
 from etl import logger
-from etl.constants import Constants
 
 
-def get_database_connection():
+def get_database_connection(db_host, db_port, db_name, db_user, db_password):
     return psycopg2.connect(
-        "host='localhost' port='5438' dbname='pdx' user='pdx_admin' password='pdx_admin'")
+        "host='{0}' port='{1}' dbname='{2}' user='{3}' password='{4}'".format(
+            db_host, db_port, db_name, db_user, db_password))
 
 
-con = get_database_connection()
-#
-# def get_or_create_connection():
-#     if not con:
-#         con = get_database_connection():
-
-
-def copy_entity_to_database(entity_name, data_dir_out):
+def copy_entity_to_database(entity_name, data_dir_out, db_host, db_port, db_name, db_user, db_password):
     start = time.time()
     logger.info("Starts copying data for {0}".format(entity_name))
-    connection = get_database_connection()
+    connection = get_database_connection(db_host, db_port, db_name, db_user, db_password)
     cur = connection.cursor()
     cur.execute("TRUNCATE {0} CASCADE".format(entity_name))
     copy_to_database(connection, entity_name, data_dir_out)
@@ -29,60 +22,6 @@ def copy_entity_to_database(entity_name, data_dir_out):
     connection.close()
     end = time.time()
     print("{0} data copied in {1} seconds".format(entity_name, round(end - start, 4)))
-
-def copy_all_tsv_to_database(data_dir_out: str):
-    start = time.time()
-    logger.info("Starts copying all data")
-    tables = [
-        Constants.TUMOUR_TYPE_ENTITY,
-        Constants.TISSUE_ENTITY,
-        Constants.PROVIDER_TYPE_ENTITY,
-        Constants.PROVIDER_GROUP_ENTITY,
-        Constants.PUBLICATION_GROUP_ENTITY,
-        Constants.DIAGNOSIS_ENTITY,
-        Constants.ETHNICITY_ENTITY,
-        Constants.PATIENT_ENTITY,
-        Constants.ACCESSIBILITY_GROUP_ENTITY,
-        Constants.CONTACT_PEOPLE_ENTITY,
-        Constants.CONTACT_FORM_ENTITY,
-        Constants.SOURCE_DATABASE_ENTITY,
-        Constants.MODEL_ENTITY,
-        Constants.QUALITY_ASSURANCE_ENTITY,
-        Constants.PATIENT_SAMPLE_ENTITY,
-        Constants.XENOGRAFT_SAMPLE_ENTITY,
-        Constants.PATIENT_SNAPSHOT_ENTITY,
-        Constants.ENGRAFTMENT_SITE_ENTITY,
-        Constants.ENGRAFTMENT_TYPE_ENTITY,
-        Constants.ENGRAFTMENT_MATERIAL_ENTITY,
-        Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY,
-        Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY,
-        Constants.HOST_STRAIN_ENTITY,
-        Constants.PROJECT_GROUP_ENTITY,
-        Constants.TREATMENT_ENTITY,
-        Constants.RESPONSE_ENTITY,
-        Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY,
-        Constants.PLATFORM_ENTITY,
-        Constants.MOLECULAR_CHARACTERIZATION_ENTITY,
-        Constants.CNA_MOLECULAR_DATA_ENTITY,
-        Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY,
-        Constants.EXPRESSION_MOLECULAR_DATA_ENTITY,
-        Constants.MUTATION_MARKER_ENTITY
-    ]
-    connection = get_database_connection()
-    truncate_tables(connection, tables)
-    # disable_triggers(connection, tables)
-    delete_indexes(connection)
-    delete_fks(connection)
-
-    for table in tables:
-        copy_to_database(connection, table, data_dir_out)
-    # enable_triggers(connection, tables)
-    end = time.time()
-    print("All data copied in {0} seconds".format(round(end - start, 4)))
-    create_indexes(connection)
-    create_fks(connection)
-    connection.commit()
-    connection.close()
 
 
 def delete_indexes(connection):

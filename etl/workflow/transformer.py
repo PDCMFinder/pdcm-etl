@@ -2,6 +2,7 @@ import luigi
 from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
+from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
@@ -40,7 +41,7 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
         return spark_input_parameters
 
     def output(self):
-        return luigi.LocalTarget("{0}/{1}/{2}".format(
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(
             self.data_dir_out, Constants.TRANSFORMED_DIRECTORY, self.entity_name))
 
 
