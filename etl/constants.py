@@ -57,3 +57,4 @@ class Constants:
     CYTOGENETICS_MOLECULAR_DATA_ENTITY = "cytogenetics_molecular_data"
     EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
     MUTATION_MARKER_ENTITY = "mutation_marker"
+    MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"

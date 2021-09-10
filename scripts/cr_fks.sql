@@ -117,3 +117,13 @@ ALTER TABLE expression_molecular_data
     ADD CONSTRAINT fk_expression_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
+
+ALTER TABLE mutation_measurement_data
+    ADD CONSTRAINT fk_mutation_measurement_data_mutation_marker
+    FOREIGN KEY (mutation_marker_id)
+    REFERENCES mutation_marker (id);
+
+ALTER TABLE mutation_measurement_data
+    ADD CONSTRAINT fk_mutation_measurement_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);

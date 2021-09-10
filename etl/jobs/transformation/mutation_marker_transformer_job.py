@@ -35,6 +35,7 @@ def transform_mutation_marker(raw_mutation_marker_df: DataFrame) -> DataFrame:
 
 def get_mutation_marker_df(raw_mutation_marker_df: DataFrame) -> DataFrame:
     return raw_mutation_marker_df.select(
+        "sample_id",
         "symbol",
         "biotype",
         "coding_sequence_change",

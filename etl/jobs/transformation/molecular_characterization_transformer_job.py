@@ -172,8 +172,8 @@ def set_fk_mol_char_type(molecular_characterization_df: DataFrame, mol_char_type
         "molecular_characterization_type_id")
 
 
-def get_columns_expected_order(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select(
+def get_columns_expected_order(molecular_characterization_df: DataFrame) -> DataFrame:
+    return molecular_characterization_df.select(
         "id", "molecular_characterization_type_id", "platform_id", "patient_sample_id", "xenograft_sample_id",
         "sample_origin", "molecular_characterisation_type", "platform_external_id", "external_patient_sample_id",
         "external_xenograft_sample_id")
