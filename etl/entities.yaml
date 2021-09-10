@@ -244,5 +244,14 @@ entities:
       - "variation_id"
       - "tmp_symbol"
 
+  - entity: "mutation_measurement_data"
+    columns:
+      - "id"
+      - "read_depth"
+      - "allele_frequency"
+      - "mutation_marker_id"
+      - "molecular_characterization_id"
+
+
 
 

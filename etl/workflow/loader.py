@@ -14,8 +14,7 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformSourceDatabase, TransformHostStrain, TransformProjectGroup, TransformTreatment, TransformResponse, \
     TransformMolecularCharacterizationType, TransformPlatform, TransformMolecularCharacterization, \
     TransformCnaMolecularData, TransformCytogeneticsMolecularData, TransformExpressionMolecularData, \
-    TransformMutationMarker
-
+    TransformMutationMarker, TransformMutationMeasurementData
 
 transform_classes = {
     Constants.DIAGNOSIS_ENTITY: TransformDiagnosis(),
@@ -50,7 +49,8 @@ transform_classes = {
     Constants.CNA_MOLECULAR_DATA_ENTITY: TransformCnaMolecularData(),
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: TransformCytogeneticsMolecularData(),
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: TransformExpressionMolecularData(),
-    Constants.MUTATION_MARKER_ENTITY: TransformMutationMarker()
+    Constants.MUTATION_MARKER_ENTITY: TransformMutationMarker(),
+    Constants.MUTATION_MEASUREMENT_DATA_ENTITY: TransformMutationMeasurementData()
 }
 
 
@@ -63,104 +63,7 @@ class ParquetToTsv(SparkSubmitTask):
     app = 'etl/jobs/util/parquet_to_tsv_converter.py'
 
     def requires(self):
-        if Constants.DIAGNOSIS_ENTITY == self.name:
-            return TransformDiagnosis(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ETHNICITY_ENTITY == self.name:
-            return TransformEthnicity(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PATIENT_ENTITY == self.name:
-            return TransformPatient(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PROVIDER_TYPE_ENTITY == self.name:
-            return TransformProviderType(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PROVIDER_GROUP_ENTITY == self.name:
-            return TransformProviderGroup(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PUBLICATION_GROUP_ENTITY == self.name:
-            return TransformPublicationGroup(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.MODEL_ENTITY == self.name:
-            return TransformModel(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.CONTACT_PEOPLE_ENTITY == self.name:
-            return TransformContactPeople(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.CONTACT_FORM_ENTITY == self.name:
-            return TransformContactForm(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.SOURCE_DATABASE_ENTITY == self.name:
-            return TransformSourceDatabase(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.QUALITY_ASSURANCE_ENTITY == self.name:
-            return TransformQualityAssurance(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.TISSUE_ENTITY == self.name:
-            return TransformTissue(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.TUMOUR_TYPE_ENTITY == self.name:
-            return TransformTumourType(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PATIENT_SAMPLE_ENTITY == self.name:
-            return TransformPatientSample(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.XENOGRAFT_SAMPLE_ENTITY == self.name:
-            return TransformXenograftSample(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PATIENT_SNAPSHOT_ENTITY == self.name:
-            return TransformPatientSnapshot(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ENGRAFTMENT_SITE_ENTITY == self.name:
-            return TransformEngraftmentSite(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ENGRAFTMENT_TYPE_ENTITY == self.name:
-            return TransformEngraftmentType(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ENGRAFTMENT_MATERIAL_ENTITY == self.name:
-            return TransformEngraftmentMaterial(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY == self.name:
-            return TransformEngraftmentSampleState(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY == self.name:
-            return TransformEngraftmentSampleType(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.ACCESSIBILITY_GROUP_ENTITY == self.name:
-            return TransformAccessibilityGroup(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.HOST_STRAIN_ENTITY == self.name:
-            return TransformHostStrain(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PROJECT_GROUP_ENTITY == self.name:
-            return TransformProjectGroup(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.TREATMENT_ENTITY == self.name:
-            return TransformTreatment(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.RESPONSE_ENTITY == self.name:
-            return TransformResponse(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY == self.name:
-            return TransformMolecularCharacterizationType(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.PLATFORM_ENTITY == self.name:
-            return TransformPlatform(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.MOLECULAR_CHARACTERIZATION_ENTITY == self.name:
-            return TransformMolecularCharacterization(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.CNA_MOLECULAR_DATA_ENTITY == self.name:
-            return TransformCnaMolecularData(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY == self.name:
-            return TransformCytogeneticsMolecularData(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.EXPRESSION_MOLECULAR_DATA_ENTITY == self.name:
-            return TransformExpressionMolecularData(self.data_dir, self.providers, self.data_dir_out)
-
-        elif Constants.MUTATION_MARKER_ENTITY == self.name:
-            return TransformMutationMarker(self.data_dir, self.providers, self.data_dir_out)
+        return transform_classes[self.name]
 
     def app_options(self):
         return [

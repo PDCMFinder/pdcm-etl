@@ -250,3 +250,12 @@ CREATE TABLE mutation_marker (
     tmp_symbol TEXT
     --loci_marker_id BIGINT
 );
+
+CREATE TABLE mutation_measurement_data (
+    id BIGINT NOT NULL,
+    read_depth TEXT,
+    allele_frequency TEXT,
+    mutation_marker_id BIGINT,
+    molecular_characterization_id BIGINT
+);
+

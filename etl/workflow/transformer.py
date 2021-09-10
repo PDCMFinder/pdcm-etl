@@ -303,5 +303,14 @@ class TransformMutationMarker(TransformEntity):
     entity_name = Constants.MUTATION_MARKER_ENTITY
 
 
+class TransformMutationMeasurementData(TransformEntity):
+    requiredTasks = [
+        ExtractMutation(),
+        TransformMutationMarker(),
+        TransformMolecularCharacterization()
+    ]
+    entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

@@ -45,3 +45,7 @@ ALTER TABLE cna_molecular_data DROP CONSTRAINT IF EXISTS fk_cna_molecular_data_m
 ALTER TABLE cytogenetics_molecular_data DROP CONSTRAINT IF EXISTS fk_cytogenetics_molecular_data_mol_char CASCADE;
 
 ALTER TABLE expression_molecular_data DROP CONSTRAINT IF EXISTS fk_expression_molecular_data_mol_char CASCADE;
+
+ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS fk_mutation_measurement_data_mutation_marker CASCADE;
+
+ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS fk_mutation_measurement_data_mol_char CASCADE;
