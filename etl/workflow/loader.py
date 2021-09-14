@@ -54,7 +54,7 @@ transform_classes = {
 }
 
 
-class ParquetToTsv(SparkSubmitTask):
+class ParquetToCsv(SparkSubmitTask):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
@@ -76,7 +76,7 @@ class ParquetToTsv(SparkSubmitTask):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.name))
 
 
-class CopyEntityFromParquetToDb(luigi.Task):
+class CopyEntityFromCsvToDb(luigi.Task):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
@@ -89,7 +89,7 @@ class CopyEntityFromParquetToDb(luigi.Task):
     db_password = luigi.Parameter()
 
     def requires(self):
-        return ParquetToTsv(name=self.entity_name)
+        return ParquetToCsv(name=self.entity_name)
 
     def output(self):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database/copied", self.entity_name))
@@ -107,7 +107,7 @@ class CopyEntityFromParquetToDb(luigi.Task):
 def get_all_copying_tasks():
     tasks = []
     for entity_name in transform_classes:
-        tasks.append(CopyEntityFromParquetToDb(entity_name=entity_name))
+        tasks.append(CopyEntityFromCsvToDb(entity_name=entity_name))
     return tasks
 
 
