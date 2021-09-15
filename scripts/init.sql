@@ -259,3 +259,16 @@ CREATE TABLE mutation_measurement_data (
     molecular_characterization_id BIGINT
 );
 
+CREATE TABLE specimen (
+    id BIGINT NOT NULL,
+    external_id TEXT NOT NULL,
+    passage_number TEXT NOT NULL,
+    sample_id BIGINT,
+    engraftment_site_id BIGINT,
+    engraftment_type_id BIGINT,
+    engraftment_material_id BIGINT,
+    host_strain_id BIGINT,
+    model_id BIGINT
+);
+
+
