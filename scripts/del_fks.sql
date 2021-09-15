@@ -49,3 +49,11 @@ ALTER TABLE expression_molecular_data DROP CONSTRAINT IF EXISTS fk_expression_mo
 ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS fk_mutation_measurement_data_mutation_marker CASCADE;
 
 ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS fk_mutation_measurement_data_mol_char CASCADE;
+
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_xenograft_sample CASCADE;
+
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_site CASCADE;
+
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_type CASCADE;
+
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_material CASCADE;
