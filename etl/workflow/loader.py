@@ -51,7 +51,7 @@ transform_classes = {
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: TransformExpressionMolecularData(),
     Constants.MUTATION_MARKER_ENTITY: TransformMutationMarker(),
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: TransformMutationMeasurementData(),
-    Constants.GENE_MARKER_ENTITY: TransformGeneMarker
+    Constants.GENE_MARKER_ENTITY: TransformGeneMarker()
 }
 
 
