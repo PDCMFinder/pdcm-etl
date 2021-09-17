@@ -108,7 +108,9 @@ CREATE TABLE patient_sample (
 
 CREATE TABLE xenograft_sample (
     id BIGINT NOT NULL,
-    external_xenograft_sample_id TEXT
+    external_xenograft_sample_id TEXT,
+    data_source varchar
+
 );
 
 CREATE TABLE patient_snapshot (
