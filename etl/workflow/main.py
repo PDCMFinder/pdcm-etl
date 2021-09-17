@@ -1,6 +1,7 @@
 import luigi
 
 from etl.workflow.loader import CreateFksAndIndexes
+from etl.jobs.load.database_loader import PostgreSQLLoader
 
 
 class PdcmEtl(luigi.Task):

@@ -1,5 +1,5 @@
 import luigi
-from luigi.contrib.hdfs import HdfsTarget
+from luigi.contrib.webhdfs import WebHdfsTarget
 
 
 class PdcmConfig(luigi.Config):
@@ -9,5 +9,5 @@ class PdcmConfig(luigi.Config):
         return (
             luigi.LocalTarget(path)
             if self.deploy_mode in ["local", "client"]
-            else HdfsTarget(path)
+            else WebHdfsTarget(path)
         )
