@@ -182,6 +182,7 @@ class ParquetToPg(SparkSubmitTask):
     db_name = luigi.Parameter()
     db_user = luigi.Parameter()
     db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
     table_names = list(transform_classes.keys())
 
     def output(self):
