@@ -3,7 +3,7 @@ all: default
 default: clean devDeps build
 
 submit: build
-	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi.cfg'  PYTHONPATH='.'  YARN_CONF_DIR=/homes/mi_hadoop/hadoop-yarn-conf/ PYSPARK_PYTHON=python36  python etl/workflow/main.py --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
+	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi.cfg'  PYTHONPATH='.'  YARN_CONF_DIR=/homes/mi_hadoop/hadoop-yarn-conf/ PYSPARK_PYTHON=python36  luigi --module etl.workflow.main --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
 
 rebundle-submit: clean libs build        ##@submit Submit luigi workflows to the cluster
 	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi.cfg'  PYTHONPATH='.' PYSPARK_PYTHON=python36  python etl/workflow/main.py --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 8
