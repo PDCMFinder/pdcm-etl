@@ -3,11 +3,6 @@ ALTER TABLE provider_group
     FOREIGN KEY (provider_type_id)
     REFERENCES provider_type (id);
 
-ALTER TABLE provider_group
-    ADD CONSTRAINT fk_provider_group_provider_type
-    FOREIGN KEY (provider_type_id)
-    REFERENCES provider_type (id);
-
 ALTER TABLE patient
     ADD CONSTRAINT fk_patient_diagnosis
     FOREIGN KEY (initial_diagnosis_id)
@@ -152,4 +147,3 @@ ALTER TABLE specimen
     ADD CONSTRAINT fk_specimen_engraftment_material
     FOREIGN KEY (engraftment_material_id)
     REFERENCES engraftment_material (id);
-
