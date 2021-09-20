@@ -50,12 +50,10 @@ def read_files(session, path_patterns, schema):
     df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(path_patterns)
     df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
-
     datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
-    if regexp_extract("_data_source", datasource_pattern, 1) != "":
-        df = df.withColumn("_data_source", lit(input_file_name()))
-        df = df.withColumn(Constants.DATA_SOURCE_COLUMN, regexp_extract("_data_source", datasource_pattern, 1))
-        df = df.drop("_data_source")
+    df = df.withColumn("_data_source", lit(input_file_name()))
+    df = df.withColumn(Constants.DATA_SOURCE_COLUMN, regexp_extract("_data_source", datasource_pattern, 1))
+    df = df.drop("_data_source")
 
     end = time.time()
     logger.info(
