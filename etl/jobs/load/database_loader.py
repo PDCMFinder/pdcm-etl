@@ -12,6 +12,7 @@ def main(argv):
     db_name = argv[5]
     input_parquet_paths = argv[6].split("|")
     table_names = argv[7].split("|")
+    output_path = argv[8]
 
     api_dataframes = [
         spark.read.parquet(input_path) for input_path in input_parquet_paths
@@ -31,6 +32,7 @@ def main(argv):
             table_name,
             properties=properties,
         )
+    spark.sparkContext.emptyRDD().saveAsTextFile(output_path)
 
 
 if __name__ == "__main__":

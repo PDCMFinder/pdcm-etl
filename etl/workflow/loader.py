@@ -185,14 +185,14 @@ class ParquetToPg(SparkSubmitTask):
     table_names = list(transform_classes.keys())
 
     def output(self):
-        return PdcmConfig().get_target("finished!")
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "parquet_to_pg_load_all"))
 
     def requires(self):
         return [DeleteFksAndIndexes()] + list(transform_classes.values())
 
     def app_options(self):
         return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name,
-                "|".join(i.path for i in self.input()[1:]), "|".join(self.table_names)]
+                "|".join(i.path for i in self.input()[1:]), "|".join(self.table_names), self.output().path]
 
 
 if __name__ == "__main__":
