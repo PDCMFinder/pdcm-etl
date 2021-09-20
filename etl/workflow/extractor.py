@@ -1,7 +1,8 @@
 import luigi
 
 from etl.constants import Constants
-from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module
+from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module, \
+    ReadMarkerFromTsv
 from etl.workflow.config import PdcmConfig
 
 
@@ -95,6 +96,10 @@ class ExtractExpression(ExtractModuleFromTsv):
 
 class ExtractMutation(ExtractModuleFromTsv):
     module_name = Constants.MUTATION_MODULE
+
+
+class ExtractGeneMarker(ReadMarkerFromTsv):
+    module_name = Constants.GENE_MARKER_MODULE
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
-    ExtractMolecularMetadataSample, ExtractSource
+    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -310,6 +310,13 @@ class TransformMutationMeasurementData(TransformEntity):
         TransformMolecularCharacterization()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
+
+
+class TransformGeneMarker(TransformEntity):
+    requiredTasks = [
+        ExtractGeneMarker()
+    ]
+    entity_name = Constants.GENE_MARKER_ENTITY
 
 
 if __name__ == "__main__":
