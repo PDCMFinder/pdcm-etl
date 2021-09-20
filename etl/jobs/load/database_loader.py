@@ -23,6 +23,7 @@ def main(argv):
     properties = {
         "user": db_user,
         "password": db_password,
+        "stringtype": "unspecified",
         "driver": "org.postgresql.Driver",
     }
     jdbc_url = f"jdbc:postgresql://{db_host}:{db_port}/{db_name}"
