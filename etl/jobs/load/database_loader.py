@@ -27,7 +27,7 @@ def main(argv):
     table_dataframe_map = zip(table_names, api_dataframes)
 
     for table_name, dataframe in table_dataframe_map:
-        dataframe.write.mode("overwrite").jdbc(
+        dataframe.write.option("truncate", "true").mode("overwrite").jdbc(
             jdbc_url,
             table_name,
             properties=properties,
