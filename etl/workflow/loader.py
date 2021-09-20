@@ -145,7 +145,7 @@ class CreateFksAndIndexes(luigi.Task):
 
     def requires(self):
         return CopyAll(self.data_dir, self.providers,
-                       self.data_dir_out) if PdcmConfig.deploy_mode != "cluster" else ParquetToPg()
+                       self.data_dir_out) if PdcmConfig().deploy_mode != "cluster" else ParquetToPg()
 
     def output(self):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes"))
