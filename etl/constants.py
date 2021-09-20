@@ -58,5 +58,3 @@ class Constants:
     EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
     MUTATION_MARKER_ENTITY = "mutation_marker"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
-    SEARCH_ENTITY = "search"
-    FACETS_ENTITY = "facet"
