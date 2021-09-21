@@ -18,3 +18,8 @@ setuptools~=41.2.0
 quinn~=0.9.0
 pyyaml
 hdfs
+
+psycopg2~=2.8.6
+
+pytest
+pytest-spark
