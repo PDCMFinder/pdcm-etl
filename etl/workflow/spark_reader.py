@@ -15,6 +15,8 @@ from etl.jobs.util.cleaner import trim_all_str
 from etl.source_files_conf_reader import read_module
 from etl.workflow.config import PdcmConfig
 
+import csv
+
 ROOT_FOLDER = "data/UPDOG"
 
 
@@ -47,11 +49,11 @@ def read_files(session, path_patterns, schema):
     df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(path_patterns)
     df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
-
-    df = df.withColumn("_data_source", lit(input_file_name()))
     datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
+    df = df.withColumn("_data_source", lit(input_file_name()))
     df = df.withColumn(Constants.DATA_SOURCE_COLUMN, regexp_extract("_data_source", datasource_pattern, 1))
     df = df.drop("_data_source")
+
     end = time.time()
     logger.info(
         "Read from path {0} count: {1} in {2} seconds".format(path_patterns, df.count(), round(end - start, 4)))
@@ -182,6 +184,52 @@ def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module
     for provider in providers:
         yaml_file_path = build_path_pattern_by_provider(data_dir, provider, file_path)
         return ReadYamlByModule(module_name, yaml_file_path, columns, provider, data_dir_out)
+
+
+def extract_markers(input_path):
+    markers = []
+    with open(input_path + "/markers.tsv") as fp:
+        tsv_file = csv.reader(fp, delimiter="\t")
+        first_row = True
+        for line in tsv_file:
+            if first_row:
+                first_row = False
+            else:
+                markers.append(line)
+    return markers
+
+
+def create_marker_dataframe(markers) -> DataFrame:
+    spark = SparkSession.builder.getOrCreate()
+    columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols", "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
+    df = spark.createDataFrame(data=markers, schema=columns)
+    return df
+
+
+class ReadMarkerFromTsv(PySparkTask):
+
+    data_dir = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+
+    def main(self, sc, *args):
+        spark = SparkSession(sc)
+
+        input_path = args[0]
+        output_path = args[1]
+
+        columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
+                   "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
+        df = read_files(spark, input_path+"/markers/markers.tsv", build_schema_from_cols(columns))
+        df.write.mode("overwrite").parquet(output_path)
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.GENE_MARKER_MODULE))
+
+    def app_options(self):
+        return [
+            self.data_dir,
+            self.output().path]
 
 
 if __name__ == "__main__":

@@ -15,14 +15,11 @@ ALTER TABLE tumour_type ADD CONSTRAINT pk_tumour_type PRIMARY KEY (id);
 ALTER TABLE patient_sample ADD CONSTRAINT pk_patient_sample PRIMARY KEY (id);
 ALTER TABLE xenograft_sample ADD CONSTRAINT pk_xenograft_sample PRIMARY KEY (id);
 ALTER TABLE patient_snapshot ADD CONSTRAINT pk_patient_snapshot PRIMARY KEY (id);
-
-
+ALTER TABLE engraftment_type ADD CONSTRAINT pk_engraftment_type PRIMARY KEY (id);
 ALTER TABLE engraftment_site ADD CONSTRAINT pk_engraftment_site PRIMARY KEY (id);
 ALTER TABLE engraftment_material ADD CONSTRAINT pk_engraftment_material PRIMARY KEY (id);
 ALTER TABLE engraftment_sample_state ADD CONSTRAINT pk_engraftment_sample_state PRIMARY KEY (id);
 ALTER TABLE engraftment_sample_type ADD CONSTRAINT pk_engraftment_sample_type PRIMARY KEY (id);
-ALTER TABLE engraftment_type ADD CONSTRAINT pk_engraftment_type PRIMARY KEY (id);
-
 ALTER TABLE host_strain ADD CONSTRAINT pk_host_strain PRIMARY KEY (id);
 ALTER TABLE project_group ADD CONSTRAINT pk_project_group PRIMARY KEY (id);
 ALTER TABLE treatment ADD CONSTRAINT pk_treatment PRIMARY KEY (id);

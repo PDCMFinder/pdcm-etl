@@ -20,6 +20,7 @@ class Constants:
     MOLECULAR_DATA_SAMPLE_MODULE = "molchar_sample"
     MOLECULAR_DATA_PLATFORM_MODULE = "molchar_platform"
     MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
+    GENE_MARKER_MODULE = "markers"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -40,6 +41,7 @@ class Constants:
     PATIENT_SAMPLE_ENTITY = "patient_sample"
     XENOGRAFT_SAMPLE_ENTITY = "xenograft_sample"
     PATIENT_SNAPSHOT_ENTITY = "patient_snapshot"
+    SPECIMEN_ENTITY = "specimen"
     ENGRAFTMENT_SITE_ENTITY = "engraftment_site"
     ENGRAFTMENT_TYPE_ENTITY = "engraftment_type"
     ENGRAFTMENT_MATERIAL_ENTITY = "engraftment_material"
@@ -58,3 +60,4 @@ class Constants:
     EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
     MUTATION_MARKER_ENTITY = "mutation_marker"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
+    GENE_MARKER_ENTITY = "gene_marker"

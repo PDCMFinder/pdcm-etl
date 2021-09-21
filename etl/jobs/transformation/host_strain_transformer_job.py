@@ -33,6 +33,7 @@ def extract_host_strain(raw_model_df: DataFrame) -> DataFrame:
     host_strain_df = raw_model_df.select("host_strain_name", "host_strain_nomenclature")
     host_strain_df = host_strain_df.withColumn("name", trim_all("host_strain_name"))
     host_strain_df = host_strain_df.withColumn("nomenclature", trim_all("host_strain_nomenclature"))
+    host_strain_df = host_strain_df.select("name", "nomenclature")
     host_strain_df = host_strain_df.drop_duplicates()
     return host_strain_df
 

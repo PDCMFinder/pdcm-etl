@@ -34,6 +34,8 @@ import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
 import etl.jobs.transformation.mutation_marker_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
+import etl.jobs.transformation.gene_marker_transformer_job
+import etl.jobs.transformation.specimen_transformer_job
 from etl.constants import Constants
 
 
@@ -111,6 +113,9 @@ def main1(argv):
     elif entity_name == Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY:
         etl.jobs.transformation.engraftment_sample_type_transformer_job.main(args_without_entity)
 
+    elif entity_name == Constants.SPECIMEN_ENTITY:
+        etl.jobs.transformation.specimen_transformer_job.main(args_without_entity)
+
     elif entity_name == Constants.ACCESSIBILITY_GROUP_ENTITY:
         etl.jobs.transformation.accessibility_group_transformer_job.main(args_without_entity)
 
@@ -149,6 +154,9 @@ def main1(argv):
 
     elif entity_name == Constants.MUTATION_MEASUREMENT_DATA_ENTITY:
         etl.jobs.transformation.mutation_measurement_data_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.GENE_MARKER_ENTITY:
+        etl.jobs.transformation.gene_marker_transformer_job.main(args_without_entity)
 
 
 if __name__ == "__main__":

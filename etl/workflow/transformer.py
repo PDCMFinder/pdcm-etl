@@ -6,7 +6,7 @@ from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
-    ExtractMolecularMetadataSample, ExtractSource
+    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -168,13 +168,6 @@ class TransformPatientSample(TransformEntity):
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
-class TransformXenograftSample(TransformEntity):
-    requiredTasks = [
-        ExtractMolecularMetadataSample()
-    ]
-    entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
-
-
 class TransformPatientSnapshot(TransformEntity):
     requiredTasks = [
         ExtractSample(),
@@ -261,6 +254,29 @@ class TransformPlatform(TransformEntity):
     entity_name = Constants.PLATFORM_ENTITY
 
 
+class TransformXenograftSample(TransformEntity):
+    requiredTasks = [
+        ExtractMolecularMetadataSample(),
+        TransformHostStrain(),
+        TransformModel(),
+        TransformPlatform()
+    ]
+    entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
+
+
+class TransformSpecimen(TransformEntity):
+    requiredTasks = [
+        ExtractModel(),
+        TransformEngraftmentSite(),
+        TransformEngraftmentType(),
+        TransformEngraftmentMaterial(),
+        TransformHostStrain(),
+        TransformModel(),
+        TransformXenograftSample()
+    ]
+    entity_name = Constants.SPECIMEN_ENTITY
+
+
 class TransformMolecularCharacterization(TransformEntity):
     requiredTasks = [
         ExtractMolecularMetadataSample(),
@@ -310,6 +326,13 @@ class TransformMutationMeasurementData(TransformEntity):
         TransformMolecularCharacterization()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
+
+
+class TransformGeneMarker(TransformEntity):
+    requiredTasks = [
+        ExtractGeneMarker()
+    ]
+    entity_name = Constants.GENE_MARKER_ENTITY
 
 
 if __name__ == "__main__":
