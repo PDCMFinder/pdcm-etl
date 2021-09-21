@@ -48,3 +48,16 @@ luigid --port 8082
 ```sh
 PYTHONPATH=. python etl/workflow/main.py --scheduler-host localhost PdcmEtl
 ```
+
+## Running on a Hadoop cluster
+
+- Set YARN_CONF_DIR pointing to the location of your Hadoop Cluster config
+- Fill in the luigi.cfg files with the right values
+- The first time:
+```
+make rebundle-submit
+```
+- If you haven't change anything on the requirements.txt you can run (is faster):
+```
+make submit
+```

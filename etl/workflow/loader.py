@@ -98,7 +98,8 @@ class CopyEntityFromCsvToDb(luigi.Task):
     def run(self):
         start = time.time()
         copy_entity_to_database(
-            self.entity_name, self.input().path, self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+            self.entity_name, self.input().path, self.db_host, self.db_port, self.db_name, self.db_user,
+            self.db_password)
         end = time.time()
         print("Ended {0} in {1} seconds".format(self.entity_name, round(end - start, 4)))
         with self.output().open('w') as outfile:
@@ -144,7 +145,8 @@ class CreateFksAndIndexes(luigi.Task):
     db_password = luigi.Parameter()
 
     def requires(self):
-        return CopyAll(self.data_dir, self.providers, self.data_dir_out)
+        return CopyAll(self.data_dir, self.providers,
+                       self.data_dir_out) if PdcmConfig().deploy_mode != "cluster" else ParquetToPg()
 
     def output(self):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes"))
@@ -171,6 +173,28 @@ class CopyAll(luigi.WrapperTask):
 
     def run(self):
         yield get_all_copying_tasks()
+
+
+class ParquetToPg(SparkSubmitTask):
+    name = "parquet_to_pg_load_all"
+    app = "etl/jobs/load/database_loader.py"
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    table_names = list(transform_classes.keys())
+
+    def output(self):
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "parquet_to_pg_load_all"))
+
+    def requires(self):
+        return [DeleteFksAndIndexes()] + list(transform_classes.values())
+
+    def app_options(self):
+        return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name,
+                "|".join(i.path for i in self.input()[1:]), "|".join(self.table_names), self.output().path]
 
 
 if __name__ == "__main__":

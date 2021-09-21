@@ -20,6 +20,7 @@ ALTER TABLE engraftment_site DROP CONSTRAINT IF EXISTS pk_engraftment_site CASCA
 ALTER TABLE engraftment_material DROP CONSTRAINT IF EXISTS pk_engraftment_material CASCADE;
 ALTER TABLE engraftment_sample_state DROP CONSTRAINT IF EXISTS pk_engraftment_sample_state CASCADE;
 ALTER TABLE engraftment_sample_type DROP CONSTRAINT IF EXISTS pk_engraftment_sample_type CASCADE;
+ALTER TABLE engraftment_type DROP CONSTRAINT IF EXISTS pk_engraftment_type CASCADE;
 ALTER TABLE host_strain DROP CONSTRAINT IF EXISTS pk_host_strain CASCADE;
 ALTER TABLE project_group DROP CONSTRAINT IF EXISTS pk_project_group CASCADE;
 ALTER TABLE treatment DROP CONSTRAINT IF EXISTS pk_treatment CASCADE;

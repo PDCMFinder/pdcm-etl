@@ -142,4 +142,3 @@ ALTER TABLE specimen
     ADD CONSTRAINT fk_specimen_engraftment_material
     FOREIGN KEY (engraftment_material_id)
     REFERENCES engraftment_material (id);
-
