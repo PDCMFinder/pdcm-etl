@@ -335,5 +335,21 @@ class TransformGeneMarker(TransformEntity):
     entity_name = Constants.GENE_MARKER_ENTITY
 
 
+class TransformSearchIndex(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformMolecularCharacterization(),
+        TransformMolecularCharacterizationType(),
+        TransformCnaMolecularData(),
+        TransformExpressionMolecularData(),
+        TransformCytogeneticsMolecularData(),
+        TransformPatientSample(),
+        TransformPatientSnapshot(),
+        TransformDiagnosis(),
+        TransformTumourType(),
+        TransformTissue()
+    ]
+    entity_name = Constants.SEARCH_INDEX_ENTITY
+
 if __name__ == "__main__":
     luigi.run()

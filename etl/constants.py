@@ -61,3 +61,4 @@ class Constants:
     MUTATION_MARKER_ENTITY = "mutation_marker"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
     GENE_MARKER_ENTITY = "gene_marker"
+    SEARCH_INDEX_ENTITY = "search_index"
