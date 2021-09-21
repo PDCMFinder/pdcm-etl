@@ -50,8 +50,6 @@ ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS fk_mutation_meas
 
 ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS fk_mutation_measurement_data_mol_char CASCADE;
 
-ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_xenograft_sample CASCADE;
-
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_site CASCADE;
 
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_type CASCADE;
