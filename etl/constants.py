@@ -41,6 +41,7 @@ class Constants:
     PATIENT_SAMPLE_ENTITY = "patient_sample"
     XENOGRAFT_SAMPLE_ENTITY = "xenograft_sample"
     PATIENT_SNAPSHOT_ENTITY = "patient_snapshot"
+    SPECIMEN_ENTITY = "specimen"
     ENGRAFTMENT_SITE_ENTITY = "engraftment_site"
     ENGRAFTMENT_TYPE_ENTITY = "engraftment_type"
     ENGRAFTMENT_MATERIAL_ENTITY = "engraftment_material"

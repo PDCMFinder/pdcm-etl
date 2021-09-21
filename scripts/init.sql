@@ -109,7 +109,11 @@ CREATE TABLE patient_sample (
 CREATE TABLE xenograft_sample (
     id BIGINT NOT NULL,
     external_xenograft_sample_id TEXT,
-    data_source varchar
+    passage VARCHAR,
+    host_strain_id BIGINT,
+    model_id BIGINT,
+    raw_data_url VARCHAR,
+    platform_id BIGINT
 
 );
 
@@ -265,7 +269,6 @@ CREATE TABLE specimen (
     id BIGINT NOT NULL,
     external_id TEXT NOT NULL,
     passage_number TEXT NOT NULL,
-    sample_id BIGINT,
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
     engraftment_material_id BIGINT,

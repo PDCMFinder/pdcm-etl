@@ -82,6 +82,9 @@ def get_molchar_sample(molchar_metadata_sample_df: DataFrame) -> DataFrame:
 
 
 def join_with_platform(molchar_metadata_sample_df: DataFrame, platform_df: DataFrame) -> DataFrame:
+    platform_df = platform_df.select(
+        "id", "platform_id", "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
+
     platform_df = platform_df.withColumnRenamed("id", "platform_internal_id")
     molchar_metadata_sample_df = molchar_metadata_sample_df.join(
         platform_df, on=["platform_id", Constants.DATA_SOURCE_COLUMN], how='left')
@@ -143,6 +146,7 @@ def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_samp
 
 
 def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_sample_df: DataFrame) -> DataFrame:
+    xenograft_sample_df = xenograft_sample_df.select("id", "external_xenograft_sample_id")
     molchar_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     molchar_xenograft_df = molchar_xenograft_df.withColumn("patient_sample_id", lit(""))
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_patient_sample_id", lit(""))
