@@ -102,14 +102,8 @@ def build_path_patterns(data_dir, providers, file_patterns):
     paths_patterns = []
 
     for file_pattern in file_patterns:
-        matching_providers = []
-        for provider in providers:
-            current_file_pattern = str(file_pattern).replace("$provider", provider)
-            #            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
-            matching_providers.append(provider)
-
-        if matching_providers:
-            joined_providers_list = ','.join([p for p in matching_providers])
+        if providers:
+            joined_providers_list = ','.join([p for p in providers])
             providers_pattern = "{" + joined_providers_list + "}"
             path_pattern = "{0}/{1}/{2}".format(
                 data_dir_root, providers_pattern, file_pattern.replace("$provider", providers_pattern))
