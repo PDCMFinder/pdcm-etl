@@ -105,7 +105,11 @@ entities:
     columns:
       - "id"
       - "external_xenograft_sample_id"
-      - "data_source"
+      - "passage"
+      - "host_strain_id"
+      - "model_id"
+      - "raw_data_url"
+      - "platform_id"
 
   - entity: "patient_snapshot"
     columns:
@@ -143,6 +147,16 @@ entities:
     columns:
       - "id"
       - "name"
+  - entity: "specimen"
+    columns:
+      - "id"
+      - "external_id"
+      - "passage_number"
+      - "engraftment_site_id"
+      - "engraftment_type_id"
+      - "engraftment_material_id"
+      - "host_strain_id"
+      - "model_id"
 
   - entity: "accessibility_group"
     columns:

@@ -168,13 +168,6 @@ class TransformPatientSample(TransformEntity):
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
-class TransformXenograftSample(TransformEntity):
-    requiredTasks = [
-        ExtractMolecularMetadataSample()
-    ]
-    entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
-
-
 class TransformPatientSnapshot(TransformEntity):
     requiredTasks = [
         ExtractSample(),
@@ -259,6 +252,29 @@ class TransformPlatform(TransformEntity):
         TransformProviderGroup()
     ]
     entity_name = Constants.PLATFORM_ENTITY
+
+
+class TransformXenograftSample(TransformEntity):
+    requiredTasks = [
+        ExtractMolecularMetadataSample(),
+        TransformHostStrain(),
+        TransformModel(),
+        TransformPlatform()
+    ]
+    entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
+
+
+class TransformSpecimen(TransformEntity):
+    requiredTasks = [
+        ExtractModel(),
+        TransformEngraftmentSite(),
+        TransformEngraftmentType(),
+        TransformEngraftmentMaterial(),
+        TransformHostStrain(),
+        TransformModel(),
+        TransformXenograftSample()
+    ]
+    entity_name = Constants.SPECIMEN_ENTITY
 
 
 class TransformMolecularCharacterization(TransformEntity):
