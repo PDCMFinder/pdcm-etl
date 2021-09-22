@@ -47,9 +47,9 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
 
 class TransformDiagnosis(TransformEntity):
     requiredTasks = [
-            ExtractPatient(),
-            ExtractSample()
-        ]
+        ExtractPatient(),
+        ExtractSample()
+    ]
     entity_name = Constants.DIAGNOSIS_ENTITY
 
 
@@ -340,17 +340,16 @@ class TransformSearchIndex(TransformEntity):
         TransformModel(),
         TransformMolecularCharacterization(),
         TransformMolecularCharacterizationType(),
-        TransformCnaMolecularData(),
-        TransformExpressionMolecularData(),
-        TransformCytogeneticsMolecularData(),
         TransformPatientSample(),
         TransformPatientSnapshot(),
         TransformPatient(),
+        TransformXenograftSample(),
         TransformDiagnosis(),
         TransformTumourType(),
         TransformTissue()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
+
 
 if __name__ == "__main__":
     luigi.run()

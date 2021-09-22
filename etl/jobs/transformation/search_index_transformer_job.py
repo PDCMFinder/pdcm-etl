@@ -1,8 +1,9 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import array_join, collect_list
 
-from etl.jobs.util.dataframe_functions import join_left_dfs
+from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 from etl.jobs.util.id_assigner import add_id
 
 column_names = ["pdcm_model_id", "external_model_id", "data_source", "histology", "data_available",
@@ -19,12 +20,10 @@ def main(argv):
     model_parquet_path = argv[1]
     molecular_characterization_parquet_path = argv[2]
     molecular_characterization_type_parquet_path = argv[3]
-    cna_molecular_data_parquet_path = argv[4]
-    expression_molecular_data_parquet_path = argv[5]
-    cytogenetics_molecular_data_parquet_path = argv[6]
     patient_sample_parquet_path = argv[7]
     patient_snapshot_parquet_path = argv[8]
     patient_parquet_path = argv[9]
+    xenograft_sample_parquet_path = argv[10]
     diagnosis_parquet_path = argv[10]
     tumour_type_parquet_path = argv[11]
     tissue_parquet_path = argv[12]
@@ -34,29 +33,26 @@ def main(argv):
     model_df = spark.read.parquet(model_parquet_path)
     molecular_characterization_df = spark.read.parquet(molecular_characterization_parquet_path)
     molecular_characterization_type_df = spark.read.parquet(molecular_characterization_type_parquet_path)
-    cna_molecular_data_df = spark.read.parquet(cna_molecular_data_parquet_path)
-    expression_molecular_data_df = spark.read.parquet(expression_molecular_data_parquet_path)
-    cytogenetics_molecular_data_df = spark.read.parquet(cytogenetics_molecular_data_parquet_path)
     patient_sample_df = spark.read.parquet(patient_sample_parquet_path)
     patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
+    xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
     diagnosis_df = spark.read.parquet(diagnosis_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
 
-    search_index_df = transform_search_index(model_df, molecular_characterization_df,
-                                             molecular_characterization_type_df,
-                                             cna_molecular_data_df, expression_molecular_data_df,
-                                             cytogenetics_molecular_data_df,
-                                             patient_sample_df, patient_snapshot_df, patient_df, diagnosis_df,
-                                             tumour_type_df, tissue_df)
+    search_index_df = transform_search_index(model_df,
+                                             patient_sample_df, patient_snapshot_df, patient_df, xenograft_sample_df,
+                                             diagnosis_df,
+                                             tumour_type_df, tissue_df, molecular_characterization_df,
+                                             molecular_characterization_type_df)
     search_index_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_search_index(model_df, molecular_characterization_df, molecular_characterization_type_df,
-                           cna_molecular_data_df, expression_molecular_data_df, cytogenetics_molecular_data_df,
-                           patient_sample_df, patient_snapshot_df, patient_df, diagnosis_df,
-                           tumour_type_df, tissue_df) -> DataFrame:
+def transform_search_index(model_df,
+                           patient_sample_df, patient_snapshot_df, patient_df, xenograft_sample_df, diagnosis_df,
+                           tumour_type_df, tissue_df, molecular_characterization_df,
+                           molecular_characterization_type_df) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
     # Adding diagnosis, primary_site, collection_site and tumour_type data to patient_sample
@@ -74,15 +70,27 @@ def transform_search_index(model_df, molecular_characterization_df, molecular_ch
     patient_snapshot_df = join_left_dfs(patient_snapshot_df, patient_df, "patient_id", "id")
     patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, patient_snapshot_df, "id", "sample_id")
 
+    # Adding tumour_type name to patient_sample
+    tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
+    patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id")
     search_index_df = join_left_dfs(search_index_df, patient_sample_ext_df, "pdcm_model_id", "model_id")
 
+    # Adding molecular data availability
+    molecular_characterization_type_df = molecular_characterization_type_df.withColumnRenamed("name",
+                                                                                              "molecular_characterization_type_name")
+    molecular_characterization_df = join_dfs(molecular_characterization_df, molecular_characterization_type_df,
+                                                  "molecular_characterization_type_id", "id")
+    patient_sample_mol_char_df = join_dfs(patient_sample_df, molecular_characterization_df, "id",
+                                                     "patient_sample_id")
+    patient_sample_mol_char_df = patient_sample_mol_char_df.select("model_id", "molecular_characterization_type_name").distinct()
 
+    xenograft_sample_mol_char_df = join_dfs(xenograft_sample_df, molecular_characterization_df, "id", "xenograft_sample_id")
+    xenograft_sample_mol_char_df = xenograft_sample_mol_char_df.select("model_id", "molecular_characterization_type_name").distinct()
 
-    return search_index_df
+    model_mol_char_type_df = patient_sample_mol_char_df.union(xenograft_sample_mol_char_df)
+    model_mol_char_type_df = model_mol_char_type_df.groupby("model_id").agg(array_join(collect_list("molecular_characterization_type_name")).alias("data_available"))
 
-
-def map_model_id_column_names(search_index_df):
-    model_to_search_index_map = {"id", }
+    search_index_df = join_left_dfs(search_index_df, model_mol_char_type_df, "pdcm_model_id", "model_id")
     return search_index_df
 
 
