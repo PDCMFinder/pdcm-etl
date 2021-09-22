@@ -345,6 +345,7 @@ class TransformSearchIndex(TransformEntity):
         TransformCytogeneticsMolecularData(),
         TransformPatientSample(),
         TransformPatientSnapshot(),
+        TransformPatient(),
         TransformDiagnosis(),
         TransformTumourType(),
         TransformTissue()
