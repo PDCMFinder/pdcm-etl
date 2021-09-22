@@ -288,3 +288,23 @@ CREATE TABLE gene_marker (
     ensembl_gene_id TEXT,
     ncbi_gene_id TEXT
 );
+
+CREATE TABLE gene_marker (
+    id BIGINT NOT NULL,
+    hgnc_id TEXT NOT NULL,
+    approved_name TEXT,
+    previous_symbols TEXT,
+    alias_symbols TEXT,
+    accession_numbers TEXT,
+    refseq_ids TEXT,
+    alias_names TEXT,
+    ensembl_gene_id TEXT,
+    ncbi_gene_id TEXT
+);
+
+CREATE TABLE ontology_term_diagnosis(
+    id BIGINT NOT NULL,
+    term_id TEXT NOT NULL,
+    term_name TEXT,
+    is_a TEXT
+);

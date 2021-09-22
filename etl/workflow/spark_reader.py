@@ -1,6 +1,6 @@
 import json
 import time
-
+#import networkx as nx
 import yaml
 
 import luigi
@@ -62,6 +62,51 @@ def read_files(session, path_patterns, schema):
 
 def read_json(session, json_content):
     df = session.read.option("multiline", True).json(session.sparkContext.parallelize([json_content]))
+    return df
+
+
+def read_obo_file(session, file_path, columns):
+    start = time.time()
+
+    term_id = ""
+    term_name = ""
+    term_is_a = []
+
+    term_list = []
+    # graph = nx.DiGraph()
+
+    with open(file_path) as fp:
+        lines = fp.readlines()
+        for line in lines:
+            if line.strip() == "[Term]":
+                # check if the term is initialised and if so, add it to ontology_terms
+                if term_id != "":
+                    # graph.add_node(term_id, name=term_name, term_id=term_id)
+                    term_list.append((term_id, term_name, ','.join(term_is_a)))
+                    # reset term attributes
+                    term_id = ""
+                    term_name = ""
+                    term_is_a = []
+
+            elif line.startswith("id:"):
+                term_id = line[4:].strip()
+
+            elif line.startswith("name:"):
+                term_name = line[5:].strip()
+
+            elif line.startswith("is_a:"):
+                start = "is_a:"
+                end = "!"
+                is_a_id = line[line.find(start) + len(start):line.rfind(end)].strip()
+                # graph.add_edge(is_a_id, term_id)
+                term_is_a.append(is_a_id)
+
+    # return graph
+
+    print("Num of terms:"+str(len(term_list)))
+    df = session.createDataFrame(data=term_list, schema=columns)
+    end = time.time()
+
     return df
 
 
@@ -225,6 +270,32 @@ class ReadMarkerFromTsv(PySparkTask):
     def output(self):
         return PdcmConfig().get_target(
             "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.GENE_MARKER_MODULE))
+
+    def app_options(self):
+        return [
+            self.data_dir,
+            self.output().path]
+
+
+class ReadOntologyFromObo(PySparkTask):
+
+    data_dir = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+
+    def main(self, sc, *args):
+        spark = SparkSession(sc)
+
+        input_path = args[0]
+        output_path = args[1]
+
+        columns = ["term_id", "term_name", "is_a"]
+        df = read_obo_file(spark, input_path + "/ontology/ncit.obo", columns)
+        df.show()
+        df.write.mode("overwrite").parquet(output_path)
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.ONTOLOGY_MODULE))
 
     def app_options(self):
         return [

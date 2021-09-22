@@ -20,6 +20,6 @@ pyyaml
 hdfs
 
 psycopg2~=2.8.6
-
+networkx~=2.5.1
 pytest
 pytest-spark
