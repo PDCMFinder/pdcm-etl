@@ -2,6 +2,7 @@ luigi==2.8.7
 
 pyspark~=3.1.1
 docutils~=0.17.1
+pip~=19.2.3
 pip
 py4j~=0.10.9
 python-dateutil~=2.8.1
@@ -11,10 +12,12 @@ lockfile~=0.12.2
 numpy~=1.20.2
 scipy~=1.6.2
 cloudpickle~=1.6.0
+Pillow~=7.2.0
 setuptools~=41.2.0
 
 quinn~=0.9.0
 pyyaml
+hdfs
 
 psycopg2~=2.8.6
 networkx~=2.5.1

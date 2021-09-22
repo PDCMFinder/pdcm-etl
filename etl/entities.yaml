@@ -267,6 +267,19 @@ entities:
       - "mutation_marker_id"
       - "molecular_characterization_id"
 
+  - entity: "gene_marker"
+    columns:
+      - "id"
+      - "hgnc_id"
+      - "approved_name"
+      - "previous_symbols"
+      - "alias_symbols"
+      - "accession_numbers"
+      - "refseq_ids"
+      - "alias_names"
+      - "ensembl_gene_id"
+      - "ncbi_gene_id"
+
 
 
 

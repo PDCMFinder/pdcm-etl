@@ -129,11 +129,6 @@ ALTER TABLE mutation_measurement_data
     REFERENCES molecular_characterization (id);
 
 ALTER TABLE specimen
-    ADD CONSTRAINT fk_specimen_xenograft_sample
-    FOREIGN KEY (sample_id)
-    REFERENCES patient_sample (id);
-
-ALTER TABLE specimen
     ADD CONSTRAINT fk_specimen_engraftment_site
     FOREIGN KEY (engraftment_site_id)
     REFERENCES engraftment_site (id);
@@ -147,4 +142,3 @@ ALTER TABLE specimen
     ADD CONSTRAINT fk_specimen_engraftment_material
     FOREIGN KEY (engraftment_material_id)
     REFERENCES engraftment_material (id);
-

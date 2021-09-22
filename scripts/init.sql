@@ -35,7 +35,7 @@ CREATE TABLE patient (
 
 CREATE TABLE publication_group (
     id BIGINT NOT NULL,
-    pub_med_id TEXT NOT NULL
+    pub_med_ids TEXT NOT NULL
 );
 
 CREATE TABLE accessibility_group (
@@ -243,7 +243,7 @@ CREATE TABLE mutation_marker (
     coding_sequence_change TEXT,
     variant_class TEXT,
     codon_change TEXT,
-    aminoacid_change TEXT,
+    amino_acid_change TEXT,
     consequence TEXT,
     functional_prediction TEXT,
     seq_start_position TEXT,
@@ -267,7 +267,7 @@ CREATE TABLE mutation_measurement_data (
 
 CREATE TABLE specimen (
     id BIGINT NOT NULL,
-    external_id TEXT NOT NULL,
+    external_id TEXT,
     passage_number TEXT NOT NULL,
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
