@@ -1,11 +1,13 @@
 from functools import lru_cache
+from pathlib import Path
 
 import yaml
 
 
 @lru_cache(maxsize=None)
 def read_groups():
-    with open("etl/sources.yaml", "r") as ymlFile:
+    sources_file_path = "etl/sources.yaml" if Path("etl/sources.yaml").is_file() else "sources.yaml"
+    with open(sources_file_path, "r") as ymlFile:
         conf = yaml.safe_load(ymlFile)
     return conf["groups"]
 

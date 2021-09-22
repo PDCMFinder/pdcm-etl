@@ -130,8 +130,8 @@ def set_fk_platform(molecular_characterization_df: DataFrame, platform_df: DataF
 
 def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_sample_df: DataFrame) -> DataFrame:
     molchar_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
-    molchar_patient_df = molchar_patient_df.withColumn("xenograft_sample_id", lit(""))
-    molchar_patient_df = molchar_patient_df.withColumn("external_xenograft_sample_id", lit(""))
+    molchar_patient_df = molchar_patient_df.withColumn("xenograft_sample_id", lit(None))
+    molchar_patient_df = molchar_patient_df.withColumn("external_xenograft_sample_id", lit(None))
     molchar_patient_df = molchar_patient_df.withColumn("external_patient_sample_id_bk", col("sample_id"))
     molchar_patient_df = transform_to_fk(
         molchar_patient_df,
@@ -148,8 +148,8 @@ def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_samp
 def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_sample_df: DataFrame) -> DataFrame:
     xenograft_sample_df = xenograft_sample_df.select("id", "external_xenograft_sample_id")
     molchar_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
-    molchar_xenograft_df = molchar_xenograft_df.withColumn("patient_sample_id", lit(""))
-    molchar_xenograft_df = molchar_xenograft_df.withColumn("external_patient_sample_id", lit(""))
+    molchar_xenograft_df = molchar_xenograft_df.withColumn("patient_sample_id", lit(None))
+    molchar_xenograft_df = molchar_xenograft_df.withColumn("external_patient_sample_id", lit(None))
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_xenograft_sample_id_bk", col("sample_id"))
     molchar_xenograft_df = transform_to_fk(
         molchar_xenograft_df,

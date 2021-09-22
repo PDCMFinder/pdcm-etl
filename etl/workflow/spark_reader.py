@@ -1,4 +1,3 @@
-import glob
 import json
 import time
 
@@ -91,9 +90,9 @@ class ReadByModuleAndPathPatterns(PySparkTask):
 
         schema = build_schema_from_cols(columns_to_read)
 
-        if len(path_patterns) > 0 and path_patterns != ['']:
+        try:
             df = read_files(spark, path_patterns, schema)
-        else:
+        except BaseException as error:
             empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
             df = empty_df
             df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
@@ -105,14 +104,8 @@ def build_path_patterns(data_dir, providers, file_patterns):
     paths_patterns = []
 
     for file_pattern in file_patterns:
-        matching_providers = []
-        for provider in providers:
-            current_file_pattern = str(file_pattern).replace("$provider", provider)
-            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
-                matching_providers.append(provider)
-
-        if matching_providers:
-            joined_providers_list = ','.join([p for p in matching_providers])
+        if providers:
+            joined_providers_list = ','.join([p for p in providers])
             providers_pattern = "{" + joined_providers_list + "}"
             path_pattern = "{0}/{1}/{2}".format(
                 data_dir_root, providers_pattern, file_pattern.replace("$provider", providers_pattern))
@@ -154,6 +147,7 @@ class ReadYamlByModule(PySparkTask):
             self.path_pattern,
             ','.join(self.columns_to_read),
             self.provider,
+            PdcmConfig().deploy_mode,
             self.output().path]
 
     def main(self, sc, *args):
@@ -162,11 +156,17 @@ class ReadYamlByModule(PySparkTask):
         yaml_file_path = args[0]
         columns_to_read = args[1].split(',')
         provider = args[2]
-        output_path = args[3]
+        deploy_mode = args[3]
+        output_path = args[4]
 
-        with open(yaml_file_path, 'r') as stream:
-            yaml_as_json = yaml.safe_load(stream)
-            yaml_as_json = json.dumps(yaml_as_json)
+        if deploy_mode == "cluster":
+            yaml_as_json = sc.wholeTextFiles(yaml_file_path).collect()[0][1]
+            yaml_as_json = yaml.safe_load(yaml_as_json)
+        else:
+            with open(yaml_file_path, 'r') as stream:
+                yaml_as_json = yaml.safe_load(stream)
+
+        yaml_as_json = json.dumps(yaml_as_json)
 
         df = read_json(spark, yaml_as_json)
         df = df.select(columns_to_read)
