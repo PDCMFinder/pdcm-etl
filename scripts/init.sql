@@ -267,7 +267,7 @@ CREATE TABLE mutation_measurement_data (
 
 CREATE TABLE specimen (
     id BIGINT NOT NULL,
-    external_id TEXT NOT NULL,
+    external_id TEXT,
     passage_number TEXT NOT NULL,
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
