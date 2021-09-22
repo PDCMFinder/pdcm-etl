@@ -2,7 +2,6 @@ luigi==2.8.7
 
 pyspark~=3.1.1
 docutils~=0.17.1
-pip~=19.2.3
 pip
 py4j~=0.10.9
 python-dateutil~=2.8.1
