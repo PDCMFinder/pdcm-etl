@@ -1,8 +1,10 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.window import Window
+from pyspark.sql.functions import col, row_number
 
-from etl.jobs.util.cleaner import trim_all
+from etl.jobs.util.cleaner import trim_all, lower_and_trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -31,11 +33,20 @@ def transform_host_strain(raw_model_df: DataFrame) -> DataFrame:
 
 def extract_host_strain(raw_model_df: DataFrame) -> DataFrame:
     host_strain_df = raw_model_df.select("host_strain_name", "host_strain_nomenclature")
-    host_strain_df = host_strain_df.withColumn("name", trim_all("host_strain_name"))
+    host_strain_df = host_strain_df.withColumn("name", lower_and_trim_all("host_strain_name"))
     host_strain_df = host_strain_df.withColumn("nomenclature", trim_all("host_strain_nomenclature"))
     host_strain_df = host_strain_df.select("name", "nomenclature")
-    host_strain_df = host_strain_df.drop_duplicates()
+    host_strain_df = keep_nomenclature_uniqueness(host_strain_df)
     return host_strain_df
+
+
+def keep_nomenclature_uniqueness(host_strain_df: DataFrame) -> DataFrame:
+    """ Some records have the same nomenclature but different name. We need to keep the nomenclature uniqueness,
+    so an option is to group by that column and only keep the first row"""
+
+    w2 = Window.partitionBy("nomenclature").orderBy(col("nomenclature"))
+    return host_strain_df.withColumn("row", row_number().over(w2)) \
+        .filter(col("row") == 1).drop("row")
 
 
 def get_columns_expected_order(host_strain_df: DataFrame) -> DataFrame:
