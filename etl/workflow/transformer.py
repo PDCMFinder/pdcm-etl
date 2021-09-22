@@ -271,8 +271,7 @@ class TransformSpecimen(TransformEntity):
         TransformEngraftmentType(),
         TransformEngraftmentMaterial(),
         TransformHostStrain(),
-        TransformModel(),
-        TransformXenograftSample()
+        TransformModel()
     ]
     entity_name = Constants.SPECIMEN_ENTITY
 
