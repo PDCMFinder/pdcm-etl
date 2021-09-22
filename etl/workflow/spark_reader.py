@@ -1,3 +1,4 @@
+import glob
 import json
 import time
 
@@ -102,10 +103,19 @@ class ReadByModuleAndPathPatterns(PySparkTask):
 def build_path_patterns(data_dir, providers, file_patterns):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
     paths_patterns = []
+    matching_providers = []
 
-    for file_pattern in file_patterns:
-        if providers:
-            joined_providers_list = ','.join([p for p in providers])
+    if PdcmConfig().deploy_mode == "cluster":
+        matching_providers.extend(providers)
+    else:
+        for file_pattern in file_patterns:
+            for provider in providers:
+                current_file_pattern = str(file_pattern).replace("$provider", provider)
+                if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
+                    matching_providers.append(provider)
+
+        if matching_providers:
+            joined_providers_list = ','.join([p for p in matching_providers])
             providers_pattern = "{" + joined_providers_list + "}"
             path_pattern = "{0}/{1}/{2}".format(
                 data_dir_root, providers_pattern, file_pattern.replace("$provider", providers_pattern))
@@ -201,13 +211,13 @@ def extract_markers(input_path):
 
 def create_marker_dataframe(markers) -> DataFrame:
     spark = SparkSession.builder.getOrCreate()
-    columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols", "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
+    columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
+               "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
     df = spark.createDataFrame(data=markers, schema=columns)
     return df
 
 
 class ReadMarkerFromTsv(PySparkTask):
-
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
 
@@ -219,7 +229,7 @@ class ReadMarkerFromTsv(PySparkTask):
 
         columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
                    "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
-        df = read_files(spark, input_path+"/markers/markers.tsv", build_schema_from_cols(columns))
+        df = read_files(spark, input_path + "/markers/markers.tsv", build_schema_from_cols(columns))
         df.write.mode("overwrite").parquet(output_path)
 
     def output(self):
