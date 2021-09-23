@@ -95,7 +95,7 @@ entities = {
     Constants.PROVIDER_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.provider_group_transformer_job.main,
         "transformation_class": TransformProviderGroup(),
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name", "abbreviation", "description", "provider_type_id"]
     },
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
