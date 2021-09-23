@@ -33,3 +33,12 @@ ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_dat
 ALTER TABLE mutation_marker ADD CONSTRAINT pk_mutation_marker PRIMARY KEY (id);
 ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
 ALTER TABLE specimen ADD CONSTRAINT pk_specimen PRIMARY KEY (id);
+
+
+DELETE FROM specimen a USING (
+      SELECT MIN(ctid) as ctid, id
+        FROM specimen
+        GROUP BY id HAVING COUNT(*) > 1
+      ) b
+      WHERE a.id = b.id
+      AND a.ctid <> b.ctid

@@ -280,6 +280,18 @@ entities:
       - "ensembl_gene_id"
       - "ncbi_gene_id"
 
+  - entity: "search_index"
+    columns:
+      - "pdcm_model_id"
+      - "external_model_id"
+      - "data_source"
+      - "histology"
+      - "data_available"
+      - "primary_site"
+      - "collection_site"
+      - "tumour_type"
+      - "patient_age"
+      - "patient_sex"
 
 
 

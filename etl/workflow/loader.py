@@ -14,7 +14,8 @@ from etl.workflow.transformer import TransformPatient, TransformDiagnosis, Trans
     TransformSourceDatabase, TransformHostStrain, TransformProjectGroup, TransformTreatment, TransformResponse, \
     TransformMolecularCharacterizationType, TransformPlatform, TransformMolecularCharacterization, \
     TransformCnaMolecularData, TransformCytogeneticsMolecularData, TransformExpressionMolecularData, \
-    TransformMutationMarker, TransformMutationMeasurementData, TransformGeneMarker, TransformSpecimen
+    TransformMutationMarker, TransformMutationMeasurementData, TransformGeneMarker, TransformSpecimen, \
+    TransformSearchIndex
 
 transform_classes = {
     Constants.DIAGNOSIS_ENTITY: TransformDiagnosis(),
@@ -52,7 +53,8 @@ transform_classes = {
     Constants.MUTATION_MARKER_ENTITY: TransformMutationMarker(),
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: TransformMutationMeasurementData(),
     Constants.GENE_MARKER_ENTITY: TransformGeneMarker(),
-    Constants.SPECIMEN_ENTITY: TransformSpecimen()
+    Constants.SPECIMEN_ENTITY: TransformSpecimen(),
+    Constants.SEARCH_INDEX_ENTITY: TransformSearchIndex()
 }
 
 

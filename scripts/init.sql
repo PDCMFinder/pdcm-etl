@@ -288,3 +288,17 @@ CREATE TABLE gene_marker (
     ensembl_gene_id TEXT,
     ncbi_gene_id TEXT
 );
+
+
+CREATE TABLE search_index (
+    pdcm_model_id BIGINT NOT NULL,
+    external_model_id TEXT NOT NULL,
+    data_source TEXT,
+    histology TEXT,
+    data_available TEXT,
+    primary_site TEXT,
+    collection_site TEXT,
+    tumour_type TEXT,
+    patient_age TEXT,
+    patient_sex TEXT
+);

@@ -1,7 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import array_join, collect_list
+from pyspark.sql.functions import array_join, collect_list, col
 
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 from etl.jobs.util.id_assigner import add_id
@@ -20,14 +20,14 @@ def main(argv):
     model_parquet_path = argv[1]
     molecular_characterization_parquet_path = argv[2]
     molecular_characterization_type_parquet_path = argv[3]
-    patient_sample_parquet_path = argv[7]
-    patient_snapshot_parquet_path = argv[8]
-    patient_parquet_path = argv[9]
-    xenograft_sample_parquet_path = argv[10]
-    diagnosis_parquet_path = argv[10]
-    tumour_type_parquet_path = argv[11]
-    tissue_parquet_path = argv[12]
-    output_path = argv[13]
+    patient_sample_parquet_path = argv[4]
+    patient_snapshot_parquet_path = argv[5]
+    patient_parquet_path = argv[6]
+    xenograft_sample_parquet_path = argv[7]
+    diagnosis_parquet_path = argv[8]
+    tumour_type_parquet_path = argv[9]
+    tissue_parquet_path = argv[10]
+    output_path = argv[11]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -66,31 +66,37 @@ def transform_search_index(model_df,
     patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, collection_site_df, "collection_site_id", "id")
 
     # Adding age and sex to patient_sample
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("age_in_years_at_collection", "age")
+    patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
     patient_snapshot_df = join_left_dfs(patient_snapshot_df, patient_df, "patient_id", "id")
+    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("age_in_years_at_collection", "patient_age")
     patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, patient_snapshot_df, "id", "sample_id")
 
     # Adding tumour_type name to patient_sample
     tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
     patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id")
-    search_index_df = join_left_dfs(search_index_df, patient_sample_ext_df, "pdcm_model_id", "model_id")
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(search_index_df, patient_sample_ext_df, "temp_model_id", "model_id")
 
     # Adding molecular data availability
     molecular_characterization_type_df = molecular_characterization_type_df.withColumnRenamed("name",
                                                                                               "molecular_characterization_type_name")
     molecular_characterization_df = join_dfs(molecular_characterization_df, molecular_characterization_type_df,
-                                                  "molecular_characterization_type_id", "id")
+                                             "molecular_characterization_type_id", "id", "full")
     patient_sample_mol_char_df = join_dfs(patient_sample_df, molecular_characterization_df, "id",
-                                                     "patient_sample_id")
-    patient_sample_mol_char_df = patient_sample_mol_char_df.select("model_id", "molecular_characterization_type_name").distinct()
+                                          "patient_sample_id", "full")
+    patient_sample_mol_char_df = patient_sample_mol_char_df.select("model_id",
+                                                                   "molecular_characterization_type_name").distinct()
 
-    xenograft_sample_mol_char_df = join_dfs(xenograft_sample_df, molecular_characterization_df, "id", "xenograft_sample_id")
-    xenograft_sample_mol_char_df = xenograft_sample_mol_char_df.select("model_id", "molecular_characterization_type_name").distinct()
+    xenograft_sample_mol_char_df = join_dfs(xenograft_sample_df, molecular_characterization_df, "id",
+                                            "xenograft_sample_id", "full")
+    xenograft_sample_mol_char_df = xenograft_sample_mol_char_df.select("model_id",
+                                                                       "molecular_characterization_type_name").distinct()
 
     model_mol_char_type_df = patient_sample_mol_char_df.union(xenograft_sample_mol_char_df)
-    model_mol_char_type_df = model_mol_char_type_df.groupby("model_id").agg(array_join(collect_list("molecular_characterization_type_name")).alias("data_available"))
-
-    search_index_df = join_left_dfs(search_index_df, model_mol_char_type_df, "pdcm_model_id", "model_id")
+    model_mol_char_type_df = model_mol_char_type_df.groupby("model_id").agg(
+        array_join(collect_list("molecular_characterization_type_name"), "|").alias("data_available"))
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(search_index_df, model_mol_char_type_df, "temp_model_id", "model_id")
     return search_index_df
 
 
