@@ -77,7 +77,6 @@ def clean_data_before_join(raw_model_df: DataFrame) -> DataFrame:
         "engraftment_type",
         "sample_type"
     )
-    specimen_df = specimen_df.withColumn("external_id", lit(""))
     specimen_df = specimen_df.withColumn("engraftment_site", init_cap_and_trim_all("engraftment_site"))
     specimen_df = specimen_df.withColumn("engraftment_type", init_cap_and_trim_all("engraftment_type"))
     specimen_df = specimen_df.withColumn("sample_type", init_cap_and_trim_all("sample_type"))
@@ -117,7 +116,6 @@ def set_fk_model(specimen_df: DataFrame, model_df: DataFrame) -> DataFrame:
 def get_columns_expected_order(specimen_df: DataFrame) -> DataFrame:
     return specimen_df.select(
         "id",
-        "external_id",
         "passage_number",
         "engraftment_site_id",
         "engraftment_type_id",

@@ -150,7 +150,6 @@ entities:
   - entity: "specimen"
     columns:
       - "id"
-      - "external_id"
       - "passage_number"
       - "engraftment_site_id"
       - "engraftment_type_id"

@@ -267,26 +267,12 @@ CREATE TABLE mutation_measurement_data (
 
 CREATE TABLE specimen (
     id BIGINT NOT NULL,
-    external_id TEXT,
     passage_number TEXT NOT NULL,
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
     engraftment_material_id BIGINT,
     host_strain_id BIGINT,
     model_id BIGINT
-);
-
-CREATE TABLE gene_marker (
-    id BIGINT NOT NULL,
-    hgnc_id TEXT NOT NULL,
-    approved_name TEXT,
-    previous_symbols TEXT,
-    alias_symbols TEXT,
-    accession_numbers TEXT,
-    refseq_ids TEXT,
-    alias_names TEXT,
-    ensembl_gene_id TEXT,
-    ncbi_gene_id TEXT
 );
 
 CREATE TABLE gene_marker (
