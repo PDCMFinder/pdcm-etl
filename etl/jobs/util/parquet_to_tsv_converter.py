@@ -3,7 +3,7 @@ import sys
 from pyspark.sql import SparkSession
 
 from etl.constants import Constants
-from etl.entities_conf_reader import get_columns_by_entity
+from etl.entities_registry import get_columns_by_entity_name
 
 
 def main(argv):
@@ -21,7 +21,7 @@ def main(argv):
     spark = SparkSession.builder.getOrCreate()
 
     df = spark.read.parquet(parquet_path).drop(Constants.DATA_SOURCE_COLUMN)
-    columns = get_columns_by_entity(entity)
+    columns = get_columns_by_entity_name(entity)
     df = df.select(columns)
     # df.coalesce(1).write \
     df.write \

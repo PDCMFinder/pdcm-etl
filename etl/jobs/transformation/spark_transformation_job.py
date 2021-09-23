@@ -1,6 +1,6 @@
 import sys
 
-from etl.entities_transformation_registry import get_spark_job_by_entity_name
+from etl.entities_registry import get_spark_job_by_entity_name
 
 
 def main(argv):
