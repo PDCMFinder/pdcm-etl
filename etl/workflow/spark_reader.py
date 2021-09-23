@@ -212,6 +212,7 @@ class ReadYamlByModule(PySparkTask):
                 yaml_as_json = yaml.safe_load(stream)
 
         yaml_as_json = json.dumps(yaml_as_json)
+        yaml_as_json = yaml_as_json.encode("unicode_escape").decode("utf-8")
 
         df = read_json(spark, yaml_as_json)
         df = df.select(columns_to_read)
