@@ -341,5 +341,12 @@ class TransformOntologyTermDiagnosis(TransformEntity):
     entity_name = Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY
 
 
+class TransformOntologyTermTreatment(TransformEntity):
+    requiredTasks = [
+        ExtractOntology()
+    ]
+    entity_name = Constants.ONTOLOGY_TERM_TREATMENT_ENTITY
+    
+
 if __name__ == "__main__":
     luigi.run()

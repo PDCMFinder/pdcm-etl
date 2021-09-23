@@ -63,3 +63,4 @@ class Constants:
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
     GENE_MARKER_ENTITY = "gene_marker",
     ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
+    ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
