@@ -1,6 +1,16 @@
 import networkx as nx
 
 
+ONTOLOGIES = [
+
+    {"id": "ncit_treatment", "format": "obo", "top_level_terms": ["NCIT:C1932","NCIT:C1505", "NCIT:C1913", "NCIT:C45678",
+                                                                  "NCIT:C1909", "NCIT:C1899", "NCIT:C15431", "NCIT:C49236",
+                                                                  "NCIT:C15206", "NCIT:C26548"]},
+
+    {"id": "ncit_regimen", "format": "obo", "top_level_terms": []}
+]
+
+
 def add_node_to_graph(graph, row):
     term_id = row["term_id"]
     term_name = row["term_name"]
@@ -33,3 +43,24 @@ def get_term_ids_from_graph(graph):
     for i in list(graph.nodes()):
         terms.append(graph.nodes[i]['term_id'])
     return terms
+
+
+def get_term_ids_from_term_list(term_list):
+    id_list = []
+    for t in term_list:
+        id_list.append(t[0])
+    return id_list
+
+
+def extract_treatment_ontology_terms(graph, ontology_id):
+    terms = []
+    for ont in ONTOLOGIES:
+        if ont["id"] == ontology_id:
+            branch_terms = ont["top_level_terms"]
+            for top_term in branch_terms:
+                branch_graph = extract_subgraph_from_graph(graph, top_term)
+                branch_terms = get_terms_from_graph(branch_graph)
+                print(top_term + "=>"+str(len(branch_terms)))
+                terms += branch_terms
+    return terms
+
