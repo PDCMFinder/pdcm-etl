@@ -35,7 +35,7 @@ CREATE TABLE patient (
 
 CREATE TABLE publication_group (
     id BIGINT NOT NULL,
-    pub_med_ids TEXT NOT NULL
+    pubmed_ids TEXT NOT NULL
 );
 
 CREATE TABLE accessibility_group (

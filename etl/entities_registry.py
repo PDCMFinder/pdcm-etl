@@ -101,7 +101,7 @@ entities = {
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
         "transformation_class": TransformPublicationGroup(),
-        "expected_database_columns": ["id", "pub_med_ids"]
+        "expected_database_columns": ["id", "pubmed_ids"]
     },
     Constants.MODEL_ENTITY: {
         "spark_job": etl.jobs.transformation.model_transformer_job.main,
