@@ -34,10 +34,10 @@ def transform_ontology_term_treatment(ontology_term_df: DataFrame) -> DataFrame:
     treatment_term_id_list = get_term_ids_from_term_list(treatmen_ontology_terms)
 
     ontology_term_treatment_df = ontology_term_df.where(col("term_id").isin(treatment_term_id_list))
-    ontology_term_diagnosis_df = add_id(ontology_term_treatment_df, "id")
-    ontology_term_diagnosis_df.show()
-    print("Treatments: "+str(ontology_term_diagnosis_df.count()))
-    return ontology_term_diagnosis_df
+    ontology_term_treatment_df = add_id(ontology_term_treatment_df, "id")
+    ontology_term_treatment_df.show()
+    print("Treatments: "+str(ontology_term_treatment_df.count()))
+    return ontology_term_treatment_df
 
 
 if __name__ == "__main__":
