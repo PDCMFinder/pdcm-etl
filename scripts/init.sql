@@ -278,6 +278,7 @@ CREATE TABLE specimen (
 CREATE TABLE gene_marker (
     id BIGINT NOT NULL,
     hgnc_id TEXT NOT NULL,
+    approved_symbol TEXT,
     approved_name TEXT,
     previous_symbols TEXT,
     alias_symbols TEXT,

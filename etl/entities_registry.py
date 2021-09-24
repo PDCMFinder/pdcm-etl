@@ -337,6 +337,7 @@ entities = {
         "expected_database_columns": [
             "id",
             "hgnc_id",
+            "approved_symbol",
             "approved_name",
             "previous_symbols",
             "alias_symbols",
