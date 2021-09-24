@@ -301,3 +301,10 @@ CREATE TABLE ontology_term_treatment(
     term_name TEXT,
     is_a TEXT
 );
+
+CREATE TABLE ontology_term_regimen(
+    id BIGINT NOT NULL,
+    term_id TEXT NOT NULL,
+    term_name TEXT,
+    is_a TEXT
+);

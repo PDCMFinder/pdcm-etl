@@ -64,3 +64,4 @@ class Constants:
     GENE_MARKER_ENTITY = "gene_marker"
     ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
     ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
+    ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"

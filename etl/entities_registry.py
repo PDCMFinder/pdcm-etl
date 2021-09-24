@@ -37,6 +37,7 @@ import etl.jobs.transformation.gene_marker_transformer_job
 import etl.jobs.transformation.specimen_transformer_job
 import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
+import etl.jobs.transformation.ontology_term_regimen_transformer_job
 
 
 def get_spark_job_by_entity_name(entity_name):
@@ -354,6 +355,11 @@ entities = {
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_treatment_transformer_job.main,
         "transformation_class": TransformOntologyTermTreatment(),
+        "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
+    },
+    Constants.ONTOLOGY_TERM_REGIMEN_ENTITY: {
+        "spark_job": etl.jobs.transformation.ontology_term_regimen_transformer_job.main,
+        "transformation_class": TransformOntologyTermRegimen(),
         "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
     },
     Constants.SPECIMEN_ENTITY: {
