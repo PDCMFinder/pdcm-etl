@@ -279,6 +279,19 @@ entities:
       - "ensembl_gene_id"
       - "ncbi_gene_id"
 
+  - entity: "ontology_term_diagnosis"
+    columns:
+      - "id"
+      - "term_id"
+      - "term_name"
+      - "is_a"
+
+  - entity: "ontology_term_treatment"
+    columns:
+      - "id"
+      - "term_id"
+      - "term_name"
+      - "is_a"
 
 
 
