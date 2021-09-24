@@ -76,7 +76,7 @@ def join_model_with_sharing(model_df: DataFrame, raw_sharing_df: DataFrame) -> D
 
 def set_fk_publication_group(model_df: DataFrame, publication_group_df: DataFrame) -> DataFrame:
     model_df = transform_to_fk(
-        model_df, publication_group_df, "publications", "pub_med_ids", "id", "publication_group_id")
+        model_df, publication_group_df, "publications", "pubmed_ids", "id", "publication_group_id")
     return model_df
 
 
