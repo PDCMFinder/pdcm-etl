@@ -37,3 +37,4 @@ ALTER TABLE specimen DROP CONSTRAINT IF EXISTS pk_specimen CASCADE;
 ALTER TABLE gene_marker DROP CONSTRAINT IF EXISTS pk_gene_marker CASCADE;
 ALTER TABLE ontology_term_diagnosis DROP CONSTRAINT IF EXISTS pk_ontology_term_diagnosis CASCADE;
 ALTER TABLE ontology_term_treatment DROP CONSTRAINT IF EXISTS pk_ontology_term_treatment CASCADE;
+ALTER TABLE ontology_term_regimen DROP CONSTRAINT IF EXISTS pk_ontology_term_regimen CASCADE;

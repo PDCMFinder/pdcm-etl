@@ -7,7 +7,7 @@ ONTOLOGIES = [
                                                                   "NCIT:C1909", "NCIT:C1899", "NCIT:C15431", "NCIT:C49236",
                                                                   "NCIT:C15206", "NCIT:C26548"]},
 
-    {"id": "ncit_regimen", "format": "obo", "top_level_terms": []}
+    {"id": "ncit_regimen", "format": "obo", "top_level_terms": ["NCIT:C12218"]}
 ]
 
 

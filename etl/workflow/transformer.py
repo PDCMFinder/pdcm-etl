@@ -346,6 +346,13 @@ class TransformOntologyTermTreatment(TransformEntity):
         ExtractOntology()
     ]
     entity_name = Constants.ONTOLOGY_TERM_TREATMENT_ENTITY
+
+
+class TransformOntologyTermRegimen(TransformEntity):
+    requiredTasks = [
+        ExtractOntology()
+    ]
+    entity_name = Constants.ONTOLOGY_TERM_REGIMEN_ENTITY
     
 
 if __name__ == "__main__":

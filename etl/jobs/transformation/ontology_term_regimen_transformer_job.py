@@ -19,25 +19,25 @@ def main(argv):
 
     spark = SparkSession.builder.getOrCreate()
     raw_ontology_term_df = spark.read.parquet(raw_ontology_term_parquet_path)
-    ontology_term_treatment_df = transform_ontology_term_treatment(raw_ontology_term_df)
-    ontology_term_treatment_df.write.mode("overwrite").parquet(output_path)
+    ontology_term_regimen_df = transform_ontology_term_regimen(raw_ontology_term_df)
+    ontology_term_regimen_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_ontology_term_treatment(ontology_term_df: DataFrame) -> DataFrame:
+def transform_ontology_term_regimen(ontology_term_df: DataFrame) -> DataFrame:
     graph = nx.DiGraph()
     df_collect = ontology_term_df.collect()
     for row in df_collect:
         add_node_to_graph(graph, row)
 
     print("NCIT graph size:"+str(graph.size()))
-    treatmen_ontology_terms = extract_treatment_ontology_terms(graph, "ncit_treatment")
-    treatment_term_id_list = get_term_ids_from_term_list(treatmen_ontology_terms)
+    regimen_ontology_terms = extract_treatment_ontology_terms(graph, "ncit_regimen")
+    regimen_term_id_list = get_term_ids_from_term_list(regimen_ontology_terms)
 
-    ontology_term_treatment_df = ontology_term_df.where(col("term_id").isin(treatment_term_id_list))
-    ontology_term_treatment_df = add_id(ontology_term_treatment_df, "id")
-    ontology_term_treatment_df.show()
-    print("Treatments: "+str(ontology_term_treatment_df.count()))
-    return ontology_term_treatment_df
+    ontology_term_regimen_df = ontology_term_df.where(col("term_id").isin(regimen_term_id_list))
+    ontology_term_regimen_df = add_id(ontology_term_regimen_df, "id")
+    ontology_term_regimen_df.show()
+    print("Regimens: "+str(ontology_term_regimen_df.count()))
+    return ontology_term_regimen_df
 
 
 if __name__ == "__main__":
