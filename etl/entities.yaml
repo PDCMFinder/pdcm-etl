@@ -286,6 +286,12 @@ entities:
       - "term_name"
       - "is_a"
 
+  - entity: "ontology_term_treatment"
+    columns:
+      - "id"
+      - "term_id"
+      - "term_name"
+      - "is_a"
 
 
 
