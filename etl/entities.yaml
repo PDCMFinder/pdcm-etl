@@ -286,12 +286,17 @@ entities:
       - "external_model_id"
       - "data_source"
       - "histology"
-      - "data_available"
+      - "dataset_available"
       - "primary_site"
       - "collection_site"
       - "tumour_type"
       - "patient_age"
       - "patient_sex"
+      - "gene_variant_with_mutation_data"
+      - "gene_with_cna_data"
+      - "gene_with_expression_data"
+      - "breast_cancer_biomarkers"
+      - "gene_with_cytogenetics_data"
 
 
 

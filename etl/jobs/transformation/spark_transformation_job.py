@@ -37,6 +37,7 @@ import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
 import etl.jobs.transformation.specimen_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
+import etl.jobs.transformation.search_facet_transformer_job
 from etl.constants import Constants
 
 
@@ -161,6 +162,9 @@ def main1(argv):
 
     elif entity_name == Constants.SEARCH_INDEX_ENTITY:
         etl.jobs.transformation.search_index_transformer_job.main(args_without_entity)
+
+    elif entity_name == Constants.SEARCH_FACET_ENTITY:
+        etl.jobs.transformation.search_facet_transformer_job.main(args_without_entity)
 
 
 if __name__ == "__main__":

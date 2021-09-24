@@ -346,9 +346,16 @@ class TransformSearchIndex(TransformEntity):
         TransformXenograftSample(),
         TransformDiagnosis(),
         TransformTumourType(),
-        TransformTissue()
+        TransformTissue(),
+        TransformMutationMarker(),
+        TransformMutationMeasurementData()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
+
+
+class TransformSearchFacet(TransformEntity):
+    requiredTasks = [TransformSearchIndex]
+    entity_name = Constants.SEARCH_FACET_ENTITY
 
 
 if __name__ == "__main__":
