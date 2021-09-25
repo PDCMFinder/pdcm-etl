@@ -35,7 +35,7 @@ CREATE TABLE patient (
 
 CREATE TABLE publication_group (
     id BIGINT NOT NULL,
-    pub_med_ids TEXT NOT NULL
+    pubmed_ids TEXT NOT NULL
 );
 
 CREATE TABLE accessibility_group (
@@ -267,7 +267,6 @@ CREATE TABLE mutation_measurement_data (
 
 CREATE TABLE specimen (
     id BIGINT NOT NULL,
-    external_id TEXT,
     passage_number TEXT NOT NULL,
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
@@ -279,6 +278,7 @@ CREATE TABLE specimen (
 CREATE TABLE gene_marker (
     id BIGINT NOT NULL,
     hgnc_id TEXT NOT NULL,
+    approved_symbol TEXT,
     approved_name TEXT,
     previous_symbols TEXT,
     alias_symbols TEXT,
@@ -289,6 +289,26 @@ CREATE TABLE gene_marker (
     ncbi_gene_id TEXT
 );
 
+CREATE TABLE ontology_term_diagnosis(
+    id BIGINT NOT NULL,
+    term_id TEXT NOT NULL,
+    term_name TEXT,
+    is_a TEXT
+);
+
+CREATE TABLE ontology_term_treatment(
+    id BIGINT NOT NULL,
+    term_id TEXT NOT NULL,
+    term_name TEXT,
+    is_a TEXT
+);
+
+CREATE TABLE ontology_term_regimen(
+    id BIGINT NOT NULL,
+    term_id TEXT NOT NULL,
+    term_name TEXT,
+    is_a TEXT
+);
 
 CREATE TABLE search_index (
     pdcm_model_id BIGINT NOT NULL,

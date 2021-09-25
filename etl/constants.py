@@ -21,6 +21,7 @@ class Constants:
     MOLECULAR_DATA_PLATFORM_MODULE = "molchar_platform"
     MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
     GENE_MARKER_MODULE = "markers"
+    ONTOLOGY_MODULE = "ontology"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -61,5 +62,8 @@ class Constants:
     MUTATION_MARKER_ENTITY = "mutation_marker"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
     GENE_MARKER_ENTITY = "gene_marker"
+    ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
+    ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
+    ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
