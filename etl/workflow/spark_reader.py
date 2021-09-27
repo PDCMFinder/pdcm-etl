@@ -96,7 +96,8 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             hadoop = sc._jvm.org.apache.hadoop
             fs = hadoop.fs.FileSystem
             current_fs = fs.get(sc._jsc.hadoopConfiguration())
-            path_patterns = [path for path in path_patterns if path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
+            path_patterns = [path for path in path_patterns if
+                             path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
 
         try:
             df = read_files(spark, path_patterns, schema)
@@ -104,24 +105,20 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
             df = empty_df
             df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
-            print(path_patterns)
-            raise BaseException
         df.write.mode("overwrite").parquet(output_path)
 
 
 def build_path_patterns(data_dir, providers, file_patterns):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
     paths_patterns = []
-    matching_providers = []
 
-    if PdcmConfig().deploy_mode == "cluster":
-        matching_providers.extend(providers)
-    else:
-        for file_pattern in file_patterns:
-            for provider in providers:
-                current_file_pattern = str(file_pattern).replace("$provider", provider)
-                if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
-                    matching_providers.append(provider)
+    for file_pattern in file_patterns:
+        matching_providers = []
+        for provider in providers:
+            current_file_pattern = str(file_pattern).replace("$provider", provider)
+            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider,
+                                              current_file_pattern)) or PdcmConfig().deploy_mode == "cluster":
+                matching_providers.append(provider)
 
         if matching_providers:
             joined_providers_list = ','.join([p for p in matching_providers])
