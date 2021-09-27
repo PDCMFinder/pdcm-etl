@@ -96,7 +96,7 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             hadoop = sc._jvm.org.apache.hadoop
             fs = hadoop.fs.FileSystem
             current_fs = fs.get(sc._jsc.hadoopConfiguration())
-            path_patterns = [path for path in path_patterns if current_fs.exists(hadoop.fs.Path(path))]
+            path_patterns = [path for path in path_patterns if path != "" and current_fs.exists(hadoop.fs.Path(path))]
 
         try:
             df = read_files(spark, path_patterns, schema)
