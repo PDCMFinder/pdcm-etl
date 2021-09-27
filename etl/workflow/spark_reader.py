@@ -96,7 +96,7 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             hadoop = sc._jvm.org.apache.hadoop
             fs = hadoop.fs.FileSystem
             current_fs = fs.get(sc._jsc.hadoopConfiguration())
-            path_patterns = [path for path in path_patterns if path != "" and current_fs.exists(hadoop.fs.Path(path))]
+            path_patterns = [path for path in path_patterns if path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
 
         try:
             df = read_files(spark, path_patterns, schema)
@@ -104,6 +104,8 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
             df = empty_df
             df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
+            print(path_patterns)
+            raise BaseException
         df.write.mode("overwrite").parquet(output_path)
 
 
