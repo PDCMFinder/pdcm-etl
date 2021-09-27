@@ -363,6 +363,7 @@ class TransformSearchIndex(TransformEntity):
         TransformPatientSample(),
         TransformPatientSnapshot(),
         TransformPatient(),
+        TransformEthnicity(),
         TransformXenograftSample(),
         TransformDiagnosis(),
         TransformTumourType(),

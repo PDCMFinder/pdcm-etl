@@ -386,10 +386,10 @@ entities = {
             "external_model_id",
             "data_source",
             "histology",
-            "data_available",
+            "dataset_available",
             "primary_site",
             "collection_site",
-            "tumor_type",
+            "tumour_type",
             "patient_age",
             "patient_sex",
             "patient_ethnicity"

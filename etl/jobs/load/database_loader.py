@@ -3,7 +3,7 @@ from pyspark.sql import DataFrame, SparkSession, Column
 from etl.constants import Constants
 import sys
 
-from etl.entities_conf_reader import get_columns_by_entity
+from etl.entities_registry import get_columns_by_entity_name
 
 
 def main(argv):
@@ -32,7 +32,7 @@ def main(argv):
 
     for table_name, dataframe in table_dataframe_map:
         dataframe = dataframe.drop(Constants.DATA_SOURCE_COLUMN)
-        columns = get_columns_by_entity(table_name)
+        columns = get_columns_by_entity_name(table_name)
         dataframe = dataframe.select(columns)
         dataframe.write.option("truncate", "true").mode("overwrite").jdbc(
             jdbc_url,

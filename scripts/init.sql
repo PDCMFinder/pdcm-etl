@@ -320,5 +320,6 @@ CREATE TABLE search_index (
     collection_site TEXT,
     tumour_type TEXT,
     patient_age TEXT,
-    patient_sex TEXT
+    patient_sex TEXT,
+    patient_ethnicity TEXT
 );

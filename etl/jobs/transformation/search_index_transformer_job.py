@@ -1,10 +1,11 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import array_join, collect_list, col, concat_ws
+from pyspark.sql.functions import array_join, collect_list, col, concat_ws, collect_set, size
 
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 from etl.jobs.util.id_assigner import add_id
+from etl.workflow.config import PdcmConfig
 
 column_names = ["pdcm_model_id", "external_model_id", "data_source", "histology", "data_available",
                 "primary_site", "collection_site", "tumor_type", "patient_age", "patient_sex", "patient_ethnicity"]
@@ -23,19 +24,21 @@ def main(argv):
     patient_sample_parquet_path = argv[4]
     patient_snapshot_parquet_path = argv[5]
     patient_parquet_path = argv[6]
-    xenograft_sample_parquet_path = argv[7]
-    diagnosis_parquet_path = argv[8]
-    tumour_type_parquet_path = argv[9]
-    tissue_parquet_path = argv[10]
-    mutation_marker_parquet_path = argv[11]
-    mutation_measurement_data_parquet_path = argv[12]
-    output_path = argv[13]
+    ethnicity_df_parquet_path = argv[7]
+    xenograft_sample_parquet_path = argv[8]
+    diagnosis_parquet_path = argv[9]
+    tumour_type_parquet_path = argv[10]
+    tissue_parquet_path = argv[11]
+    mutation_marker_parquet_path = argv[12]
+    mutation_measurement_data_parquet_path = argv[13]
+    output_path = argv[14]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
     molecular_characterization_df = spark.read.parquet(molecular_characterization_parquet_path)
     molecular_characterization_type_df = spark.read.parquet(molecular_characterization_type_parquet_path)
     patient_sample_df = spark.read.parquet(patient_sample_parquet_path)
+    ethnicity_df = spark.read.parquet(ethnicity_df_parquet_path)
     patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
@@ -46,7 +49,8 @@ def main(argv):
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
 
     search_index_df = transform_search_index(model_df,
-                                             patient_sample_df, patient_snapshot_df, patient_df, xenograft_sample_df,
+                                             patient_sample_df, patient_snapshot_df, patient_df, ethnicity_df,
+                                             xenograft_sample_df,
                                              diagnosis_df,
                                              tumour_type_df, tissue_df, molecular_characterization_df,
                                              molecular_characterization_type_df, mutation_marker_df,
@@ -55,7 +59,8 @@ def main(argv):
 
 
 def transform_search_index(model_df,
-                           patient_sample_df, patient_snapshot_df, patient_df, xenograft_sample_df, diagnosis_df,
+                           patient_sample_df, patient_snapshot_df, patient_df, ethnicity_df, xenograft_sample_df,
+                           diagnosis_df,
                            tumour_type_df, tissue_df, molecular_characterization_df,
                            molecular_characterization_type_df, mutation_marker_df,
                            mutation_measurement_data_df) -> DataFrame:
@@ -71,8 +76,10 @@ def transform_search_index(model_df,
     collection_site_df = tissue_df.withColumnRenamed("name", "collection_site")
     patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, collection_site_df, "collection_site_id", "id")
 
-    # Adding age and sex to patient_sample
+    # Adding age, sex and ethnicity to patient_sample
     patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
+    ethnicity_df = ethnicity_df.withColumnRenamed("name", "patient_ethnicity")
+    patient_df = join_left_dfs(patient_df, ethnicity_df, "ethnicity_id", "id")
     patient_snapshot_df = join_left_dfs(patient_snapshot_df, patient_df, "patient_id", "id")
     patient_snapshot_df = patient_snapshot_df.withColumnRenamed("age_in_years_at_collection", "patient_age")
     patient_sample_ext_df = join_left_dfs(patient_sample_ext_df, patient_snapshot_df, "id", "sample_id")
@@ -94,14 +101,15 @@ def transform_search_index(model_df,
     patient_sample_mol_char_df = patient_sample_mol_char_df.select("model_id",
                                                                    "molecular_characterization_type_name").distinct()
 
-    xenograft_sample_mol_char_df = join_dfs(xenograft_sample_df, molecular_characterization_df, "id",
+    xenograft_sample_mol_char_df = join_dfs(xenograft_sample_df, molecular_characterization_with_type_df, "id",
                                             "xenograft_sample_id", "full")
     xenograft_sample_mol_char_df = xenograft_sample_mol_char_df.select("model_id",
                                                                        "molecular_characterization_type_name").distinct()
 
     model_mol_char_type_df = patient_sample_mol_char_df.union(xenograft_sample_mol_char_df)
     model_mol_char_type_df = model_mol_char_type_df.groupby("model_id").agg(
-        collect_list("molecular_characterization_type_name").alias("dataset_available"))
+        array_join(collect_set("molecular_characterization_type_name"), "|").alias("dataset_available"))
+
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(search_index_df, model_mol_char_type_df, "temp_model_id", "model_id")
 
@@ -109,14 +117,34 @@ def transform_search_index(model_df,
     mutation_marker_df = mutation_marker_df.select("id", "tmp_symbol", "amino_acid_change")
     mutation_marker_df = mutation_marker_df.withColumn("gene_variant",
                                                        concat_ws(" - ", "tmp_symbol", "amino_acid_change"))
+    mutation_marker_df.show()
+    raise NameError
     molecular_characterization_marker_df = join_dfs(mutation_measurement_data_df,
                                                     molecular_characterization_with_type_df,
                                                     "molecular_characterization_id", "id", "full")
     molecular_characterization_marker_df = join_dfs(molecular_characterization_marker_df, mutation_marker_df,
                                                     "mutation_marker_id", "id", "full")
 
-    # Join with patient_sample and xenograft_sample to build a model, mol_char_type, gene_variant table, then group by model, mol_char_type to collect the set of gene_variants and then pivot over mol_char_type
+    # Join with patient_sample and xenograft_sample to build a model, mol_char_type, gene_variant table,
+    # then group by model, mol_char_type to collect the set of gene_variants and then pivot over mol_char_type
 
+    patient_sample_mol_char_variant = join_dfs(molecular_characterization_marker_df, patient_sample_df,
+                                               "patient_sample_id",
+                                               "id", "full")
+    patient_sample_mol_char_variant = patient_sample_mol_char_variant.select("model_id",
+                                                                             "molecular_characterization_type_name",
+                                                                             "gene_variant").distinct()
+    xenograft_sample_mol_char_variant_df = join_dfs(molecular_characterization_marker_df, xenograft_sample_df,
+                                                    "xenograft_sample_id",
+                                                    "id", "full")
+    xenograft_sample_mol_char_variant_df = xenograft_sample_mol_char_variant_df.select("model_id",
+                                                                                       "molecular_characterization_type_name",
+                                                                                       "gene_variant").distinct()
+    model_mol_char_variant_df = patient_sample_mol_char_variant.union(xenograft_sample_mol_char_variant_df).distinct()
+    model_mol_char_variant_df = model_mol_char_variant_df.groupby("model_id").pivot(
+        "molecular_characterization_type_name").agg(collect_set("gene_variant"))
+    model_mol_char_variant_df.where(size("mutation") > 0).show(truncate=False)
+    raise NameError
     # Adding CNA data availability by gene
 
     # Adding expression data availability by gene
