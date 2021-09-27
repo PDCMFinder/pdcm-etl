@@ -30,7 +30,7 @@ def transform_publication_group(raw_model_df: DataFrame) -> DataFrame:
 
 def extract_publications_from_models(raw_model_df: DataFrame) -> DataFrame:
     publication_group_df = raw_model_df.select("publications").where("publications is not null").drop_duplicates()
-    publication_group_df = publication_group_df.withColumnRenamed("publications", "pub_med_ids")
+    publication_group_df = publication_group_df.withColumnRenamed("publications", "pubmed_ids")
     return publication_group_df
 
 
@@ -39,7 +39,7 @@ def format_name_column(column_name) -> Column:
 
 
 def get_columns_expected_order(publication_group_df: DataFrame) -> DataFrame:
-    return publication_group_df.select("id", "pub_med_ids")
+    return publication_group_df.select("id", "pubmed_ids")
 
 
 if __name__ == "__main__":

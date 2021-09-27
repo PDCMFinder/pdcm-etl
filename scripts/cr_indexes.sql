@@ -33,3 +33,7 @@ ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_dat
 ALTER TABLE mutation_marker ADD CONSTRAINT pk_mutation_marker PRIMARY KEY (id);
 ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
 ALTER TABLE specimen ADD CONSTRAINT pk_specimen PRIMARY KEY (id);
+ALTER TABLE gene_marker ADD CONSTRAINT pk_gene_marker PRIMARY KEY (id);
+ALTER TABLE ontology_term_diagnosis ADD CONSTRAINT pk_ontology_term_diagnosis PRIMARY KEY (id);
+ALTER TABLE ontology_term_treatment ADD CONSTRAINT pk_ontology_term_treatment PRIMARY KEY (id);
+ALTER TABLE ontology_term_regimen ADD CONSTRAINT pk_ontology_term_regimen PRIMARY KEY (id);
