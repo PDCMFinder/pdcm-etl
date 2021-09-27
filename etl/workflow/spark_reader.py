@@ -1,3 +1,4 @@
+import glob
 import json
 import time
 #import networkx as nx
@@ -5,6 +6,7 @@ import yaml
 
 import luigi
 from luigi.contrib.spark import PySparkTask
+from pyspark import SparkContext
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
 from pyspark.sql.types import StructType, StructField, StringType
@@ -126,7 +128,7 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             ','.join(self.columns_to_read),
             self.output().path]
 
-    def main(self, sc, *args):
+    def main(self, sc: SparkContext, *args):
         spark = SparkSession(sc)
 
         path_patterns = args[0].split('|')
@@ -134,6 +136,13 @@ class ReadByModuleAndPathPatterns(PySparkTask):
         output_path = args[2]
 
         schema = build_schema_from_cols(columns_to_read)
+
+        if sc.master == "yarn":
+            hadoop = sc._jvm.org.apache.hadoop
+            fs = hadoop.fs.FileSystem
+            current_fs = fs.get(sc._jsc.hadoopConfiguration())
+            path_patterns = [path for path in path_patterns if
+                             path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
 
         try:
             df = read_files(spark, path_patterns, schema)
@@ -149,8 +158,15 @@ def build_path_patterns(data_dir, providers, file_patterns):
     paths_patterns = []
 
     for file_pattern in file_patterns:
-        if providers:
-            joined_providers_list = ','.join([p for p in providers])
+        matching_providers = []
+        for provider in providers:
+            current_file_pattern = str(file_pattern).replace("$provider", provider)
+            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider,
+                                              current_file_pattern)) or PdcmConfig().deploy_mode == "cluster":
+                matching_providers.append(provider)
+
+        if matching_providers:
+            joined_providers_list = ','.join([p for p in matching_providers])
             providers_pattern = "{" + joined_providers_list + "}"
             path_pattern = "{0}/{1}/{2}".format(
                 data_dir_root, providers_pattern, file_pattern.replace("$provider", providers_pattern))
@@ -247,13 +263,13 @@ def extract_markers(input_path):
 
 def create_marker_dataframe(markers) -> DataFrame:
     spark = SparkSession.builder.getOrCreate()
-    columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols", "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
+    columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
+               "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
     df = spark.createDataFrame(data=markers, schema=columns)
     return df
 
 
 class ReadMarkerFromTsv(PySparkTask):
-
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
 
@@ -265,7 +281,7 @@ class ReadMarkerFromTsv(PySparkTask):
 
         columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
                    "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
-        df = read_files(spark, input_path+"/markers/markers.tsv", build_schema_from_cols(columns))
+        df = read_files(spark, input_path + "/markers/markers.tsv", build_schema_from_cols(columns))
         df.write.mode("overwrite").parquet(output_path)
 
     def output(self):
