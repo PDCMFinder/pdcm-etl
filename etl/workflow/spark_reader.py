@@ -6,6 +6,7 @@ import yaml
 
 import luigi
 from luigi.contrib.spark import PySparkTask
+from pyspark import SparkContext
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
 from pyspark.sql.types import StructType, StructField, StringType
@@ -82,7 +83,7 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             ','.join(self.columns_to_read),
             self.output().path]
 
-    def main(self, sc, *args):
+    def main(self, sc: SparkContext, *args):
         spark = SparkSession(sc)
 
         path_patterns = args[0].split('|')
@@ -90,6 +91,12 @@ class ReadByModuleAndPathPatterns(PySparkTask):
         output_path = args[2]
 
         schema = build_schema_from_cols(columns_to_read)
+
+        if sc.master == "yarn":
+            hadoop = sc._jvm.org.apache.hadoop
+            fs = hadoop.fs.FileSystem
+            current_fs = fs.get(sc._jsc.hadoopConfiguration())
+            path_patterns = [path for path in path_patterns if current_fs.exists(fs.Path(path))]
 
         try:
             df = read_files(spark, path_patterns, schema)
