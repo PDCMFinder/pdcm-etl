@@ -108,15 +108,35 @@ ALTER TABLE cna_molecular_data
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
+ALTER TABLE cna_molecular_data
+    ADD CONSTRAINT fk_cna_molecular_data_gene_marker
+    FOREIGN KEY (gene_marker_id)
+    REFERENCES gene_marker (id);
+
 ALTER TABLE cytogenetics_molecular_data
     ADD CONSTRAINT fk_cytogenetics_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
+ALTER TABLE cytogenetics_molecular_data
+    ADD CONSTRAINT fk_cytogenetics_molecular_gene_marker
+    FOREIGN KEY (gene_marker_id)
+    REFERENCES gene_marker (id);
+
 ALTER TABLE expression_molecular_data
     ADD CONSTRAINT fk_expression_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
+
+ALTER TABLE expression_molecular_data
+    ADD CONSTRAINT fk_expression_molecular_data_gene_marker
+    FOREIGN KEY (gene_marker_id)
+    REFERENCES gene_marker (id);
+
+ALTER TABLE mutation_marker
+    ADD CONSTRAINT fk_mutation_marker_gene_marker
+    FOREIGN KEY (gene_marker_id)
+    REFERENCES gene_marker (id);
 
 ALTER TABLE mutation_measurement_data
     ADD CONSTRAINT fk_mutation_measurement_data_mutation_marker

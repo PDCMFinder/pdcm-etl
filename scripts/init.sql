@@ -204,8 +204,7 @@ CREATE TABLE cna_molecular_data (
     copy_number_status TEXT,
     gistic_value TEXT,
     picnic_value TEXT,
-    --gene_marker_id BIGINT,
-    tmp_symbol TEXT,
+    gene_marker_id BIGINT,
     molecular_characterization_id BIGINT
     --loci_marker_id BIGINT
 );
@@ -215,8 +214,7 @@ CREATE TABLE cytogenetics_molecular_data (
     id BIGINT NOT NULL,
     marker_status TEXT,
     essential_or_additional_marker TEXT,
-    --gene_marker_id BIGINT,
-    tmp_symbol TEXT,
+    gene_marker_id BIGINT,
     molecular_characterization_id BIGINT
 );
 
@@ -231,8 +229,7 @@ CREATE TABLE expression_molecular_data (
     affy_hgea_expression_value TEXT,
     illumina_hgea_probe_id TEXT,
     illumina_hgea_expression_value TEXT,
-    --gene_marker_id BIGINT,
-    tmp_symbol TEXT,
+    gene_marker_id BIGINT,
     molecular_characterization_id BIGINT
     --loci_marker_id BIGINT
 );
@@ -252,8 +249,7 @@ CREATE TABLE mutation_marker (
     ncbi_transcript_id TEXT,
     ensembl_transcript_id TEXT,
     variation_id TEXT,
-    --gene_marker_id BIGINT,
-    tmp_symbol TEXT
+    gene_marker_id BIGINT
     --loci_marker_id BIGINT
 );
 
