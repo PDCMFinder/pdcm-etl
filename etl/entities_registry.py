@@ -39,6 +39,8 @@ import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
+import etl.jobs.transformation.search_facet_transformer_job
+
 
 
 
@@ -392,7 +394,21 @@ entities = {
             "tumour_type",
             "patient_age",
             "patient_sex",
-            "patient_ethnicity"
+            "patient_ethnicity",
+            "makers_with_cna_data",
+            "makers_with_mutation_data",
+            "makers_with_expression_data",
+            "makers_with_cytogenetics_data"
+        ]
+    },
+    Constants.SEARCH_FACET_ENTITY: {
+        "spark_job": etl.jobs.transformation.search_facet_transformer_job.main,
+        "transformation_class": TransformSearchFacet(),
+        "expected_database_columns": [
+            "facet_section",
+            "facet_name",
+            "facet_options",
+            "facet_type"
         ]
     }
 }

@@ -1,7 +1,8 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import array_join, collect_list, col, concat_ws, collect_set, size
+from pyspark.sql.functions import array_join, collect_list, col, concat_ws, collect_set, size, when, lit, array
+from pyspark.sql.types import ArrayType, StringType
 
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 from etl.jobs.util.id_assigner import add_id
@@ -31,7 +32,10 @@ def main(argv):
     tissue_parquet_path = argv[11]
     mutation_marker_parquet_path = argv[12]
     mutation_measurement_data_parquet_path = argv[13]
-    output_path = argv[14]
+    cna_data_parquet_path = argv[14]
+    expression_data_parquet_path = argv[15]
+    cytogenetics_data_parquet_path = argv[16]
+    output_path = argv[17]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -47,6 +51,9 @@ def main(argv):
     tissue_df = spark.read.parquet(tissue_parquet_path)
     mutation_marker_df = spark.read.parquet(mutation_marker_parquet_path)
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
+    cna_data_df = spark.read.parquet(cna_data_parquet_path)
+    expression_data_df = spark.read.parquet(expression_data_parquet_path)
+    cytogenetics_data_df = spark.read.parquet(cytogenetics_data_parquet_path)
 
     search_index_df = transform_search_index(model_df,
                                              patient_sample_df, patient_snapshot_df, patient_df, ethnicity_df,
@@ -54,7 +61,8 @@ def main(argv):
                                              diagnosis_df,
                                              tumour_type_df, tissue_df, molecular_characterization_df,
                                              molecular_characterization_type_df, mutation_marker_df,
-                                             mutation_measurement_data_df)
+                                             mutation_measurement_data_df, cna_data_df, expression_data_df,
+                                             cytogenetics_data_df)
     search_index_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -63,7 +71,8 @@ def transform_search_index(model_df,
                            diagnosis_df,
                            tumour_type_df, tissue_df, molecular_characterization_df,
                            molecular_characterization_type_df, mutation_marker_df,
-                           mutation_measurement_data_df) -> DataFrame:
+                           mutation_measurement_data_df, cna_data_df, expression_data_df,
+                           cytogenetics_data_df) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
     # Adding diagnosis, primary_site, collection_site and tumour_type data to patient_sample
@@ -91,66 +100,100 @@ def transform_search_index(model_df,
     search_index_df = join_left_dfs(search_index_df, patient_sample_ext_df, "temp_model_id", "model_id")
 
     # Adding molecular data availability
+    molecular_characterization_df = molecular_characterization_df.withColumnRenamed("id", "mol_char_id")
     molecular_characterization_type_df = molecular_characterization_type_df.withColumnRenamed("name",
                                                                                               "molecular_characterization_type_name")
     molecular_characterization_with_type_df = join_dfs(molecular_characterization_df,
                                                        molecular_characterization_type_df,
-                                                       "molecular_characterization_type_id", "id", "full")
+                                                       "molecular_characterization_type_id", "id", "inner")
     patient_sample_mol_char_df = join_dfs(patient_sample_df, molecular_characterization_with_type_df, "id",
-                                          "patient_sample_id", "full")
+                                          "patient_sample_id", "inner")
     patient_sample_mol_char_df = patient_sample_mol_char_df.select("model_id",
+                                                                   "mol_char_id",
                                                                    "molecular_characterization_type_name").distinct()
 
     xenograft_sample_mol_char_df = join_dfs(xenograft_sample_df, molecular_characterization_with_type_df, "id",
-                                            "xenograft_sample_id", "full")
+                                            "xenograft_sample_id", "inner")
     xenograft_sample_mol_char_df = xenograft_sample_mol_char_df.select("model_id",
+                                                                       "mol_char_id",
                                                                        "molecular_characterization_type_name").distinct()
 
     model_mol_char_type_df = patient_sample_mol_char_df.union(xenograft_sample_mol_char_df)
-    model_mol_char_type_df = model_mol_char_type_df.groupby("model_id").agg(
+
+    model_mol_char_availability_df = model_mol_char_type_df.groupby("model_id").agg(
         array_join(collect_set("molecular_characterization_type_name"), "|").alias("dataset_available"))
 
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
-    search_index_df = join_left_dfs(search_index_df, model_mol_char_type_df, "temp_model_id", "model_id")
+    search_index_df = join_left_dfs(search_index_df, model_mol_char_availability_df, "temp_model_id", "model_id")
 
     # Adding mutation data availability by gene variant
+    # Generate table model_id, mol_char_id, mol_char_type
+    # Generate tables mol_char_id, tmp_symbol/gene_variant
+    # Join left model_mol_char with mol_char_gene
+    # then group by model, mol_char_type to collect the set of gene_variants and then pivot over mol_char_type
     mutation_marker_df = mutation_marker_df.select("id", "tmp_symbol", "amino_acid_change")
     mutation_marker_df = mutation_marker_df.withColumn("gene_variant",
-                                                       concat_ws(" - ", "tmp_symbol", "amino_acid_change"))
-    mutation_marker_df.show()
-    raise NameError
-    molecular_characterization_marker_df = join_dfs(mutation_measurement_data_df,
-                                                    molecular_characterization_with_type_df,
-                                                    "molecular_characterization_id", "id", "full")
-    molecular_characterization_marker_df = join_dfs(molecular_characterization_marker_df, mutation_marker_df,
-                                                    "mutation_marker_id", "id", "full")
-
-    # Join with patient_sample and xenograft_sample to build a model, mol_char_type, gene_variant table,
-    # then group by model, mol_char_type to collect the set of gene_variants and then pivot over mol_char_type
-
-    patient_sample_mol_char_variant = join_dfs(molecular_characterization_marker_df, patient_sample_df,
-                                               "patient_sample_id",
-                                               "id", "full")
-    patient_sample_mol_char_variant = patient_sample_mol_char_variant.select("model_id",
-                                                                             "molecular_characterization_type_name",
-                                                                             "gene_variant").distinct()
-    xenograft_sample_mol_char_variant_df = join_dfs(molecular_characterization_marker_df, xenograft_sample_df,
-                                                    "xenograft_sample_id",
-                                                    "id", "full")
-    xenograft_sample_mol_char_variant_df = xenograft_sample_mol_char_variant_df.select("model_id",
-                                                                                       "molecular_characterization_type_name",
-                                                                                       "gene_variant").distinct()
-    model_mol_char_variant_df = patient_sample_mol_char_variant.union(xenograft_sample_mol_char_variant_df).distinct()
-    model_mol_char_variant_df = model_mol_char_variant_df.groupby("model_id").pivot(
-        "molecular_characterization_type_name").agg(collect_set("gene_variant"))
-    model_mol_char_variant_df.where(size("mutation") > 0).show(truncate=False)
-    raise NameError
+                                                       when(col("amino_acid_change").isNotNull(),
+                                                            concat_ws("/", "tmp_symbol",
+                                                                      "amino_acid_change")).otherwise(col("tmp_symbol"))
+                                                       )
+    mutation_mol_char_df = mutation_measurement_data_df.select("mutation_marker_id", "molecular_characterization_id")
+    mutation_mol_char_df = join_dfs(mutation_mol_char_df, mutation_marker_df, "mutation_marker_id", "id", "inner")
+    mutation_mol_char_df = mutation_mol_char_df.select("molecular_characterization_id", "gene_variant")
     # Adding CNA data availability by gene
+    cna_data_df = cna_data_df.withColumnRenamed("tmp_symbol", "gene_variant")
+    cna_data_df = cna_data_df.select("molecular_characterization_id", "gene_variant").distinct()
 
     # Adding expression data availability by gene
+    expression_data_df = expression_data_df.withColumnRenamed("tmp_symbol", "gene_variant")
+    expression_data_df = expression_data_df.select("molecular_characterization_id", "gene_variant").distinct()
 
     # Adding cytogenetics data availability by gene and result
+    cytogenetics_data_df = cytogenetics_data_df.withColumnRenamed("tmp_symbol", "gene_variant")
+    cytogenetics_data_df = cytogenetics_data_df.select("molecular_characterization_id", "gene_variant").distinct()
 
+    mol_gene_df = mutation_mol_char_df.union(cna_data_df).union(expression_data_df).union(cytogenetics_data_df)
+
+    model_mol_char_type_gene_df = join_dfs(model_mol_char_type_df, mol_gene_df, "mol_char_id",
+                                           "molecular_characterization_id", "inner")
+
+    model_mol_char_availability_by_gene_df = model_mol_char_type_gene_df.groupby("model_id").pivot(
+        "molecular_characterization_type_name").agg(collect_set("gene_variant"))
+    molecular_data_col_map = {
+        "copy number alteration": "makers_with_cna_data",
+        "mutation": "makers_with_mutation_data",
+        "expression": "makers_with_expression_data",
+        "cytogenetics": "makers_with_cytogenetics_data"
+    }
+
+    for category, col_name in molecular_data_col_map.items():
+        if category in model_mol_char_availability_by_gene_df.columns:
+            model_mol_char_availability_by_gene_df = model_mol_char_availability_by_gene_df.withColumnRenamed(category,
+                                                                                                              col_name)
+        else:
+            model_mol_char_availability_by_gene_df = model_mol_char_availability_by_gene_df.withColumn(col_name,
+                                                                                                       array().astype(
+                                                                                                           ArrayType(
+                                                                                                               StringType())))
+
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(search_index_df, model_mol_char_availability_by_gene_df, "temp_model_id",
+                                    "model_id")
+    search_index_df = search_index_df.select("pdcm_model_id",
+                                             "external_model_id",
+                                             "data_source",
+                                             "histology",
+                                             "dataset_available",
+                                             "primary_site",
+                                             "collection_site",
+                                             "tumour_type",
+                                             "patient_age",
+                                             "patient_sex",
+                                             "patient_ethnicity",
+                                             "makers_with_cna_data",
+                                             "makers_with_mutation_data",
+                                             "makers_with_expression_data",
+                                             "makers_with_cytogenetics_data")
     return search_index_df
 
 
