@@ -30,15 +30,12 @@ def main(argv):
 def transform_mutation_measurement_data(
         raw_mutation_marker_df, mutation_marker_df, molecular_characterization_df) -> DataFrame:
     mutation_measurement_data_df = get_mutation_measurement_data_df(raw_mutation_marker_df)
-    mutation_measurement_data_df = mutation_measurement_data_df.withColumnRenamed("symbol", "tmp_symbol")
     mutation_measurement_data_df = set_fk_mutation_marker(mutation_measurement_data_df, mutation_marker_df)
     mutation_measurement_data_df = set_fk_molecular_characterization(
         mutation_measurement_data_df, molecular_characterization_df)
 
     mutation_measurement_data_df = add_id(mutation_measurement_data_df, "id")
     mutation_measurement_data_df = get_expected_columns(mutation_measurement_data_df)
-    print("final")
-    mutation_measurement_data_df.show()
     return mutation_measurement_data_df
 
 
@@ -60,7 +57,6 @@ def get_mutation_measurement_data_df(raw_mutation_marker_df: DataFrame) -> DataF
         "ensembl_transcript_id",
         "variation_id",
         "platform_id",
-
         "read_depth",
         "allele_frequency",
         ).drop_duplicates()
@@ -68,7 +64,7 @@ def get_mutation_measurement_data_df(raw_mutation_marker_df: DataFrame) -> DataF
 
 def set_fk_mutation_marker(mutation_measurement_data_df: DataFrame, mutation_marker_df: DataFrame) -> DataFrame:
     mutation_marker_df = mutation_marker_df.withColumnRenamed("sample_id", "sample_id_ref")
-    mutation_marker_df = mutation_marker_df.withColumnRenamed("tmp_symbol", "tmp_symbol_ref")
+    mutation_marker_df = mutation_marker_df.withColumnRenamed("symbol", "symbol_ref")
     mutation_marker_df = mutation_marker_df.withColumnRenamed("biotype", "biotype_ref")
     mutation_marker_df = mutation_marker_df.withColumnRenamed("coding_sequence_change", "coding_sequence_change_ref")
     mutation_marker_df = mutation_marker_df.withColumnRenamed("consequence", "consequence_ref")
@@ -78,7 +74,7 @@ def set_fk_mutation_marker(mutation_measurement_data_df: DataFrame, mutation_mar
     to_drop = ["sample_id_ref", "tmp_symbol_ref", "biotype_ref", "coding_sequence_change_ref", "consequence_ref",
                "functional_prediction_ref"]
     cond = [mutation_measurement_data_df.sample_id == mutation_marker_df.sample_id_ref,
-            mutation_measurement_data_df.tmp_symbol == mutation_marker_df.tmp_symbol_ref,
+            mutation_measurement_data_df.symbol == mutation_marker_df.symbol_ref,
             mutation_measurement_data_df.biotype.eqNullSafe(mutation_marker_df.biotype_ref),
             mutation_measurement_data_df.coding_sequence_change.eqNullSafe(mutation_marker_df.coding_sequence_change_ref),
             mutation_measurement_data_df.consequence.eqNullSafe(mutation_marker_df.consequence_ref),

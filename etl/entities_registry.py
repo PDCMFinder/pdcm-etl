@@ -281,7 +281,7 @@ entities = {
             "copy_number_status",
             "gistic_value",
             "picnic_value",
-            "tmp_symbol",
+            "gene_marker_id",
             "molecular_characterization_id"
         ]
     },
@@ -289,7 +289,7 @@ entities = {
         "spark_job": etl.jobs.transformation.cytogenetics_molecular_data_transformer_job.main,
         "transformation_class": TransformCytogeneticsMolecularData(),
         "expected_database_columns": [
-            "id", "marker_status", "essential_or_additional_marker", "tmp_symbol", "molecular_characterization_id"]
+            "id", "marker_status", "essential_or_additional_marker", "gene_marker_id", "molecular_characterization_id"]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.expression_molecular_data_transformer_job.main,
@@ -305,7 +305,7 @@ entities = {
             "affy_hgea_expression_value",
             "illumina_hgea_probe_id",
             "illumina_hgea_expression_value",
-            "tmp_symbol",
+            "gene_marker_id",
             "molecular_characterization_id"]
     },
     Constants.MUTATION_MARKER_ENTITY: {
@@ -326,7 +326,7 @@ entities = {
             "ncbi_transcript_id",
             "ensembl_transcript_id",
             "variation_id",
-            "tmp_symbol"]
+            "gene_marker_id"]
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.mutation_measurement_data_transformer_job.main,

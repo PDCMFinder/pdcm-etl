@@ -287,18 +287,27 @@ class TransformMolecularCharacterization(TransformEntity):
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_ENTITY
 
 
+class TransformGeneMarker(TransformEntity):
+    requiredTasks = [
+        ExtractGeneMarker()
+    ]
+    entity_name = Constants.GENE_MARKER_ENTITY
+
+
 class TransformCnaMolecularData(TransformEntity):
     requiredTasks = [
         TransformMolecularCharacterization(),
-        ExtractCna()
+        ExtractCna(),
+        TransformGeneMarker()
     ]
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
 
 class TransformCytogeneticsMolecularData(TransformEntity):
     requiredTasks = [
+        ExtractCytogenetics(),
         TransformMolecularCharacterization(),
-        ExtractCytogenetics()
+        TransformGeneMarker()
     ]
     entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
 
@@ -306,14 +315,16 @@ class TransformCytogeneticsMolecularData(TransformEntity):
 class TransformExpressionMolecularData(TransformEntity):
     requiredTasks = [
         TransformMolecularCharacterization(),
-        ExtractExpression()
+        ExtractExpression(),
+        TransformGeneMarker()
     ]
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
 
 
 class TransformMutationMarker(TransformEntity):
     requiredTasks = [
-        ExtractMutation()
+        ExtractMutation(),
+        TransformGeneMarker()
     ]
     entity_name = Constants.MUTATION_MARKER_ENTITY
 
@@ -325,13 +336,6 @@ class TransformMutationMeasurementData(TransformEntity):
         TransformMolecularCharacterization()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
-
-
-class TransformGeneMarker(TransformEntity):
-    requiredTasks = [
-        ExtractGeneMarker()
-    ]
-    entity_name = Constants.GENE_MARKER_ENTITY
 
 
 class TransformOntologyTermDiagnosis(TransformEntity):
