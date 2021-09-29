@@ -10,8 +10,7 @@ from etl.workflow.config import PdcmConfig
 
 column_names = ["facet_section",
                 "facet_name",
-                "facet_options",
-                "facet_type"]
+                "facet_options"]
 
 
 def main(argv):
@@ -32,6 +31,9 @@ def main(argv):
 
 
 def transform_search_facet(search_index_df) -> DataFrame:
+    facets_definition = [
+        {"facet_section": "model", "facet_name": "Dataset available", "facet_column": "dataset_available"}
+    ]
     return search_index_df
 
 

@@ -319,3 +319,11 @@ CREATE TABLE search_index (
     patient_sex TEXT,
     patient_ethnicity TEXT
 );
+
+
+CREATE TABLE search_facet (
+    facet_section TEXT,
+    facet_name TEXT,
+    facet_options TEXT,
+    facet_type TEXT,
+);
