@@ -320,5 +320,50 @@ class ReadOntologyFromObo(PySparkTask):
             self.output().path]
 
 
+class ReadDiagnosisMappingsFromJson(PySparkTask):
+
+    data_dir = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+
+    def main(self, sc, *args):
+        spark = SparkSession(sc)
+
+        input_path = args[0]
+        output_path = args[1]
+
+        columns = ["datasource", "diagnosis", "primary_tissue", "tumor_type", "mapped_term_url", "justification", "map_type"]
+        df = read_diagnosis_mapping_file(spark, input_path, columns)
+        df.show()
+        df.write.mode("overwrite").parquet(output_path)
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.MAPPING_DIAGNOSIS_MODULE))
+
+    def app_options(self):
+        return [
+            self.data_dir,
+            self.output().path]
+
+
+def read_diagnosis_mapping_file(session, input_path, columns):
+    with open(input_path + "/mapping/diagnosis_mappings.json", 'r') as jsonfile:
+        data = jsonfile.read()
+    obj = json.loads(data)
+    data_rows = []
+    for entity in obj['mappings']:
+        datasource = entity['mappingValues']['DataSource']
+        diagnosis = entity['mappingValues']['SampleDiagnosis']
+        primary_tissue = entity['mappingValues']['OriginTissue']
+        tumor_type = entity['mappingValues']['TumorType']
+        mapped_term_url = entity['mappedTermUrl']
+        justification = entity['justification']
+        map_type = entity['mapType']
+        data_rows.append((datasource, diagnosis, primary_tissue, tumor_type, mapped_term_url, justification, map_type))
+
+    df = session.createDataFrame(data=data_rows, schema=columns)
+    return df
+
+
 if __name__ == "__main__":
     luigi.run()

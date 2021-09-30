@@ -22,6 +22,7 @@ class Constants:
     MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
     GENE_MARKER_MODULE = "markers"
     ONTOLOGY_MODULE = "ontology"
+    MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
