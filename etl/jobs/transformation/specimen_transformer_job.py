@@ -75,7 +75,8 @@ def clean_data_before_join(raw_model_df: DataFrame) -> DataFrame:
         "passage_number",
         "engraftment_site",
         "engraftment_type",
-        "sample_type"
+        "sample_type",
+        Constants.DATA_SOURCE_COLUMN
     )
     specimen_df = specimen_df.withColumn("engraftment_site", init_cap_and_trim_all("engraftment_site"))
     specimen_df = specimen_df.withColumn("engraftment_type", init_cap_and_trim_all("engraftment_type"))
@@ -108,8 +109,9 @@ def set_fk_host_strain(specimen_df: DataFrame, host_strain_df: DataFrame) -> Dat
 
 
 def set_fk_model(specimen_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    model_df = model_df.select("id", "external_model_id", Constants.DATA_SOURCE_COLUMN)
+    model_df = model_df.select("id", "external_model_id", "data_source")
     model_df = model_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
+    model_df = model_df.withColumnRenamed("id", "model_id")
     specimen_df = specimen_df.withColumnRenamed("model_id", "external_model_id")
     specimen_df = specimen_df.join(model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='left')
     return specimen_df

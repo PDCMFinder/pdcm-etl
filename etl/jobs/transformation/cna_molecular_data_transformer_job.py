@@ -24,18 +24,19 @@ def main(argv):
     spark = SparkSession.builder.getOrCreate()
     molecular_characterization_df = spark.read.parquet(molecular_characterization_path)
     raw_cna_df = spark.read.parquet(raw_cna_parquet_path)
-    gene_markers_df = spark.read.parquet(gene_markers_parquet_path)
 
-    cna_molecular_data_df = transform_cna_molecular_data(molecular_characterization_df, raw_cna_df, gene_markers_df)
+    cna_molecular_data_df = transform_cna_molecular_data(
+        molecular_characterization_df, raw_cna_df, gene_markers_parquet_path)
     cna_molecular_data_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_cna_molecular_data(
-        molecular_characterization_df: DataFrame, raw_cna_df: DataFrame, gene_markers_df: DataFrame) -> DataFrame:
+        molecular_characterization_df: DataFrame, raw_cna_df: DataFrame,
+        gene_markers_parquet_path: DataFrame) -> DataFrame:
     cna_df = get_cna_df(raw_cna_df)
     cna_df = set_fk_molecular_characterization(cna_df, molecular_characterization_df)
     cna_df = add_id(cna_df, "id")
-    cna_df = harmonise_marker_symbols(cna_df, gene_markers_df)
+    cna_df = harmonise_marker_symbols(cna_df, gene_markers_parquet_path)
     cna_df = get_expected_columns(cna_df)
     return cna_df
 
@@ -77,7 +78,7 @@ def set_fk_molecular_characterization(cna_df: DataFrame, molecular_characterizat
 def get_expected_columns(cna_df: DataFrame) -> DataFrame:
     return cna_df.select(
         "id", "log10r_cna", "log2r_cna", "copy_number_status", "gistic_value", "picnic_value", "gene_marker_id",
-        "molecular_characterization_id")
+         "non_harmonised_symbol", "harmonisation_result", "molecular_characterization_id")
 
 
 if __name__ == "__main__":
