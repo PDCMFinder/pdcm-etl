@@ -72,6 +72,7 @@ def read_obo_file(session, file_path, columns):
 
     term_id = ""
     term_name = ""
+    term_url = ""
     term_is_a = []
 
     term_list = []
@@ -84,14 +85,16 @@ def read_obo_file(session, file_path, columns):
                 # check if the term is initialised and if so, add it to ontology_terms
                 if term_id != "":
                     # graph.add_node(term_id, name=term_name, term_id=term_id)
-                    term_list.append((term_id, term_name, ','.join(term_is_a)))
+                    term_list.append((term_id, term_name, term_url, ','.join(term_is_a)))
                     # reset term attributes
                     term_id = ""
                     term_name = ""
+                    term_url = ""
                     term_is_a = []
 
             elif line.startswith("id:"):
                 term_id = line[4:].strip()
+                term_url = "http://purl.obolibrary.org/obo/"+term_id.replace(":", "_")
 
             elif line.startswith("name:"):
                 term_name = line[5:].strip()
@@ -305,7 +308,7 @@ class ReadOntologyFromObo(PySparkTask):
         input_path = args[0]
         output_path = args[1]
 
-        columns = ["term_id", "term_name", "is_a"]
+        columns = ["term_id", "term_name", "term_url", "is_a"]
         df = read_obo_file(spark, input_path + "/ontology/ncit.obo", columns)
         df.show()
         df.write.mode("overwrite").parquet(output_path)
