@@ -1,8 +1,8 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import lit
 
+from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
@@ -108,8 +108,10 @@ def set_fk_host_strain(specimen_df: DataFrame, host_strain_df: DataFrame) -> Dat
 
 
 def set_fk_model(specimen_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    specimen_df = specimen_df.withColumnRenamed("model_id", "model_id_ref")
-    specimen_df = transform_to_fk(specimen_df, model_df, "model_id_ref", "external_model_id", "id", "model_id")
+    model_df = model_df.select("id", "external_model_id", Constants.DATA_SOURCE_COLUMN)
+    model_df = model_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
+    specimen_df = specimen_df.withColumnRenamed("model_id", "external_model_id")
+    specimen_df = specimen_df.join(model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='left')
     return specimen_df
 
 
