@@ -37,3 +37,4 @@ ALTER TABLE gene_marker ADD CONSTRAINT pk_gene_marker PRIMARY KEY (id);
 ALTER TABLE ontology_term_diagnosis ADD CONSTRAINT pk_ontology_term_diagnosis PRIMARY KEY (id);
 ALTER TABLE ontology_term_treatment ADD CONSTRAINT pk_ontology_term_treatment PRIMARY KEY (id);
 ALTER TABLE ontology_term_regimen ADD CONSTRAINT pk_ontology_term_regimen PRIMARY KEY (id);
+ALTER TABLE sample_to_ontology ADD CONSTRAINT pk_sample_to_ontology PRIMARY KEY (id);

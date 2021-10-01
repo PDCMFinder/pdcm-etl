@@ -63,3 +63,7 @@ ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_site CASC
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_type CASCADE;
 
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_material CASCADE;
+
+ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS fk_sample_to_ontology_patient_sample CASCADE;
+
+ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS fk_sample_to_ontology_ontology_term_diagnosis CASCADE;

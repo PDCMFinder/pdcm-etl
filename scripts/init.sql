@@ -306,3 +306,9 @@ CREATE TABLE ontology_term_regimen(
     term_name TEXT,
     is_a TEXT
 );
+
+CREATE TABLE sample_to_ontology(
+    id BIGINT NOT NULL,
+    sample_id BIGINT,
+    ontology_term_id BIGINT
+);
