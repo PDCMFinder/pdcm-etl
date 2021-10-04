@@ -23,8 +23,17 @@ def harmonise_mutation_marker_symbol(molecular_data_df: DataFrame, gene_markers_
     no_matched_alias_symbols_df = no_matched_alias_symbols_df.withColumn("gene_marker_id", lit(None))
     no_matched_alias_symbols_df = no_matched_alias_symbols_df.withColumn("harmonisation_result", lit("no_mapping"))
 
-    return matched_approved_symbol_df.union(matched_previous_symbols_df).union(matched_alias_symbols_df)\
-        .union(no_matched_alias_symbols_df)
+    matched_ensembl_gene_id_df, no_matched_ensembl_gene_id_df = match_ensembl_gene_id(
+        no_matched_alias_symbols_df, gene_markers_df)
+
+    no_matched_df = no_matched_ensembl_gene_id_df
+    no_matched_df = no_matched_df.withColumn("gene_marker_id", lit(None))
+    no_matched_df = no_matched_df.withColumn("harmonisation_result", lit("no_mapping"))
+
+    return matched_approved_symbol_df.union(matched_previous_symbols_df)\
+        .union(matched_alias_symbols_df) \
+        .union(matched_ensembl_gene_id_df) \
+        .union(no_matched_df)
 
 
 def get_gene_markers_df(gene_marker_parquet_path, spark) -> DataFrame:
@@ -113,4 +122,17 @@ def match_alias_symbols(molecular_data_df: DataFrame, alias_symbols_df: DataFram
     no_matching_df = molecular_data_counter_df.where("count != 1")
     no_matching_df = no_matching_df.drop("count")
 
+    return matched_df, no_matching_df
+
+
+def match_ensembl_gene_id(molecular_data_df: DataFrame, gene_markers_df: DataFrame) -> Tuple[DataFrame, DataFrame]:
+    molecular_data_df = molecular_data_df.drop("gene_marker_id", "harmonisation_result")
+    gene_markers_df = gene_markers_df.select("gene_marker_id", "ensembl_gene_id")
+    gene_markers_df = gene_markers_df.withColumn("harmonisation_result", lit("ensembl_gene_id"))
+
+    molecular_data_df = molecular_data_df.join(
+        gene_markers_df, on=['ensembl_gene_id'], how='left')
+    matched_df = molecular_data_df.where("gene_marker_id is not null")
+
+    no_matching_df = molecular_data_df.where("gene_marker_id is null")
     return matched_df, no_matching_df

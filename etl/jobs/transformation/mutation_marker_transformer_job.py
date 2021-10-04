@@ -51,7 +51,9 @@ def get_mutation_marker_df(raw_mutation_marker_df: DataFrame) -> DataFrame:
         "alt_allele",
         "ncbi_transcript_id",
         "ensembl_transcript_id",
-        "variation_id"
+        "variation_id",
+        "ensembl_gene_id",
+        "ncbi_gene_id"
         ).drop_duplicates()
 
 
