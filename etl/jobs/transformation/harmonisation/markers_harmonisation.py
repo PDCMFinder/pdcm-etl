@@ -26,13 +26,17 @@ def harmonise_mutation_marker_symbol(molecular_data_df: DataFrame, gene_markers_
     matched_ensembl_gene_id_df, no_matched_ensembl_gene_id_df = match_ensembl_gene_id(
         no_matched_alias_symbols_df, gene_markers_df)
 
-    no_matched_df = no_matched_ensembl_gene_id_df
+    matched_ncbi_gene_id_df, no_matched_ncbi_gene_id_df = match_ncbi_gene_id(
+        no_matched_ensembl_gene_id_df, gene_markers_df)
+
+    no_matched_df = no_matched_ncbi_gene_id_df
     no_matched_df = no_matched_df.withColumn("gene_marker_id", lit(None))
     no_matched_df = no_matched_df.withColumn("harmonisation_result", lit("no_mapping"))
 
     return matched_approved_symbol_df.union(matched_previous_symbols_df)\
         .union(matched_alias_symbols_df) \
         .union(matched_ensembl_gene_id_df) \
+        .union(matched_ncbi_gene_id_df) \
         .union(no_matched_df)
 
 
@@ -132,6 +136,19 @@ def match_ensembl_gene_id(molecular_data_df: DataFrame, gene_markers_df: DataFra
 
     molecular_data_df = molecular_data_df.join(
         gene_markers_df, on=['ensembl_gene_id'], how='left')
+    matched_df = molecular_data_df.where("gene_marker_id is not null")
+
+    no_matching_df = molecular_data_df.where("gene_marker_id is null")
+    return matched_df, no_matching_df
+
+
+def match_ncbi_gene_id(molecular_data_df: DataFrame, gene_markers_df: DataFrame) -> Tuple[DataFrame, DataFrame]:
+    molecular_data_df = molecular_data_df.drop("gene_marker_id", "harmonisation_result")
+    gene_markers_df = gene_markers_df.select("gene_marker_id", "ncbi_gene_id")
+    gene_markers_df = gene_markers_df.withColumn("harmonisation_result", lit("ncbi_gene_id"))
+
+    molecular_data_df = molecular_data_df.join(
+        gene_markers_df, on=['ncbi_gene_id'], how='left')
     matched_df = molecular_data_df.where("gene_marker_id is not null")
 
     no_matching_df = molecular_data_df.where("gene_marker_id is null")
