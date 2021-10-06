@@ -1,10 +1,10 @@
 from typing import Tuple
 
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import col, lit, round
 from pyspark.sql import DataFrame, SparkSession
 
 
-def harmonise_mutation_marker_symbol(molecular_data_df: DataFrame, gene_markers_parquet_path):
+def harmonise_mutation_marker_symbols(molecular_data_df: DataFrame, gene_markers_parquet_path):
     spark = SparkSession.builder.getOrCreate()
     molecular_data_df = molecular_data_df.withColumn("non_harmonised_symbol", col("symbol"))
     gene_markers_df = get_gene_markers_df(gene_markers_parquet_path, spark)
@@ -34,10 +34,10 @@ def harmonise_mutation_marker_symbol(molecular_data_df: DataFrame, gene_markers_
     no_matched_df = no_matched_df.withColumn("harmonisation_result", lit("no_mapping"))
 
     return matched_approved_symbol_df.union(matched_previous_symbols_df)\
-        .union(matched_alias_symbols_df) \
-        .union(matched_ensembl_gene_id_df) \
-        .union(matched_ncbi_gene_id_df) \
-        .union(no_matched_df)
+        .unionByName(matched_alias_symbols_df) \
+        .unionByName(matched_ensembl_gene_id_df) \
+        .unionByName(matched_ncbi_gene_id_df) \
+        .unionByName(no_matched_df)
 
 
 def get_gene_markers_df(gene_marker_parquet_path, spark) -> DataFrame:
@@ -56,16 +56,6 @@ def get_alias_symbols_df(gene_marker_parquet_path, spark) -> DataFrame:
     df = spark.read.parquet(gene_marker_parquet_path + '_alias_symbols')
     df = df.withColumnRenamed("id", "gene_marker_id")
     return df
-
-
-def harmonise_marker_symbols(molecular_data_df: DataFrame, gene_markers_parquet_path) -> DataFrame:
-    spark = SparkSession.builder.getOrCreate()
-    molecular_data_df = molecular_data_df.withColumn("non_harmonised_symbol", col("symbol"))
-    gene_markers_df = get_gene_markers_df(gene_markers_parquet_path, spark)
-
-    matched_approved_symbol_df, no_matched_approved_symbol_df = match_approved_symbol(
-        molecular_data_df, gene_markers_df)
-    return matched_approved_symbol_df
 
 
 def match_approved_symbol(molecular_data_df: DataFrame, gene_markers_df: DataFrame) -> Tuple[DataFrame, DataFrame]:
@@ -144,6 +134,8 @@ def match_ensembl_gene_id(molecular_data_df: DataFrame, gene_markers_df: DataFra
 
 def match_ncbi_gene_id(molecular_data_df: DataFrame, gene_markers_df: DataFrame) -> Tuple[DataFrame, DataFrame]:
     molecular_data_df = molecular_data_df.drop("gene_marker_id", "harmonisation_result")
+    molecular_data_df = molecular_data_df.withColumn(
+        "ncbi_gene_id", round(molecular_data_df["ncbi_gene_id"]).cast('integer'))
     gene_markers_df = gene_markers_df.select("gene_marker_id", "ncbi_gene_id")
     gene_markers_df = gene_markers_df.withColumn("harmonisation_result", lit("ncbi_gene_id"))
 

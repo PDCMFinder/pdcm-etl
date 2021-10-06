@@ -2,7 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
-from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_marker_symbols
+from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -35,7 +35,7 @@ def transform_expression_molecular_data(
 
     expression_df = set_fk_molecular_characterization(expression_df, molecular_characterization_df)
     expression_df = add_id(expression_df, "id")
-    expression_df = harmonise_marker_symbols(expression_df, gene_markers_parquet_path)
+    expression_df = harmonise_mutation_marker_symbols(expression_df, gene_markers_parquet_path)
     expression_df = get_expected_columns(expression_df)
     return expression_df
 
@@ -55,7 +55,9 @@ def get_expression_df(raw_expression_df: DataFrame) -> DataFrame:
         "illumina_hgea_expression_value",
         "z_score",
         "symbol",
-        "platform_id").drop_duplicates()
+        "platform_id",
+        "ensembl_gene_id",
+        "ncbi_gene_id").drop_duplicates()
 
 
 def set_fk_molecular_characterization(expression_df: DataFrame, molecular_characterization_df: DataFrame) -> DataFrame:
