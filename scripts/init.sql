@@ -275,6 +275,7 @@ CREATE TABLE specimen (
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
     engraftment_material_id BIGINT,
+    engraftment_sample_state_id BIGINT,
     host_strain_id BIGINT,
     model_id BIGINT
 );

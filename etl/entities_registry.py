@@ -385,6 +385,7 @@ entities = {
             "engraftment_site_id",
             "engraftment_type_id",
             "engraftment_material_id",
+            "engraftment_sample_state_id",
             "host_strain_id",
             "model_id"
         ]
