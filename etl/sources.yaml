@@ -195,6 +195,7 @@ groups:
           - "symbol"
           - "ucsc_gene_id"
           - "ensembl_gene_id"
+          - "ncbi_gene_id"
           - "rnaseq_coverage"
           - "rnaseq_fpkm"
           - "rnaseq_tpm"
