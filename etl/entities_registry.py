@@ -38,7 +38,7 @@ import etl.jobs.transformation.specimen_transformer_job
 import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
-
+import etl.jobs.transformation.sample_to_ontology_transformer_job
 
 def get_spark_job_by_entity_name(entity_name):
     return entities[entity_name]['spark_job']
@@ -388,6 +388,15 @@ entities = {
             "engraftment_sample_state_id",
             "host_strain_id",
             "model_id"
+        ]
+    },
+    Constants.SAMPLE_TO_ONTOLOGY_ENTITY: {
+        "spark_job": etl.jobs.transformation.sample_to_ontology_transformer_job.main,
+        "transformation_class": TransformSampleToOntology(),
+        "expected_database_columns": [
+            "id",
+            "sample_id",
+            "ontology_term_id"
         ]
     }
 }

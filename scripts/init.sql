@@ -298,6 +298,7 @@ CREATE TABLE ontology_term_diagnosis(
     id BIGINT NOT NULL,
     term_id TEXT NOT NULL,
     term_name TEXT,
+    term_url TEXT,
     is_a TEXT
 );
 
@@ -313,4 +314,10 @@ CREATE TABLE ontology_term_regimen(
     term_id TEXT NOT NULL,
     term_name TEXT,
     is_a TEXT
+);
+
+CREATE TABLE sample_to_ontology(
+    id BIGINT NOT NULL,
+    sample_id BIGINT,
+    ontology_term_id BIGINT
 );
