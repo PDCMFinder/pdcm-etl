@@ -10,6 +10,7 @@ class Constants:
     SAMPLE_MODULE = "sample"
     SHARING_MODULE = "sharing"
     MODEL_MODULE = "model"
+    OTHER_MODEL_MODULE = "other-model"
     MODEL_VALIDATION_MODULE = "model_validation"
     DRUG_DOSING_MODULE = "drug-dosing"
     PATIENT_TREATMENT_MODULE = "patient-treatment"
