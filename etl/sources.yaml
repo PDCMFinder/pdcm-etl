@@ -27,6 +27,19 @@ groups:
           - "passage_number"
           - "publications"
 
+      - name: "other-model"
+        type: "tsv"
+        name_patterns: [ "$provider_metadata-other_models.tsv" ]
+        columns:
+          - "model_id"
+          - "name"
+          - "type"
+          - "growth_properties"
+          - "parent_id"
+          - "patient_sample_id"
+          - "comments"
+          - "external_ids"
+
       - name: "model_validation"
         type: "tsv"
         name_patterns: ["$provider_metadata-model_validation.tsv"]
