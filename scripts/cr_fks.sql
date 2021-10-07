@@ -163,6 +163,16 @@ ALTER TABLE specimen
     FOREIGN KEY (engraftment_material_id)
     REFERENCES engraftment_material (id);
 
+ALTER TABLE specimen
+    ADD CONSTRAINT fk_specimen_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);
+
+ALTER TABLE specimen
+    ADD CONSTRAINT fk_engraftment_sample_state
+    FOREIGN KEY (engraftment_sample_state_id)
+    REFERENCES engraftment_sample_state (id);
+
 ALTER TABLE sample_to_ontology
     ADD CONSTRAINT fk_sample_to_ontology_patient_sample
     FOREIGN KEY (sample_id)

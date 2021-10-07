@@ -2,7 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
-from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_marker_symbols
+from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -20,17 +20,16 @@ def main(argv):
 
     spark = SparkSession.builder.getOrCreate()
     raw_mutation_marker_df = spark.read.parquet(raw_mutation_marker_parquet_path)
-    gene_markers_df = spark.read.parquet(gene_markers_parquet_path)
-
-    mutation_marker_df = transform_mutation_marker(raw_mutation_marker_df, gene_markers_df)
+    mutation_marker_df = transform_mutation_marker(raw_mutation_marker_df, gene_markers_parquet_path)
     mutation_marker_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_mutation_marker(raw_mutation_marker_df: DataFrame, gene_markers_df: DataFrame) -> DataFrame:
+def transform_mutation_marker(raw_mutation_marker_df: DataFrame, gene_markers_parquet_path) -> DataFrame:
     mutation_marker_df = get_mutation_marker_df(raw_mutation_marker_df)
 
     mutation_marker_df = add_id(mutation_marker_df, "id")
-    mutation_marker_df = harmonise_marker_symbols(mutation_marker_df, gene_markers_df)
+    mutation_marker_df = harmonise_mutation_marker_symbols(mutation_marker_df, gene_markers_parquet_path)
+
     return mutation_marker_df
 
 
@@ -50,7 +49,9 @@ def get_mutation_marker_df(raw_mutation_marker_df: DataFrame) -> DataFrame:
         "alt_allele",
         "ncbi_transcript_id",
         "ensembl_transcript_id",
-        "variation_id"
+        "variation_id",
+        "ensembl_gene_id",
+        "ncbi_gene_id"
         ).drop_duplicates()
 
 

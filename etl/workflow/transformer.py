@@ -270,6 +270,7 @@ class TransformSpecimen(TransformEntity):
         TransformEngraftmentSite(),
         TransformEngraftmentType(),
         TransformEngraftmentMaterial(),
+        TransformEngraftmentSampleState(),
         TransformHostStrain(),
         TransformModel()
     ]

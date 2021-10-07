@@ -205,6 +205,8 @@ CREATE TABLE cna_molecular_data (
     gistic_value TEXT,
     picnic_value TEXT,
     gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
     molecular_characterization_id BIGINT
     --loci_marker_id BIGINT
 );
@@ -215,6 +217,8 @@ CREATE TABLE cytogenetics_molecular_data (
     marker_status TEXT,
     essential_or_additional_marker TEXT,
     gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
     molecular_characterization_id BIGINT
 );
 
@@ -230,6 +234,8 @@ CREATE TABLE expression_molecular_data (
     illumina_hgea_probe_id TEXT,
     illumina_hgea_expression_value TEXT,
     gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
     molecular_characterization_id BIGINT
     --loci_marker_id BIGINT
 );
@@ -249,7 +255,9 @@ CREATE TABLE mutation_marker (
     ncbi_transcript_id TEXT,
     ensembl_transcript_id TEXT,
     variation_id TEXT,
-    gene_marker_id BIGINT
+    gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT
     --loci_marker_id BIGINT
 );
 
@@ -267,6 +275,7 @@ CREATE TABLE specimen (
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
     engraftment_material_id BIGINT,
+    engraftment_sample_state_id BIGINT,
     host_strain_id BIGINT,
     model_id BIGINT
 );
