@@ -4,7 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
-from pyspark.sql.functions import lit, col
+from pyspark.sql.functions import col
 
 
 def main(argv):
@@ -29,7 +29,6 @@ def main(argv):
 
     xenograft_sample_df = transform_xenograft_sample(
         raw_molecular_metadata_sample_df, host_strain_df, model_df, platform_df)
-    print("xenograft_sample_df", xenograft_sample_df.columns)
     xenograft_sample_df.write.mode("overwrite").parquet(output_path)
 
 

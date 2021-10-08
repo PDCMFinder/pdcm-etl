@@ -24,7 +24,7 @@ def main(argv):
     raw_model_parquet_path = argv[1]
     engraftment_site_parquet_path = argv[2]
     engraftment_type_parquet_path = argv[3]
-    engraftment_material_parquet_path = argv[4]
+    engraftment_sample_type_parquet_path = argv[4]
     engraftment_sample_state_parquet_path = argv[5]
     host_strain_parquet_path = argv[6]
     model_parquet_path = argv[7]
@@ -35,7 +35,7 @@ def main(argv):
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
     engraftment_site_df = spark.read.parquet(engraftment_site_parquet_path)
     engraftment_type_df = spark.read.parquet(engraftment_type_parquet_path)
-    engraftment_material_df = spark.read.parquet(engraftment_material_parquet_path)
+    engraftment_sample_type_df = spark.read.parquet(engraftment_sample_type_parquet_path)
     engraftment_sample_state_df = spark.read.parquet(engraftment_sample_state_parquet_path)
     model_df = spark.read.parquet(model_parquet_path)
     host_strain_df = spark.read.parquet(host_strain_parquet_path)
@@ -44,7 +44,7 @@ def main(argv):
         raw_model_df,
         engraftment_site_df,
         engraftment_type_df,
-        engraftment_material_df,
+        engraftment_sample_type_df,
         engraftment_sample_state_df,
         model_df,
         host_strain_df)
@@ -55,7 +55,7 @@ def transform_specimen(
         raw_model_df: DataFrame,
         engraftment_site_df: DataFrame,
         engraftment_type_df: DataFrame,
-        engraftment_material_df: DataFrame,
+        engraftment_sample_type_df: DataFrame,
         engraftment_sample_state_df: DataFrame,
         model_df: DataFrame,
         host_strain_df: DataFrame) -> DataFrame:
@@ -65,7 +65,7 @@ def transform_specimen(
 
     specimen_df = set_fk_engraftment_site(specimen_df, engraftment_site_df)
     specimen_df = set_fk_engraftment_type(specimen_df, engraftment_type_df)
-    specimen_df = set_fk_engraftment_material(specimen_df, engraftment_material_df)
+    specimen_df = set_fk_engraftment_sample_type(specimen_df, engraftment_sample_type_df)
     specimen_df = set_fk_engraftment_sample_state(specimen_df, engraftment_sample_state_df)
     specimen_df = set_fk_model(specimen_df, model_df)
     specimen_df = set_fk_host_strain(specimen_df, host_strain_df)
@@ -103,9 +103,9 @@ def set_fk_engraftment_type(specimen_df: DataFrame, engraftment_type_df: DataFra
     return specimen_df
 
 
-def set_fk_engraftment_material(specimen_df: DataFrame, engraftment_material_df: DataFrame) -> DataFrame:
+def set_fk_engraftment_sample_type(specimen_df: DataFrame, engraftment_material_df: DataFrame) -> DataFrame:
     specimen_df = transform_to_fk(
-        specimen_df, engraftment_material_df, "sample_type", "name", "id", "engraftment_material_id")
+        specimen_df, engraftment_material_df, "sample_type", "name", "id", "engraftment_sample_type_id")
     return specimen_df
 
 
@@ -137,7 +137,7 @@ def get_columns_expected_order(specimen_df: DataFrame) -> DataFrame:
         "passage_number",
         "engraftment_site_id",
         "engraftment_type_id",
-        "engraftment_material_id",
+        "engraftment_sample_type_id",
         "engraftment_sample_state_id",
         "host_strain_id",
         "model_id")

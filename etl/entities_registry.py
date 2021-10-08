@@ -17,7 +17,6 @@ import etl.jobs.transformation.xenograft_sample_transformer_job
 import etl.jobs.transformation.patient_snapshot_transformer_job
 import etl.jobs.transformation.engraftment_site_transformer_job
 import etl.jobs.transformation.engraftment_type_transformer_job
-import etl.jobs.transformation.engraftment_material_transformer_job
 import etl.jobs.transformation.engraftment_sample_state_transformer_job
 import etl.jobs.transformation.engraftment_sample_type_transformer_job
 import etl.jobs.transformation.accessibility_group_transformer_job
@@ -39,6 +38,7 @@ import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.sample_to_ontology_transformer_job
+
 
 def get_spark_job_by_entity_name(entity_name):
     return entities[entity_name]['spark_job']
@@ -97,7 +97,8 @@ entities = {
     Constants.PROVIDER_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.provider_group_transformer_job.main,
         "transformation_class": TransformProviderGroup(),
-        "expected_database_columns": ["id", "name", "abbreviation", "description", "provider_type_id"]
+        "expected_database_columns": [
+            "id", "name", "abbreviation", "description", "provider_type_id", "project_group_id"]
     },
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
@@ -210,11 +211,6 @@ entities = {
     Constants.ENGRAFTMENT_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.engraftment_type_transformer_job.main,
         "transformation_class": TransformEngraftmentType(),
-        "expected_database_columns": ["id", "name"]
-    },
-    Constants.ENGRAFTMENT_MATERIAL_ENTITY: {
-        "spark_job": etl.jobs.transformation.engraftment_material_transformer_job.main,
-        "transformation_class": TransformEngraftmentMaterial(),
         "expected_database_columns": ["id", "name"]
     },
     Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY: {
@@ -364,7 +360,7 @@ entities = {
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_diagnosis_transformer_job.main,
         "transformation_class": TransformOntologyTermDiagnosis(),
-        "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
+        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a"]
     },
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_treatment_transformer_job.main,
@@ -384,7 +380,7 @@ entities = {
             "passage_number",
             "engraftment_site_id",
             "engraftment_type_id",
-            "engraftment_material_id",
+            "engraftment_sample_type_id",
             "engraftment_sample_state_id",
             "host_strain_id",
             "model_id"
