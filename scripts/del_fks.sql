@@ -1,8 +1,12 @@
 ALTER TABLE provider_group DROP CONSTRAINT IF EXISTS fk_provider_group_provider_type CASCADE;
 
+ALTER TABLE provider_group DROP CONSTRAINT IF EXISTS fk_provider_group_project_group CASCADE;
+
 ALTER TABLE patient DROP CONSTRAINT IF EXISTS fk_patient_diagnosis CASCADE;
 
 ALTER TABLE patient DROP CONSTRAINT IF EXISTS fk_patient_provider_group CASCADE;
+
+ALTER TABLE patient DROP CONSTRAINT IF EXISTS fk_patient_ethnicity CASCADE;
 
 ALTER TABLE model DROP CONSTRAINT IF EXISTS fk_model_publication_group CASCADE;
 
@@ -25,6 +29,12 @@ ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS fk_patient_collection_site 
 ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS fk_patient_sample_tumour_type CASCADE;
 
 ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS fk_patient_sample_model CASCADE;
+
+ALTER TABLE xenograft_sample DROP CONSTRAINT IF EXISTS fk_xenograft_sample_host_strain CASCADE;
+
+ALTER TABLE xenograft_sample DROP CONSTRAINT IF EXISTS fk_xenograft_sample_model CASCADE;
+
+ALTER TABLE xenograft_sample DROP CONSTRAINT IF EXISTS fk_xenograft_sample_platformCASCADE;
 
 ALTER TABLE patient_snapshot DROP CONSTRAINT IF EXISTS fk_patient_snapshot_patient CASCADE;
 
@@ -62,9 +72,13 @@ ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_site CASC
 
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_type CASCADE;
 
-ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_material CASCADE;
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_engraftment_sample_type CASCADE;
 
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_engraftment_sample_state CASCADE;
+
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_engraftment_sample_type CASCADE;
+
+ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_host_strain CASCADE;
 
 ALTER TABLE specimen DROP CONSTRAINT IF EXISTS fk_specimen_model CASCADE;
 

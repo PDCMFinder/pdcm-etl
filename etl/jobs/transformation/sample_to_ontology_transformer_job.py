@@ -36,8 +36,7 @@ def main(argv):
     sample_to_ontology_df = transform_sample_to_ontology(raw_model_df, raw_patient_sample_df, raw_diagnosis_df,
                                                          raw_tissue_df, raw_tumor_type_df,
                                                          raw_ontology_term_diagnosis_df, raw_diagnosis_mappings_df)
-
-    # sample_to_ontology_df.write.mode("overwrite").parquet(output_path)
+    sample_to_ontology_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_sample_to_ontology(model_df: DataFrame,

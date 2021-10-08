@@ -17,7 +17,6 @@ ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS pk_patient_sample CASCADE;
 ALTER TABLE xenograft_sample DROP CONSTRAINT IF EXISTS pk_xenograft_sample CASCADE;
 ALTER TABLE patient_snapshot DROP CONSTRAINT IF EXISTS pk_patient_snapshot CASCADE;
 ALTER TABLE engraftment_site DROP CONSTRAINT IF EXISTS pk_engraftment_site CASCADE;
-ALTER TABLE engraftment_material DROP CONSTRAINT IF EXISTS pk_engraftment_material CASCADE;
 ALTER TABLE engraftment_sample_state DROP CONSTRAINT IF EXISTS pk_engraftment_sample_state CASCADE;
 ALTER TABLE engraftment_sample_type DROP CONSTRAINT IF EXISTS pk_engraftment_sample_type CASCADE;
 ALTER TABLE engraftment_type DROP CONSTRAINT IF EXISTS pk_engraftment_type CASCADE;

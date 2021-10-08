@@ -67,10 +67,18 @@ class TransformProviderType(TransformEntity):
     entity_name = Constants.PROVIDER_TYPE_ENTITY
 
 
+class TransformProjectGroup(TransformEntity):
+    requiredTasks = [
+        ExtractSource()
+    ]
+    entity_name = Constants.PROJECT_GROUP_ENTITY
+
+
 class TransformProviderGroup(TransformEntity):
     requiredTasks = [
         ExtractSource(),
-        TransformProviderType()
+        TransformProviderType(),
+        TransformProjectGroup()
     ]
     entity_name = Constants.PROVIDER_GROUP_ENTITY
 
@@ -191,13 +199,6 @@ class TransformEngraftmentType(TransformEntity):
     entity_name = Constants.ENGRAFTMENT_TYPE_ENTITY
 
 
-class TransformEngraftmentMaterial(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
-    entity_name = Constants.ENGRAFTMENT_MATERIAL_ENTITY
-
-
 class TransformEngraftmentSampleState(TransformEntity):
     requiredTasks = [
         ExtractModel()
@@ -217,13 +218,6 @@ class TransformHostStrain(TransformEntity):
         ExtractModel()
     ]
     entity_name = Constants.HOST_STRAIN_ENTITY
-
-
-class TransformProjectGroup(TransformEntity):
-    requiredTasks = [
-        ExtractSource()
-    ]
-    entity_name = Constants.PROJECT_GROUP_ENTITY
 
 
 class TransformTreatment(TransformEntity):
@@ -269,7 +263,7 @@ class TransformSpecimen(TransformEntity):
         ExtractModel(),
         TransformEngraftmentSite(),
         TransformEngraftmentType(),
-        TransformEngraftmentMaterial(),
+        TransformEngraftmentSampleType(),
         TransformEngraftmentSampleState(),
         TransformHostStrain(),
         TransformModel()
