@@ -28,6 +28,7 @@ def main(argv):
 
     spark = SparkSession.builder.getOrCreate()
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
+    raw_cell_model_df = spark.read.parquet(raw_cell_model_parquet_path)
     raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
     publication_group_df = spark.read.parquet(publication_group_parquet_path)
     accessibility_group_df = spark.read.parquet(accessibility_group_parquet_path)
