@@ -84,7 +84,7 @@ def clean_data_before_join(raw_model_df: DataFrame) -> DataFrame:
         "sample_type",
         "sample_state",
         Constants.DATA_SOURCE_COLUMN
-    )
+    ).drop_duplicates()
     specimen_df = specimen_df.withColumn("engraftment_site", init_cap_and_trim_all("engraftment_site"))
     specimen_df = specimen_df.withColumn("engraftment_type", init_cap_and_trim_all("engraftment_type"))
     specimen_df = specimen_df.withColumn("sample_type", init_cap_and_trim_all("sample_type"))
