@@ -47,8 +47,8 @@ CREATE TABLE accessibility_group (
 
 CREATE TABLE contact_people (
     id BIGINT NOT NULL,
-    name_list TEXT NOT NULL,
-    email_list TEXT NOT NULL
+    name_list TEXT,
+    email_list TEXT
 );
 
 CREATE TABLE contact_form (
@@ -70,6 +70,21 @@ CREATE TABLE model (
     contact_people_id BIGINT,
     contact_form_id BIGINT,
     source_database_id BIGINT
+);
+
+CREATE TABLE cell_model (
+    id BIGINT NOT NULL,
+    external_model_id TEXT,
+    name TEXT,
+    type TEXT,
+    growth_properties TEXT,
+    parent_id TEXT,
+    origin_patient_sample_id TEXT,
+    comments TEXT,
+    model_id BIGINT,
+    supplier TEXT,
+    external_ids TEXT,
+    provider_abb TEXT
 );
 
 CREATE TABLE quality_assurance (

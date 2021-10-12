@@ -17,13 +17,14 @@ def main(argv):
                     [3]: Output file
     """
     raw_model_parquet_path = argv[1]
-    raw_sharing_parquet_path = argv[2]
-    publication_group_parquet_path = argv[3]
-    accessibility_group_parquet_path = argv[4]
-    contact_people_parquet_path = argv[5]
-    contact_form_parquet_path = argv[6]
-    source_database_parquet_path = argv[7]
-    output_path = argv[8]
+    raw_cell_model_parquet_path = argv[2]
+    raw_sharing_parquet_path = argv[3]
+    publication_group_parquet_path = argv[4]
+    accessibility_group_parquet_path = argv[5]
+    contact_people_parquet_path = argv[6]
+    contact_form_parquet_path = argv[7]
+    source_database_parquet_path = argv[8]
+    output_path = argv[9]
 
     spark = SparkSession.builder.getOrCreate()
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
@@ -35,6 +36,7 @@ def main(argv):
     source_database_df = spark.read.parquet(source_database_parquet_path)
     model_df = transform_model(
         raw_model_df,
+        raw_cell_model_df,
         raw_sharing_df,
         publication_group_df,
         accessibility_group_df,
@@ -46,6 +48,7 @@ def main(argv):
 
 def transform_model(
         raw_model_df: DataFrame,
+        raw_cell_model_df: DataFrame,
         raw_sharing_df: DataFrame,
         publication_group_df: DataFrame,
         accessibility_group_df: DataFrame,
@@ -53,7 +56,7 @@ def transform_model(
         contact_form_df: DataFrame,
         source_database_df: DataFrame) -> DataFrame:
     
-    model_df = get_data_from_model(raw_model_df)
+    model_df = get_data_from_model_modules(raw_model_df, raw_cell_model_df)
     model_df = join_model_with_sharing(model_df, raw_sharing_df)
     model_df = add_id(model_df, "id")
     model_df = set_fk_publication_group(model_df, publication_group_df)
@@ -64,6 +67,15 @@ def transform_model(
     model_df = get_columns_expected_order(model_df)
 
     return model_df
+
+
+def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
+    model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+    model_df = model_df.withColumnRenamed("model_id", "external_model_id")
+    cell_model_df = raw_cell_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+    cell_model_df = cell_model_df.withColumnRenamed("model_id", "external_model_id")
+    union_df = model_df.union(cell_model_df)
+    return union_df
 
 
 def join_model_with_sharing(model_df: DataFrame, raw_sharing_df: DataFrame) -> DataFrame:
@@ -90,11 +102,16 @@ def set_fk_accessibility_group(model_df: DataFrame, accessibility_group_df: Data
 
 
 def set_fk_contact_people(model_df: DataFrame, contact_people_df: DataFrame) -> DataFrame:
+    contact_people_df = contact_people_df.select("id", "email_list", "name_list")
     model_df = model_df.withColumnRenamed("email", "email_list")
     model_df = model_df.withColumnRenamed("name", "name_list")
     contact_people_df = contact_people_df.withColumnRenamed("id", "contact_people_id")
-    model_df = model_df.join(
-        contact_people_df, on=['name_list', 'email_list', Constants.DATA_SOURCE_COLUMN], how='left')
+
+    cond = [model_df.name_list.eqNullSafe(contact_people_df.name_list),
+            model_df.email_list.eqNullSafe(contact_people_df.email_list)]
+
+    model_df = model_df.join(contact_people_df, cond, how='left')
+    model_df.show()
     return model_df
 
 
@@ -107,12 +124,6 @@ def set_fk_contact_form(model_df: DataFrame, contact_form_df: DataFrame) -> Data
 def set_fk_source_database(model_df: DataFrame, source_database_df: DataFrame) -> DataFrame:
     model_df = transform_to_fk(
         model_df, source_database_df, "database_url", "database_url", "id", "source_database_id")
-    return model_df
-
-
-def get_data_from_model(raw_model_df) -> DataFrame:
-    model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
-    model_df = model_df.withColumnRenamed("model_id", "external_model_id")
     return model_df
 
 

@@ -4,6 +4,7 @@ import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
+import etl.jobs.transformation.cell_model_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
 import etl.jobs.transformation.contact_people_transformer_job
 import etl.jobs.transformation.contact_form_transformer_job
@@ -117,6 +118,24 @@ entities = {
             "contact_people_id",
             "contact_form_id",
             "source_database_id"
+        ]
+    },
+    Constants.CELL_MODEL_ENTITY: {
+        "spark_job": etl.jobs.transformation.cell_model_transformer_job.main,
+        "transformation_class": TransformCellModel(),
+        "expected_database_columns": [
+            "id",
+            "external_model_id",
+            "name",
+            "type",
+            "growth_properties",
+            "parent_id",
+            "origin_patient_sample_id",
+            "comments",
+            "model_id",
+            "supplier",
+            "external_ids",
+            "provider_abb"
         ]
     },
     Constants.CONTACT_PEOPLE_ENTITY: {
