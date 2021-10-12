@@ -48,6 +48,11 @@ ALTER TABLE model
     FOREIGN KEY (source_database_id)
     REFERENCES source_database (id);
 
+ALTER TABLE cell_model
+    ADD CONSTRAINT fk_cell_model_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);
+
 ALTER TABLE quality_assurance
     ADD CONSTRAINT fk_quality_assurance_model
     FOREIGN KEY (model_id)

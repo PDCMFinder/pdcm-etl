@@ -32,7 +32,7 @@ def transform_contact_people(raw_sharing_df: DataFrame) -> DataFrame:
 
 def extract_contact_people(raw_sharing_df: DataFrame) -> DataFrame:
     contact_people_df = raw_sharing_df.select(
-        "name", "email", Constants.DATA_SOURCE_COLUMN).where("name is not null and email is not null")
+        "name", "email", Constants.DATA_SOURCE_COLUMN).where("name is not null or email is not null")
     contact_people_df = contact_people_df.withColumnRenamed("name", "name_list")
     contact_people_df = contact_people_df.withColumnRenamed("email", "email_list")
     contact_people_df = contact_people_df.drop_duplicates()

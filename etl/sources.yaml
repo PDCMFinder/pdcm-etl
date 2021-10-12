@@ -27,9 +27,9 @@ groups:
           - "passage_number"
           - "publications"
 
-      - name: "other-model"
+      - name: "cell-model"
         type: "tsv"
-        name_patterns: [ "$provider_metadata-other_models.tsv" ]
+        name_patterns: [ "$provider_metadata-cell_model.tsv" ]
         columns:
           - "model_id"
           - "name"
@@ -39,6 +39,8 @@ groups:
           - "patient_sample_id"
           - "comments"
           - "external_ids"
+          - "supplier"
+          - "publications"
 
       - name: "model_validation"
         type: "tsv"

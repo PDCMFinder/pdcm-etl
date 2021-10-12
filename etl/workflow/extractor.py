@@ -54,8 +54,8 @@ class ExtractModel(ExtractModuleFromTsv):
     module_name = Constants.MODEL_MODULE
 
 
-class ExtractOtherModel(ExtractModuleFromTsv):
-    module_name = Constants.OTHER_MODEL_MODULE
+class ExtractCellModel(ExtractModuleFromTsv):
+    module_name = Constants.CELL_MODEL_MODULE
 
 
 class ExtractModelValidation(ExtractModuleFromTsv):

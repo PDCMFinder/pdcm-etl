@@ -6,7 +6,8 @@ from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
-    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis
+    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
+    ExtractCellModel
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -132,6 +133,7 @@ class TransformAccessibilityGroup(TransformEntity):
 class TransformModel(TransformEntity):
     requiredTasks = [
         ExtractModel(),
+        ExtractCellModel(),
         ExtractSharing(),
         TransformPublicationGroup(),
         TransformAccessibilityGroup(),
@@ -140,6 +142,14 @@ class TransformModel(TransformEntity):
         TransformSourceDatabase()
     ]
     entity_name = Constants.MODEL_ENTITY
+
+
+class TransformCellModel(TransformEntity):
+    requiredTasks = [
+        ExtractCellModel(),
+        TransformModel()
+    ]
+    entity_name = Constants.CELL_MODEL_ENTITY
 
 
 class TransformQualityAssurance(TransformEntity):

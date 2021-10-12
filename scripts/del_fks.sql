@@ -18,6 +18,8 @@ ALTER TABLE model DROP CONSTRAINT IF EXISTS fk_model_contact_form CASCADE;
 
 ALTER TABLE model DROP CONSTRAINT IF EXISTS fk_model_source_database CASCADE;
 
+ALTER TABLE cell_model DROP CONSTRAINT IF EXISTS fk_cell_model_model CASCADE;
+
 ALTER TABLE quality_assurance DROP CONSTRAINT IF EXISTS fk_quality_assurance_model CASCADE;
 
 ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS fk_patient_sample_diagnosis CASCADE;

@@ -9,6 +9,7 @@ ALTER TABLE contact_people ADD CONSTRAINT pk_contact_people PRIMARY KEY (id);
 ALTER TABLE contact_form ADD CONSTRAINT pk_contact_form PRIMARY KEY (id);
 ALTER TABLE source_database ADD CONSTRAINT pk_source_database PRIMARY KEY (id);
 ALTER TABLE model ADD CONSTRAINT pk_model PRIMARY KEY (id);
+ALTER TABLE cell_model ADD CONSTRAINT pk_other_model PRIMARY KEY (id);
 ALTER TABLE quality_assurance ADD CONSTRAINT pk_quality_assurance PRIMARY KEY (id);
 ALTER TABLE tissue ADD CONSTRAINT pk_tissue PRIMARY KEY (id);
 ALTER TABLE tumour_type ADD CONSTRAINT pk_tumour_type PRIMARY KEY (id);
