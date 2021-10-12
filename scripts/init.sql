@@ -311,19 +311,23 @@ CREATE TABLE search_index (
     external_model_id TEXT NOT NULL,
     data_source TEXT,
     histology TEXT,
-    data_available TEXT,
+    dataset_available TEXT[],
     primary_site TEXT,
     collection_site TEXT,
     tumour_type TEXT,
     patient_age TEXT,
     patient_sex TEXT,
-    patient_ethnicity TEXT
+    patient_ethnicity TEXT,
+    makers_with_cna_data TEXT[],
+    makers_with_mutation_data TEXT[],
+    makers_with_expression_data TEXT[],
+    makers_with_cytogenetics_data TEXT[]
 );
 
 
 CREATE TABLE search_facet (
     facet_section TEXT,
     facet_name TEXT,
-    facet_options TEXT,
-    facet_type TEXT,
+    facet_column TEXT,
+    facet_options TEXT[]
 );

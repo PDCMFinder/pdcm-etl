@@ -372,6 +372,7 @@ class TransformSearchIndex(TransformEntity):
         TransformDiagnosis(),
         TransformTumourType(),
         TransformTissue(),
+        TransformGeneMarker(),
         TransformMutationMarker(),
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
