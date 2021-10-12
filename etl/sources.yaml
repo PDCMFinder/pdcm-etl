@@ -27,6 +27,21 @@ groups:
           - "passage_number"
           - "publications"
 
+      - name: "cell-model"
+        type: "tsv"
+        name_patterns: [ "$provider_metadata-cell_model.tsv" ]
+        columns:
+          - "model_id"
+          - "name"
+          - "type"
+          - "growth_properties"
+          - "parent_id"
+          - "patient_sample_id"
+          - "comments"
+          - "external_ids"
+          - "supplier"
+          - "publications"
+
       - name: "model_validation"
         type: "tsv"
         name_patterns: ["$provider_metadata-model_validation.tsv"]
@@ -195,6 +210,7 @@ groups:
           - "symbol"
           - "ucsc_gene_id"
           - "ensembl_gene_id"
+          - "ncbi_gene_id"
           - "rnaseq_coverage"
           - "rnaseq_fpkm"
           - "rnaseq_tpm"

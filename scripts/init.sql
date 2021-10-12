@@ -18,7 +18,8 @@ CREATE TABLE provider_group (
     name TEXT,
     abbreviation TEXT,
     description TEXT,
-    provider_type_id BIGINT
+    provider_type_id BIGINT,
+    project_group_id BIGINT
 );
 
 CREATE TABLE patient (
@@ -46,8 +47,8 @@ CREATE TABLE accessibility_group (
 
 CREATE TABLE contact_people (
     id BIGINT NOT NULL,
-    name_list TEXT NOT NULL,
-    email_list TEXT NOT NULL
+    name_list TEXT,
+    email_list TEXT
 );
 
 CREATE TABLE contact_form (
@@ -69,6 +70,21 @@ CREATE TABLE model (
     contact_people_id BIGINT,
     contact_form_id BIGINT,
     source_database_id BIGINT
+);
+
+CREATE TABLE cell_model (
+    id BIGINT NOT NULL,
+    external_model_id TEXT,
+    name TEXT,
+    type TEXT,
+    growth_properties TEXT,
+    parent_id TEXT,
+    origin_patient_sample_id TEXT,
+    comments TEXT,
+    model_id BIGINT,
+    supplier TEXT,
+    external_ids TEXT,
+    provider_abb TEXT
 );
 
 CREATE TABLE quality_assurance (
@@ -139,10 +155,6 @@ CREATE TABLE engraftment_type (
     name TEXT NOT NULL
 );
 
-CREATE TABLE engraftment_material (
-    id BIGINT NOT NULL,
-    name TEXT NOT NULL
-);
 
 CREATE TABLE engraftment_sample_state (
     id BIGINT NOT NULL,
@@ -205,6 +217,8 @@ CREATE TABLE cna_molecular_data (
     gistic_value TEXT,
     picnic_value TEXT,
     gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
     molecular_characterization_id BIGINT
     --loci_marker_id BIGINT
 );
@@ -215,6 +229,8 @@ CREATE TABLE cytogenetics_molecular_data (
     marker_status TEXT,
     essential_or_additional_marker TEXT,
     gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
     molecular_characterization_id BIGINT
 );
 
@@ -230,6 +246,8 @@ CREATE TABLE expression_molecular_data (
     illumina_hgea_probe_id TEXT,
     illumina_hgea_expression_value TEXT,
     gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
     molecular_characterization_id BIGINT
     --loci_marker_id BIGINT
 );
@@ -249,7 +267,9 @@ CREATE TABLE mutation_marker (
     ncbi_transcript_id TEXT,
     ensembl_transcript_id TEXT,
     variation_id TEXT,
-    gene_marker_id BIGINT
+    gene_marker_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT
     --loci_marker_id BIGINT
 );
 
@@ -266,7 +286,8 @@ CREATE TABLE specimen (
     passage_number TEXT NOT NULL,
     engraftment_site_id BIGINT,
     engraftment_type_id BIGINT,
-    engraftment_material_id BIGINT,
+    engraftment_sample_type_id BIGINT,
+    engraftment_sample_state_id BIGINT,
     host_strain_id BIGINT,
     model_id BIGINT
 );
@@ -289,6 +310,7 @@ CREATE TABLE ontology_term_diagnosis(
     id BIGINT NOT NULL,
     term_id TEXT NOT NULL,
     term_name TEXT,
+    term_url TEXT,
     is_a TEXT
 );
 
@@ -305,6 +327,13 @@ CREATE TABLE ontology_term_regimen(
     term_name TEXT,
     is_a TEXT
 );
+
+CREATE TABLE sample_to_ontology(
+    id BIGINT NOT NULL,
+    sample_id BIGINT,
+    ontology_term_id BIGINT
+);
+
 
 CREATE TABLE search_index (
     pdcm_model_id BIGINT NOT NULL,

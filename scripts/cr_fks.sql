@@ -3,6 +3,11 @@ ALTER TABLE provider_group
     FOREIGN KEY (provider_type_id)
     REFERENCES provider_type (id);
 
+ALTER TABLE provider_group
+    ADD CONSTRAINT fk_provider_group_project_group
+    FOREIGN KEY (project_group_id)
+    REFERENCES project_group (id);
+
 ALTER TABLE patient
     ADD CONSTRAINT fk_patient_diagnosis
     FOREIGN KEY (initial_diagnosis_id)
@@ -12,6 +17,11 @@ ALTER TABLE patient
     ADD CONSTRAINT fk_patient_provider_group
     FOREIGN KEY (provider_group_id)
     REFERENCES provider_group (id);
+
+ALTER TABLE patient
+    ADD CONSTRAINT fk_patient_ethnicity
+    FOREIGN KEY (ethnicity_id)
+    REFERENCES ethnicity (id);
 
 ALTER TABLE model
     ADD CONSTRAINT fk_model_publication_group
@@ -37,6 +47,11 @@ ALTER TABLE model
     ADD CONSTRAINT fk_model_source_database
     FOREIGN KEY (source_database_id)
     REFERENCES source_database (id);
+
+ALTER TABLE cell_model
+    ADD CONSTRAINT fk_cell_model_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);
 
 ALTER TABLE quality_assurance
     ADD CONSTRAINT fk_quality_assurance_model
@@ -67,6 +82,21 @@ ALTER TABLE patient_sample
     ADD CONSTRAINT fk_patient_sample_model
     FOREIGN KEY (model_id)
     REFERENCES model (id);
+
+ALTER TABLE xenograft_sample
+    ADD CONSTRAINT fk_xenograft_sample_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);
+
+ALTER TABLE xenograft_sample
+    ADD CONSTRAINT fk_xenograft_sample_host_strain
+    FOREIGN KEY (host_strain_id)
+    REFERENCES host_strain (id);
+
+ALTER TABLE xenograft_sample
+    ADD CONSTRAINT fk_xenograft_sample_platform
+    FOREIGN KEY (platform_id)
+    REFERENCES platform (id);
 
 ALTER TABLE patient_snapshot
     ADD CONSTRAINT fk_patient_snapshot_patient
@@ -159,6 +189,36 @@ ALTER TABLE specimen
     REFERENCES engraftment_type (id);
 
 ALTER TABLE specimen
-    ADD CONSTRAINT fk_specimen_engraftment_material
-    FOREIGN KEY (engraftment_material_id)
-    REFERENCES engraftment_material (id);
+    ADD CONSTRAINT fk_specimen_engraftment_sample_type
+    FOREIGN KEY (engraftment_sample_type_id)
+    REFERENCES engraftment_sample_type (id);
+
+ALTER TABLE specimen
+    ADD CONSTRAINT fk_specimen_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);
+
+ALTER TABLE specimen
+    ADD CONSTRAINT fk_engraftment_sample_state
+    FOREIGN KEY (engraftment_sample_state_id)
+    REFERENCES engraftment_sample_state (id);
+
+ALTER TABLE specimen
+    ADD CONSTRAINT fk_engraftment_sample_type
+    FOREIGN KEY (engraftment_sample_type_id)
+    REFERENCES engraftment_sample_type (id);
+
+ALTER TABLE specimen
+    ADD CONSTRAINT fk_specimen_host_strain
+    FOREIGN KEY (host_strain_id)
+    REFERENCES host_strain (id);
+
+ALTER TABLE sample_to_ontology
+    ADD CONSTRAINT fk_sample_to_ontology_patient_sample
+    FOREIGN KEY (sample_id)
+    REFERENCES patient_sample (id);
+
+ALTER TABLE sample_to_ontology
+    ADD CONSTRAINT fk_sample_to_ontology_ontology_term_diagnosis
+    FOREIGN KEY (ontology_term_id)
+    REFERENCES ontology_term_diagnosis (id);

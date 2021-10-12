@@ -6,7 +6,8 @@ from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
-    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology
+    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
+    ExtractCellModel
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -67,10 +68,18 @@ class TransformProviderType(TransformEntity):
     entity_name = Constants.PROVIDER_TYPE_ENTITY
 
 
+class TransformProjectGroup(TransformEntity):
+    requiredTasks = [
+        ExtractSource()
+    ]
+    entity_name = Constants.PROJECT_GROUP_ENTITY
+
+
 class TransformProviderGroup(TransformEntity):
     requiredTasks = [
         ExtractSource(),
-        TransformProviderType()
+        TransformProviderType(),
+        TransformProjectGroup()
     ]
     entity_name = Constants.PROVIDER_GROUP_ENTITY
 
@@ -124,6 +133,7 @@ class TransformAccessibilityGroup(TransformEntity):
 class TransformModel(TransformEntity):
     requiredTasks = [
         ExtractModel(),
+        ExtractCellModel(),
         ExtractSharing(),
         TransformPublicationGroup(),
         TransformAccessibilityGroup(),
@@ -132,6 +142,14 @@ class TransformModel(TransformEntity):
         TransformSourceDatabase()
     ]
     entity_name = Constants.MODEL_ENTITY
+
+
+class TransformCellModel(TransformEntity):
+    requiredTasks = [
+        ExtractCellModel(),
+        TransformModel()
+    ]
+    entity_name = Constants.CELL_MODEL_ENTITY
 
 
 class TransformQualityAssurance(TransformEntity):
@@ -191,13 +209,6 @@ class TransformEngraftmentType(TransformEntity):
     entity_name = Constants.ENGRAFTMENT_TYPE_ENTITY
 
 
-class TransformEngraftmentMaterial(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
-    entity_name = Constants.ENGRAFTMENT_MATERIAL_ENTITY
-
-
 class TransformEngraftmentSampleState(TransformEntity):
     requiredTasks = [
         ExtractModel()
@@ -217,13 +228,6 @@ class TransformHostStrain(TransformEntity):
         ExtractModel()
     ]
     entity_name = Constants.HOST_STRAIN_ENTITY
-
-
-class TransformProjectGroup(TransformEntity):
-    requiredTasks = [
-        ExtractSource()
-    ]
-    entity_name = Constants.PROJECT_GROUP_ENTITY
 
 
 class TransformTreatment(TransformEntity):
@@ -269,7 +273,8 @@ class TransformSpecimen(TransformEntity):
         ExtractModel(),
         TransformEngraftmentSite(),
         TransformEngraftmentType(),
-        TransformEngraftmentMaterial(),
+        TransformEngraftmentSampleType(),
+        TransformEngraftmentSampleState(),
         TransformHostStrain(),
         TransformModel()
     ]
@@ -385,6 +390,19 @@ class TransformSearchIndex(TransformEntity):
 class TransformSearchFacet(TransformEntity):
     requiredTasks = [TransformSearchIndex()]
     entity_name = Constants.SEARCH_FACET_ENTITY
+
+
+class TransformSampleToOntology(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformPatientSample(),
+        TransformDiagnosis(),
+        TransformTumourType(),
+        TransformTissue(),
+        TransformOntologyTermDiagnosis(),
+        ExtractMappingDiagnosis()
+    ]
+    entity_name = Constants.SAMPLE_TO_ONTOLOGY_ENTITY
 
 
 if __name__ == "__main__":

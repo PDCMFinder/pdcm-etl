@@ -2,6 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
+from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.id_assigner import add_id
 
@@ -26,12 +27,14 @@ def transform_project_group(raw_source_df: DataFrame) -> DataFrame:
     project_group = get_project_group_from_source(raw_source_df)
     project_group = project_group.drop_duplicates()
     project_group = add_id(project_group, "id")
-    project_group = project_group.select("id", "name")
     return project_group
 
 
 def get_project_group_from_source(raw_sharing_df: DataFrame) -> DataFrame:
-    return raw_sharing_df.select(init_cap_and_trim_all("project").alias("name")).where("project is not null")
+    return raw_sharing_df.select(
+        init_cap_and_trim_all("project").alias("name"),
+        Constants.DATA_SOURCE_COLUMN
+    ).where("project is not null")
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
+import etl.jobs.transformation.cell_model_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
 import etl.jobs.transformation.contact_people_transformer_job
 import etl.jobs.transformation.contact_form_transformer_job
@@ -17,7 +18,6 @@ import etl.jobs.transformation.xenograft_sample_transformer_job
 import etl.jobs.transformation.patient_snapshot_transformer_job
 import etl.jobs.transformation.engraftment_site_transformer_job
 import etl.jobs.transformation.engraftment_type_transformer_job
-import etl.jobs.transformation.engraftment_material_transformer_job
 import etl.jobs.transformation.engraftment_sample_state_transformer_job
 import etl.jobs.transformation.engraftment_sample_type_transformer_job
 import etl.jobs.transformation.accessibility_group_transformer_job
@@ -38,6 +38,7 @@ import etl.jobs.transformation.specimen_transformer_job
 import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
+import etl.jobs.transformation.sample_to_ontology_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 
@@ -101,7 +102,8 @@ entities = {
     Constants.PROVIDER_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.provider_group_transformer_job.main,
         "transformation_class": TransformProviderGroup(),
-        "expected_database_columns": ["id", "name", "abbreviation", "description", "provider_type_id"]
+        "expected_database_columns": [
+            "id", "name", "abbreviation", "description", "provider_type_id", "project_group_id"]
     },
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
@@ -120,6 +122,24 @@ entities = {
             "contact_people_id",
             "contact_form_id",
             "source_database_id"
+        ]
+    },
+    Constants.CELL_MODEL_ENTITY: {
+        "spark_job": etl.jobs.transformation.cell_model_transformer_job.main,
+        "transformation_class": TransformCellModel(),
+        "expected_database_columns": [
+            "id",
+            "external_model_id",
+            "name",
+            "type",
+            "growth_properties",
+            "parent_id",
+            "origin_patient_sample_id",
+            "comments",
+            "model_id",
+            "supplier",
+            "external_ids",
+            "provider_abb"
         ]
     },
     Constants.CONTACT_PEOPLE_ENTITY: {
@@ -216,11 +236,6 @@ entities = {
         "transformation_class": TransformEngraftmentType(),
         "expected_database_columns": ["id", "name"]
     },
-    Constants.ENGRAFTMENT_MATERIAL_ENTITY: {
-        "spark_job": etl.jobs.transformation.engraftment_material_transformer_job.main,
-        "transformation_class": TransformEngraftmentMaterial(),
-        "expected_database_columns": ["id", "name"]
-    },
     Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY: {
         "spark_job": etl.jobs.transformation.engraftment_sample_state_transformer_job.main,
         "transformation_class": TransformEngraftmentSampleState(),
@@ -284,6 +299,8 @@ entities = {
             "gistic_value",
             "picnic_value",
             "gene_marker_id",
+            "non_harmonised_symbol",
+            "harmonisation_result",
             "molecular_characterization_id"
         ]
     },
@@ -291,7 +308,13 @@ entities = {
         "spark_job": etl.jobs.transformation.cytogenetics_molecular_data_transformer_job.main,
         "transformation_class": TransformCytogeneticsMolecularData(),
         "expected_database_columns": [
-            "id", "marker_status", "essential_or_additional_marker", "gene_marker_id", "molecular_characterization_id"]
+            "id",
+            "marker_status",
+            "essential_or_additional_marker",
+            "gene_marker_id",
+            "non_harmonised_symbol",
+            "harmonisation_result",
+            "molecular_characterization_id"]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.expression_molecular_data_transformer_job.main,
@@ -308,6 +331,8 @@ entities = {
             "illumina_hgea_probe_id",
             "illumina_hgea_expression_value",
             "gene_marker_id",
+            "non_harmonised_symbol",
+            "harmonisation_result",
             "molecular_characterization_id"]
     },
     Constants.MUTATION_MARKER_ENTITY: {
@@ -328,7 +353,10 @@ entities = {
             "ncbi_transcript_id",
             "ensembl_transcript_id",
             "variation_id",
-            "gene_marker_id"]
+            "gene_marker_id",
+            "non_harmonised_symbol",
+            "harmonisation_result",
+        ]
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.mutation_measurement_data_transformer_job.main,
@@ -355,7 +383,7 @@ entities = {
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_diagnosis_transformer_job.main,
         "transformation_class": TransformOntologyTermDiagnosis(),
-        "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
+        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a"]
     },
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_treatment_transformer_job.main,
@@ -375,9 +403,19 @@ entities = {
             "passage_number",
             "engraftment_site_id",
             "engraftment_type_id",
-            "engraftment_material_id",
+            "engraftment_sample_type_id",
+            "engraftment_sample_state_id",
             "host_strain_id",
             "model_id"
+        ]
+    },
+    Constants.SAMPLE_TO_ONTOLOGY_ENTITY: {
+        "spark_job": etl.jobs.transformation.sample_to_ontology_transformer_job.main,
+        "transformation_class": TransformSampleToOntology(),
+        "expected_database_columns": [
+            "id",
+            "sample_id",
+            "ontology_term_id"
         ]
     },
     Constants.SEARCH_INDEX_ENTITY: {

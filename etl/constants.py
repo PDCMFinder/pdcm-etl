@@ -10,6 +10,7 @@ class Constants:
     SAMPLE_MODULE = "sample"
     SHARING_MODULE = "sharing"
     MODEL_MODULE = "model"
+    CELL_MODEL_MODULE = "cell-model"
     MODEL_VALIDATION_MODULE = "model_validation"
     DRUG_DOSING_MODULE = "drug-dosing"
     PATIENT_TREATMENT_MODULE = "patient-treatment"
@@ -22,6 +23,7 @@ class Constants:
     MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
     GENE_MARKER_MODULE = "markers"
     ONTOLOGY_MODULE = "ontology"
+    MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -29,6 +31,7 @@ class Constants:
     DIAGNOSIS_ENTITY = "diagnosis"
     ETHNICITY_ENTITY = "ethnicity"
     MODEL_ENTITY = "model"
+    CELL_MODEL_ENTITY = "cell_model"
     CONTACT_PEOPLE_ENTITY = "contact_people"
     CONTACT_FORM_ENTITY = "contact_form"
     SOURCE_DATABASE_ENTITY = "source_database"
@@ -45,7 +48,6 @@ class Constants:
     SPECIMEN_ENTITY = "specimen"
     ENGRAFTMENT_SITE_ENTITY = "engraftment_site"
     ENGRAFTMENT_TYPE_ENTITY = "engraftment_type"
-    ENGRAFTMENT_MATERIAL_ENTITY = "engraftment_material"
     ENGRAFTMENT_SAMPLE_STATE_ENTITY = "engraftment_sample_state"
     ENGRAFTMENT_SAMPLE_TYPE_ENTITY = "engraftment_sample_type"
     ACCESSIBILITY_GROUP_ENTITY = "accessibility_group"
@@ -65,5 +67,6 @@ class Constants:
     ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
     ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
     ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"
+    SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
