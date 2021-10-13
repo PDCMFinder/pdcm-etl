@@ -51,13 +51,13 @@ def transform_patient_sample(
         raw_sample_platform_df: DataFrame) -> DataFrame:
     patient_sample_df = extract_patient_sample(raw_sample_df)
     patient_sample_df = clean_data_before_join(patient_sample_df)
-    patient_sample_df = add_id(patient_sample_df, "id")
     patient_sample_df = set_fk_diagnosis(patient_sample_df, diagnosis_df)
     patient_sample_df = set_fk_origin_tissue(patient_sample_df, tissue_df)
     patient_sample_df = set_fk_sample_site(patient_sample_df, tissue_df)
     patient_sample_df = set_fk_tumour_type(patient_sample_df, tumour_type_df)
     patient_sample_df = set_fk_model(patient_sample_df, model_df)
     patient_sample_df = set_raw_data_url(patient_sample_df, raw_sample_platform_df)
+    patient_sample_df = add_id(patient_sample_df, "id")
     patient_sample_df = get_columns_expected_order(patient_sample_df)
     return patient_sample_df
 
@@ -76,7 +76,7 @@ def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
         "tumour_type",
         col("model_id").alias("model_name"),
         Constants.DATA_SOURCE_COLUMN
-    ).where("sample_id is not null")
+    ).where("sample_id is not null").drop_duplicates()
     return patient_sample_df
 
 
