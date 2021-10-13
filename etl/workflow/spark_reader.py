@@ -82,7 +82,6 @@ def read_obo_file(session, file_path, columns):
         with open(file_path) as fp:
             lines = fp.readlines()
     else:
-        session.conf.set("spark.kryoserializer.buffer.max", "128m")
         rdd = session.sparkContext.textFile(file_path)
         lines = rdd.collect()
     for line in lines:
