@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
