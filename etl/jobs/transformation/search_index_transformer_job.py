@@ -370,7 +370,7 @@ def _bin_age(age_str: str):
         return "0 - 23 months"
     try:
         age = float(age_str)
-        if "months" in age < 2:
+        if age < 2:
             return "0 - 23 months"
 
         bin_ranges = [(2, 10)] + [(10 * i, 10 * (i + 1)) for i in range(1, 10)]
