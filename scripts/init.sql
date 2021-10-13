@@ -311,7 +311,8 @@ CREATE TABLE ontology_term_diagnosis(
     term_id TEXT NOT NULL,
     term_name TEXT,
     term_url TEXT,
-    is_a TEXT
+    is_a TEXT,
+    ancestors TEXT
 );
 
 CREATE TABLE ontology_term_treatment(
