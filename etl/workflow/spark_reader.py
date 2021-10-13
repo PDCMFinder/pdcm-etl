@@ -305,6 +305,7 @@ class ReadOntologyFromObo(PySparkTask):
 
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
+    conf = "spark.kryoserializer.buffer.max=128m"
 
     def main(self, sc, *args):
         spark = SparkSession(sc)
