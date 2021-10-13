@@ -366,13 +366,19 @@ def _bin_age(age_str: str):
     if age_str is None or "not" in age_str.lower():
         return "Not specified"
 
-    if "months" in age_str or float(age_str) < 2:
+    if "months" in age_str:
         return "0 - 23 months"
+    try:
+        age = float(age_str)
+        if "months" in age < 2:
+            return "0 - 23 months"
 
-    bin_ranges = [(2, 10)] + [(10 * i, 10 * (i + 1)) for i in range(1, 10)]
-    for bin_range in bin_ranges:
-        if bin_range[0] <= float(age_str) <= bin_range[1]:
-            return f"{bin_range[0]} - {bin_range[1] - 1}"
+        bin_ranges = [(2, 10)] + [(10 * i, 10 * (i + 1)) for i in range(1, 10)]
+        for bin_range in bin_ranges:
+            if bin_range[0] <= age <= bin_range[1]:
+                return f"{bin_range[0]} - {bin_range[1] - 1}"
+    except ValueError:
+        return "Not specified"
 
     return age_str
 
