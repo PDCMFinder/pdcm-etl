@@ -73,7 +73,7 @@ entities = {
             "ethnicity_assessment_method",
             "initial_diagnosis_id",
             "age_at_initial_diagnosis",
-            "provider_group_id",
+            "provider_group_id"
         ]
     },
     Constants.PROVIDER_TYPE_ENTITY: {
@@ -88,7 +88,7 @@ entities = {
             "abbreviation",
             "description",
             "provider_type_id",
-            "project_group_id",
+            "project_group_id"
         ]
     },
     Constants.PUBLICATION_GROUP_ENTITY: {
@@ -105,7 +105,7 @@ entities = {
             "accessibility_group_id",
             "contact_people_id",
             "contact_form_id",
-            "source_database_id",
+            "source_database_id"
         ]
     },
     Constants.CELL_MODEL_ENTITY: {
@@ -122,7 +122,7 @@ entities = {
             "model_id",
             "supplier",
             "external_ids",
-            "provider_abb",
+            "provider_abb"
         ]
     },
     Constants.CONTACT_PEOPLE_ENTITY: {
@@ -145,7 +145,7 @@ entities = {
             "passages_tested",
             "validation_technique",
             "validation_host_strain_nomenclature",
-            "model_id",
+            "model_id"
         ]
     },
     Constants.TISSUE_ENTITY: {
@@ -171,7 +171,7 @@ entities = {
             "raw_data_url",
             "prior_treatment",
             "tumour_type_id",
-            "model_id",
+            "model_id"
         ]
     },
     Constants.XENOGRAFT_SAMPLE_ENTITY: {
@@ -197,7 +197,7 @@ entities = {
             "months_since_collection_1",
             "treatment_naive_at_collection",
             "virology_status",
-            "sample_id",
+            "sample_id"
         ]
     },
     Constants.ENGRAFTMENT_SITE_ENTITY: {
@@ -221,7 +221,7 @@ entities = {
         "expected_database_columns": [
             "id",
             "europdx_access_modalities",
-            "accessibility",
+            "accessibility"
         ]
     },
     Constants.HOST_STRAIN_ENTITY: {
@@ -251,7 +251,7 @@ entities = {
             "molecular_characterization_type_id",
             "platform_id",
             "patient_sample_id",
-            "xenograft_sample_id",
+            "xenograft_sample_id"
         ]
     },
     Constants.PLATFORM_ENTITY: {
@@ -261,7 +261,7 @@ entities = {
             "library_strategy",
             "provider_group_id",
             "instrument_model",
-            "library_selection",
+            "library_selection"
         ]
     },
     Constants.CNA_MOLECULAR_DATA_ENTITY: {
@@ -276,7 +276,7 @@ entities = {
             "gene_marker_id",
             "non_harmonised_symbol",
             "harmonisation_result",
-            "molecular_characterization_id",
+            "molecular_characterization_id"
         ]
     },
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
@@ -288,7 +288,7 @@ entities = {
             "gene_marker_id",
             "non_harmonised_symbol",
             "harmonisation_result",
-            "molecular_characterization_id",
+            "molecular_characterization_id"
         ]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
@@ -329,7 +329,7 @@ entities = {
             "variation_id",
             "gene_marker_id",
             "non_harmonised_symbol",
-            "harmonisation_result",
+            "harmonisation_result"
         ]
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
@@ -339,7 +339,7 @@ entities = {
             "read_depth",
             "allele_frequency",
             "mutation_marker_id",
-            "molecular_characterization_id",
+            "molecular_characterization_id"
         ]
     },
     Constants.GENE_MARKER_ENTITY: {
@@ -355,7 +355,7 @@ entities = {
             "refseq_ids",
             "alias_names",
             "ensembl_gene_id",
-            "ncbi_gene_id",
+            "ncbi_gene_id"
         ]
     },
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
@@ -380,7 +380,7 @@ entities = {
             "engraftment_sample_type_id",
             "engraftment_sample_state_id",
             "host_strain_id",
-            "model_id",
+            "model_id"
         ]
     },
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: {
