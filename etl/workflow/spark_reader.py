@@ -78,33 +78,37 @@ def read_obo_file(session, file_path, columns):
     term_list = []
     # graph = nx.DiGraph()
 
-    with open(file_path) as fp:
-        lines = fp.readlines()
-        for line in lines:
-            if line.strip() == "[Term]":
-                # check if the term is initialised and if so, add it to ontology_terms
-                if term_id != "":
-                    # graph.add_node(term_id, name=term_name, term_id=term_id)
-                    term_list.append((term_id, term_name, term_url, ','.join(term_is_a)))
-                    # reset term attributes
-                    term_id = ""
-                    term_name = ""
-                    term_url = ""
-                    term_is_a = []
+    if session.sparkContext.master != "yarn":
+        with open(file_path) as fp:
+            lines = fp.readlines()
+    else:
+        rdd = session.sparkContext.textFile(file_path)
+        lines = rdd.collect()
+    for line in lines:
+        if line.strip() == "[Term]":
+            # check if the term is initialised and if so, add it to ontology_terms
+            if term_id != "":
+                # graph.add_node(term_id, name=term_name, term_id=term_id)
+                term_list.append((term_id, term_name, term_url, ','.join(term_is_a)))
+                # reset term attributes
+                term_id = ""
+                term_name = ""
+                term_url = ""
+                term_is_a = []
 
-            elif line.startswith("id:"):
-                term_id = line[4:].strip()
-                term_url = "http://purl.obolibrary.org/obo/"+term_id.replace(":", "_")
+        elif line.startswith("id:"):
+            term_id = line[4:].strip()
+            term_url = "http://purl.obolibrary.org/obo/"+term_id.replace(":", "_")
 
-            elif line.startswith("name:"):
-                term_name = line[5:].strip()
+        elif line.startswith("name:"):
+            term_name = line[5:].strip()
 
-            elif line.startswith("is_a:"):
-                start = "is_a:"
-                end = "!"
-                is_a_id = line[line.find(start) + len(start):line.rfind(end)].strip()
-                # graph.add_edge(is_a_id, term_id)
-                term_is_a.append(is_a_id)
+        elif line.startswith("is_a:"):
+            start = "is_a:"
+            end = "!"
+            is_a_id = line[line.find(start) + len(start):line.rfind(end)].strip()
+            # graph.add_edge(is_a_id, term_id)
+            term_is_a.append(is_a_id)
 
     # return graph
 
@@ -146,7 +150,6 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             current_fs = fs.get(sc._jsc.hadoopConfiguration())
             path_patterns = [path for path in path_patterns if
                              path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
-
         try:
             df = read_files(spark, path_patterns, schema)
         except BaseException as error:
@@ -301,6 +304,7 @@ class ReadOntologyFromObo(PySparkTask):
 
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
+    conf = "spark.kryoserializer.buffer.max=128m"
 
     def main(self, sc, *args):
         spark = SparkSession(sc)
@@ -350,8 +354,12 @@ class ReadDiagnosisMappingsFromJson(PySparkTask):
 
 
 def read_diagnosis_mapping_file(session, input_path, columns):
-    with open(input_path + "/mapping/diagnosis_mappings.json", 'r') as jsonfile:
-        data = jsonfile.read()
+    if session.sparkContext.master != "yarn":
+        with open(input_path + "/mapping/diagnosis_mappings.json", 'r') as jsonfile:
+            data = jsonfile.read()
+    else:
+        rdd = session.sparkContext.textFile(input_path + "/mapping/diagnosis_mappings.json")
+        data = rdd.collect()[0]
     obj = json.loads(data)
     data_rows = []
     for entity in obj['mappings']:
