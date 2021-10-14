@@ -24,6 +24,7 @@ import etl.jobs.transformation.host_strain_transformer_job
 import etl.jobs.transformation.project_group_transformer_job
 import etl.jobs.transformation.treatment_transformer_job
 import etl.jobs.transformation.response_transformer_job
+import etl.jobs.transformation.response_classification_transformer_job
 import etl.jobs.transformation.molecular_characterization_type_transformer_job
 import etl.jobs.transformation.platform_transformer_job
 import etl.jobs.transformation.molecular_characterization_transformer_job
@@ -238,7 +239,11 @@ entities = {
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
-        "expected_database_columns": ["id", "description", "classification"]
+        "expected_database_columns": ["id", "name"]
+    },
+    Constants.RESPONSE_CLASSIFICATION_ENTITY: {
+        "spark_job": etl.jobs.transformation.response_classification_transformer_job.main,
+        "expected_database_columns": ["id", "name"]
     },
     Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.molecular_characterization_type_transformer_job.main,
