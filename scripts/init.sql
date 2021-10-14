@@ -347,6 +347,7 @@ CREATE TABLE search_index (
     patient_age TEXT,
     patient_sex TEXT,
     patient_ethnicity TEXT,
+    patient_treatment_status TEXT,
     makers_with_cna_data TEXT[],
     makers_with_mutation_data TEXT[],
     makers_with_expression_data TEXT[],

@@ -32,6 +32,7 @@ column_names = [
     "patient_age",
     "patient_sex",
     "patient_ethnicity",
+    "patient_treatment_status"
 ]
 
 
@@ -168,6 +169,18 @@ def transform_search_index(
     bin_age_udf = udf(_bin_age, StringType())
     patient_snapshot_df = patient_snapshot_df.withColumn(
         "patient_age", bin_age_udf("patient_age")
+    )
+    patient_snapshot_df = patient_snapshot_df.withColumn(
+        "patient_treatment_status",
+        when(
+            lower(col("treatment_naive_at_collection")) == "yes",
+            lit("Treatment naive"),
+        )
+        .when(
+            lower(col("treatment_naive_at_collection")) == "no",
+            lit("Not treatment naive"),
+        )
+        .otherwise(lit("Not specified")),
     )
     patient_sample_ext_df = join_left_dfs(
         patient_sample_ext_df, patient_snapshot_df, "id", "sample_id"
@@ -344,6 +357,7 @@ def transform_search_index(
         "patient_age",
         "patient_sex",
         "patient_ethnicity",
+        "patient_treatment_status",
         "makers_with_cna_data",
         "makers_with_mutation_data",
         "makers_with_expression_data",

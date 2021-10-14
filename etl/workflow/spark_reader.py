@@ -6,7 +6,7 @@ import yaml
 
 import luigi
 from luigi.contrib.spark import PySparkTask
-from pyspark import SparkContext
+from pyspark import SparkContext, SparkConf
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
 from pyspark.sql.types import StructType, StructField, StringType
@@ -304,7 +304,9 @@ class ReadOntologyFromObo(PySparkTask):
 
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
-    conf = "spark.kryoserializer.buffer.max=128m"
+
+    def setup(self, conf: SparkConf):
+        conf.set("spark.kryoserializer.buffer.max", "128m")
 
     def main(self, sc, *args):
         spark = SparkSession(sc)

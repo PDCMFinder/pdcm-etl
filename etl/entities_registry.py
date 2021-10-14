@@ -403,6 +403,7 @@ entities = {
             "patient_age",
             "patient_sex",
             "patient_ethnicity",
+            "patient_treatment_status",
             "makers_with_cna_data",
             "makers_with_mutation_data",
             "makers_with_expression_data",
