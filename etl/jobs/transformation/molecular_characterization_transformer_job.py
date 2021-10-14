@@ -43,13 +43,12 @@ def transform_molecular_characterization(
         patient_sample_df: DataFrame,
         xenograft_sample_df: DataFrame,
         mol_char_type_df: DataFrame) -> DataFrame:
-
     molchar_sample_df = get_molchar_sample(molchar_metadata_sample_df)
+
     molchar_sample_df = molchar_sample_df.withColumn(
         "sample_origin", lower_and_trim_all("sample_origin"))
 
     molchar_sample_df = join_with_platform(molchar_sample_df, platform_df)
-
     molchar_sample_df = set_fk_platform(molchar_sample_df, platform_df)
 
     columns = [
@@ -63,7 +62,6 @@ def transform_molecular_characterization(
     molchar_xenograft = molchar_xenograft.select(columns)
 
     molecular_characterization_df = molchar_patient.union(molchar_xenograft)
-
     molecular_characterization_df = set_fk_mol_char_type(molecular_characterization_df, mol_char_type_df)
     molecular_characterization_df = add_id(molecular_characterization_df, "id")
     molecular_characterization_df = get_columns_expected_order(molecular_characterization_df)
@@ -129,37 +127,33 @@ def set_fk_platform(molecular_characterization_df: DataFrame, platform_df: DataF
 
 
 def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_sample_df: DataFrame) -> DataFrame:
+    patient_sample_df = patient_sample_df.select("id", "external_patient_sample_id")
+    patient_sample_df = patient_sample_df.withColumnRenamed("id", "patient_sample_id")
     molchar_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     molchar_patient_df = molchar_patient_df.withColumn("xenograft_sample_id", lit(None))
     molchar_patient_df = molchar_patient_df.withColumn("external_xenograft_sample_id", lit(None))
     molchar_patient_df = molchar_patient_df.withColumn("external_patient_sample_id_bk", col("sample_id"))
-    molchar_patient_df = transform_to_fk(
-        molchar_patient_df,
-        patient_sample_df,
-        "sample_id",
-        "external_patient_sample_id",
-        "id",
-        "patient_sample_id")
-    molchar_patient_df = molchar_patient_df.withColumnRenamed(
-        "external_patient_sample_id_bk", "external_patient_sample_id")
+
+    cond = [(molchar_patient_df.sample_id == patient_sample_df.external_patient_sample_id)]
+
+    molchar_patient_df = molchar_patient_df.join(patient_sample_df, cond, how='left')
+
     return molchar_patient_df
 
 
 def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_sample_df: DataFrame) -> DataFrame:
-    xenograft_sample_df = xenograft_sample_df.select("id", "external_xenograft_sample_id")
+    xenograft_sample_df = xenograft_sample_df.select("id", "external_xenograft_sample_id", "platform_id")
+    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("id", "xenograft_sample_id")
     molchar_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     molchar_xenograft_df = molchar_xenograft_df.withColumn("patient_sample_id", lit(None))
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_patient_sample_id", lit(None))
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_xenograft_sample_id_bk", col("sample_id"))
-    molchar_xenograft_df = transform_to_fk(
-        molchar_xenograft_df,
-        xenograft_sample_df,
-        "sample_id",
-        "external_xenograft_sample_id",
-        "id",
-        "xenograft_sample_id")
-    molchar_xenograft_df = molchar_xenograft_df.withColumnRenamed(
-        "external_xenograft_sample_id_bk", "external_xenograft_sample_id")
+
+    cond = [(molchar_xenograft_df.sample_id == xenograft_sample_df.external_xenograft_sample_id),
+             (molchar_xenograft_df.platform_id == xenograft_sample_df.platform_id)]
+
+    molchar_xenograft_df = molchar_xenograft_df.join(xenograft_sample_df, cond, how='left')
+    molchar_xenograft_df = molchar_xenograft_df.drop(xenograft_sample_df.platform_id)
     return molchar_xenograft_df
 
 
@@ -180,7 +174,7 @@ def get_columns_expected_order(molecular_characterization_df: DataFrame) -> Data
     return molecular_characterization_df.select(
         "id", "molecular_characterization_type_id", "platform_id", "patient_sample_id", "xenograft_sample_id",
         "sample_origin", "molecular_characterisation_type", "platform_external_id", "external_patient_sample_id",
-        "external_xenograft_sample_id")
+        "external_xenograft_sample_id", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":
