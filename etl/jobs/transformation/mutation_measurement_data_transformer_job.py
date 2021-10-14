@@ -2,6 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
+from etl.constants import Constants
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -59,6 +60,7 @@ def get_mutation_measurement_data_df(raw_mutation_marker_df: DataFrame) -> DataF
         "platform_id",
         "read_depth",
         "allele_frequency",
+        Constants.DATA_SOURCE_COLUMN
         ).drop_duplicates()
 
 
@@ -93,17 +95,17 @@ def set_fk_molecular_characterization(
 
     molecular_characterization_df = molecular_characterization_df.select(
         "molecular_characterization_id", "sample_origin", "external_patient_sample_id", "external_xenograft_sample_id",
-        "platform_external_id")
+        "platform_external_id", Constants.DATA_SOURCE_COLUMN)
 
     mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     mol_char_patient_df = mol_char_patient_df.withColumnRenamed("external_patient_sample_id", "sample_id")
-    mutation_measurement_patient_sample_df = mol_char_patient_df.join(mutation_measurement_data_df,
-                                                                      on=["sample_id", "platform_external_id"])
+    mutation_measurement_patient_sample_df = mutation_measurement_data_df.join(
+        mol_char_patient_df, on=["sample_id", "platform_external_id", Constants.DATA_SOURCE_COLUMN], how='left')
 
     mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
-    mutation_measurement_xenograft_sample_df = mol_char_xenograft_df.join(mutation_measurement_data_df,
-                                                                  on=["sample_id", "platform_external_id"])
+    mutation_measurement_xenograft_sample_df = mutation_measurement_data_df.join(
+        mol_char_xenograft_df, on=["sample_id", "platform_external_id", Constants.DATA_SOURCE_COLUMN], how='left')
 
     mutation_measurement_data_df = mutation_measurement_patient_sample_df.union(mutation_measurement_xenograft_sample_df)
     return mutation_measurement_data_df
