@@ -1,5 +1,5 @@
 import networkx as nx
-
+import re
 
 ONTOLOGIES = [
 
@@ -31,6 +31,10 @@ def extract_subgraph_from_graph(graph, top_term):
     return sub_graph
 
 
+def get_term_ancestors(graph, term):
+    return nx.ancestors(graph, term)
+
+
 def get_terms_from_graph(graph):
     terms = []
     for i in list(graph.nodes()):
@@ -52,6 +56,17 @@ def get_term_ids_from_term_list(term_list):
     return id_list
 
 
+def get_term_names_from_term_id_list(graph, term_list):
+    name_list = []
+    for t in term_list:
+        name_list.append(update_term_name(get_term_name_by_id(graph, t)))
+    return name_list
+
+
+def get_term_name_by_id(graph, term_id):
+    return graph.nodes[term_id]['name']
+
+
 def extract_treatment_ontology_terms(graph, ontology_id):
     terms = []
     for ont in ONTOLOGIES:
@@ -64,3 +79,6 @@ def extract_treatment_ontology_terms(graph, ontology_id):
                 terms += branch_terms
     return terms
 
+
+def update_term_name(term_name):
+    return re.sub(r"(.*)Malignant(.*)Neoplasm(.*)", r"\1\2Cancer\3", term_name).strip()
