@@ -184,8 +184,12 @@ CREATE TABLE treatment (
 
 CREATE TABLE response (
     id BIGINT NOT NULL,
-    description TEXT,
-    classification TEXT
+    name TEXT
+);
+
+CREATE TABLE response_classification (
+    id BIGINT NOT NULL,
+    name TEXT
 );
 
 CREATE TABLE molecular_characterization_type (

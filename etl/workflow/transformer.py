@@ -246,6 +246,14 @@ class TransformResponse(TransformEntity):
     entity_name = Constants.RESPONSE_ENTITY
 
 
+class TransformResponseClassification(TransformEntity):
+    requiredTasks = [
+        ExtractDrugDosing(),
+        ExtractPatientTreatment()
+    ]
+    entity_name = Constants.RESPONSE_CLASSIFICATION_ENTITY
+
+
 class TransformMolecularCharacterizationType(TransformEntity):
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY
 
@@ -375,6 +383,11 @@ class TransformSampleToOntology(TransformEntity):
         ExtractMappingDiagnosis()
     ]
     entity_name = Constants.SAMPLE_TO_ONTOLOGY_ENTITY
+
+
+class TransformPatientTreatment(TransformEntity):
+    requiredTasks = [ExtractPatientTreatment()]
+    entity_name = Constants.PATIENT_TREATMENT_ENTITY
 
 
 if __name__ == "__main__":

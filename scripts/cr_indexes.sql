@@ -24,6 +24,7 @@ ALTER TABLE host_strain ADD CONSTRAINT pk_host_strain PRIMARY KEY (id);
 ALTER TABLE project_group ADD CONSTRAINT pk_project_group PRIMARY KEY (id);
 ALTER TABLE treatment ADD CONSTRAINT pk_treatment PRIMARY KEY (id);
 ALTER TABLE response ADD CONSTRAINT pk_response PRIMARY KEY (id);
+ALTER TABLE response_classification ADD CONSTRAINT pk_response_classification PRIMARY KEY (id);
 ALTER TABLE molecular_characterization_type ADD CONSTRAINT pk_molecular_characterization_type PRIMARY KEY (id);
 ALTER TABLE platform ADD CONSTRAINT pk_platform PRIMARY KEY (id);
 ALTER TABLE molecular_characterization ADD CONSTRAINT pk_molecular_characterization PRIMARY KEY (id);

@@ -40,6 +40,7 @@ entities = {
     Constants.PROJECT_GROUP_ENTITY: TransformProjectGroup(),
     Constants.TREATMENT_ENTITY: TransformTreatment(),
     Constants.RESPONSE_ENTITY: TransformResponse(),
+    Constants.RESPONSE_CLASSIFICATION_ENTITY: TransformResponseClassification(),
     Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY: TransformMolecularCharacterizationType(),
     Constants.MOLECULAR_CHARACTERIZATION_ENTITY: TransformMolecularCharacterization(),
     Constants.PLATFORM_ENTITY: TransformPlatform(),
