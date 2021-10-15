@@ -239,10 +239,11 @@ class ReadYamlByModule(PySparkTask):
         df = read_json(spark, yaml_as_json)
         df = df.select(columns_to_read)
         df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
-        df.write.mode("overwrite").parquet(output_path)
+        df.write.mode("append").parquet(output_path)
 
 
 def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module_name):
+    tasks = []
     module = read_module(module_name)
     file_patterns = module["name_patterns"]
     columns = module["columns"]
@@ -251,7 +252,8 @@ def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module
 
     for provider in providers:
         yaml_file_path = build_path_pattern_by_provider(data_dir, provider, file_path)
-        return ReadYamlByModule(module_name, yaml_file_path, columns, provider, data_dir_out)
+        tasks.append(ReadYamlByModule(module_name, yaml_file_path, columns, provider, data_dir_out))
+    return tasks
 
 
 def extract_markers(input_path):
