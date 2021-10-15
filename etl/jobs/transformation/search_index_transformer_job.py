@@ -60,7 +60,9 @@ def main(argv):
     cna_data_parquet_path = argv[15]
     expression_data_parquet_path = argv[16]
     cytogenetics_data_parquet_path = argv[17]
-    output_path = argv[18]
+    provider_group_parquet_path = argv[18]
+    project_group_parquet_path = argv[19]
+    output_path = argv[20]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -86,8 +88,9 @@ def main(argv):
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
     cytogenetics_data_df = spark.read.parquet(cytogenetics_data_parquet_path)
+    provider_group_df = spark.read.parquet(provider_group_parquet_path)
+    project_group_df = spark.read.parquet(project_group_parquet_path)
 
-    # TODO Add project column
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
 
@@ -109,6 +112,8 @@ def main(argv):
         cna_data_df,
         expression_data_df,
         cytogenetics_data_df,
+        provider_group_df,
+        project_group_df,
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
@@ -131,6 +136,8 @@ def transform_search_index(
     cna_data_df,
     expression_data_df,
     cytogenetics_data_df,
+    provider_group_df,
+    project_group_df,
 ) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
@@ -142,6 +149,8 @@ def transform_search_index(
         ethnicity_df,
         patient_snapshot_df,
         tumour_type_df,
+        provider_group_df,
+        project_group_df,
     )
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(
@@ -336,7 +345,7 @@ def transform_search_index(
 
     model_breast_cancer_biomarkers_df = model_breast_cancer_biomarkers_df.select(
         "model_id", "breast_cancer_biomarker"
-    )
+    ).distinct()
     model_breast_cancer_biomarkers_df = model_breast_cancer_biomarkers_df.groupby(
         "model_id"
     ).agg(collect_set("breast_cancer_biomarker").alias("breast_cancer_biomarkers"))
@@ -366,6 +375,7 @@ def transform_search_index(
         "makers_with_expression_data",
         "makers_with_cytogenetics_data",
         "breast_cancer_biomarkers",
+        "project_name",
     ).distinct()
     return search_index_df
 
@@ -392,6 +402,8 @@ def extend_patient_sample(
     ethnicity_df,
     patient_snapshot_df,
     tumour_type_df,
+    provider_group_df,
+    project_group_df,
 ):
     """
     Takes in a patient sample DataFrame and extends it with
@@ -413,7 +425,12 @@ def extend_patient_sample(
         patient_sample_ext_df, collection_site_df, "collection_site_id", "id"
     )
 
-    # Adding age, sex and ethnicity to patient_sample
+    # Adding age, sex, ethnicity and project to patient_sample
+    project_group_df = project_group_df.withColumnRenamed("name", "project_name")
+    provider_group_df = join_dfs(
+        provider_group_df, project_group_df, "project_group_id", "id", "inner"
+    )
+    patient_df = join_left_dfs(patient_df, provider_group_df, "provider_group_id", "id")
     patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
     patient_df = patient_df.withColumn(
         "patient_sex",

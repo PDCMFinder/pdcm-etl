@@ -358,6 +358,7 @@ CREATE TABLE search_index (
     pdcm_model_id BIGINT NOT NULL,
     external_model_id TEXT NOT NULL,
     data_source TEXT,
+    project_name TEXT,
     histology TEXT,
     dataset_available TEXT[],
     primary_site TEXT,

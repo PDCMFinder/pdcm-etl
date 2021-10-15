@@ -418,6 +418,7 @@ entities = {
             "pdcm_model_id",
             "external_model_id",
             "data_source",
+            "project_name",
             "histology",
             "dataset_available",
             "primary_site",

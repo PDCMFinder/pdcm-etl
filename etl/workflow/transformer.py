@@ -390,7 +390,9 @@ class TransformSearchIndex(TransformEntity):
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
-        TransformCytogeneticsMolecularData()
+        TransformCytogeneticsMolecularData(),
+        TransformProviderGroup(),
+        TransformProjectGroup()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 
