@@ -386,7 +386,14 @@ class TransformSampleToOntology(TransformEntity):
 
 
 class TransformPatientTreatment(TransformEntity):
-    requiredTasks = [ExtractPatientTreatment()]
+    requiredTasks = [
+        ExtractPatientTreatment(),
+        TransformPatient(),
+        TransformTreatment(),
+        TransformResponse(),
+        TransformResponseClassification(),
+        TransformModel()
+    ]
     entity_name = Constants.PATIENT_TREATMENT_ENTITY
 
 

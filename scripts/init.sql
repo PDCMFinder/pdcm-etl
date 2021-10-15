@@ -338,3 +338,17 @@ CREATE TABLE sample_to_ontology(
     sample_id BIGINT,
     ontology_term_id BIGINT
 );
+
+CREATE TABLE patient_treatment (
+    id BIGINT NOT NULL,
+    patient_id BIGINT NOT NULL,
+    treatment_id BIGINT,
+    treatment_dose TEXT,
+    treatment_starting_date TEXT,
+    treatment_duration TEXT,
+    treatment_event TEXT,
+    elapsed_time TEXT,
+    response_id BIGINT,
+    response_classification_id BIGINT,
+    model_id BIGINT
+);

@@ -39,6 +39,7 @@ import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.sample_to_ontology_transformer_job
+import etl.jobs.transformation.patient_treatment_transformer_job
 from etl.constants import Constants
 
 
@@ -365,7 +366,7 @@ entities = {
     },
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_diagnosis_transformer_job.main,
-        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a"]
+        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a", "ancestors"]
     },
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_treatment_transformer_job.main,
@@ -392,4 +393,21 @@ entities = {
         "spark_job": etl.jobs.transformation.sample_to_ontology_transformer_job.main,
         "expected_database_columns": ["id", "sample_id", "ontology_term_id"]
     },
+    Constants.PATIENT_TREATMENT_ENTITY: {
+        "spark_job": etl.jobs.transformation.patient_treatment_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "patient_id",
+            "treatment_id",
+            "treatment_dose",
+            "treatment_starting_date",
+            "treatment_duration",
+            "treatment_event",
+            "elapsed_time",
+            "response_id",
+            "response_classification_id",
+            "model_id"
+        ]
+    }
+
 }

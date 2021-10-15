@@ -40,3 +40,4 @@ ALTER TABLE ontology_term_diagnosis DROP CONSTRAINT IF EXISTS pk_ontology_term_d
 ALTER TABLE ontology_term_treatment DROP CONSTRAINT IF EXISTS pk_ontology_term_treatment CASCADE;
 ALTER TABLE ontology_term_regimen DROP CONSTRAINT IF EXISTS pk_ontology_term_regimen CASCADE;
 ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS pk_sample_to_ontology CASCADE;
+ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS pk_patient_treatment CASCADE;

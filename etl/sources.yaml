@@ -118,7 +118,7 @@ groups:
 
       - name: "patient-treatment"
         type: "tsv"
-        name_patterns: [ "treatment/$provider_patienttreatment-Sheet1.tsv" ]
+        name_patterns: [ "treatment/$provider_patienttreatment*.tsv" ]
         columns:
           - "patient_id"
           - "treatment_name"
@@ -129,6 +129,7 @@ groups:
           - "elapsed_time"
           - "treatment_response"
           - "response_classification"
+          - "model_id"
 
   - group: "molecular-metadata"
     modules:
