@@ -63,8 +63,6 @@ def transform_patient_treatment(
     patient_treatment_df = set_fk_response_classification(patient_treatment_df, response_classification_df)
     patient_treatment_df = set_fk_model(patient_treatment_df, mode_df)
     patient_treatment_df = get_expected_columns(patient_treatment_df)
-    print("END")
-    patient_treatment_df.show()
     return patient_treatment_df
 
 
@@ -77,10 +75,6 @@ def set_fk_patient(patient_treatment_df: DataFrame, patient_df: DataFrame) -> Da
 
 
 def set_fk_treatment(patient_treatment_df: DataFrame, treatment_df: DataFrame) -> DataFrame:
-    print("patient_treatment_df")
-    patient_treatment_df.show()
-    print("treatment_df")
-    treatment_df.show()
     patient_treatment_df = patient_treatment_df.withColumn("treatment_name", lower_and_trim_all("treatment_name"))
     patient_treatment_df = transform_to_fk(
         patient_treatment_df, treatment_df, "treatment_name", "name", "id", "treatment_id")
@@ -88,8 +82,6 @@ def set_fk_treatment(patient_treatment_df: DataFrame, treatment_df: DataFrame) -
 
 
 def set_fk_response(patient_treatment_df: DataFrame, response_df: DataFrame) -> DataFrame:
-    print("response_df")
-    response_df.show()
     patient_treatment_df = patient_treatment_df.withColumn(
         "treatment_response", init_cap_and_trim_all("treatment_response"))
     patient_treatment_df = transform_to_fk(
@@ -112,8 +104,6 @@ def set_fk_response_classification(patient_treatment_df: DataFrame, response_cla
 
 
 def set_fk_model(patient_treatment_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    print("patient_treatment_df", patient_treatment_df.columns)
-    print("model_df", model_df.columns)
     patient_treatment_df = patient_treatment_df.withColumnRenamed("model_id", "external_model_id")
     model_df = transform_to_fk(
         patient_treatment_df, model_df, "external_model_id", "external_model_id", "id", "model_id")
