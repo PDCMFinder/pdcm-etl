@@ -86,6 +86,11 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
         },
         {
             "facet_section": "molecular_data",
+            "facet_name": "Breast cancer biomarkers",
+            "facet_column": "breast_cancer_biomarkers",
+        },
+        {
+            "facet_section": "molecular_data",
             "facet_name": "Cytogenetics",
             "facet_column": "makers_with_cytogenetics_data",
         },

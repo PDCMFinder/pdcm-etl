@@ -32,7 +32,7 @@ column_names = [
     "patient_age",
     "patient_sex",
     "patient_ethnicity",
-    "patient_treatment_status"
+    "patient_treatment_status",
 ]
 
 
@@ -134,62 +134,14 @@ def transform_search_index(
 ) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
-    # Adding diagnosis, primary_site, collection_site and tumour_type data to patient_sample
-    diagnosis_df = diagnosis_df.withColumnRenamed("name", "histology")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_df, diagnosis_df, "diagnosis_id", "id"
-    )
-
-    primary_site_df = tissue_df.withColumnRenamed("name", "primary_site")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, primary_site_df, "primary_site_id", "id"
-    )
-
-    collection_site_df = tissue_df.withColumnRenamed("name", "collection_site")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, collection_site_df, "collection_site_id", "id"
-    )
-
-    # Adding age, sex and ethnicity to patient_sample
-    patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
-    patient_df = patient_df.withColumn(
-        "patient_sex",
-        when(lower(col("patient_sex")).contains("not"), "Not Specified").otherwise(
-            lower(col("patient_sex"))
-        ),
-    )
-    ethnicity_df = ethnicity_df.withColumnRenamed("name", "patient_ethnicity")
-    patient_df = join_left_dfs(patient_df, ethnicity_df, "ethnicity_id", "id")
-    patient_snapshot_df = join_left_dfs(
-        patient_snapshot_df, patient_df, "patient_id", "id"
-    )
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed(
-        "age_in_years_at_collection", "patient_age"
-    )
-    bin_age_udf = udf(_bin_age, StringType())
-    patient_snapshot_df = patient_snapshot_df.withColumn(
-        "patient_age", bin_age_udf("patient_age")
-    )
-    patient_snapshot_df = patient_snapshot_df.withColumn(
-        "patient_treatment_status",
-        when(
-            lower(col("treatment_naive_at_collection")) == "yes",
-            lit("Treatment naive"),
-        )
-        .when(
-            lower(col("treatment_naive_at_collection")) == "no",
-            lit("Not treatment naive"),
-        )
-        .otherwise(lit("Not specified")),
-    )
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, patient_snapshot_df, "id", "sample_id"
-    )
-
-    # Adding tumour_type name to patient_sample
-    tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id"
+    patient_sample_ext_df = extend_patient_sample(
+        patient_sample_df,
+        patient_df,
+        diagnosis_df,
+        tissue_df,
+        ethnicity_df,
+        patient_snapshot_df,
+        tumour_type_df,
     )
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(
@@ -272,6 +224,7 @@ def transform_search_index(
     mutation_mol_char_df = mutation_mol_char_df.select(
         "molecular_characterization_id", "gene_variant"
     )
+
     # Adding CNA data availability by gene
     cna_data_df = add_gene_symbol(cna_data_df, gene_marker_df)
     cna_data_df = cna_data_df.withColumnRenamed("gene_symbol", "gene_variant")
@@ -289,18 +242,18 @@ def transform_search_index(
     ).distinct()
 
     # Adding cytogenetics data availability by gene and result
-    cytogenetics_data_df = add_gene_symbol(cytogenetics_data_df, gene_marker_df)
-    cytogenetics_data_df = cytogenetics_data_df.withColumnRenamed(
+    cytogenetics_mol_char_df = add_gene_symbol(cytogenetics_data_df, gene_marker_df)
+    cytogenetics_mol_char_df = cytogenetics_mol_char_df.withColumnRenamed(
         "gene_symbol", "gene_variant"
     )
-    cytogenetics_data_df = cytogenetics_data_df.select(
+    cytogenetics_mol_char_df = cytogenetics_mol_char_df.select(
         "molecular_characterization_id", "gene_variant"
     ).distinct()
 
     mol_gene_df = (
         mutation_mol_char_df.union(cna_data_df)
         .union(expression_data_df)
-        .union(cytogenetics_data_df)
+        .union(cytogenetics_mol_char_df)
     )
 
     model_mol_char_type_gene_df = join_dfs(
@@ -344,6 +297,56 @@ def transform_search_index(
         "temp_model_id",
         "model_id",
     )
+    # Adding breast cancer biomarkers data
+    breast_cancer_biomarkers_df = add_gene_symbol(cytogenetics_data_df, gene_marker_df)
+    breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.withColumnRenamed(
+        "gene_symbol", "breast_cancer_biomarker"
+    )
+    breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.where(
+        col("gene_symbol").isin(["ERBB2", "ESR1", "PGR"])
+    )
+    gene_display_map = {"ERBB2": "HER2/ERBB2", "ESR1": "ER/ESR1", "PGR": "PR/PGR"}
+
+    map_display_breast_cancer_gene = (
+        lambda gene: gene_display_map[gene] if gene in gene_display_map else gene
+    )
+    map_display_breast_cancer_gene_udf = udf(
+        map_display_breast_cancer_gene, StringType()
+    )
+    breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.select(
+        "molecular_characterization_id",
+        map_display_breast_cancer_gene_udf("breast_cancer_biomarker").alias(
+            "breast_cancer_biomarker"
+        ),
+        "marker_status",
+    ).distinct()
+
+    breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.withColumn(
+        "breast_cancer_biomarker",
+        concat_ws(" ", "breast_cancer_biomarker", "marker_status"),
+    )
+
+    model_breast_cancer_biomarkers_df = join_dfs(
+        model_mol_char_type_df,
+        breast_cancer_biomarkers_df,
+        "mol_char_id",
+        "molecular_characterization_id",
+        "inner",
+    )
+
+    model_breast_cancer_biomarkers_df = model_breast_cancer_biomarkers_df.select(
+        "model_id", "breast_cancer_biomarker"
+    )
+    model_breast_cancer_biomarkers_df = model_breast_cancer_biomarkers_df.groupby(
+        "model_id"
+    ).agg(collect_set("breast_cancer_biomarker").alias("breast_cancer_biomarkers"))
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(
+        search_index_df,
+        model_breast_cancer_biomarkers_df,
+        "temp_model_id",
+        "model_id",
+    )
 
     search_index_df = search_index_df.select(
         "pdcm_model_id",
@@ -362,11 +365,16 @@ def transform_search_index(
         "makers_with_mutation_data",
         "makers_with_expression_data",
         "makers_with_cytogenetics_data",
-    )
+        "breast_cancer_biomarkers",
+    ).distinct()
     return search_index_df
 
 
 def add_gene_symbol(mol_char_data_df: DataFrame, gene_marker_df: DataFrame):
+    """
+    Takes in a molecular characterization dataframe and adds
+    a gene symbol using a gene_marker dataframe.
+    """
     gene_marker_df = gene_marker_df.where(col("approved_symbol").isNotNull())
     gene_marker_df = gene_marker_df.select("id", "approved_symbol")
     gene_marker_df = gene_marker_df.withColumnRenamed("approved_symbol", "gene_symbol")
@@ -374,6 +382,80 @@ def add_gene_symbol(mol_char_data_df: DataFrame, gene_marker_df: DataFrame):
         mol_char_data_df, gene_marker_df, "gene_marker_id", "id", "inner"
     )
     return mol_char_data_df
+
+
+def extend_patient_sample(
+    patient_sample_df,
+    patient_df,
+    diagnosis_df,
+    tissue_df,
+    ethnicity_df,
+    patient_snapshot_df,
+    tumour_type_df,
+):
+    """
+    Takes in a patient sample DataFrame and extends it with
+     diagnosis, tumour, and patient information
+    """
+    # Adding diagnosis, primary_site, collection_site and tumour_type data to patient_sample
+    diagnosis_df = diagnosis_df.withColumnRenamed("name", "histology")
+    patient_sample_ext_df = join_left_dfs(
+        patient_sample_df, diagnosis_df, "diagnosis_id", "id"
+    )
+
+    primary_site_df = tissue_df.withColumnRenamed("name", "primary_site")
+    patient_sample_ext_df = join_left_dfs(
+        patient_sample_ext_df, primary_site_df, "primary_site_id", "id"
+    )
+
+    collection_site_df = tissue_df.withColumnRenamed("name", "collection_site")
+    patient_sample_ext_df = join_left_dfs(
+        patient_sample_ext_df, collection_site_df, "collection_site_id", "id"
+    )
+
+    # Adding age, sex and ethnicity to patient_sample
+    patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
+    patient_df = patient_df.withColumn(
+        "patient_sex",
+        when(lower(col("patient_sex")).contains("not"), "Not Specified").otherwise(
+            lower(col("patient_sex"))
+        ),
+    )
+    ethnicity_df = ethnicity_df.withColumnRenamed("name", "patient_ethnicity")
+    patient_df = join_left_dfs(patient_df, ethnicity_df, "ethnicity_id", "id")
+    patient_snapshot_df = join_left_dfs(
+        patient_snapshot_df, patient_df, "patient_id", "id"
+    )
+    patient_snapshot_df = patient_snapshot_df.withColumnRenamed(
+        "age_in_years_at_collection", "patient_age"
+    )
+    bin_age_udf = udf(_bin_age, StringType())
+    patient_snapshot_df = patient_snapshot_df.withColumn(
+        "patient_age", bin_age_udf("patient_age")
+    )
+    patient_snapshot_df = patient_snapshot_df.withColumn(
+        "patient_treatment_status",
+        when(
+            lower(col("treatment_naive_at_collection")) == "yes",
+            lit("Treatment naive"),
+        )
+        .when(
+            lower(col("treatment_naive_at_collection")) == "no",
+            lit("Not treatment naive"),
+        )
+        .otherwise(lit("Not specified")),
+    )
+    patient_sample_ext_df = join_left_dfs(
+        patient_sample_ext_df, patient_snapshot_df, "id", "sample_id"
+    )
+
+    # Adding tumour_type name to patient_sample
+    tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
+    patient_sample_ext_df = join_left_dfs(
+        patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id"
+    )
+
+    return patient_sample_ext_df
 
 
 def _bin_age(age_str: str):

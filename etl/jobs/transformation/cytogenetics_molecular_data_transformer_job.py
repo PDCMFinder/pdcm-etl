@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit
 
+from etl.constants import Constants
 from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
 from etl.jobs.util.id_assigner import add_id
 
@@ -26,7 +27,6 @@ def main(argv):
 
     cytogenetics_molecular_data_df = transform_cytogenetics_molecular_data(
         molecular_characterization_df, raw_cytogenetics_df, gene_markers_parquet_path)
-    cytogenetics_molecular_data_df.show(truncate=False)
 
     cytogenetics_molecular_data_df.write.mode("overwrite").parquet(output_path)
 
@@ -52,7 +52,8 @@ def get_cytogenetics_df(raw_cytogenetics_df: DataFrame) -> DataFrame:
         "marker_status",
         "symbol",
         "platform_id",
-        "essential_or_additional_marker").drop_duplicates()
+        "essential_or_additional_marker",
+        Constants.DATA_SOURCE_COLUMN,).drop_duplicates()
 
 
 def set_fk_molecular_characterization(cytogenetics_df: DataFrame, molecular_characterization_df: DataFrame) -> DataFrame:
@@ -60,15 +61,18 @@ def set_fk_molecular_characterization(cytogenetics_df: DataFrame, molecular_char
         "id", "molecular_characterization_id").where("molecular_characterisation_type = 'cytogenetics'")
 
     molecular_characterization_df = molecular_characterization_df.select(
-        "molecular_characterization_id", "sample_origin", "external_patient_sample_id", "external_xenograft_sample_id")
+        "molecular_characterization_id", "sample_origin", "external_patient_sample_id",
+        "external_xenograft_sample_id", Constants.DATA_SOURCE_COLUMN)
 
     mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     mol_char_patient_df = mol_char_patient_df.withColumnRenamed("external_patient_sample_id", "sample_id")
-    cytogenetics_patient_sample_df = mol_char_patient_df.join(cytogenetics_df, on=["sample_id"])
+    cytogenetics_patient_sample_df = cytogenetics_df.join(
+        mol_char_patient_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='left')
 
     mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
-    cytogenetics_xenograft_sample_df = mol_char_xenograft_df.join(cytogenetics_df, on=["sample_id"])
+    cytogenetics_xenograft_sample_df = cytogenetics_df.join(
+        mol_char_xenograft_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='left')
 
     cytogenetics_df = cytogenetics_patient_sample_df.union(cytogenetics_xenograft_sample_df)
     return cytogenetics_df

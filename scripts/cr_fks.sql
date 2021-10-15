@@ -222,3 +222,28 @@ ALTER TABLE sample_to_ontology
     ADD CONSTRAINT fk_sample_to_ontology_ontology_term_diagnosis
     FOREIGN KEY (ontology_term_id)
     REFERENCES ontology_term_diagnosis (id);
+
+ALTER TABLE patient_treatment
+    ADD CONSTRAINT fk_patient_treatment_patient
+    FOREIGN KEY (patient_id)
+    REFERENCES patient (id);
+
+ALTER TABLE patient_treatment
+    ADD CONSTRAINT fk_patient_treatment_treatment
+    FOREIGN KEY (treatment_id)
+    REFERENCES treatment (id);
+
+ALTER TABLE patient_treatment
+    ADD CONSTRAINT fk_patient_treatment_response
+    FOREIGN KEY (response_id)
+    REFERENCES response (id);
+
+ALTER TABLE patient_treatment
+    ADD CONSTRAINT fk_patient_treatment_response_classification
+    FOREIGN KEY (response_classification_id)
+    REFERENCES response_classification (id);
+
+ALTER TABLE patient_treatment
+    ADD CONSTRAINT fk_patient_treatment_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);

@@ -38,12 +38,12 @@ def transform_response(drug_dosing_df: DataFrame, patient_treatment_df: DataFram
 
 def get_data_from_drug_dosing(drug_dosing_df: DataFrame) -> DataFrame:
     return drug_dosing_df.select(
-        init_cap_and_trim_all("treatment_response").alias("name"))
+        init_cap_and_trim_all("response_classification").alias("name"))
 
 
 def get_data_from_patient_treatment(patient_treatment_df: DataFrame) -> DataFrame:
     return patient_treatment_df.select(
-        init_cap_and_trim_all("treatment_response").alias("name"))
+        init_cap_and_trim_all("response_classification").alias("name"))
 
 
 def get_columns_expected_order(response_df: DataFrame) -> DataFrame:

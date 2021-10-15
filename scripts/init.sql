@@ -184,8 +184,12 @@ CREATE TABLE treatment (
 
 CREATE TABLE response (
     id BIGINT NOT NULL,
-    description TEXT,
-    classification TEXT
+    name TEXT
+);
+
+CREATE TABLE response_classification (
+    id BIGINT NOT NULL,
+    name TEXT
 );
 
 CREATE TABLE molecular_characterization_type (
@@ -311,7 +315,8 @@ CREATE TABLE ontology_term_diagnosis(
     term_id TEXT NOT NULL,
     term_name TEXT,
     term_url TEXT,
-    is_a TEXT
+    is_a TEXT,
+    ancestors TEXT
 );
 
 CREATE TABLE ontology_term_treatment(
@@ -334,6 +339,20 @@ CREATE TABLE sample_to_ontology(
     ontology_term_id BIGINT
 );
 
+CREATE TABLE patient_treatment (
+    id BIGINT NOT NULL,
+    patient_id BIGINT NOT NULL,
+    treatment_id BIGINT,
+    treatment_dose TEXT,
+    treatment_starting_date TEXT,
+    treatment_duration TEXT,
+    treatment_event TEXT,
+    elapsed_time TEXT,
+    response_id BIGINT,
+    response_classification_id BIGINT,
+    model_id BIGINT
+);
+
 
 CREATE TABLE search_index (
     pdcm_model_id BIGINT NOT NULL,
@@ -351,7 +370,8 @@ CREATE TABLE search_index (
     makers_with_cna_data TEXT[],
     makers_with_mutation_data TEXT[],
     makers_with_expression_data TEXT[],
-    makers_with_cytogenetics_data TEXT[]
+    makers_with_cytogenetics_data TEXT[],
+    breast_cancer_biomarkers TEXT[]
 );
 
 

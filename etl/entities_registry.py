@@ -24,6 +24,7 @@ import etl.jobs.transformation.host_strain_transformer_job
 import etl.jobs.transformation.project_group_transformer_job
 import etl.jobs.transformation.treatment_transformer_job
 import etl.jobs.transformation.response_transformer_job
+import etl.jobs.transformation.response_classification_transformer_job
 import etl.jobs.transformation.molecular_characterization_type_transformer_job
 import etl.jobs.transformation.platform_transformer_job
 import etl.jobs.transformation.molecular_characterization_transformer_job
@@ -38,6 +39,7 @@ import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.sample_to_ontology_transformer_job
+import etl.jobs.transformation.patient_treatment_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 from etl.constants import Constants
@@ -240,7 +242,11 @@ entities = {
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
-        "expected_database_columns": ["id", "description", "classification"]
+        "expected_database_columns": ["id", "name"]
+    },
+    Constants.RESPONSE_CLASSIFICATION_ENTITY: {
+        "spark_job": etl.jobs.transformation.response_classification_transformer_job.main,
+        "expected_database_columns": ["id", "name"]
     },
     Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.molecular_characterization_type_transformer_job.main,
@@ -362,7 +368,7 @@ entities = {
     },
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_diagnosis_transformer_job.main,
-        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a"]
+        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a", "ancestors"]
     },
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_treatment_transformer_job.main,
@@ -389,6 +395,23 @@ entities = {
         "spark_job": etl.jobs.transformation.sample_to_ontology_transformer_job.main,
         "expected_database_columns": ["id", "sample_id", "ontology_term_id"]
     },
+    Constants.PATIENT_TREATMENT_ENTITY: {
+        "spark_job": etl.jobs.transformation.patient_treatment_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "patient_id",
+            "treatment_id",
+            "treatment_dose",
+            "treatment_starting_date",
+            "treatment_duration",
+            "treatment_event",
+            "elapsed_time",
+            "response_id",
+            "response_classification_id",
+            "model_id"
+        ]
+    },
+
     Constants.SEARCH_INDEX_ENTITY: {
         "spark_job": etl.jobs.transformation.search_index_transformer_job.main,
         "expected_database_columns": [
@@ -407,7 +430,8 @@ entities = {
             "makers_with_cna_data",
             "makers_with_mutation_data",
             "makers_with_expression_data",
-            "makers_with_cytogenetics_data"
+            "makers_with_cytogenetics_data",
+            "breast_cancer_biomarkers"
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {

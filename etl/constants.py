@@ -55,6 +55,7 @@ class Constants:
     PROJECT_GROUP_ENTITY = "project_group"
     TREATMENT_ENTITY = "treatment"
     RESPONSE_ENTITY = "response"
+    RESPONSE_CLASSIFICATION_ENTITY = "response_classification"
     MOLECULAR_CHARACTERIZATION_TYPE_ENTITY = "molecular_characterization_type"
     PLATFORM_ENTITY = "platform"
     MOLECULAR_CHARACTERIZATION_ENTITY = "molecular_characterization"
@@ -70,3 +71,4 @@ class Constants:
     SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
+    PATIENT_TREATMENT_ENTITY = "patient_treatment"

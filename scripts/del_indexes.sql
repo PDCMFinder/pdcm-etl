@@ -25,6 +25,7 @@ ALTER TABLE host_strain DROP CONSTRAINT IF EXISTS pk_host_strain CASCADE;
 ALTER TABLE project_group DROP CONSTRAINT IF EXISTS pk_project_group CASCADE;
 ALTER TABLE treatment DROP CONSTRAINT IF EXISTS pk_treatment CASCADE;
 ALTER TABLE response DROP CONSTRAINT IF EXISTS pk_response CASCADE;
+ALTER TABLE response_classification DROP CONSTRAINT IF EXISTS pk_response_classification CASCADE;
 ALTER TABLE molecular_characterization_type DROP CONSTRAINT IF EXISTS pk_molecular_characterization_type CASCADE;
 ALTER TABLE platform DROP CONSTRAINT IF EXISTS pk_platform CASCADE;
 ALTER TABLE molecular_characterization DROP CONSTRAINT IF EXISTS pk_molecular_characterization CASCADE;
@@ -39,3 +40,4 @@ ALTER TABLE ontology_term_diagnosis DROP CONSTRAINT IF EXISTS pk_ontology_term_d
 ALTER TABLE ontology_term_treatment DROP CONSTRAINT IF EXISTS pk_ontology_term_treatment CASCADE;
 ALTER TABLE ontology_term_regimen DROP CONSTRAINT IF EXISTS pk_ontology_term_regimen CASCADE;
 ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS pk_sample_to_ontology CASCADE;
+ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS pk_patient_treatment CASCADE;
