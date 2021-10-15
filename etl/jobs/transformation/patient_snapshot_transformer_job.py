@@ -1,7 +1,8 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from etl.jobs.util.dataframe_functions import transform_to_fk
+
+from etl.constants import Constants
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -41,20 +42,24 @@ def transform_patient_snapshot(raw_sample_df: DataFrame, patient_sample_df: Data
 
 def clean_data_before_join(raw_sample_df: DataFrame) -> DataFrame:
     # TODO: Do we need a transformation for the age?
-    return raw_sample_df
+    return raw_sample_df.drop_duplicates()
 
 
 def set_fk_patient(sample_df: DataFrame, patient_df: DataFrame) -> DataFrame:
-    patient_snapshot_df = sample_df.withColumnRenamed("patient_id", "patient_id_ref")
-    patient_snapshot_df = transform_to_fk(
-        patient_snapshot_df, patient_df, "patient_id_ref", "external_patient_id", "id", "patient_id")
+    sample_df = sample_df.drop_duplicates()
+    patient_snapshot_df = sample_df.withColumnRenamed("patient_id", "external_patient_id")
+    patient_df = patient_df.withColumnRenamed("id", "patient_id")
+    patient_snapshot_df = patient_snapshot_df.join(
+        patient_df, on=["external_patient_id", Constants.DATA_SOURCE_COLUMN], how='left')
     return patient_snapshot_df
 
 
 def set_fk_patient_sample(patient_snapshot_df: DataFrame, patient_sample_df: DataFrame) -> DataFrame:
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("sample_id", "sample_id_ref")
-    patient_snapshot_df = transform_to_fk(
-        patient_snapshot_df, patient_sample_df, "sample_id_ref", "external_patient_sample_id", "id", "sample_id")
+    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("sample_id", "external_patient_sample_id")
+    patient_snapshot_df = patient_snapshot_df.withColumnRenamed("model_id", "model_name")
+    patient_sample_df = patient_sample_df.withColumnRenamed("id", "sample_id")
+    patient_snapshot_df = patient_snapshot_df.join(
+        patient_sample_df, on=["external_patient_sample_id", "model_name", Constants.DATA_SOURCE_COLUMN], how='left')
     return patient_snapshot_df
 
 
