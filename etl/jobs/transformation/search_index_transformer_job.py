@@ -12,7 +12,9 @@ from pyspark.sql.functions import (
     lit,
     array,
     lower,
-    udf, split,
+    udf,
+    split,
+    array_intersect,
 )
 from pyspark.sql.types import ArrayType, StringType, DoubleType
 
@@ -20,19 +22,23 @@ from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 from etl.jobs.util.id_assigner import add_id
 from etl.workflow.config import PdcmConfig
 
-column_names = [
-    "pdcm_model_id",
-    "external_model_id",
-    "data_source",
-    "histology",
-    "data_available",
-    "primary_site",
-    "collection_site",
-    "tumor_type",
-    "patient_age",
-    "patient_sex",
-    "patient_ethnicity",
-    "patient_treatment_status",
+cancer_systems = [
+    "Breast Cancer",
+    "Cardiovascular Cancer",
+    "Connective and Soft Tissue Cancer",
+    "Digestive System Cancer",
+    "Endocrine Cancer",
+    "Eye Cancer",
+    "Head and Neck Cancer",
+    "Hematopoietic and Lymphoid System Cancer",
+    "Nervous System Cancer",
+    "Peritoneal and Retroperitoneal Cancer",
+    "Reproductive System Cancer",
+    "Respiratory Tract Cancer",
+    "Thoracic Cancer",
+    "Skin Cancer",
+    "Urinary System Cancer",
+    "Unclassified",
 ]
 
 
@@ -375,6 +381,7 @@ def transform_search_index(
         "data_source",
         "histology",
         "search_terms",
+        "cancer_system",
         "dataset_available",
         "primary_site",
         "collection_site",
@@ -435,7 +442,16 @@ def extend_patient_sample(
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
         "search_terms", split(concat_ws(",", "term_name", "ancestors"), ",")
     )
-    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn("histology", col("term_name"))
+    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
+        "cancer_system",
+        array_intersect(array(*map(lit, cancer_systems)), col("search_terms")),
+    )
+    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
+        "cancer_system", col("cancer_system").getItem(0)
+    )
+    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
+        "histology", col("term_name")
+    )
     patient_sample_ext_df = join_left_dfs(
         patient_sample_df, sample_to_ontology_term_df, "id", "sample_id"
     )

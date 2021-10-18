@@ -119,6 +119,11 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_name": "Patient treatment status",
             "facet_column": "patient_treatment_status",
         },
+        {
+            "facet_section": "patient_tumour",
+            "facet_name": "Cancer system",
+            "facet_column": "cancer_system",
+        },
     ]
 
     for facet_definition in facet_definitions:

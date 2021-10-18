@@ -421,6 +421,7 @@ entities = {
             "project_name",
             "histology",
             "search_terms",
+            "cancer_system",
             "dataset_available",
             "primary_site",
             "collection_site",

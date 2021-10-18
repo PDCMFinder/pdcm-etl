@@ -361,6 +361,7 @@ CREATE TABLE search_index (
     project_name TEXT,
     histology TEXT,
     search_terms TEXT[],
+    cancer_system TEXT,
     dataset_available TEXT[],
     primary_site TEXT,
     collection_site TEXT,
