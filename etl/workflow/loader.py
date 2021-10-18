@@ -51,7 +51,7 @@ class ParquetToPg(SparkSubmitTask):
             "{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.entity_name))
 
     def app_options(self):
-        return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name,
+        return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name, self.input().path,
                 self.entity_name, self.output().path]
 
 
