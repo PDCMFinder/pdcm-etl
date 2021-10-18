@@ -31,7 +31,7 @@ class ExtractModuleFromYaml(luigi.Task):
 
     def requires(self):
         return get_yaml_extraction_task_by_module(
-            self.data_dir, self.providers, self.data_dir_out, self.module_name)
+            self.data_dir, list(self.providers), self.data_dir_out, self.module_name)
 
 
 class ExtractSource(ExtractModuleFromYaml):

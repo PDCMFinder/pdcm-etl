@@ -53,7 +53,7 @@ def transform_patient(
 
 def clean_data_before_join(patient_df: DataFrame) -> DataFrame:
     patient_df = patient_df.withColumn("ethnicity", init_cap_and_trim_all("ethnicity"))
-    return patient_df
+    return patient_df.drop_duplicates()
 
 
 def set_fk_diagnosis(raw_patient_df: DataFrame, diagnosis_df: DataFrame) -> DataFrame:
@@ -93,7 +93,8 @@ def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
         "ethnicity_assessment_method",
         "initial_diagnosis_id",
         "age_at_initial_diagnosis",
-        "provider_group_id")
+        "provider_group_id",
+        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

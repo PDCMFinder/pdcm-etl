@@ -427,8 +427,8 @@ def extend_patient_sample(
 
     # Adding age, sex, ethnicity and project to patient_sample
     project_group_df = project_group_df.withColumnRenamed("name", "project_name")
-    provider_group_df = join_dfs(
-        provider_group_df, project_group_df, "project_group_id", "id", "inner"
+    provider_group_df = join_left_dfs(
+        provider_group_df, project_group_df, "project_group_id", "id"
     )
     patient_df = join_left_dfs(patient_df, provider_group_df, "provider_group_id", "id")
     patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
@@ -440,9 +440,11 @@ def extend_patient_sample(
     )
     ethnicity_df = ethnicity_df.withColumnRenamed("name", "patient_ethnicity")
     patient_df = join_left_dfs(patient_df, ethnicity_df, "ethnicity_id", "id")
+
     patient_snapshot_df = join_left_dfs(
         patient_snapshot_df, patient_df, "patient_id", "id"
     )
+
     patient_snapshot_df = patient_snapshot_df.withColumnRenamed(
         "age_in_years_at_collection", "patient_age"
     )

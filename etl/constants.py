@@ -69,6 +69,6 @@ class Constants:
     ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
     ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"
     SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
+    PATIENT_TREATMENT_ENTITY = "patient_treatment"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
-    PATIENT_TREATMENT_ENTITY = "patient_treatment"
