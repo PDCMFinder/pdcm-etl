@@ -85,8 +85,8 @@ groups:
           - "virology_status"
           - "sharable"
           - "treatment_naive_at_collection"
-          - "treated"
-          - "prior_treatment"
+          - "treated_at_collection"
+          - "treated_prior_to_collection"
           - "model_id"
 
       - name: "sharing"
@@ -103,7 +103,7 @@ groups:
 
       - name: "drug-dosing"
         type: "tsv"
-        name_patterns: [ "drug/$provider_drugdosing-Sheet1.tsv" ]
+        name_patterns: [ "drug/$provider_drugdosing*.tsv" ]
         columns:
           - "model_id"
           - "passage_range"
