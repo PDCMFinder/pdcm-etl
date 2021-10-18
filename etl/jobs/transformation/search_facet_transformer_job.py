@@ -70,6 +70,11 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_column": "external_model_id",
         },
         {
+            "facet_section": "model",
+            "facet_name": "Project",
+            "facet_column": "project_name",
+        },
+        {
             "facet_section": "molecular_data",
             "facet_name": "Gene mutation",
             "facet_column": "makers_with_mutation_data",
