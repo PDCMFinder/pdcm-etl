@@ -71,6 +71,7 @@ def set_fk_patient(patient_treatment_df: DataFrame, patient_df: DataFrame) -> Da
     patient_treatment_df = patient_treatment_df.withColumnRenamed("patient_id", "external_patient_id")
     patient_treatment_df = transform_to_fk(
         patient_treatment_df, patient_df, "external_patient_id", "external_patient_id", "id", "patient_id")
+    patient_treatment_df = patient_treatment_df.where("patient_id is not null")
     return patient_treatment_df
 
 
