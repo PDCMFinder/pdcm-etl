@@ -12,7 +12,7 @@ from pyspark.sql.functions import (
     lit,
     array,
     lower,
-    udf,
+    udf, split,
 )
 from pyspark.sql.types import ArrayType, StringType, DoubleType
 
@@ -62,7 +62,9 @@ def main(argv):
     cytogenetics_data_parquet_path = argv[17]
     provider_group_parquet_path = argv[18]
     project_group_parquet_path = argv[19]
-    output_path = argv[20]
+    sample_to_ontology_parquet_path = argv[20]
+    ontology_term_diagnosis_parquet_path = argv[21]
+    output_path = argv[22]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -90,6 +92,10 @@ def main(argv):
     cytogenetics_data_df = spark.read.parquet(cytogenetics_data_parquet_path)
     provider_group_df = spark.read.parquet(provider_group_parquet_path)
     project_group_df = spark.read.parquet(project_group_parquet_path)
+    sample_to_ontology_df = spark.read.parquet(sample_to_ontology_parquet_path)
+    ontology_term_diagnosis_df = spark.read.parquet(
+        ontology_term_diagnosis_parquet_path
+    )
 
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
@@ -114,6 +120,8 @@ def main(argv):
         cytogenetics_data_df,
         provider_group_df,
         project_group_df,
+        sample_to_ontology_df,
+        ontology_term_diagnosis_df,
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
@@ -138,6 +146,8 @@ def transform_search_index(
     cytogenetics_data_df,
     provider_group_df,
     project_group_df,
+    sample_to_ontology_df,
+    ontology_term_diagnosis_df,
 ) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
@@ -151,6 +161,8 @@ def transform_search_index(
         tumour_type_df,
         provider_group_df,
         project_group_df,
+        sample_to_ontology_df,
+        ontology_term_diagnosis_df,
     )
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(
@@ -362,6 +374,7 @@ def transform_search_index(
         "external_model_id",
         "data_source",
         "histology",
+        "search_terms",
         "dataset_available",
         "primary_site",
         "collection_site",
@@ -404,15 +417,27 @@ def extend_patient_sample(
     tumour_type_df,
     provider_group_df,
     project_group_df,
+    sample_to_ontology_df,
+    ontology_term_diagnosis_df,
 ):
     """
     Takes in a patient sample DataFrame and extends it with
      diagnosis, tumour, and patient information
     """
     # Adding diagnosis, primary_site, collection_site and tumour_type data to patient_sample
-    diagnosis_df = diagnosis_df.withColumnRenamed("name", "histology")
+    sample_to_ontology_term_df = join_dfs(
+        sample_to_ontology_df,
+        ontology_term_diagnosis_df,
+        "ontology_term_id",
+        "id",
+        "inner",
+    )
+    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
+        "search_terms", split(concat_ws(",", "term_name", "ancestors"), ",")
+    )
+    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn("histology", col("term_name"))
     patient_sample_ext_df = join_left_dfs(
-        patient_sample_df, diagnosis_df, "diagnosis_id", "id"
+        patient_sample_df, sample_to_ontology_term_df, "id", "sample_id"
     )
 
     primary_site_df = tissue_df.withColumnRenamed("name", "primary_site")

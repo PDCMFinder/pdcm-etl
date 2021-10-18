@@ -360,6 +360,7 @@ CREATE TABLE search_index (
     data_source TEXT,
     project_name TEXT,
     histology TEXT,
+    search_terms TEXT[],
     dataset_available TEXT[],
     primary_site TEXT,
     collection_site TEXT,

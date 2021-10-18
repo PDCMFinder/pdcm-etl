@@ -52,7 +52,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
         {
             "facet_section": "search",
             "facet_name": "Search",
-            "facet_column": "histology",
+            "facet_column": "search_terms",
         },
         {
             "facet_section": "model",

@@ -372,36 +372,6 @@ class TransformOntologyTermRegimen(TransformEntity):
     entity_name = Constants.ONTOLOGY_TERM_REGIMEN_ENTITY
 
 
-class TransformSearchIndex(TransformEntity):
-    requiredTasks = [
-        TransformModel(),
-        TransformMolecularCharacterization(),
-        TransformMolecularCharacterizationType(),
-        TransformPatientSample(),
-        TransformPatientSnapshot(),
-        TransformPatient(),
-        TransformEthnicity(),
-        TransformXenograftSample(),
-        TransformDiagnosis(),
-        TransformTumourType(),
-        TransformTissue(),
-        TransformGeneMarker(),
-        TransformMutationMarker(),
-        TransformMutationMeasurementData(),
-        TransformCnaMolecularData(),
-        TransformExpressionMolecularData(),
-        TransformCytogeneticsMolecularData(),
-        TransformProviderGroup(),
-        TransformProjectGroup()
-    ]
-    entity_name = Constants.SEARCH_INDEX_ENTITY
-
-
-class TransformSearchFacet(TransformEntity):
-    requiredTasks = [TransformSearchIndex()]
-    entity_name = Constants.SEARCH_FACET_ENTITY
-
-
 class TransformSampleToOntology(TransformEntity):
     requiredTasks = [
         TransformModel(),
@@ -426,6 +396,37 @@ class TransformPatientTreatment(TransformEntity):
     ]
     entity_name = Constants.PATIENT_TREATMENT_ENTITY
 
+
+class TransformSearchIndex(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformMolecularCharacterization(),
+        TransformMolecularCharacterizationType(),
+        TransformPatientSample(),
+        TransformPatientSnapshot(),
+        TransformPatient(),
+        TransformEthnicity(),
+        TransformXenograftSample(),
+        TransformDiagnosis(),
+        TransformTumourType(),
+        TransformTissue(),
+        TransformGeneMarker(),
+        TransformMutationMarker(),
+        TransformMutationMeasurementData(),
+        TransformCnaMolecularData(),
+        TransformExpressionMolecularData(),
+        TransformCytogeneticsMolecularData(),
+        TransformProviderGroup(),
+        TransformProjectGroup(),
+        TransformSampleToOntology(),
+        TransformOntologyTermDiagnosis()
+    ]
+    entity_name = Constants.SEARCH_INDEX_ENTITY
+
+
+class TransformSearchFacet(TransformEntity):
+    requiredTasks = [TransformSearchIndex()]
+    entity_name = Constants.SEARCH_FACET_ENTITY
 
 if __name__ == "__main__":
     luigi.run()
