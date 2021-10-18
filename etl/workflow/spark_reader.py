@@ -247,12 +247,13 @@ class ReadYamlsByModule(PySparkTask):
                     all_json_and_providers.append(json_content_and_provider)
 
         source_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), build_schema_from_cols(columns_to_read))
+        source_df = source_df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(None))
         for json_and_provider in all_json_and_providers:
             json_content = json_and_provider[0]
             provider = json_and_provider[1]
             df = read_json(spark, json_content)
-            df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
             df = df.select(columns_to_read)
+            df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
             source_df = source_df.union(df)
 
         source_df.write.mode("overwrite").parquet(output_path)
