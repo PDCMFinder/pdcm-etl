@@ -1,7 +1,6 @@
 import glob
 import json
 import time
-#import networkx as nx
 import yaml
 
 import luigi
@@ -30,7 +29,6 @@ def build_schema_from_cols(columns):
 
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
-    print("columns-->", columns)
     if "Field" in df.columns:
         df = df.select(columns).where("nvl(field, '') not like '#%'")
     else:
@@ -183,9 +181,6 @@ def build_path_patterns(data_dir, providers, file_patterns):
 
 def build_path_pattern_by_provider(data_dir, provider, file_pattern):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
-    print("provider", provider, type(provider))
-    pattern = file_pattern.replace("$provider", provider)
-    print("pattern", pattern)
     path_pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern.replace("$provider", provider))
     return path_pattern
 
@@ -198,11 +193,23 @@ def get_tsv_extraction_task_by_module(data_dir, providers, data_dir_out, module_
     return ReadByModuleAndPathPatterns(module_name, path_patterns, columns, data_dir_out)
 
 
-class ReadYamlByModule(PySparkTask):
+def extract_provider_name(path: str):
+    init_index = path.index(ROOT_FOLDER) + len(ROOT_FOLDER) + 1
+    next_slash = path.index("/", init_index)
+    return path[init_index:next_slash]
+
+
+def get_json_by_yaml(yaml_content):
+    yaml_as_json = yaml.safe_load(yaml_content)
+    yaml_as_json = json.dumps(yaml_as_json)
+    yaml_as_json = yaml_as_json.encode("unicode_escape").decode("utf-8")
+    return yaml_as_json
+
+
+class ReadYamlsByModule(PySparkTask):
     raw_folder_name = luigi.Parameter()
-    path_pattern = luigi.Parameter()
+    yaml_paths = luigi.ListParameter()
     columns_to_read = luigi.ListParameter()
-    provider = luigi.Parameter()
     data_dir_out = luigi.Parameter()
 
     def output(self):
@@ -211,49 +218,58 @@ class ReadYamlByModule(PySparkTask):
 
     def app_options(self):
         return [
-            self.path_pattern,
+            ','.join(self.yaml_paths),
             ','.join(self.columns_to_read),
-            self.provider,
             PdcmConfig().deploy_mode,
             self.output().path]
 
     def main(self, sc, *args):
         spark = SparkSession(sc)
 
-        yaml_file_path = args[0]
+        yaml_file_paths = args[0].split(',')
         columns_to_read = args[1].split(',')
-        provider = args[2]
-        deploy_mode = args[3]
-        output_path = args[4]
+        deploy_mode = args[2]
+        output_path = args[3]
+
+        all_json_and_providers = []
 
         if deploy_mode == "cluster":
-            yaml_as_json = sc.wholeTextFiles(yaml_file_path).collect()[0][1]
-            yaml_as_json = yaml.safe_load(yaml_as_json)
+            for yaml_file_path in yaml_file_paths:
+                yaml_as_json = sc.wholeTextFiles(yaml_file_path).collect()[0][1]
+                yaml_as_json = get_json_by_yaml(yaml_as_json)
+                json_content_and_provider = (yaml_as_json, extract_provider_name(yaml_file_path))
+                all_json_and_providers.append(json_content_and_provider)
         else:
-            with open(yaml_file_path, 'r') as stream:
-                yaml_as_json = yaml.safe_load(stream)
+            for yaml_file_path in yaml_file_paths:
+                with open(yaml_file_path, 'r') as stream:
+                    yaml_as_json = get_json_by_yaml(stream)
+                    json_content_and_provider = (yaml_as_json, extract_provider_name(yaml_file_path))
+                    all_json_and_providers.append(json_content_and_provider)
 
-        yaml_as_json = json.dumps(yaml_as_json)
-        yaml_as_json = yaml_as_json.encode("unicode_escape").decode("utf-8")
+        source_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), build_schema_from_cols(columns_to_read))
+        for json_and_provider in all_json_and_providers:
+            json_content = json_and_provider[0]
+            provider = json_and_provider[1]
+            df = read_json(spark, json_content)
+            df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
+            df = df.select(columns_to_read)
+            source_df = source_df.union(df)
 
-        df = read_json(spark, yaml_as_json)
-        df = df.select(columns_to_read)
-        df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
-        df.write.mode("append").parquet(output_path)
+        source_df.write.mode("overwrite").parquet(output_path)
 
 
 def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module_name):
-    tasks = []
     module = read_module(module_name)
     file_patterns = module["name_patterns"]
     columns = module["columns"]
     # There should be only one yaml file by module
     file_path = str(file_patterns[0])
 
+    yaml_paths = []
     for provider in providers:
         yaml_file_path = build_path_pattern_by_provider(data_dir, provider, file_path)
-        tasks.append(ReadYamlByModule(module_name, yaml_file_path, columns, provider, data_dir_out))
-    return tasks
+        yaml_paths.append(yaml_file_path)
+    return ReadYamlsByModule(module_name, yaml_paths, columns, data_dir_out)
 
 
 def extract_markers(input_path):
