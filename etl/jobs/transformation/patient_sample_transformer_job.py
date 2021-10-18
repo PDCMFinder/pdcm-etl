@@ -72,7 +72,7 @@ def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
         "staging_system",
         "primary_site",
         "collection_site",
-        init_cap_and_trim_all("prior_treatment").alias("prior_treatment"),
+        init_cap_and_trim_all("treated_prior_to_collection").alias("prior_treatment"),
         "tumour_type",
         col("model_id").alias("model_name"),
         Constants.DATA_SOURCE_COLUMN
