@@ -330,7 +330,7 @@ def transform_search_index(
         "gene_symbol", "breast_cancer_biomarker"
     )
     breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.where(
-        col("gene_symbol").isin(["ERBB2", "ESR1", "PGR"])
+        col("gene_symbol").isin(["ERBB2", "ESR1", "PGR"]) & lower("marker_status").isin(["positive", "negative"])
     )
     gene_display_map = {"ERBB2": "HER2/ERBB2", "ESR1": "ER/ESR1", "PGR": "PR/PGR"}
 
@@ -350,7 +350,7 @@ def transform_search_index(
 
     breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.withColumn(
         "breast_cancer_biomarker",
-        concat_ws(" ", "breast_cancer_biomarker", "marker_status"),
+        concat_ws(" ", "breast_cancer_biomarker", lower("marker_status")),
     )
 
     model_breast_cancer_biomarkers_df = join_dfs(
