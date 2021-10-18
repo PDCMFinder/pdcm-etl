@@ -46,6 +46,10 @@ class ParquetToPg(SparkSubmitTask):
     def requires(self):
         return get_transformation_class_by_entity_name(self.entity_name)
 
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.entity_name))
+
     def app_options(self):
         return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name,
                 self.entity_name, self.output().path]
