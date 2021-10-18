@@ -452,8 +452,9 @@ def extend_patient_sample(
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
         "histology", col("term_name")
     )
+    patient_sample_df = patient_sample_df.withColumn("sample_id_tmp", col("id"))
     patient_sample_ext_df = join_left_dfs(
-        patient_sample_df, sample_to_ontology_term_df, "id", "sample_id"
+        patient_sample_df, sample_to_ontology_term_df, "sample_id_tmp", "sample_id"
     )
 
     primary_site_df = tissue_df.withColumnRenamed("name", "primary_site")
@@ -479,6 +480,7 @@ def extend_patient_sample(
             lower(col("patient_sex"))
         ),
     )
+
     ethnicity_df = ethnicity_df.withColumnRenamed("name", "patient_ethnicity")
     patient_df = join_left_dfs(patient_df, ethnicity_df, "ethnicity_id", "id")
 
@@ -505,6 +507,7 @@ def extend_patient_sample(
         )
         .otherwise(lit("Not specified")),
     )
+
     patient_sample_ext_df = join_left_dfs(
         patient_sample_ext_df, patient_snapshot_df, "id", "sample_id"
     )
