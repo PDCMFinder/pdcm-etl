@@ -96,7 +96,7 @@ def read_obo_file(session, file_path, columns):
 
         elif line.startswith("id:"):
             term_id = line[4:].strip()
-            term_url = "http://purl.obolibrary.org/obo/"+term_id.replace(":", "_")
+            term_url = "http://purl.obolibrary.org/obo/" + term_id.replace(":", "_")
 
         elif line.startswith("name:"):
             term_name = line[5:].strip()
@@ -110,7 +110,7 @@ def read_obo_file(session, file_path, columns):
 
     # return graph
 
-    print("Num of terms:"+str(len(term_list)))
+    print("Num of terms:" + str(len(term_list)))
     df = session.createDataFrame(data=term_list, schema=columns)
     end = time.time()
 
@@ -320,7 +320,6 @@ class ReadMarkerFromTsv(PySparkTask):
 
 
 class ReadOntologyFromObo(PySparkTask):
-
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
 
@@ -349,7 +348,6 @@ class ReadOntologyFromObo(PySparkTask):
 
 
 class ReadDiagnosisMappingsFromJson(PySparkTask):
-
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
 
@@ -359,7 +357,8 @@ class ReadDiagnosisMappingsFromJson(PySparkTask):
         input_path = args[0]
         output_path = args[1]
 
-        columns = ["datasource", "diagnosis", "primary_tissue", "tumor_type", "mapped_term_url", "justification", "map_type"]
+        columns = ["datasource", "diagnosis", "primary_tissue", "tumor_type", "mapped_term_url", "justification",
+                   "map_type"]
         df = read_diagnosis_mapping_file(spark, input_path, columns)
         df.show()
         df.write.mode("overwrite").parquet(output_path)
