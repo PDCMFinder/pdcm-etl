@@ -157,7 +157,7 @@ class ReadByModuleAndPathPatterns(PySparkTask):
                 df = empty_df
                 df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
             else:
-                raise  error
+                raise error
         df.write.mode("overwrite").parquet(output_path)
 
 
