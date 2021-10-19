@@ -5,6 +5,7 @@ import yaml
 
 import luigi
 from luigi.contrib.spark import PySparkTask
+from py4j.protocol import Py4JJavaError
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
@@ -150,10 +151,13 @@ class ReadByModuleAndPathPatterns(PySparkTask):
                              path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
         try:
             df = read_files(spark, path_patterns, schema)
-        except BaseException as error:
-            empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
-            df = empty_df
-            df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
+        except Py4JJavaError as error:
+            if "java.io.FileNotFoundException" in str(error):
+                empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
+                df = empty_df
+                df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
+            else:
+                raise  error
         df.write.mode("overwrite").parquet(output_path)
 
 
