@@ -50,15 +50,12 @@ def transform_model_drug_dosing(
         mode_df: DataFrame) -> DataFrame:
     
     model_drug_dosing_df = raw_model_drug_dosing_df
-    print("0", raw_model_drug_dosing_df.count())
     model_drug_dosing_df = add_id(model_drug_dosing_df, "id")
     model_drug_dosing_df = set_fk_treatment(model_drug_dosing_df, treatment_df)
     model_drug_dosing_df = set_fk_response(model_drug_dosing_df, response_df)
-    print("1", raw_model_drug_dosing_df.count())
     model_drug_dosing_df = set_fk_response_classification(model_drug_dosing_df, response_classification_df)
     model_drug_dosing_df = set_fk_model(model_drug_dosing_df, mode_df)
     model_drug_dosing_df = get_expected_columns(model_drug_dosing_df)
-    print("2", raw_model_drug_dosing_df.count())
     return model_drug_dosing_df
 
 
