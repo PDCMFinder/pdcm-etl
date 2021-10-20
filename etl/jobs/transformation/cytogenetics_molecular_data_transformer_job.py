@@ -67,12 +67,12 @@ def set_fk_molecular_characterization(cytogenetics_df: DataFrame, molecular_char
     mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     mol_char_patient_df = mol_char_patient_df.withColumnRenamed("external_patient_sample_id", "sample_id")
     cytogenetics_patient_sample_df = cytogenetics_df.join(
-        mol_char_patient_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='left')
+        mol_char_patient_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='inner')
 
     mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
     cytogenetics_xenograft_sample_df = cytogenetics_df.join(
-        mol_char_xenograft_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='left')
+        mol_char_xenograft_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='inner')
 
     cytogenetics_df = cytogenetics_patient_sample_df.union(cytogenetics_xenograft_sample_df)
     return cytogenetics_df
