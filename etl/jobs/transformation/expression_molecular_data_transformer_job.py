@@ -73,12 +73,12 @@ def set_fk_molecular_characterization(expression_df: DataFrame, molecular_charac
     mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     mol_char_patient_df = mol_char_patient_df.withColumnRenamed("external_patient_sample_id", "sample_id")
     expression_patient_sample_df = expression_df .join(
-        mol_char_patient_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN])
+        mol_char_patient_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='inner')
 
     mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
     expression_xenograft_sample_df = expression_df.join(
-        mol_char_xenograft_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN])
+        mol_char_xenograft_df, on=["sample_id", Constants.DATA_SOURCE_COLUMN], how='inner')
     expression_df = expression_patient_sample_df.union(expression_xenograft_sample_df)
     return expression_df
 
