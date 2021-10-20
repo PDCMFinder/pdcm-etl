@@ -2,6 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 
+from etl.constants import Constants
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 from pyspark.sql.functions import col
@@ -53,7 +54,8 @@ def get_xenograft_sample_from_sample_platform(raw_molecular_metadata_sample_df: 
         "passage",
         "host_strain_nomenclature",
         "raw_data_url",
-        "platform_id").where("sample_origin = 'xenograft'")
+        "platform_id",
+        Constants.DATA_SOURCE_COLUMN).where("sample_origin = 'xenograft'")
     xenograft_sample_df = xenograft_sample_df.drop_duplicates()
     xenograft_sample_df = xenograft_sample_df.withColumnRenamed("sample_id", "external_xenograft_sample_id")
     return xenograft_sample_df
@@ -67,9 +69,12 @@ def set_fk_host_strain(xenograft_sample_df: DataFrame, host_strain_df: DataFrame
 
 
 def set_fk_model(xenograft_sample_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("model_id", "model_id_ref")
-    xenograft_sample_df = transform_to_fk(
-        xenograft_sample_df, model_df, "model_id_ref", "external_model_id", "id", "model_id")
+    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("model_id", "external_model_id")
+    model_df = model_df.select("id", "external_model_id", "data_source")
+    model_df = model_df.withColumnRenamed("id", "model_id")
+    model_df = model_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
+    xenograft_sample_df = xenograft_sample_df.join(
+        model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='left')
     return xenograft_sample_df
 
 

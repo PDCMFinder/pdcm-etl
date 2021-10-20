@@ -47,8 +47,6 @@ def transform_molecular_characterization(
 
     molchar_sample_df = molchar_sample_df.withColumn(
         "sample_origin", lower_and_trim_all("sample_origin"))
-
-    molchar_sample_df = join_with_platform(molchar_sample_df, platform_df)
     molchar_sample_df = set_fk_platform(molchar_sample_df, platform_df)
 
     columns = [
@@ -77,17 +75,6 @@ def get_molchar_sample(molchar_metadata_sample_df: DataFrame) -> DataFrame:
         "platform_id",
         Constants.DATA_SOURCE_COLUMN
     ).drop_duplicates()
-
-
-def join_with_platform(molchar_metadata_sample_df: DataFrame, platform_df: DataFrame) -> DataFrame:
-    platform_df = platform_df.select(
-        "id", "platform_id", "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
-
-    platform_df = platform_df.withColumnRenamed("id", "platform_internal_id")
-    molchar_metadata_sample_df = molchar_metadata_sample_df.join(
-        platform_df, on=["platform_id", Constants.DATA_SOURCE_COLUMN], how='left')
-    molchar_metadata_sample_df = molchar_metadata_sample_df.withColumnRenamed("platform_id", "platform_external_id")
-    return molchar_metadata_sample_df
 
 
 def get_cna_df(raw_cna_df: DataFrame) -> DataFrame:
@@ -123,6 +110,14 @@ def get_mutation_df(raw_mutation_df: DataFrame) -> DataFrame:
 
 
 def set_fk_platform(molecular_characterization_df: DataFrame, platform_df: DataFrame) -> DataFrame:
+    platform_df = platform_df.select(
+        "id", "platform_id", "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
+    platform_df = platform_df.withColumnRenamed("id", "platform_internal_id")
+
+    molecular_characterization_df = molecular_characterization_df.join(
+        platform_df, on=["platform_id", Constants.DATA_SOURCE_COLUMN], how='left')
+    molecular_characterization_df = molecular_characterization_df.withColumnRenamed("platform_id", "platform_external_id")
+    molecular_characterization_df = molecular_characterization_df.withColumnRenamed("platform_internal_id", "platform_id")
     return molecular_characterization_df.withColumnRenamed("platform_internal_id", "platform_id")
 
 
