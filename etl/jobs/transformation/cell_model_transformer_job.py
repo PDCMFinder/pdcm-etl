@@ -1,10 +1,8 @@
 import sys
 
-from pyspark.sql import DataFrame, SparkSession, Column
-from pyspark.sql.functions import col, trim
+from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
-from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -21,24 +19,18 @@ def main(argv):
     output_path = argv[3]
 
     spark = SparkSession.builder.getOrCreate()
-    raw_other_model_df = spark.read.parquet(raw_other_model_parquet_path)
-    raw_other_model_df.show()
+    raw_cell_model_df = spark.read.parquet(raw_other_model_parquet_path)
     model_df = spark.read.parquet(model_parquet_path)
-    print("init model_df")
-    model_df.show()
-    other_model_df = transform_other_model(raw_other_model_df, model_df)
-    other_model_df.show()
-    other_model_df.write.mode("overwrite").parquet(output_path)
+    cell_model_df = transform_cell_model(raw_cell_model_df, model_df)
+    cell_model_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_other_model(raw_other_model_df: DataFrame, model_df: DataFrame) -> DataFrame:
-    
-    other_model_df = raw_other_model_df.withColumnRenamed("patient_sample_id", "origin_patient_sample_id")
-    other_model_df = set_fk_model(other_model_df, model_df)
-    other_model_df = other_model_df.withColumnRenamed(Constants.DATA_SOURCE_COLUMN, "provider_abb")
-    other_model_df = add_id(other_model_df, "id")
+def transform_cell_model(raw_cell_model_df: DataFrame, model_df: DataFrame) -> DataFrame:
+    cell_model_df = set_fk_model(raw_cell_model_df, model_df)
+    cell_model_df = cell_model_df.withColumnRenamed(Constants.DATA_SOURCE_COLUMN, "provider_abb")
+    cell_model_df = add_id(cell_model_df, "id")
 
-    return other_model_df
+    return cell_model_df
 
 
 def get_data_from_other_model(raw_other_model_df) -> DataFrame:
@@ -51,12 +43,8 @@ def get_data_from_other_model(raw_other_model_df) -> DataFrame:
 def set_fk_model(other_model_df: DataFrame, model_df: DataFrame) -> DataFrame:
     model_df = model_df.select("id", "external_model_id")
     model_df = model_df.withColumnRenamed("id", "model_id")
-    print("model_df")
-    model_df.show()
     other_model_df = other_model_df.withColumnRenamed("model_id", "external_model_id")
     other_model_df = other_model_df.join(model_df, on=['external_model_id'], how='left')
-    # other_model_df = transform_to_fk(
-    #     other_model_df, model_df, "external_model_id", "external_model_id", "id", "model_id")
     return other_model_df
 
 
