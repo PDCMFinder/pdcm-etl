@@ -40,9 +40,9 @@ def transform_cytogenetics_molecular_data(
     cytogenetics_df = cytogenetics_df.withColumn("ncbi_gene_id", lit(""))
 
     cytogenetics_df = set_fk_molecular_characterization(cytogenetics_df, molecular_characterization_df)
-    cytogenetics_df = add_id(cytogenetics_df, "id")
     cytogenetics_df = harmonise_mutation_marker_symbols(cytogenetics_df, gene_markers_parquet_path)
     cytogenetics_df = get_expected_columns(cytogenetics_df)
+    cytogenetics_df = add_id(cytogenetics_df, "id")
     return cytogenetics_df
 
 
@@ -80,7 +80,7 @@ def set_fk_molecular_characterization(cytogenetics_df: DataFrame, molecular_char
 
 def get_expected_columns(ethnicity_df: DataFrame) -> DataFrame:
     return ethnicity_df.select(
-        "id", "marker_status", "essential_or_additional_marker", "gene_marker_id",
+        "marker_status", "essential_or_additional_marker", "gene_marker_id",
         "non_harmonised_symbol", "harmonisation_result", "molecular_characterization_id")
 
 
