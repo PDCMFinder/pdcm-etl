@@ -34,9 +34,9 @@ def transform_cna_molecular_data(
         gene_markers_parquet_path: DataFrame) -> DataFrame:
     cna_df = get_cna_df(raw_cna_df)
     cna_df = set_fk_molecular_characterization(cna_df, molecular_characterization_df)
-    cna_df = add_id(cna_df, "id")
     cna_df = harmonise_mutation_marker_symbols(cna_df, gene_markers_parquet_path)
     cna_df = get_expected_columns(cna_df)
+    cna_df = add_id(cna_df, "id")
     return cna_df
 
 
@@ -80,7 +80,7 @@ def set_fk_molecular_characterization(cna_df: DataFrame, molecular_characterizat
 
 def get_expected_columns(cna_df: DataFrame) -> DataFrame:
     return cna_df.select(
-        "id", "log10r_cna", "log2r_cna", "copy_number_status", "gistic_value", "picnic_value", "gene_marker_id",
+        "log10r_cna", "log2r_cna", "copy_number_status", "gistic_value", "picnic_value", "gene_marker_id",
         "non_harmonised_symbol", "harmonisation_result", "molecular_characterization_id")
 
 

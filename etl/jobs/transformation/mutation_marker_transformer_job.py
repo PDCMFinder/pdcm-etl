@@ -26,10 +26,8 @@ def main(argv):
 
 def transform_mutation_marker(raw_mutation_marker_df: DataFrame, gene_markers_parquet_path) -> DataFrame:
     mutation_marker_df = get_mutation_marker_df(raw_mutation_marker_df)
-
-    mutation_marker_df = add_id(mutation_marker_df, "id")
     mutation_marker_df = harmonise_mutation_marker_symbols(mutation_marker_df, gene_markers_parquet_path)
-
+    mutation_marker_df = add_id(mutation_marker_df, "id")
     return mutation_marker_df
 
 

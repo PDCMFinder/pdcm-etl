@@ -35,9 +35,9 @@ def transform_expression_molecular_data(
     expression_df = get_expression_df(raw_expression_df)
 
     expression_df = set_fk_molecular_characterization(expression_df, molecular_characterization_df)
-    expression_df = add_id(expression_df, "id")
     expression_df = harmonise_mutation_marker_symbols(expression_df, gene_markers_parquet_path)
     expression_df = get_expected_columns(expression_df)
+    expression_df = add_id(expression_df, "id")
     return expression_df
 
 
@@ -85,7 +85,7 @@ def set_fk_molecular_characterization(expression_df: DataFrame, molecular_charac
 
 def get_expected_columns(expression_df: DataFrame) -> DataFrame:
     return expression_df.select(
-        "id", "z_score", "rnaseq_coverage", "rnaseq_fpkm", "rnaseq_tpm", "rnaseq_count", "affy_hgea_probe_id",
+        "z_score", "rnaseq_coverage", "rnaseq_fpkm", "rnaseq_tpm", "rnaseq_count", "affy_hgea_probe_id",
         "affy_hgea_expression_value", "illumina_hgea_probe_id", "illumina_hgea_expression_value",
         "gene_marker_id", "non_harmonised_symbol", "harmonisation_result", "molecular_characterization_id")
 
