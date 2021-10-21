@@ -352,3 +352,17 @@ CREATE TABLE patient_treatment (
     response_classification_id BIGINT,
     model_id BIGINT
 );
+
+CREATE TABLE model_drug_dosing (
+    id BIGINT NOT NULL,
+    passage_range TEXT,
+    treatment_id BIGINT,
+    treatment_type TEXT,
+    treatment_dose TEXT,
+    administration_route TEXT,
+    treatment_schedule TEXT,
+    treatment_length TEXT,
+    response_id BIGINT,
+    response_classification_id BIGINT,
+    model_id BIGINT
+);

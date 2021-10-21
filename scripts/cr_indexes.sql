@@ -40,3 +40,4 @@ ALTER TABLE ontology_term_treatment ADD CONSTRAINT pk_ontology_term_treatment PR
 ALTER TABLE ontology_term_regimen ADD CONSTRAINT pk_ontology_term_regimen PRIMARY KEY (id);
 ALTER TABLE sample_to_ontology ADD CONSTRAINT pk_sample_to_ontology PRIMARY KEY (id);
 ALTER TABLE patient_treatment ADD CONSTRAINT pk_patient_treatment PRIMARY KEY (id);
+ALTER TABLE model_drug_dosing ADD CONSTRAINT pk_model_drug_dosing PRIMARY KEY (id);
