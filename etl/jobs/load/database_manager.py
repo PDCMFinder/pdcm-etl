@@ -57,20 +57,6 @@ def create_fks(connection):
     print("Fkd created in {0} seconds".format(round(end - start, 4)))
 
 
-def disable_triggers(connection, tables):
-    cur = connection.cursor()
-    for table in tables:
-        print("ALTER TABLE {0} DISABLE TRIGGER ALL;".format(table))
-        cur.execute("ALTER TABLE {0} DISABLE TRIGGER ALL;".format(table))
-
-
-def enable_triggers(connection, tables):
-    cur = connection.cursor()
-    for table in tables:
-        print("ALTER TABLE {0} ENABLE TRIGGER ALL;".format(table))
-        cur.execute("ALTER TABLE {0} ENABLE TRIGGER ALL;".format(table))
-
-
 def truncate_tables(connection, tables):
     for table in reversed(tables):
         cur = connection.cursor()
@@ -92,4 +78,29 @@ def copy_to_database(connection, table_name: str, csv_path):
         f.close()
         end = time.time()
         print("Copied {0} in {1} seconds".format(table_name, round(end - start, 4)))
+
+
+def execute_report_procedure(db_host, db_port, db_name, db_user, db_password):
+    connection = get_database_connection(db_host, db_port, db_name, db_user, db_password)
+    report = []
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/reports.sql", "r").read())
+        cursor.execute("CALL report();")
+        cursor.execute("SELECT distinct(report_type) FROM report ORDER BY report_type")
+        row = cursor.fetchone()
+        while row is not None:
+            report_type = row[0]
+            report.append("\n" + report_type.upper())
+            cursor.execute(
+                "SELECT report_key, report_value FROM report WHERE report_type = %(report_type)s",
+                {'report_type': report_type})
+            inner_row = cursor.fetchone()
+            while inner_row is not None:
+                report.append(inner_row[0] + "\t" + inner_row[1])
+                inner_row = cursor.fetchone()
+            row = cursor.fetchone()
+    connection.commit()
+    connection.close()
+    report = '\n'.join(report)
+    return report
 
