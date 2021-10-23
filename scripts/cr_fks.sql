@@ -247,3 +247,23 @@ ALTER TABLE patient_treatment
     ADD CONSTRAINT fk_patient_treatment_model
     FOREIGN KEY (model_id)
     REFERENCES model (id);
+
+ALTER TABLE model_drug_dosing
+    ADD CONSTRAINT fk_model_drug_dosing_treatment
+    FOREIGN KEY (treatment_id)
+    REFERENCES treatment (id);
+
+ALTER TABLE model_drug_dosing
+    ADD CONSTRAINT fk_model_drug_dosing_response
+    FOREIGN KEY (response_id)
+    REFERENCES response (id);
+
+ALTER TABLE model_drug_dosing
+    ADD CONSTRAINT fk_model_drug_dosing_response_classification
+    FOREIGN KEY (response_classification_id)
+    REFERENCES response_classification (id);
+
+ALTER TABLE model_drug_dosing
+    ADD CONSTRAINT fk_model_drug_dosing_model
+    FOREIGN KEY (model_id)
+    REFERENCES model (id);

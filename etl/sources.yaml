@@ -36,7 +36,7 @@ groups:
           - "type"
           - "growth_properties"
           - "parent_id"
-          - "patient_sample_id"
+          - "origin_patient_sample_id"
           - "comments"
           - "external_ids"
           - "supplier"

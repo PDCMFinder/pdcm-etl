@@ -397,6 +397,17 @@ class TransformPatientTreatment(TransformEntity):
     entity_name = Constants.PATIENT_TREATMENT_ENTITY
 
 
+class TransformModelDrugDosing(TransformEntity):
+    requiredTasks = [
+        ExtractDrugDosing(),
+        TransformTreatment(),
+        TransformResponse(),
+        TransformResponseClassification(),
+        TransformModel()
+    ]
+    entity_name = Constants.MODEL_DRUG_DOSING_ENTITY
+
+
 class TransformSearchIndex(TransformEntity):
     requiredTasks = [
         TransformModel(),
