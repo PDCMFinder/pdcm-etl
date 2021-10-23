@@ -396,7 +396,7 @@ def transform_search_index(
         "makers_with_cytogenetics_data",
         "breast_cancer_biomarkers",
         "project_name",
-    ).distinct()
+    ).where(col("histology").isNotNull()).distinct()
     return search_index_df
 
 
