@@ -390,6 +390,7 @@ def transform_search_index(
         "makers_with_expression_data",
         "makers_with_cytogenetics_data",
         "breast_cancer_biomarkers",
+        "provider_name",
         "project_name",
     ).where(col("histology").isNotNull()).distinct()
     return search_index_df
@@ -463,6 +464,7 @@ def extend_patient_sample(
 
     # Adding age, sex, ethnicity and project to patient_sample
     project_group_df = project_group_df.withColumnRenamed("name", "project_name")
+    project_group_df = provider_group_df.withColumnRenamed("name", "provider_name")
     provider_group_df = join_left_dfs(
         provider_group_df, project_group_df, "project_group_id", "id"
     )
