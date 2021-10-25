@@ -373,6 +373,8 @@ CREATE TABLE search_index (
     external_model_id TEXT NOT NULL,
     data_source TEXT,
     project_name TEXT,
+    provider_name TEXT,
+    model_type TEXT,
     histology TEXT,
     search_terms TEXT[],
     cancer_system TEXT,

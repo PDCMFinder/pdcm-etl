@@ -57,19 +57,20 @@ def main(argv):
     patient_parquet_path = argv[6]
     ethnicity_df_parquet_path = argv[7]
     xenograft_sample_parquet_path = argv[8]
-    tumour_type_parquet_path = argv[9]
-    tissue_parquet_path = argv[10]
-    gene_marker_parquet_path = argv[11]
-    mutation_marker_parquet_path = argv[12]
-    mutation_measurement_data_parquet_path = argv[13]
-    cna_data_parquet_path = argv[14]
-    expression_data_parquet_path = argv[15]
-    cytogenetics_data_parquet_path = argv[16]
-    provider_group_parquet_path = argv[17]
-    project_group_parquet_path = argv[18]
-    sample_to_ontology_parquet_path = argv[19]
-    ontology_term_diagnosis_parquet_path = argv[20]
-    output_path = argv[21]
+    cell_model_parquet_path = argv[9]
+    tumour_type_parquet_path = argv[10]
+    tissue_parquet_path = argv[11]
+    gene_marker_parquet_path = argv[12]
+    mutation_marker_parquet_path = argv[13]
+    mutation_measurement_data_parquet_path = argv[14]
+    cna_data_parquet_path = argv[15]
+    expression_data_parquet_path = argv[16]
+    cytogenetics_data_parquet_path = argv[17]
+    provider_group_parquet_path = argv[18]
+    project_group_parquet_path = argv[19]
+    sample_to_ontology_parquet_path = argv[20]
+    ontology_term_diagnosis_parquet_path = argv[21]
+    output_path = argv[22]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -84,6 +85,7 @@ def main(argv):
     patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
+    cell_model_df = spark.read.parquet(cell_model_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
     gene_marker_df = spark.read.parquet(gene_marker_parquet_path)
@@ -111,6 +113,7 @@ def main(argv):
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
+        cell_model_df,
         tumour_type_df,
         tissue_df,
         gene_marker_df,
@@ -136,6 +139,7 @@ def transform_search_index(
     patient_df,
     ethnicity_df,
     xenograft_sample_df,
+    cell_model_df,
     tumour_type_df,
     tissue_df,
     gene_marker_df,
@@ -325,7 +329,8 @@ def transform_search_index(
         "gene_symbol", "breast_cancer_biomarker"
     )
     breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.where(
-        col("gene_symbol").isin(["ERBB2", "ESR1", "PGR"]) & lower("marker_status").isin(["positive", "negative"])
+        col("gene_symbol").isin(["ERBB2", "ESR1", "PGR"])
+        & lower("marker_status").isin(["positive", "negative"])
     )
     gene_display_map = {"ERBB2": "HER2/ERBB2", "ESR1": "ER/ESR1", "PGR": "PR/PGR"}
 
@@ -370,29 +375,62 @@ def transform_search_index(
         "model_id",
     )
 
-    search_index_df = search_index_df.select(
-        "pdcm_model_id",
-        "external_model_id",
-        "data_source",
-        "histology",
-        "search_terms",
-        "cancer_system",
-        "dataset_available",
-        "primary_site",
-        "collection_site",
-        "tumour_type",
-        "patient_age",
-        "patient_sex",
-        "patient_ethnicity",
-        "patient_treatment_status",
-        "makers_with_cna_data",
-        "makers_with_mutation_data",
-        "makers_with_expression_data",
-        "makers_with_cytogenetics_data",
-        "breast_cancer_biomarkers",
-        "provider_name",
-        "project_name",
-    ).where(col("histology").isNotNull()).distinct()
+    # Adding model_type, join with xenograft_sample and cell_model if there is match in xenograft_sample
+    # the model is a xenograft, if there is a match in cell_model the model is a cell_model
+    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("id", "xenograft_id")
+    cell_model_df = cell_model_df.withColumnRenamed("id", "cell_model_id")
+    model_model_type_df = model_df.join(
+        xenograft_sample_df, col("id") == col("model_id"), "left"
+    )
+    model_model_type_df = model_model_type_df.join(
+        cell_model_df, col("id") == col("model_id"), "left"
+    )
+    model_model_type_df = model_model_type_df.withColumn(
+        "model_type",
+        when(col("xenograft_id").isNotNull(), lit("xenograft_model"))
+        .when(
+            col("cell_model_id").isNotNull(),
+            lit("cell_model")
+        )
+        .otherwise(lit(None).astype(StringType())),
+    )
+    model_model_type_df = model_model_type_df.select("id", "model_type").drop_duplicates()
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(
+        search_index_df,
+        model_model_type_df,
+        "temp_model_id",
+        "id",
+    )
+
+    search_index_df = (
+        search_index_df.select(
+            "pdcm_model_id",
+            "external_model_id",
+            "data_source",
+            "histology",
+            "search_terms",
+            "cancer_system",
+            "dataset_available",
+            "primary_site",
+            "collection_site",
+            "tumour_type",
+            "patient_age",
+            "patient_sex",
+            "patient_ethnicity",
+            "patient_treatment_status",
+            "makers_with_cna_data",
+            "makers_with_mutation_data",
+            "makers_with_expression_data",
+            "makers_with_cytogenetics_data",
+            "breast_cancer_biomarkers",
+            "provider_name",
+            "project_name",
+            "model_type"
+        )
+        .where(col("histology").isNotNull())
+        .distinct()
+    )
     return search_index_df
 
 
