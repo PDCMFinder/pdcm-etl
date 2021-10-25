@@ -77,7 +77,7 @@ class DeleteFksAndIndexes(luigi.Task):
     db_password = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes"))
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes_deleted"))
 
     def run(self):
         connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
