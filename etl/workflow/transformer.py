@@ -418,7 +418,6 @@ class TransformSearchIndex(TransformEntity):
         TransformPatient(),
         TransformEthnicity(),
         TransformXenograftSample(),
-        TransformDiagnosis(),
         TransformTumourType(),
         TransformTissue(),
         TransformGeneMarker(),
@@ -438,6 +437,7 @@ class TransformSearchIndex(TransformEntity):
 class TransformSearchFacet(TransformEntity):
     requiredTasks = [TransformSearchIndex()]
     entity_name = Constants.SEARCH_FACET_ENTITY
+
 
 if __name__ == "__main__":
     luigi.run()

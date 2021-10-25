@@ -57,20 +57,19 @@ def main(argv):
     patient_parquet_path = argv[6]
     ethnicity_df_parquet_path = argv[7]
     xenograft_sample_parquet_path = argv[8]
-    diagnosis_parquet_path = argv[9]
-    tumour_type_parquet_path = argv[10]
-    tissue_parquet_path = argv[11]
-    gene_marker_parquet_path = argv[12]
-    mutation_marker_parquet_path = argv[13]
-    mutation_measurement_data_parquet_path = argv[14]
-    cna_data_parquet_path = argv[15]
-    expression_data_parquet_path = argv[16]
-    cytogenetics_data_parquet_path = argv[17]
-    provider_group_parquet_path = argv[18]
-    project_group_parquet_path = argv[19]
-    sample_to_ontology_parquet_path = argv[20]
-    ontology_term_diagnosis_parquet_path = argv[21]
-    output_path = argv[22]
+    tumour_type_parquet_path = argv[9]
+    tissue_parquet_path = argv[10]
+    gene_marker_parquet_path = argv[11]
+    mutation_marker_parquet_path = argv[12]
+    mutation_measurement_data_parquet_path = argv[13]
+    cna_data_parquet_path = argv[14]
+    expression_data_parquet_path = argv[15]
+    cytogenetics_data_parquet_path = argv[16]
+    provider_group_parquet_path = argv[17]
+    project_group_parquet_path = argv[18]
+    sample_to_ontology_parquet_path = argv[19]
+    ontology_term_diagnosis_parquet_path = argv[20]
+    output_path = argv[21]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -85,7 +84,6 @@ def main(argv):
     patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
-    diagnosis_df = spark.read.parquet(diagnosis_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
     gene_marker_df = spark.read.parquet(gene_marker_parquet_path)
@@ -113,7 +111,6 @@ def main(argv):
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
-        diagnosis_df,
         tumour_type_df,
         tissue_df,
         gene_marker_df,
@@ -139,7 +136,6 @@ def transform_search_index(
     patient_df,
     ethnicity_df,
     xenograft_sample_df,
-    diagnosis_df,
     tumour_type_df,
     tissue_df,
     gene_marker_df,
@@ -160,7 +156,6 @@ def transform_search_index(
     patient_sample_ext_df = extend_patient_sample(
         patient_sample_df,
         patient_df,
-        diagnosis_df,
         tissue_df,
         ethnicity_df,
         patient_snapshot_df,
@@ -417,7 +412,6 @@ def add_gene_symbol(mol_char_data_df: DataFrame, gene_marker_df: DataFrame):
 def extend_patient_sample(
     patient_sample_df,
     patient_df,
-    diagnosis_df,
     tissue_df,
     ethnicity_df,
     patient_snapshot_df,
