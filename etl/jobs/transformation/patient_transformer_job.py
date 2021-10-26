@@ -68,8 +68,6 @@ def set_fk_ethnicity(patient_df: DataFrame, ethnicity_df: DataFrame) -> DataFram
 
 
 def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -> DataFrame:
-    patient_df.show(100, truncate=False)
-    provider_group_df.show(100, truncate=False)
     provider_group_df = provider_group_df.withColumnRenamed("id", "provider_group_id")
     patient_df = patient_df.join(provider_group_df, on=[Constants.DATA_SOURCE_COLUMN], how='left')
     return patient_df
