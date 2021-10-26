@@ -2,6 +2,7 @@ class Constants:
     RAW_DIRECTORY = "raw"
     TRANSFORMED_DIRECTORY = "transformed"
     DATABASE_FORMATTED = "database_formatted"
+    REPORTS_DIRECTORY = "reports"
 
     # File ids names
     SOURCE_MODULE = "source"
