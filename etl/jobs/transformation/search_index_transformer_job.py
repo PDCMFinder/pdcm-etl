@@ -157,6 +157,10 @@ def transform_search_index(
 ) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
+    patient_sample_df = patient_sample_df.withColumnRenamed("grade", "cancer_grade")
+    patient_sample_df = patient_sample_df.withColumnRenamed("grading_system", "cancer_grading_system")
+    patient_sample_df = patient_sample_df.withColumnRenamed("stage", "cancer_stage")
+    patient_sample_df = patient_sample_df.withColumnRenamed("staging_system", "cancer_staging_system")
     patient_sample_ext_df = extend_patient_sample(
         patient_sample_df,
         patient_df,
@@ -408,6 +412,9 @@ def transform_search_index(
             "pdcm_model_id",
             "external_model_id",
             "data_source",
+            "provider_name",
+            "project_name",
+            "model_type",
             "histology",
             "search_terms",
             "cancer_system",
@@ -415,6 +422,10 @@ def transform_search_index(
             "primary_site",
             "collection_site",
             "tumour_type",
+            "cancer_grade",
+            "cancer_grading_system",
+            "cancer_stage",
+            "cancer_staging_system",
             "patient_age",
             "patient_sex",
             "patient_ethnicity",
@@ -424,9 +435,6 @@ def transform_search_index(
             "makers_with_expression_data",
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
-            "provider_name",
-            "project_name",
-            "model_type"
         )
         .where(col("histology").isNotNull())
         .distinct()

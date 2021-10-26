@@ -445,6 +445,10 @@ entities = {
             "primary_site",
             "collection_site",
             "tumour_type",
+            "cancer_grade",
+            "cancer_grading_system",
+            "cancer_stage",
+            "cancer_staging_system",
             "patient_age",
             "patient_sex",
             "patient_ethnicity",
@@ -453,7 +457,7 @@ entities = {
             "makers_with_mutation_data",
             "makers_with_expression_data",
             "makers_with_cytogenetics_data",
-            "breast_cancer_biomarkers"
+            "breast_cancer_biomarkers",
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {
