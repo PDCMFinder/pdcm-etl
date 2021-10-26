@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS REPORT;
+
 CREATE TABLE REPORT (
     report_type TEXT,
     report_key TEXT,
@@ -48,7 +50,6 @@ DECLARE
   	sb_table_name  varchar;
 
 BEGIN
-	truncate table report;
 	OPEN cu_all_tables;
   	LOOP
     	FETCH FROM cu_all_tables INTO sb_table_name;
