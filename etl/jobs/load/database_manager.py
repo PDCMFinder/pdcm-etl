@@ -73,9 +73,9 @@ def copy_to_database(connection, table_name: str, csv_path):
     for file in tsv_files:
         start = time.time()
         print("open file", file)
-        f = open(file, 'r')
-        cur.copy_from(f, table_name, sep='\t', columns=None, null='""')
-        f.close()
+        with open(file, 'r') as f:
+            next(f)  # Skip the header row.
+            cur.copy_from(f, table_name, sep='\t', columns=None, null='""')
         end = time.time()
         print("Copied {0} in {1} seconds".format(table_name, round(end - start, 4)))
 
