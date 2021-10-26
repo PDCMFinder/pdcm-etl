@@ -48,7 +48,6 @@ def extract_data_source(raw_source_df: DataFrame) -> DataFrame:
         trim_all("provider_type").alias("provider_type"),
         Constants.DATA_SOURCE_COLUMN
     ).drop_duplicates()
-    provider_group_df = provider_group_df.withColumn(Constants.DATA_SOURCE_COLUMN, col("provider_abbreviation"))
     return provider_group_df
 
 
