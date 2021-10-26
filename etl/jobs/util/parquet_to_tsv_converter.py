@@ -26,7 +26,7 @@ def main(argv):
     # df.coalesce(1).write \
     df.write \
         .option('sep', '\t') \
-        .option('header', 'false') \
+        .option('header', 'true') \
         .mode("overwrite").csv(output_path)
 
 
