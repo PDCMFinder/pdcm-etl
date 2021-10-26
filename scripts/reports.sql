@@ -1,4 +1,8 @@
-
+CREATE TABLE REPORT (
+    report_type TEXT,
+    report_key TEXT,
+    report_value TEXT
+);
 
 CREATE OR REPLACE VIEW VW_STATS_TABLES AS
 SELECT table_name, row_estimate, pg_size_pretty(total_bytes) AS total
