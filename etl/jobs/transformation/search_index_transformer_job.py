@@ -377,20 +377,20 @@ def transform_search_index(
 
     # Adding model_type, join with xenograft_sample and cell_model if there is match in xenograft_sample
     # the model is a xenograft, if there is a match in cell_model the model is a cell_model
-    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("id", "xenograft_id")
+    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("id", "xenograft_model_id")
     cell_model_df = cell_model_df.withColumnRenamed("id", "cell_model_id")
     model_model_type_df = model_df.join(
         xenograft_sample_df, col("id") == col("model_id"), "left"
-    )
+    ).drop("model_id")
     model_model_type_df = model_model_type_df.join(
         cell_model_df, col("id") == col("model_id"), "left"
     )
     model_model_type_df = model_model_type_df.withColumn(
         "model_type",
-        when(col("xenograft_id").isNotNull(), lit("xenograft_model"))
+        when(col("xenograft_model_id").isNotNull(), lit("xenograft model"))
         .when(
             col("cell_model_id").isNotNull(),
-            lit("cell_model")
+            lit("cell model")
         )
         .otherwise(lit(None).astype(StringType())),
     )
@@ -502,7 +502,7 @@ def extend_patient_sample(
 
     # Adding age, sex, ethnicity and project to patient_sample
     project_group_df = project_group_df.withColumnRenamed("name", "project_name")
-    project_group_df = provider_group_df.withColumnRenamed("name", "provider_name")
+    provider_group_df = provider_group_df.withColumnRenamed("name", "provider_name")
     provider_group_df = join_left_dfs(
         provider_group_df, project_group_df, "project_group_id", "id"
     )

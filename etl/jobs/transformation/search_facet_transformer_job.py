@@ -66,6 +66,11 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
         },
         {
             "facet_section": "model",
+            "facet_name": "Type",
+            "facet_column": "model_type",
+        },
+        {
+            "facet_section": "model",
             "facet_name": "Model ID",
             "facet_column": "external_model_id",
         },
