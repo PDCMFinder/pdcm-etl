@@ -36,8 +36,7 @@ def transform_accessibility_group(raw_sharing_df: DataFrame) -> DataFrame:
 def get_accessibility_group_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
     accessibility_group_df = raw_sharing_df.withColumn("europdx_access_modalities", trim_all("europdx_access_modality"))
     accessibility_group_df = accessibility_group_df.withColumn("accessibility", trim_all("accessibility"))
-    accessibility_group_df = accessibility_group_df.select(
-        "europdx_access_modalities", "accessibility", Constants.DATA_SOURCE_COLUMN)
+    accessibility_group_df = accessibility_group_df.select("europdx_access_modalities", "accessibility")
     accessibility_group_df = accessibility_group_df.drop_duplicates()
     return accessibility_group_df
 
@@ -47,8 +46,7 @@ def format_name_column(column_name) -> Column:
 
 
 def get_columns_expected_order(accessibility_group_df: DataFrame) -> DataFrame:
-    return accessibility_group_df.select(
-        "id", "europdx_access_modalities", "accessibility", Constants.DATA_SOURCE_COLUMN)
+    return accessibility_group_df.select("id", "europdx_access_modalities", "accessibility")
 
 
 if __name__ == "__main__":
