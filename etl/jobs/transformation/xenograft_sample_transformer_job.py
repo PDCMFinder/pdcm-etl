@@ -3,11 +3,9 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
-from etl.jobs.util.cleaner import trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 from pyspark.sql.functions import col
-from etl.jobs.util.raw_data_url_builder import build_raw_data_url
 
 
 def main(argv):
@@ -44,8 +42,6 @@ def transform_xenograft_sample(
     xenograft_sample_df = set_fk_host_strain(xenograft_sample_df, host_strain_df)
     xenograft_sample_df = set_fk_model(xenograft_sample_df, model_df)
     xenograft_sample_df = set_fk_platform(xenograft_sample_df, platform_df)
-    xenograft_sample_df = xenograft_sample_df.withColumn("bk", col("raw_data_url"))
-    xenograft_sample_df = build_raw_data_url(xenograft_sample_df, "raw_data_url")
     xenograft_sample_df = add_id(xenograft_sample_df, "id")
     xenograft_sample_df = get_expected_columns(xenograft_sample_df)
     return xenograft_sample_df
@@ -57,13 +53,11 @@ def get_xenograft_sample_from_sample_platform(raw_molecular_metadata_sample_df: 
         "model_id",
         "passage",
         "host_strain_nomenclature",
-        "raw_data_url",
         "platform_id",
         Constants.DATA_SOURCE_COLUMN).where("sample_origin = 'xenograft'")
     xenograft_sample_df = xenograft_sample_df.drop_duplicates()
     xenograft_sample_df = xenograft_sample_df.withColumnRenamed("sample_id", "external_xenograft_sample_id")
     xenograft_sample_df = xenograft_sample_df.withColumnRenamed("model_id", "external_model_id")
-    xenograft_sample_df = xenograft_sample_df.withColumn("raw_data_url", trim_all("raw_data_url"))
     return xenograft_sample_df
 
 
@@ -80,11 +74,13 @@ def set_fk_model(xenograft_sample_df: DataFrame, model_df: DataFrame) -> DataFra
     model_df = model_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
     xenograft_sample_df = xenograft_sample_df.join(
         model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='left')
+    xenograft_sample_df = xenograft_sample_df.drop(model_df[Constants.DATA_SOURCE_COLUMN])
     return xenograft_sample_df
 
 
 def set_fk_platform(xenograft_sample_df: DataFrame, platform_df: DataFrame) -> DataFrame:
     xenograft_sample_df = xenograft_sample_df.withColumnRenamed("platform_id", "external_platform_id")
+    platform_df = platform_df.select("id", "platform_id")
     platform_df = platform_df.withColumnRenamed("platform_id", "external_platform_id")
     xenograft_sample_df = transform_to_fk(
         xenograft_sample_df, platform_df, "external_platform_id", "external_platform_id", "id", "platform_id")
@@ -93,7 +89,8 @@ def set_fk_platform(xenograft_sample_df: DataFrame, platform_df: DataFrame) -> D
 
 def get_expected_columns(xenograft_sample_df: DataFrame) -> DataFrame:
     return xenograft_sample_df.select(
-        "id", "external_xenograft_sample_id", "passage", "host_strain_id", "model_id", "raw_data_url", "platform_id")
+        "id", "external_xenograft_sample_id", "passage", "host_strain_id", "model_id",
+        "platform_id", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

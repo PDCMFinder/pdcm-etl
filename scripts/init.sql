@@ -116,7 +116,6 @@ CREATE TABLE patient_sample (
     staging_system TEXT,
     primary_site_id BIGINT,
     collection_site_id BIGINT,
-    raw_data_url TEXT,
     prior_treatment TEXT,
     tumour_type_id BIGINT,
     model_id BIGINT
@@ -128,7 +127,6 @@ CREATE TABLE xenograft_sample (
     passage VARCHAR,
     host_strain_id BIGINT,
     model_id BIGINT,
-    raw_data_url VARCHAR,
     platform_id BIGINT
 
 );
@@ -209,6 +207,7 @@ CREATE TABLE molecular_characterization (
     id BIGINT NOT NULL,
     molecular_characterization_type_id BIGINT NOT NULL,
     platform_id BIGINT NOT NULL,
+    raw_data_url TEXT,
     patient_sample_id BIGINT,
     xenograft_sample_id BIGINT
 );
