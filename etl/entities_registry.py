@@ -173,7 +173,6 @@ entities = {
             "staging_system",
             "primary_site_id",
             "collection_site_id",
-            "raw_data_url",
             "prior_treatment",
             "tumour_type_id",
             "model_id"
@@ -187,7 +186,6 @@ entities = {
             "passage",
             "host_strain_id",
             "model_id",
-            "raw_data_url",
             "platform_id",
         ]
     },
@@ -259,6 +257,7 @@ entities = {
             "id",
             "molecular_characterization_type_id",
             "platform_id",
+            "raw_data_url",
             "patient_sample_id",
             "xenograft_sample_id"
         ]

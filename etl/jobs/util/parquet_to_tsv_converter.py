@@ -26,9 +26,10 @@ def main(argv):
     df = flatten_array_columns(df)
     df = df.select(columns)
     # df.coalesce(1).write \
-    df.write.option("sep", "\t").option("quote", "\u0000").option(
-        "header", "false"
-    ).mode("overwrite").csv(output_path)
+    df.write \
+        .option('sep', '\t') \
+        .option('header', 'true') \
+        .mode("overwrite").csv(output_path)
 
 
 def flatten_array_columns(df: DataFrame):

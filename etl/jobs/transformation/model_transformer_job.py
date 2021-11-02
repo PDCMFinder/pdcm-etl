@@ -98,7 +98,7 @@ def set_fk_accessibility_group(model_df: DataFrame, accessibility_group_df: Data
     accessibility_group_df = accessibility_group_df.withColumnRenamed("id", "accessibility_group_id")
     model_df = model_df.join(
         accessibility_group_df,
-        on=['accessibility', 'europdx_access_modalities', Constants.DATA_SOURCE_COLUMN], how='left')
+        on=['accessibility', 'europdx_access_modalities'], how='left')
     return model_df
 
 

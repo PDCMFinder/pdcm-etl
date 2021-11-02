@@ -180,8 +180,7 @@ class TransformPatientSample(TransformEntity):
         TransformDiagnosis(),
         TransformTissue(),
         TransformTumourType(),
-        TransformModel(),
-        ExtractMolecularMetadataSample()
+        TransformModel()
     ]
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
