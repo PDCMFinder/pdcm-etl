@@ -39,7 +39,7 @@ def main(argv):
             StructField("facet_section", StringType(), True),
             StructField("facet_name", StringType(), True),
             StructField("facet_column", StringType(), True),
-            StructField("facet_options", ArrayType(StringType()), True),
+            StructField("facet_options", ArrayType(StringType()), True)
         ]
     )
     search_facet_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema)
@@ -115,6 +115,11 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_column": "treatment_list",
         },
         {
+            "facet_section": "treatment_drug_dosing",
+            "facet_name": "Model dosing",
+            "facet_column": "model_treatment_list",
+        },
+        {
             "facet_section": "patient_tumour",
             "facet_name": "Tumour type",
             "facet_column": "tumour_type",
@@ -133,7 +138,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "patient_tumour",
             "facet_name": "Cancer system",
             "facet_column": "cancer_system",
-        },
+        }
     ]
 
     for facet_definition in facet_definitions:

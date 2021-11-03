@@ -14,7 +14,9 @@ from pyspark.sql.functions import (
     lower,
     udf,
     split,
-    array_intersect, explode,
+    array_intersect,
+    explode,
+    concat,
 )
 from pyspark.sql.types import ArrayType, StringType, DoubleType
 
@@ -424,17 +426,56 @@ def transform_search_index(
         "id",
     )
 
-    ## Adding treatment list to search_index
-    treatment_df = treatment_df.withColumn("treatment_name", explode(split("name", "\s*\\+\s*")))
+    # Adding treatment list to search_index
+    treatment_df = treatment_df.withColumn(
+        "treatment_name", explode(split("name", "\s*\\+\s*"))
+    )
     treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
-    patient_treatment_df = patient_treatment_df.join(treatment_df, "treatment_id", "inner").select("model_id", "treatment_name")
-    patient_treatment_df = patient_treatment_df.groupby("model_id").agg(collect_set("treatment_name").alias("treatment_list"))
+    patient_treatment_df = patient_treatment_df.join(
+        treatment_df, "treatment_id", "inner"
+    ).select("model_id", "treatment_name")
+    patient_treatment_df = patient_treatment_df.groupby("model_id").agg(
+        collect_set("treatment_name").alias("treatment_list")
+    )
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(
         search_index_df,
         patient_treatment_df,
         "temp_model_id",
         "model_id",
+    )
+
+    # Adding drug dosing information
+    model_drug_dosing_df = model_drug_dosing_df.join(
+        treatment_df, "treatment_id", "inner"
+    ).select("model_id", "treatment_name")
+    model_drug_dosing_df = model_drug_dosing_df.groupby("model_id").agg(
+        collect_set("treatment_name").alias("model_treatment_list")
+    )
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(
+        search_index_df,
+        model_drug_dosing_df,
+        "temp_model_id",
+        "model_id",
+    )
+
+    # Adding drug dosing and patient treatment to dataset_available
+
+    search_index_df = search_index_df.withColumn(
+        "dataset_available",
+        when(
+            col("model_treatment_list").isNotNull() & (size("model_treatment_list") > 0),
+            concat("dataset_available", array(lit("dosing studies"))),
+        ).otherwise(col("dataset_available")),
+    )
+
+    search_index_df = search_index_df.withColumn(
+        "dataset_available",
+        when(
+            col("treatment_list").isNotNull() & (size("treatment_list") > 0),
+            concat("dataset_available", array(lit("patient treatment"))),
+        ).otherwise(col("dataset_available")),
     )
 
     search_index_df = (
@@ -465,7 +506,8 @@ def transform_search_index(
             "makers_with_expression_data",
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
-            "treatment_list"
+            "treatment_list",
+            "model_treatment_list",
         )
         .where(col("histology").isNotNull())
         .distinct()
