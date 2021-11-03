@@ -14,7 +14,7 @@ from pyspark.sql.functions import (
     lower,
     udf,
     split,
-    array_intersect,
+    array_intersect, explode,
 )
 from pyspark.sql.types import ArrayType, StringType, DoubleType
 
@@ -70,7 +70,10 @@ def main(argv):
     project_group_parquet_path = argv[19]
     sample_to_ontology_parquet_path = argv[20]
     ontology_term_diagnosis_parquet_path = argv[21]
-    output_path = argv[22]
+    patient_treatment_parquet_path = argv[22]
+    model_drug_dosing_parquet_path = argv[23]
+    treatment_parquet_path = argv[24]
+    output_path = argv[25]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -102,6 +105,9 @@ def main(argv):
     ontology_term_diagnosis_df = spark.read.parquet(
         ontology_term_diagnosis_parquet_path
     )
+    patient_treatment_df = spark.read.parquet(patient_treatment_parquet_path)
+    model_drug_dosing_df = spark.read.parquet(model_drug_dosing_parquet_path)
+    treatment_df = spark.read.parquet(treatment_parquet_path)
 
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
@@ -128,6 +134,9 @@ def main(argv):
         project_group_df,
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
+        patient_treatment_df,
+        model_drug_dosing_df,
+        treatment_df,
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
@@ -154,13 +163,20 @@ def transform_search_index(
     project_group_df,
     sample_to_ontology_df,
     ontology_term_diagnosis_df,
+    patient_treatment_df,
+    model_drug_dosing_df,
+    treatment_df,
 ) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
     patient_sample_df = patient_sample_df.withColumnRenamed("grade", "cancer_grade")
-    patient_sample_df = patient_sample_df.withColumnRenamed("grading_system", "cancer_grading_system")
+    patient_sample_df = patient_sample_df.withColumnRenamed(
+        "grading_system", "cancer_grading_system"
+    )
     patient_sample_df = patient_sample_df.withColumnRenamed("stage", "cancer_stage")
-    patient_sample_df = patient_sample_df.withColumnRenamed("staging_system", "cancer_staging_system")
+    patient_sample_df = patient_sample_df.withColumnRenamed(
+        "staging_system", "cancer_staging_system"
+    )
     patient_sample_ext_df = extend_patient_sample(
         patient_sample_df,
         patient_df,
@@ -381,7 +397,9 @@ def transform_search_index(
 
     # Adding model_type, join with xenograft_sample and cell_model if there is match in xenograft_sample
     # the model is a xenograft, if there is a match in cell_model the model is a cell_model
-    xenograft_sample_df = xenograft_sample_df.withColumnRenamed("id", "xenograft_model_id")
+    xenograft_sample_df = xenograft_sample_df.withColumnRenamed(
+        "id", "xenograft_model_id"
+    )
     cell_model_df = cell_model_df.withColumnRenamed("id", "cell_model_id")
     model_model_type_df = model_df.join(
         xenograft_sample_df, col("id") == col("model_id"), "left"
@@ -392,19 +410,31 @@ def transform_search_index(
     model_model_type_df = model_model_type_df.withColumn(
         "model_type",
         when(col("xenograft_model_id").isNotNull(), lit("xenograft model"))
-        .when(
-            col("cell_model_id").isNotNull(),
-            lit("cell model")
-        )
+        .when(col("cell_model_id").isNotNull(), lit("cell model"))
         .otherwise(lit(None).astype(StringType())),
     )
-    model_model_type_df = model_model_type_df.select("id", "model_type").drop_duplicates()
+    model_model_type_df = model_model_type_df.select(
+        "id", "model_type"
+    ).drop_duplicates()
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(
         search_index_df,
         model_model_type_df,
         "temp_model_id",
         "id",
+    )
+
+    ## Adding treatment list to search_index
+    treatment_df = treatment_df.withColumn("treatment_name", explode(split("name", "\s*\\+\s*")))
+    treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
+    patient_treatment_df = patient_treatment_df.join(treatment_df, "treatment_id", "inner").select("model_id", "treatment_name")
+    patient_treatment_df = patient_treatment_df.groupby("model_id").agg(collect_set("treatment_name").alias("treatment_list"))
+    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
+    search_index_df = join_left_dfs(
+        search_index_df,
+        patient_treatment_df,
+        "temp_model_id",
+        "model_id",
     )
 
     search_index_df = (
@@ -435,6 +465,7 @@ def transform_search_index(
             "makers_with_expression_data",
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
+            "treatment_list"
         )
         .where(col("histology").isNotNull())
         .distinct()

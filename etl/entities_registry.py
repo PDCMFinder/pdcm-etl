@@ -457,6 +457,7 @@ entities = {
             "makers_with_expression_data",
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
+            "treatment_list"
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {

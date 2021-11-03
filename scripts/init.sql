@@ -393,7 +393,8 @@ CREATE TABLE search_index (
     makers_with_mutation_data TEXT[],
     makers_with_expression_data TEXT[],
     makers_with_cytogenetics_data TEXT[],
-    breast_cancer_biomarkers TEXT[]
+    breast_cancer_biomarkers TEXT[],
+    treatment_list TEXT[]
 );
 
 

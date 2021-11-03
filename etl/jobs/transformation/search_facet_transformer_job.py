@@ -105,6 +105,16 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_column": "makers_with_cytogenetics_data",
         },
         {
+            "facet_section": "treatment_drug_dosing",
+            "facet_name": "Patient treatment status",
+            "facet_column": "patient_treatment_status",
+        },
+        {
+            "facet_section": "treatment_drug_dosing",
+            "facet_name": "Patient treatment",
+            "facet_column": "treatment_list",
+        },
+        {
             "facet_section": "patient_tumour",
             "facet_name": "Tumour type",
             "facet_column": "tumour_type",
@@ -118,11 +128,6 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "patient_tumour",
             "facet_name": "Patient age",
             "facet_column": "patient_age",
-        },
-        {
-            "facet_section": "patient_tumour",
-            "facet_name": "Patient treatment status",
-            "facet_column": "patient_treatment_status",
         },
         {
             "facet_section": "patient_tumour",

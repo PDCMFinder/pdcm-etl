@@ -429,7 +429,10 @@ class TransformSearchIndex(TransformEntity):
         TransformProviderGroup(),
         TransformProjectGroup(),
         TransformSampleToOntology(),
-        TransformOntologyTermDiagnosis()
+        TransformOntologyTermDiagnosis(),
+        TransformPatientTreatment(),
+        TransformModelDrugDosing(),
+        TransformTreatment()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 
