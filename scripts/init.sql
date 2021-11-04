@@ -61,7 +61,7 @@ CREATE TABLE source_database (
     database_url TEXT NOT NULL
 );
 
-CREATE TABLE model (
+CREATE TABLE model_information (
     id BIGINT NOT NULL,
     external_model_id TEXT,
     data_source varchar,
@@ -74,7 +74,6 @@ CREATE TABLE model (
 
 CREATE TABLE cell_model (
     id BIGINT NOT NULL,
-    external_model_id TEXT,
     name TEXT,
     type TEXT,
     growth_properties TEXT,
@@ -83,8 +82,14 @@ CREATE TABLE cell_model (
     comments TEXT,
     model_id BIGINT,
     supplier TEXT,
-    external_ids TEXT,
-    provider_abb TEXT
+    external_ids TEXT
+);
+
+CREATE TABLE cell_sample (
+    id BIGINT NOT NULL,
+    external_cell_sample_id TEXT,
+    model_id BIGINT,
+    platform_id BIGINT
 );
 
 CREATE TABLE quality_assurance (
@@ -284,7 +289,7 @@ CREATE TABLE mutation_measurement_data (
     molecular_characterization_id BIGINT
 );
 
-CREATE TABLE specimen (
+CREATE TABLE xenograft_model_specimen (
     id BIGINT NOT NULL,
     passage_number TEXT NOT NULL,
     engraftment_site_id BIGINT,

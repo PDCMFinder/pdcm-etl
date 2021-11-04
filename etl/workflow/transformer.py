@@ -141,7 +141,7 @@ class TransformModel(TransformEntity):
         TransformContactForm(),
         TransformSourceDatabase()
     ]
-    entity_name = Constants.MODEL_ENTITY
+    entity_name = Constants.MODEL_INFORMATION_ENTITY
 
 
 class TransformCellModel(TransformEntity):
@@ -275,7 +275,16 @@ class TransformXenograftSample(TransformEntity):
     entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
 
 
-class TransformSpecimen(TransformEntity):
+class TransformCellSample(TransformEntity):
+    requiredTasks = [
+        ExtractMolecularMetadataSample(),
+        TransformModel(),
+        TransformPlatform()
+    ]
+    entity_name = Constants.CELL_SAMPLE_ENTITY
+
+
+class TransformXenograftModelSpecimen(TransformEntity):
     requiredTasks = [
         ExtractModel(),
         TransformEngraftmentSite(),
@@ -285,7 +294,7 @@ class TransformSpecimen(TransformEntity):
         TransformHostStrain(),
         TransformModel()
     ]
-    entity_name = Constants.SPECIMEN_ENTITY
+    entity_name = Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY
 
 
 class TransformMolecularCharacterization(TransformEntity):

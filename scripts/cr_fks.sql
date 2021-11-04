@@ -23,27 +23,27 @@ ALTER TABLE patient
     FOREIGN KEY (ethnicity_id)
     REFERENCES ethnicity (id);
 
-ALTER TABLE model
+ALTER TABLE model_information
     ADD CONSTRAINT fk_model_publication_group
     FOREIGN KEY (publication_group_id)
     REFERENCES publication_group (id);
 
-ALTER TABLE model
+ALTER TABLE model_information
     ADD CONSTRAINT fk_model_accessibility_group
     FOREIGN KEY (accessibility_group_id)
     REFERENCES accessibility_group (id);
 
-ALTER TABLE model
+ALTER TABLE model_information
     ADD CONSTRAINT fk_model_contact_people
     FOREIGN KEY (contact_people_id)
     REFERENCES contact_people (id);
 
-ALTER TABLE model
+ALTER TABLE model_information
     ADD CONSTRAINT fk_model_contact_form
     FOREIGN KEY (contact_form_id)
     REFERENCES contact_form (id);
 
-ALTER TABLE model
+ALTER TABLE model_information
     ADD CONSTRAINT fk_model_source_database
     FOREIGN KEY (source_database_id)
     REFERENCES source_database (id);
@@ -51,12 +51,22 @@ ALTER TABLE model
 ALTER TABLE cell_model
     ADD CONSTRAINT fk_cell_model_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
+
+ALTER TABLE cell_sample
+    ADD CONSTRAINT fk_cell_sample_model
+    FOREIGN KEY (model_id)
+    REFERENCES model_information (id);
+
+ALTER TABLE cell_sample
+    ADD CONSTRAINT fk_cell_sample_platform
+    FOREIGN KEY (platform_id)
+    REFERENCES platform (id);
 
 ALTER TABLE quality_assurance
     ADD CONSTRAINT fk_quality_assurance_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
 
 ALTER TABLE patient_sample
     ADD CONSTRAINT fk_patient_sample_diagnosis
@@ -81,12 +91,12 @@ ALTER TABLE patient_sample
 ALTER TABLE patient_sample
     ADD CONSTRAINT fk_patient_sample_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
 
 ALTER TABLE xenograft_sample
     ADD CONSTRAINT fk_xenograft_sample_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
 
 ALTER TABLE xenograft_sample
     ADD CONSTRAINT fk_xenograft_sample_host_strain
@@ -178,37 +188,32 @@ ALTER TABLE mutation_measurement_data
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
-ALTER TABLE specimen
+ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_engraftment_site
     FOREIGN KEY (engraftment_site_id)
     REFERENCES engraftment_site (id);
 
-ALTER TABLE specimen
+ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_engraftment_type
     FOREIGN KEY (engraftment_type_id)
     REFERENCES engraftment_type (id);
 
-ALTER TABLE specimen
+ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_engraftment_sample_type
     FOREIGN KEY (engraftment_sample_type_id)
     REFERENCES engraftment_sample_type (id);
 
-ALTER TABLE specimen
+ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
 
-ALTER TABLE specimen
-    ADD CONSTRAINT fk_engraftment_sample_state
+ALTER TABLE xenograft_model_specimen
+    ADD CONSTRAINT fk_specimen_engraftment_sample_state
     FOREIGN KEY (engraftment_sample_state_id)
     REFERENCES engraftment_sample_state (id);
 
-ALTER TABLE specimen
-    ADD CONSTRAINT fk_engraftment_sample_type
-    FOREIGN KEY (engraftment_sample_type_id)
-    REFERENCES engraftment_sample_type (id);
-
-ALTER TABLE specimen
+ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_host_strain
     FOREIGN KEY (host_strain_id)
     REFERENCES host_strain (id);
@@ -246,7 +251,7 @@ ALTER TABLE patient_treatment
 ALTER TABLE patient_treatment
     ADD CONSTRAINT fk_patient_treatment_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
 
 ALTER TABLE model_drug_dosing
     ADD CONSTRAINT fk_model_drug_dosing_treatment
@@ -266,4 +271,4 @@ ALTER TABLE model_drug_dosing
 ALTER TABLE model_drug_dosing
     ADD CONSTRAINT fk_model_drug_dosing_model
     FOREIGN KEY (model_id)
-    REFERENCES model (id);
+    REFERENCES model_information (id);
