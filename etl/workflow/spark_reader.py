@@ -7,6 +7,7 @@ import luigi
 from luigi.contrib.spark import PySparkTask
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.utils import IllegalArgumentException
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
 from pyspark.sql.types import StructType, StructField, StringType
 
@@ -150,7 +151,7 @@ class ReadByModuleAndPathPatterns(PySparkTask):
                              path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
         try:
             df = read_files(spark, path_patterns, schema)
-        except BaseException as error:
+        except (FileNotFoundError, IOError, IllegalArgumentException):
             empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
             df = empty_df
             df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))

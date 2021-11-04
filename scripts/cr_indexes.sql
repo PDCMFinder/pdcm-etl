@@ -8,8 +8,9 @@ ALTER TABLE accessibility_group ADD CONSTRAINT pk_accessibility_group PRIMARY KE
 ALTER TABLE contact_people ADD CONSTRAINT pk_contact_people PRIMARY KEY (id);
 ALTER TABLE contact_form ADD CONSTRAINT pk_contact_form PRIMARY KEY (id);
 ALTER TABLE source_database ADD CONSTRAINT pk_source_database PRIMARY KEY (id);
-ALTER TABLE model ADD CONSTRAINT pk_model PRIMARY KEY (id);
-ALTER TABLE cell_model ADD CONSTRAINT pk_other_model PRIMARY KEY (id);
+ALTER TABLE model_information ADD CONSTRAINT pk_model_information PRIMARY KEY (id);
+ALTER TABLE cell_model ADD CONSTRAINT pk_cell_model PRIMARY KEY (id);
+ALTER TABLE cell_sample ADD CONSTRAINT pk_cell_sample PRIMARY KEY (id);
 ALTER TABLE quality_assurance ADD CONSTRAINT pk_quality_assurance PRIMARY KEY (id);
 ALTER TABLE tissue ADD CONSTRAINT pk_tissue PRIMARY KEY (id);
 ALTER TABLE tumour_type ADD CONSTRAINT pk_tumour_type PRIMARY KEY (id);
@@ -33,7 +34,7 @@ ALTER TABLE cytogenetics_molecular_data ADD CONSTRAINT pk_cytogenetics_molecular
 ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_data PRIMARY KEY (id);
 ALTER TABLE mutation_marker ADD CONSTRAINT pk_mutation_marker PRIMARY KEY (id);
 ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
-ALTER TABLE specimen ADD CONSTRAINT pk_specimen PRIMARY KEY (id);
+ALTER TABLE xenograft_model_specimen ADD CONSTRAINT pk_xenograft_model_specimen PRIMARY KEY (id);
 ALTER TABLE gene_marker ADD CONSTRAINT pk_gene_marker PRIMARY KEY (id);
 ALTER TABLE ontology_term_diagnosis ADD CONSTRAINT pk_ontology_term_diagnosis PRIMARY KEY (id);
 ALTER TABLE ontology_term_treatment ADD CONSTRAINT pk_ontology_term_treatment PRIMARY KEY (id);
