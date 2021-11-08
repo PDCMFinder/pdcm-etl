@@ -8,9 +8,9 @@ from luigi.contrib.spark import PySparkTask
 from py4j.protocol import Py4JJavaError
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.utils import IllegalArgumentException
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
 from pyspark.sql.types import StructType, StructField, StringType
-from pyspark.sql.utils import IllegalArgumentException
 
 from etl import logger
 from etl.constants import Constants
@@ -152,9 +152,9 @@ class ReadByModuleAndPathPatterns(PySparkTask):
                              path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
         try:
             df = read_files(spark, path_patterns, schema)
-        except (Py4JJavaError, IllegalArgumentException) as error:
+        except (Py4JJavaError, IllegalArgumentException, FileNotFoundError, IOError) as error:
             no_empty_patterns = list(filter(lambda x: x != '', path_patterns))
-            if "java.io.FileNotFoundException" in str(error) or len(no_empty_patterns) == 0:
+            if "java.io.FileNotFoundException" in str(error) or len(no_empty_patterns) == 0 or error.__class__ in [FileNotFoundError, IOError]:
                 empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
                 df = empty_df
                 df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))

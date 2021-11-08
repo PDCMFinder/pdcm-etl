@@ -9,8 +9,9 @@ ALTER TABLE accessibility_group DROP CONSTRAINT IF EXISTS pk_accessibility_group
 ALTER TABLE contact_people DROP CONSTRAINT IF EXISTS pk_contact_people CASCADE;
 ALTER TABLE contact_form DROP CONSTRAINT IF EXISTS pk_contact_form CASCADE;
 ALTER TABLE source_database DROP CONSTRAINT IF EXISTS pk_source_database CASCADE;
-ALTER TABLE model DROP CONSTRAINT IF EXISTS pk_model CASCADE;
-ALTER TABLE cell_model DROP CONSTRAINT IF EXISTS pk_other_model CASCADE;
+ALTER TABLE model_information DROP CONSTRAINT IF EXISTS pk_model_information CASCADE;
+ALTER TABLE cell_model DROP CONSTRAINT IF EXISTS pk_cell_model CASCADE;
+ALTER TABLE cell_sample DROP CONSTRAINT IF EXISTS pk_cell_sample CASCADE;
 ALTER TABLE quality_assurance DROP CONSTRAINT IF EXISTS pk_quality_assurance CASCADE;
 ALTER TABLE tissue DROP CONSTRAINT IF EXISTS pk_tissue CASCADE;
 ALTER TABLE tumour_type DROP CONSTRAINT IF EXISTS pk_tumour_type CASCADE;
@@ -34,7 +35,7 @@ ALTER TABLE cytogenetics_molecular_data DROP CONSTRAINT IF EXISTS pk_cytogenetic
 ALTER TABLE expression_molecular_data DROP CONSTRAINT IF EXISTS pk_expression_molecular_data CASCADE;
 ALTER TABLE mutation_marker DROP CONSTRAINT IF EXISTS pk_mutation_marker CASCADE;
 ALTER TABLE mutation_measurement_data DROP CONSTRAINT IF EXISTS pk_mutation_measurement_data CASCADE;
-ALTER TABLE specimen DROP CONSTRAINT IF EXISTS pk_specimen CASCADE;
+ALTER TABLE xenograft_model_specimen DROP CONSTRAINT IF EXISTS pk_xenograft_model_specimen CASCADE;
 ALTER TABLE gene_marker DROP CONSTRAINT IF EXISTS pk_gene_marker CASCADE;
 ALTER TABLE ontology_term_diagnosis DROP CONSTRAINT IF EXISTS pk_ontology_term_diagnosis CASCADE;
 ALTER TABLE ontology_term_treatment DROP CONSTRAINT IF EXISTS pk_ontology_term_treatment CASCADE;

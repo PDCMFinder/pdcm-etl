@@ -1,5 +1,4 @@
 import sys
-import networkx as nx
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col
 from pyspark.sql.functions import regexp_replace

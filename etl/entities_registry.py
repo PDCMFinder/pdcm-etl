@@ -4,6 +4,7 @@ import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
 import etl.jobs.transformation.cell_model_transformer_job
+import etl.jobs.transformation.cell_sample_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
 import etl.jobs.transformation.contact_people_transformer_job
 import etl.jobs.transformation.contact_form_transformer_job
@@ -34,7 +35,7 @@ import etl.jobs.transformation.expression_molecular_data_transformer_job
 import etl.jobs.transformation.mutation_marker_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
-import etl.jobs.transformation.specimen_transformer_job
+import etl.jobs.transformation.xenograft_model_specimen_transformer_job
 import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
@@ -100,7 +101,7 @@ entities = {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
         "expected_database_columns": ["id", "pubmed_ids"]
     },
-    Constants.MODEL_ENTITY: {
+    Constants.MODEL_INFORMATION_ENTITY: {
         "spark_job": etl.jobs.transformation.model_transformer_job.main,
         "expected_database_columns": [
             "id",
@@ -117,7 +118,6 @@ entities = {
         "spark_job": etl.jobs.transformation.cell_model_transformer_job.main,
         "expected_database_columns": [
             "id",
-            "external_model_id",
             "name",
             "type",
             "growth_properties",
@@ -126,8 +126,16 @@ entities = {
             "comments",
             "model_id",
             "supplier",
-            "external_ids",
-            "provider_abb"
+            "external_ids"
+        ]
+    },
+    Constants.CELL_SAMPLE_ENTITY: {
+        "spark_job": etl.jobs.transformation.cell_sample_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "external_cell_sample_id",
+            "model_id",
+            "platform_id"
         ]
     },
     Constants.CONTACT_PEOPLE_ENTITY: {
@@ -378,8 +386,8 @@ entities = {
         "spark_job": etl.jobs.transformation.ontology_term_regimen_transformer_job.main,
         "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
     },
-    Constants.SPECIMEN_ENTITY: {
-        "spark_job": etl.jobs.transformation.specimen_transformer_job.main,
+    Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: {
+        "spark_job": etl.jobs.transformation.xenograft_model_specimen_transformer_job.main,
         "expected_database_columns": [
             "id",
             "passage_number",
