@@ -143,6 +143,11 @@ ALTER TABLE molecular_characterization
     FOREIGN KEY (xenograft_sample_id)
     REFERENCES xenograft_sample (id);
 
+ALTER TABLE molecular_characterization
+    ADD CONSTRAINT fk_molecular_characterization_cell_sample
+    FOREIGN KEY (cell_sample_id)
+    REFERENCES cell_sample (id);
+
 ALTER TABLE cna_molecular_data
     ADD CONSTRAINT fk_cna_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)

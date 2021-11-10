@@ -214,7 +214,8 @@ CREATE TABLE molecular_characterization (
     platform_id BIGINT NOT NULL,
     raw_data_url TEXT,
     patient_sample_id BIGINT,
-    xenograft_sample_id BIGINT
+    xenograft_sample_id BIGINT,
+    cell_sample_id BIGINT
 );
 
 CREATE TABLE cna_molecular_data (
