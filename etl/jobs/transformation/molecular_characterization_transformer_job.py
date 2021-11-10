@@ -56,8 +56,8 @@ def transform_molecular_characterization(
 
     columns = [
         "sample_origin", "molecular_characterisation_type", "platform_id", "platform_external_id", "patient_sample_id",
-        "xenograft_sample_id", "external_patient_sample_id", "external_xenograft_sample_id",
-        "raw_data_url", Constants.DATA_SOURCE_COLUMN]
+        "xenograft_sample_id", "external_patient_sample_id", "cell_sample_id", "external_xenograft_sample_id",
+        "external_cell_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN]
 
     molchar_patient = set_fk_patient_sample(molchar_sample_df, patient_sample_df)
     molchar_patient = molchar_patient.select(columns)
@@ -139,7 +139,8 @@ def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_samp
     molchar_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     molchar_patient_df = molchar_patient_df.withColumn("xenograft_sample_id", lit(None))
     molchar_patient_df = molchar_patient_df.withColumn("external_xenograft_sample_id", lit(None))
-    molchar_patient_df = molchar_patient_df.withColumn("external_patient_sample_id_bk", col("sample_id"))
+    molchar_patient_df = molchar_patient_df.withColumn("cell_sample_id", lit(None))
+    molchar_patient_df = molchar_patient_df.withColumn("external_cell_sample_id", lit(None))
 
     molchar_patient_df = molchar_patient_df.withColumn("external_patient_sample_id", col("sample_id"))
 
@@ -157,7 +158,8 @@ def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_
     molchar_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     molchar_xenograft_df = molchar_xenograft_df.withColumn("patient_sample_id", lit(None))
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_patient_sample_id", lit(None))
-    molchar_xenograft_df = molchar_xenograft_df.withColumn("external_xenograft_sample_id_bk", col("sample_id"))
+    molchar_xenograft_df = molchar_xenograft_df.withColumn("cell_sample_id", lit(None))
+    molchar_xenograft_df = molchar_xenograft_df.withColumn("external_cell_sample_id", lit(None))
 
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_xenograft_sample_id", col("sample_id"))
 
@@ -177,6 +179,7 @@ def set_fk_cell_sample(molecular_characterization_df: DataFrame, cell_sample_df:
     molchar_cell_df = molchar_cell_df.withColumn("xenograft_sample_id", lit(None))
     molchar_cell_df = molchar_cell_df.withColumn("external_patient_sample_id", lit(None))
     molchar_cell_df = molchar_cell_df.withColumn("external_xenograft_sample_id", lit(None))
+
     molchar_cell_df = molchar_cell_df.withColumn("external_cell_sample_id", col("sample_id"))
 
     molchar_cell_df = molchar_cell_df.join(
@@ -202,8 +205,8 @@ def set_fk_mol_char_type(molecular_characterization_df: DataFrame, mol_char_type
 def get_columns_expected_order(molecular_characterization_df: DataFrame) -> DataFrame:
     return molecular_characterization_df.select(
         "id", "molecular_characterization_type_id", "platform_id", "patient_sample_id", "xenograft_sample_id",
-        "sample_origin", "molecular_characterisation_type", "platform_external_id", "external_patient_sample_id",
-        "external_xenograft_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN)
+        "cell_sample_id", "sample_origin", "molecular_characterisation_type", "platform_external_id",
+        "external_patient_sample_id", "external_xenograft_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":
