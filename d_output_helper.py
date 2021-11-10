@@ -1,48 +1,34 @@
+import argparse
 import os
 import shutil
 import sys
 from distutils.dir_util import copy_tree
 
 
-def main(argv):
-    args_formatted = ' '.join(argv)
-    args_formatted = args_formatted.replace(" =", "=")
-    args_formatted = args_formatted.replace("= ", "=")
+def main():
+    parser = argparse.ArgumentParser()
 
-    dict_options = {}
-    for option in args_formatted.split()[1:]:
-        key = option
-        value = None
-        if "=" in option:
-            split_by_equal = option.split("=")
-            key = split_by_equal[0]
-            value = split_by_equal[1]
-        dict_options[key] = value
-    output_dir = get_output_directory(dict_options)
-    rm_all_option = get_rm_all_option(dict_options)
-    use_cache_option = get_use_cache_option(dict_options)
-    cache_dir = get_cache_dir_option(dict_options)
-    entities_delete = get_entities_delete_option(dict_options)
-    dirs_delete = get_dirs_delete_option(dict_options)
-    options = {
-        "output_dir": output_dir,
-        "rm_all_option": rm_all_option,
-        "use_cache_option": use_cache_option,
-        "cache_dir": cache_dir,
-        "entities_delete": entities_delete,
-        "dirs_delete": dirs_delete
-    }
-    apply_options(options)
+    parser.add_argument('--output-dir', help='Directory where the output for the ETL is located.')
+    parser.add_argument('--rm_all', help='If set, deletes all the data in the output-dir.', action="store_true")
+    parser.add_argument('--cache', help='If set, copies the data from cache-dir to output-dir.', action="store_true")
+    parser.add_argument('--cache-dir', help='Directory where the cache is located.')
+    parser.add_argument('--entities', help='Entities for which the data will be deleted.')
+    parser.add_argument('--dirs', help='Directories to be deleted in the entities list.'
+                                       'Allowed values: [raw, transformed, database_formatted, database]')
+    args = parser.parse_args()
+    output_dir = args.output_dir
+    rm_all_option = args.rm_all
+    use_cache_option = args.cache
+    cache_dir = args.cache_dir
+    entities_delete = get_entities_delete_option(args.entities)
+    dirs_delete = get_dirs_delete_option(args.dirs)
+    print("dirs_delete", dirs_delete)
+    process(output_dir, rm_all_option, use_cache_option, cache_dir, entities_delete, dirs_delete)
 
 
-def apply_options(options):
-    output_dir = options.get("output_dir")
-    rm_all_option = options.get("rm_all_option")
-    use_cache_option = options.get("use_cache_option")
-    cache_dir = options.get("cache_dir")
-    entities_delete = options.get("entities_delete")
-    dirs_delete = options.get("dirs_delete")
-
+def process(output_dir, rm_all_option, use_cache_option, cache_dir, entities_delete, dirs_delete):
+    if not output_dir:
+        raise Exception("Output dir not provided")
     print("Getting ready to remove files in:", output_dir)
 
     if rm_all_option:
@@ -51,19 +37,22 @@ def apply_options(options):
         delete_files_for_entities(entities_delete, dirs_delete, output_dir)
 
     if use_cache_option:
+        if not cache_dir or not os.path.exists(cache_dir):
+            raise Exception("Directory for cache [{0}] does not exist".format(cache_dir))
         copy_tree(cache_dir, output_dir)
+        print("Copied cache from {0} to {1}".format(cache_dir, output_dir))
 
 
 def delete_all_files_in_directory(directory):
     if os.path.exists(directory):
-        print("delete dir", directory)
         shutil.rmtree(directory)
+        print("Deleted dir", directory)
 
 
 def delete_file(file):
     if os.path.exists(file):
-        print("delete file", file)
         os.remove(file)
+        print("Deleted file", file)
 
 
 def delete_files_for_entities(entities_delete, dirs_delete, output_dir):
@@ -72,6 +61,7 @@ def delete_files_for_entities(entities_delete, dirs_delete, output_dir):
         output_dir_path = output_dir_path + "/"
     for entity in entities_delete:
         for directory in dirs_delete:
+            print("processing", directory)
             if directory in ["database"]:
                 path = output_dir_path + directory + "/copied/" + entity
                 delete_file(path)
@@ -83,55 +73,21 @@ def delete_files_for_entities(entities_delete, dirs_delete, output_dir):
                 delete_all_files_in_directory(path)
 
 
-def get_output_directory(dict_options):
-    output_dir = "output"
-    if "--output-dir" in dict_options:
-        value = dict_options["--output-dir"]
-        if value:
-            output_dir = value
-    return output_dir
-
-
-def get_rm_all_option(dict_options):
-    return "--rm_all" in dict_options
-
-
-def get_use_cache_option(dict_options):
-    return "--use-cache" in dict_options
-
-
-def get_cache_dir_option(dict_options):
-    cache_dir = "cache"
-    if "--cache-dir" in dict_options:
-        value = dict_options["--cache-dir"]
-        if value:
-            cache_dir = value
-    if not os.path.exists(cache_dir):
-        raise Exception("Directory for cache [{0}] does not exist".format(cache_dir))
-    return cache_dir
-
-
-def get_entities_delete_option(dict_options):
-    entities_delete = None
-    if "--entities_delete" in dict_options:
-        value = dict_options["--entities_delete"]
-        value = value.lower()
-        if value:
-            entities = value.split(",")
-            entities_delete = entities
+def get_entities_delete_option(entities):
+    print("entities", entities)
+    entities_delete = []
+    if entities:
+        entities_delete = entities.lower().split(",")
+    print("entities_delete", entities_delete)
     return entities_delete
 
 
-def get_dirs_delete_option(dict_options):
+def get_dirs_delete_option(dirs):
     dirs_delete = []
-    if "--dirs_delete" in dict_options:
-        value = dict_options["--dirs_delete"]
-        value = value.lower()
-        if value:
-            dirs = value.split(",")
-            dirs_delete = dirs
+    if dirs:
+        dirs_delete = dirs.lower().split(",")
     return dirs_delete
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())
