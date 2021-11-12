@@ -47,11 +47,19 @@ def transform_sample_to_ontology(model_df: DataFrame,
                                  ontology_term_diagnosis_df: DataFrame,
                                  diagnosis_mappings_df: DataFrame) -> DataFrame:
     sample_data_df = join_sample_with_linked_data(model_df, patient_sample_df, diagnosis_df, tissue_df, tumor_type_df)
-
+    diagnosis_mappings_df = lower_mapping_column_values(diagnosis_mappings_df)
     sample_to_ontology_df = link_samples_to_ontology(sample_data_df, ontology_term_diagnosis_df, diagnosis_mappings_df)
     sample_to_ontology_df = add_id(sample_to_ontology_df, "id")
     sample_to_ontology_df.show()
     return sample_to_ontology_df
+
+
+def lower_mapping_column_values(diagnosis_mappings_df: DataFrame) -> DataFrame:
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('datasource', lower(col('datasource')))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('diagnosis', lower(col('diagnosis')))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('primary_tissue', lower(col('primary_tissue')))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('tumor_type', lower(col('tumor_type')))
+    return diagnosis_mappings_df
 
 
 def join_sample_with_linked_data(model_df: DataFrame,
@@ -96,7 +104,9 @@ def link_samples_to_ontology(sample_data_df: DataFrame,
     ontology_term_diagnosis_df = ontology_term_diagnosis_df.withColumnRenamed("id", "ontology_term_id")
     diagnosis_mappings_df = diagnosis_mappings_df.join(
         ontology_term_diagnosis_df, diagnosis_mappings_df.term_url == ontology_term_diagnosis_df.term_url, how='left')
-    diagnosis_mappings_df.show()
+
+    #diagnosis_mappings_df.filter(diagnosis_mappings_df.datasource == "cmp").show()
+    #sample_data_df.filter(sample_data_df.data_source == "cmp").show()
 
     sample_to_ontology_df = sample_data_df.join(
         diagnosis_mappings_df, [diagnosis_mappings_df.datasource == sample_data_df.data_source,
