@@ -18,15 +18,17 @@ def main(argv):
     platform_parquet_path = argv[2]
     patient_sample_path = argv[3]
     xenograft_sample_path = argv[4]
-    mol_char_type_path = argv[5]
+    cell_sample_path = argv[5]
+    mol_char_type_path = argv[6]
 
-    output_path = argv[6]
+    output_path = argv[7]
 
     spark = SparkSession.builder.getOrCreate()
     raw_molchar_metadata_sample_df = spark.read.parquet(raw_molchar_metadata_sample_parquet_path)
     platform_df = spark.read.parquet(platform_parquet_path)
     patient_sample_df = spark.read.parquet(patient_sample_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_path)
+    cell_sample_df = spark.read.parquet(cell_sample_path)
     mol_char_type_df = spark.read.parquet(mol_char_type_path)
 
     molecular_characterization_df = transform_molecular_characterization(
@@ -34,6 +36,7 @@ def main(argv):
         platform_df,
         patient_sample_df,
         xenograft_sample_df,
+        cell_sample_df,
         mol_char_type_df)
     molecular_characterization_df.write.mode("overwrite").parquet(output_path)
 
@@ -43,6 +46,7 @@ def transform_molecular_characterization(
         platform_df: DataFrame,
         patient_sample_df: DataFrame,
         xenograft_sample_df: DataFrame,
+        cell_sample_df: DataFrame,
         mol_char_type_df: DataFrame) -> DataFrame:
     molchar_sample_df = get_molchar_sample(raw_molchar_metadata_sample_df)
 
@@ -52,8 +56,8 @@ def transform_molecular_characterization(
 
     columns = [
         "sample_origin", "molecular_characterisation_type", "platform_id", "platform_external_id", "patient_sample_id",
-        "xenograft_sample_id", "external_patient_sample_id", "external_xenograft_sample_id",
-        "raw_data_url", Constants.DATA_SOURCE_COLUMN]
+        "xenograft_sample_id", "external_patient_sample_id", "cell_sample_id", "external_xenograft_sample_id",
+        "external_cell_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN]
 
     molchar_patient = set_fk_patient_sample(molchar_sample_df, patient_sample_df)
     molchar_patient = molchar_patient.select(columns)
@@ -61,7 +65,10 @@ def transform_molecular_characterization(
     molchar_xenograft = set_fk_xenograft_sample(molchar_sample_df, xenograft_sample_df)
     molchar_xenograft = molchar_xenograft.select(columns)
 
-    molecular_characterization_df = molchar_patient.union(molchar_xenograft)
+    molchar_cell = set_fk_cell_sample(molchar_sample_df, cell_sample_df)
+    molchar_cell = molchar_cell.select(columns)
+
+    molecular_characterization_df = molchar_patient.union(molchar_xenograft).union(molchar_cell)
     molecular_characterization_df = set_fk_mol_char_type(molecular_characterization_df, mol_char_type_df)
     molecular_characterization_df = molecular_characterization_df.withColumn("raw_data_url", trim_all("raw_data_url"))
     molecular_characterization_df = build_raw_data_url(molecular_characterization_df, "raw_data_url")
@@ -132,7 +139,8 @@ def set_fk_patient_sample(molecular_characterization_df: DataFrame, patient_samp
     molchar_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
     molchar_patient_df = molchar_patient_df.withColumn("xenograft_sample_id", lit(None))
     molchar_patient_df = molchar_patient_df.withColumn("external_xenograft_sample_id", lit(None))
-    molchar_patient_df = molchar_patient_df.withColumn("external_patient_sample_id_bk", col("sample_id"))
+    molchar_patient_df = molchar_patient_df.withColumn("cell_sample_id", lit(None))
+    molchar_patient_df = molchar_patient_df.withColumn("external_cell_sample_id", lit(None))
 
     molchar_patient_df = molchar_patient_df.withColumn("external_patient_sample_id", col("sample_id"))
 
@@ -150,7 +158,8 @@ def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_
     molchar_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
     molchar_xenograft_df = molchar_xenograft_df.withColumn("patient_sample_id", lit(None))
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_patient_sample_id", lit(None))
-    molchar_xenograft_df = molchar_xenograft_df.withColumn("external_xenograft_sample_id_bk", col("sample_id"))
+    molchar_xenograft_df = molchar_xenograft_df.withColumn("cell_sample_id", lit(None))
+    molchar_xenograft_df = molchar_xenograft_df.withColumn("external_cell_sample_id", lit(None))
 
     molchar_xenograft_df = molchar_xenograft_df.withColumn("external_xenograft_sample_id", col("sample_id"))
 
@@ -159,6 +168,25 @@ def set_fk_xenograft_sample(molecular_characterization_df: DataFrame, xenograft_
 
     molchar_xenograft_df = molchar_xenograft_df.drop(xenograft_sample_df.platform_id)
     return molchar_xenograft_df
+
+
+def set_fk_cell_sample(molecular_characterization_df: DataFrame, cell_sample_df: DataFrame) -> DataFrame:
+    cell_sample_df = cell_sample_df.select("id", "external_cell_sample_id", "platform_id", Constants.DATA_SOURCE_COLUMN)
+
+    cell_sample_df = cell_sample_df.withColumnRenamed("id", "cell_sample_id")
+    molchar_cell_df = molecular_characterization_df.where("sample_origin = 'cell'")
+    molchar_cell_df = molchar_cell_df.withColumn("patient_sample_id", lit(None))
+    molchar_cell_df = molchar_cell_df.withColumn("xenograft_sample_id", lit(None))
+    molchar_cell_df = molchar_cell_df.withColumn("external_patient_sample_id", lit(None))
+    molchar_cell_df = molchar_cell_df.withColumn("external_xenograft_sample_id", lit(None))
+
+    molchar_cell_df = molchar_cell_df.withColumn("external_cell_sample_id", col("sample_id"))
+
+    molchar_cell_df = molchar_cell_df.join(
+        cell_sample_df, on=["external_cell_sample_id", Constants.DATA_SOURCE_COLUMN, "platform_id"], how='left')
+
+    molchar_cell_df = molchar_cell_df.drop(cell_sample_df.platform_id)
+    return molchar_cell_df
 
 
 def set_fk_mol_char_type(molecular_characterization_df: DataFrame, mol_char_type_df: DataFrame) -> DataFrame:
@@ -177,8 +205,8 @@ def set_fk_mol_char_type(molecular_characterization_df: DataFrame, mol_char_type
 def get_columns_expected_order(molecular_characterization_df: DataFrame) -> DataFrame:
     return molecular_characterization_df.select(
         "id", "molecular_characterization_type_id", "platform_id", "patient_sample_id", "xenograft_sample_id",
-        "sample_origin", "molecular_characterisation_type", "platform_external_id", "external_patient_sample_id",
-        "external_xenograft_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN)
+        "cell_sample_id", "sample_origin", "molecular_characterisation_type", "platform_external_id",
+        "external_patient_sample_id", "external_xenograft_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

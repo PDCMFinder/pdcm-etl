@@ -27,6 +27,7 @@ ALTER TABLE molecular_characterization DROP CONSTRAINT IF EXISTS fk_molecular_ch
 ALTER TABLE molecular_characterization DROP CONSTRAINT IF EXISTS fk_molecular_characterization_platform CASCADE;
 ALTER TABLE molecular_characterization DROP CONSTRAINT IF EXISTS fk_molecular_characterization_patient_sample CASCADE;
 ALTER TABLE molecular_characterization DROP CONSTRAINT IF EXISTS fk_molecular_characterization_xenograft_sample CASCADE;
+ALTER TABLE molecular_characterization DROP CONSTRAINT IF EXISTS fk_molecular_characterization_cell_sample CASCADE;
 ALTER TABLE cna_molecular_data DROP CONSTRAINT IF EXISTS fk_cna_molecular_data_mol_char CASCADE;
 ALTER TABLE cna_molecular_data DROP CONSTRAINT IF EXISTS fk_cna_molecular_data_gene_marker CASCADE;
 ALTER TABLE cytogenetics_molecular_data DROP CONSTRAINT IF EXISTS fk_cytogenetics_molecular_data_mol_char CASCADE;

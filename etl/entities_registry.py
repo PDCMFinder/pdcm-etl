@@ -267,7 +267,8 @@ entities = {
             "platform_id",
             "raw_data_url",
             "patient_sample_id",
-            "xenograft_sample_id"
+            "xenograft_sample_id",
+            "cell_sample_id"
         ]
     },
     Constants.PLATFORM_ENTITY: {
