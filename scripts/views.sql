@@ -49,7 +49,6 @@ CREATE MATERIALIZED VIEW models_by_cancer AS SELECT cancer_system, histology, co
 
 CREATE MATERIALIZED VIEW models_by_mutated_gene AS SELECT left(unnest(makers_with_mutation_data), strpos(unnest(makers_with_mutation_data), '/') - 1) as mutated_gene, count(DISTINCT pdcm_model_id) FROM search_index GROUP BY mutated_gene;
 
-
 CREATE MATERIALIZED VIEW models_by_dataset_availability AS SELECT unnest(dataset_available) as dataset_availability, COUNT(DISTINCT pdcm_model_id) FROM search_index GROUP BY  dataset_availability;
 
 DROP MATERIALIZED VIEW models_by_mutated_gene;
