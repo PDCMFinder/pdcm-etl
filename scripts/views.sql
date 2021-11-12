@@ -28,3 +28,28 @@ CREATE MATERIALIZED VIEW expression_data_table_columns AS
         SELECT DISTINCT molecular_characterization_id, jsonb_object_keys(jsonb_strip_nulls(to_jsonb(data_availability))) not_empty_cols FROM expression_data_table_columns_temp data_availability ) tmp GROUP BY molecular_characterization_id;
 
 
+CREATE MATERIALIZED VIEW cytogenetics_data_table AS SELECT *, ct::text as text FROM (
+    SELECT mc.id as molecular_characterization_id,
+           gm.approved_symbol as hgnc_symbol,
+           c.marker_status as result
+    FROM cytogenetics_molecular_data c LEFT JOIN molecular_characterization mc ON mc.id = c.molecular_characterization_id LEFT JOIN gene_marker gm on c.gene_marker_id = gm.id
+    ) as ct;
+
+
+CREATE MATERIALIZED VIEW cna_data_table AS SELECT *, cnat::text as text FROM (
+    SELECT gm.approved_symbol as hgnc_symbol,
+           cna.*
+    FROM cna_molecular_data cna LEFT JOIN molecular_characterization mc ON mc.id = cna.molecular_characterization_id LEFT JOIN gene_marker gm on cna.gene_marker_id = gm.id
+    ) as cnat;
+
+CREATE MATERIALIZED VIEW cna_data_table_columns AS SELECT molecular_characterization_id, array_agg(not_empty_cols) as not_empty_cols FROM (SELECT DISTINCT molecular_characterization_id, jsonb_object_keys(jsonb_strip_nulls(to_jsonb(cna_data_table))) not_empty_cols FROM cna_data_table) temp GROUP BY molecular_characterization_id;
+
+
+CREATE MATERIALIZED VIEW models_by_cancer AS SELECT cancer_system, histology, count(*) FROM search_index GROUP BY cancer_system, histology;
+
+CREATE MATERIALIZED VIEW models_by_mutated_gene AS SELECT left(unnest(makers_with_mutation_data), strpos(unnest(makers_with_mutation_data), '/') - 1) as mutated_gene, count(DISTINCT pdcm_model_id) FROM search_index GROUP BY mutated_gene;
+
+
+CREATE MATERIALIZED VIEW models_by_dataset_availability AS SELECT unnest(dataset_available) as dataset_availability, COUNT(DISTINCT pdcm_model_id) FROM search_index GROUP BY  dataset_availability;
+
+DROP MATERIALIZED VIEW models_by_mutated_gene;
