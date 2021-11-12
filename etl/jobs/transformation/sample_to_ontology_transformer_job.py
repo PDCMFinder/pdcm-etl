@@ -1,6 +1,7 @@
 import sys
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col, lower
+from etl.jobs.util.cleaner import lower_and_trim_all
 
 from etl.jobs.util.id_assigner import add_id
 
@@ -55,10 +56,10 @@ def transform_sample_to_ontology(model_df: DataFrame,
 
 
 def lower_mapping_column_values(diagnosis_mappings_df: DataFrame) -> DataFrame:
-    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('datasource', lower(col('datasource')))
-    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('diagnosis', lower(col('diagnosis')))
-    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('primary_tissue', lower(col('primary_tissue')))
-    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('tumor_type', lower(col('tumor_type')))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('datasource', lower_and_trim_all('datasource'))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('diagnosis', lower_and_trim_all('diagnosis'))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('primary_tissue', lower_and_trim_all('primary_tissue'))
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn('tumor_type', lower_and_trim_all('tumor_type'))
     return diagnosis_mappings_df
 
 
