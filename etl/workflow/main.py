@@ -1,6 +1,5 @@
 import luigi
 
-from etl.workflow.loader import CreateFksAndIndexes
 from etl.workflow.reporter import ExecuteAnalysis
 
 

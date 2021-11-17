@@ -1,13 +1,16 @@
 import os
+from distutils.dir_util import copy_tree
 
 
-def get_not_empty_files(file_paths):
-    paths_with_non_empty_files = []
-    for path in file_paths:
-        if not is_file_emtpy(path):
-            paths_with_non_empty_files.append(path)
-    return paths_with_non_empty_files
+def copy_directory(deploy_mode, source, destination):
+    if not os.path.exists(source):
+        raise Exception("Source directory for cache [{0}] does not exist".format(source))
+    print("deploy_mode::", deploy_mode)
+    if "local" == deploy_mode:
+        print("Local copy")
+        copy_tree(source, destination)
+    else:
+        raise Exception("Deploy mode [{0}] not supported yet for copying directories".format(deploy_mode))
 
+    print("Copied cache from {0} to {1}".format(source, destination))
 
-def is_file_emtpy(file):
-    return os.stat(file).st_size == 0
