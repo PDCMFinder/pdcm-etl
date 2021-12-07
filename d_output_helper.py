@@ -2,7 +2,6 @@ import argparse
 import os
 import shutil
 import sys
-from distutils.dir_util import copy_tree
 
 
 def main():
@@ -10,23 +9,19 @@ def main():
 
     parser.add_argument('--output-dir', help='Directory where the output for the ETL is located.')
     parser.add_argument('--rm_all', help='If set, deletes all the data in the output-dir.', action="store_true")
-    parser.add_argument('--cache', help='If set, copies the data from cache-dir to output-dir.', action="store_true")
-    parser.add_argument('--cache-dir', help='Directory where the cache is located.')
     parser.add_argument('--entities', help='Entities for which the data will be deleted.')
     parser.add_argument('--dirs', help='Directories to be deleted in the entities list.'
                                        'Allowed values: [raw, transformed, database_formatted, database]')
     args = parser.parse_args()
     output_dir = args.output_dir
     rm_all_option = args.rm_all
-    use_cache_option = args.cache
-    cache_dir = args.cache_dir
     entities_delete = get_entities_delete_option(args.entities)
     dirs_delete = get_dirs_delete_option(args.dirs)
     print("dirs_delete", dirs_delete)
-    process(output_dir, rm_all_option, use_cache_option, cache_dir, entities_delete, dirs_delete)
+    process(output_dir, rm_all_option, entities_delete, dirs_delete)
 
 
-def process(output_dir, rm_all_option, use_cache_option, cache_dir, entities_delete, dirs_delete):
+def process(output_dir, rm_all_option, entities_delete, dirs_delete):
     if not output_dir:
         raise Exception("Output dir not provided")
     print("Getting ready to remove files in:", output_dir)
@@ -35,12 +30,6 @@ def process(output_dir, rm_all_option, use_cache_option, cache_dir, entities_del
         delete_all_files_in_directory(output_dir)
     elif entities_delete:
         delete_files_for_entities(entities_delete, dirs_delete, output_dir)
-
-    if use_cache_option:
-        if not cache_dir or not os.path.exists(cache_dir):
-            raise Exception("Directory for cache [{0}] does not exist".format(cache_dir))
-        copy_tree(cache_dir, output_dir)
-        print("Copied cache from {0} to {1}".format(cache_dir, output_dir))
 
 
 def delete_all_files_in_directory(directory):
