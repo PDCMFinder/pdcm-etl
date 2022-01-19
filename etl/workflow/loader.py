@@ -7,6 +7,7 @@ from etl.entities_registry import get_all_entities_names
 from etl.entities_task_index import get_transformation_class_by_entity_name, get_all_transformation_classes
 from etl.jobs.load.database_manager import copy_entity_to_database, get_database_connection, \
     delete_fks, delete_indexes, create_indexes, create_fks
+from etl.jobs.util.file_manager import copy_directory
 from etl.workflow.config import PdcmConfig
 
 
@@ -155,7 +156,7 @@ class CopyAll(luigi.WrapperTask):
     data_dir_out = luigi.Parameter()
 
     def requires(self):
-        return DeleteFksAndIndexes()
+        return [Cache(), DeleteFksAndIndexes()]
 
     def run(self):
         yield get_all_copying_tasks()
@@ -171,6 +172,24 @@ class CopyAllCluster(luigi.WrapperTask):
 
     def run(self):
         yield get_all_copying_cluster_tasks()
+
+
+class Cache(luigi.Task):
+    cache = luigi.Parameter()
+    cache_dir = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+
+    def output(self):
+        return PdcmConfig().get_target("{0}/{1}".format(self.data_dir_out, "cache_checks_executed"))
+
+    def run(self):
+        use_cache = False
+        if self.cache:
+            use_cache = "yes" == str(self.cache).lower()
+        if use_cache:
+            copy_directory(PdcmConfig().deploy_mode, self.cache_dir, self.data_dir_out)
+        with self.output().open('w') as outfile:
+            outfile.write("use_cache: {0}. folder: {1}".format(use_cache, self.cache_dir))
 
 
 if __name__ == "__main__":
