@@ -417,5 +417,17 @@ class TransformModelDrugDosing(TransformEntity):
     entity_name = Constants.MODEL_DRUG_DOSING_ENTITY
 
 
+class TransformTreatmentProtocol(TransformEntity):
+    requiredTasks = [
+        ExtractDrugDosing(),
+        ExtractPatientTreatment(),
+        TransformModel(),
+        TransformPatient(),
+        TransformResponse(),
+        TransformResponseClassification()
+    ]
+    entity_name = Constants.TREATMENT_PROTOCOL_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

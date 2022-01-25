@@ -42,6 +42,7 @@ import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.sample_to_ontology_transformer_job
 import etl.jobs.transformation.patient_treatment_transformer_job
 import etl.jobs.transformation.model_drug_dosing_transformer_job
+import etl.jobs.transformation.treatment_protocol_transformer_job
 from etl.constants import Constants
 
 
@@ -432,6 +433,17 @@ entities = {
             "response_id",
             "response_classification_id",
             "model_id"
+        ]
+    },
+    Constants.TREATMENT_PROTOCOL_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_protocol_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "model_id",
+            "patient_id",
+            "treatment_target",
+            "response_id",
+            "response_classification_id"
         ]
     }
 

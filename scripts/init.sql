@@ -371,3 +371,13 @@ CREATE TABLE model_drug_dosing (
     response_classification_id BIGINT,
     model_id BIGINT
 );
+
+CREATE TABLE treatment_protocol (
+    id BIGINT NOT NULL,
+    model_id BIGINT,
+    patient_id BIGINT,
+    treatment_target TEXT,
+    response_id BIGINT,
+    response_classification_id BIGINT
+
+);
