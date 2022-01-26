@@ -15,11 +15,11 @@ def main(argv):
     :param list argv: the list elements should be:
                     [1]: Parquet file path with raw drug-dosing data
                     [2]: Parquet file path with raw patient-treatment data
-                    [2]: Parquet file path with model_information data
-                    [2]: Parquet file path with patient data
-                    [2]: Parquet file path with response data
-                    [2]: Parquet file path with response_classification data
-                    [3]: Output file
+                    [3]: Parquet file path with model_information data
+                    [4]: Parquet file path with patient data
+                    [5]: Parquet file path with response data
+                    [6]: Parquet file path with response_classification data
+                    [7]: Output file
     """
     raw_drug_dosing_parquet_path = argv[1]
     raw_patient_treatment_parquet_path = argv[2]
