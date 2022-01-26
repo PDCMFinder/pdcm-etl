@@ -11,14 +11,18 @@ from etl.jobs.util.id_assigner import add_id
 
 def main(argv):
     """
-    Creates a parquet file with all the data needed for treatment related tables.
+    Creates a parquet file with the transformed data for treatment_protocol.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with drug-dosing data
-                    [2]: Parquet file path with patient-treatment data
+                    [1]: Parquet file path with raw drug-dosing data
+                    [2]: Parquet file path with raw patient-treatment data
+                    [2]: Parquet file path with model_information data
+                    [2]: Parquet file path with patient data
+                    [2]: Parquet file path with response data
+                    [2]: Parquet file path with response_classification data
                     [3]: Output file
     """
-    drug_dosing_parquet_path = argv[1]
-    patient_treatment_parquet_path = argv[2]
+    raw_drug_dosing_parquet_path = argv[1]
+    raw_patient_treatment_parquet_path = argv[2]
     model_parquet_path = argv[3]
     patient_parquet_path = argv[4]
     response_parquet_path = argv[5]
@@ -26,26 +30,26 @@ def main(argv):
     output_path = argv[7]
 
     spark = SparkSession.builder.getOrCreate()
-    drug_dosing_df = spark.read.parquet(drug_dosing_parquet_path)
-    patient_treatment_df = spark.read.parquet(patient_treatment_parquet_path)
+    raw_drug_dosing_df = spark.read.parquet(raw_drug_dosing_parquet_path)
+    raw_patient_treatment_df = spark.read.parquet(raw_patient_treatment_parquet_path)
     model_df = spark.read.parquet(model_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     response_df = spark.read.parquet(response_parquet_path)
     response_classification_df = spark.read.parquet(response_classification_parquet_path)
     treatment_protocol_df = transform_protocol(
-        drug_dosing_df, patient_treatment_df, model_df, patient_df, response_df, response_classification_df)
+        raw_drug_dosing_df, raw_patient_treatment_df, model_df, patient_df, response_df, response_classification_df)
     treatment_protocol_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_protocol(
-        drug_dosing_df: DataFrame,
-        patient_treatment_df: DataFrame,
+        raw_drug_dosing_df: DataFrame,
+        raw_patient_treatment_df: DataFrame,
         model_df: DataFrame,
         patient_df: DataFrame,
         response_df: DataFrame,
         response_classification_df: DataFrame) -> DataFrame:
-    treatment_protocol = get_data_from_drug_dosing(drug_dosing_df, model_df).union(
-        get_data_from_patient_treatment(patient_treatment_df, patient_df)
+    treatment_protocol = get_data_from_drug_dosing(raw_drug_dosing_df, model_df).union(
+        get_data_from_patient_treatment(raw_patient_treatment_df, patient_df)
     )
     treatment_protocol = treatment_protocol.drop_duplicates()
     treatment_protocol = set_fk_response(treatment_protocol, response_df)
