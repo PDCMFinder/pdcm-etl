@@ -73,3 +73,4 @@ class Constants:
     SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
     PATIENT_TREATMENT_ENTITY = "patient_treatment"
     MODEL_DRUG_DOSING_ENTITY = "model_drug_dosing"
+    TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
