@@ -1,3 +1,15 @@
+patient_treatment_columns = [
+    "patient_id",
+    "treatment_name",
+    "treatment_dose",
+    "treatment_starting_date",
+    "treatment_duration",
+    "treatment_event",
+    "elapsed_time",
+    "treatment_response",
+    "response_classification",
+    "model_id"]
+
 model_raw_data = [
     {
         "Field": "Description",
