@@ -93,6 +93,7 @@ def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df:
 def set_fk_response(treatment_protocol: DataFrame, response_df: DataFrame) -> DataFrame:
     treatment_protocol = treatment_protocol.withColumn(
         "treatment_response", init_cap_and_trim_all("treatment_response"))
+    response_df = response_df.withColumn("name", init_cap_and_trim_all("name"))
     treatment_protocol = transform_to_fk(
         treatment_protocol, response_df, "treatment_response", "name", "id", "response_id")
     return treatment_protocol
@@ -101,6 +102,7 @@ def set_fk_response(treatment_protocol: DataFrame, response_df: DataFrame) -> Da
 def set_fk_response_classification(treatment_protocol: DataFrame, response_classification_df: DataFrame) -> DataFrame:
     treatment_protocol = treatment_protocol.withColumn(
         "response_classification", init_cap_and_trim_all("response_classification"))
+    response_classification_df = response_classification_df.withColumn("name", init_cap_and_trim_all("name"))
 
     treatment_protocol = transform_to_fk(
         treatment_protocol,
