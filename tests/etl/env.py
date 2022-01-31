@@ -1,3 +1,28 @@
+patient_treatment_columns = [
+    "patient_id",
+    "treatment_name",
+    "treatment_dose",
+    "treatment_starting_date",
+    "treatment_duration",
+    "treatment_event",
+    "elapsed_time",
+    "treatment_response",
+    "response_classification",
+    "model_id"]
+
+drug_dosing_columns = [
+    "model_id",
+    "passage_range",
+    "treatment_name",
+    "treatment_type",
+    "treatment_dose",
+    "administration_route",
+    "treatment_schedule",
+    "treatment_length",
+    "treatment_response",
+    "response_classification"]
+
+
 ethnicity = [
     {
         "id": "1",
@@ -109,6 +134,10 @@ responses = [
     {
         "id": "1",
         "name": "complete response"
+    },
+    {
+        "id": "2",
+        "name": "stable disease"
     }
 ]
 
@@ -116,5 +145,9 @@ responses_classification = [
     {
         "id": "1",
         "name": "RECIST 1.1"
+    },
+    {
+        "id": "2",
+        "name": "modified RECIST criteria"
     }
 ]
