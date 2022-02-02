@@ -74,3 +74,4 @@ class Constants:
     PATIENT_TREATMENT_ENTITY = "patient_treatment"
     MODEL_DRUG_DOSING_ENTITY = "model_drug_dosing"
     TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
+    TREATMENT_AND_COMPONENT_HELPER = "treatment_and_component_helper"
