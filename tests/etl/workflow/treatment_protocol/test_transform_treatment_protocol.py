@@ -6,7 +6,7 @@ from tests.etl.env import drug_dosing_columns, models, patients, responses, resp
     patient_treatment_columns
 from tests.etl.workflow.treatment_protocol.input_data import raw_treatment_protocol_patient_treatment, \
     raw_treatment_protocol_drug_dosing
-from tests.util import convert_to_dataframe, dataframes_are_equal_ignore_id
+from tests.util import convert_to_dataframe, assert_df_are_equal_ignore_id
 from tests.etl.workflow.treatment_protocol.expected_outputs import expected_treatment_protocol_patient_treatment, \
      expected_treatment_protocol_drug_dosing
 
@@ -33,11 +33,10 @@ def test_treatment_protocol_patient_treatment(spark_context, spark_session):
         patient_parquet_df,
         response_df,
         response_classification_df)
-    treatment_protocol_df.show()
 
     expected_df = convert_to_dataframe(spark_session, expected_treatment_protocol_patient_treatment)
 
-    assert dataframes_are_equal_ignore_id(treatment_protocol_df, expected_df)
+    assert_df_are_equal_ignore_id(treatment_protocol_df, expected_df)
 
 
 def test_treatment_protocol_drug_dosing(spark_context, spark_session):
@@ -61,5 +60,5 @@ def test_treatment_protocol_drug_dosing(spark_context, spark_session):
 
     expected_df = convert_to_dataframe(spark_session, expected_treatment_protocol_drug_dosing)
 
-    assert dataframes_are_equal_ignore_id(treatment_protocol_df, expected_df)
+    assert_df_are_equal_ignore_id(treatment_protocol_df, expected_df)
 
