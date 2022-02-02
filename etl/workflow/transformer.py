@@ -429,5 +429,12 @@ class TransformTreatmentProtocol(TransformEntity):
     entity_name = Constants.TREATMENT_PROTOCOL_ENTITY
 
 
+class TransformTreatmentAndComponentHelper(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentProtocol()
+    ]
+    entity_name = Constants.TREATMENT_AND_COMPONENT_HELPER
+
+
 if __name__ == "__main__":
     luigi.run()
