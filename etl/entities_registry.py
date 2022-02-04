@@ -59,6 +59,17 @@ def get_all_entities_names():
     return list(entities.keys())
 
 
+# Some entities (exceptional cases) are not to be stored into the database because they are just temporary entities
+# that help with other transformations.
+def get_all_entities_names_to_store_db():
+    entities_names_to_store_db = []
+    for k in entities:
+        if len(entities[k]["expected_database_columns"]) > 0:
+            entities_names_to_store_db.append(k)
+
+    return entities_names_to_store_db
+
+
 entities = {
     Constants.DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.diagnosis_transformer_job.main,
