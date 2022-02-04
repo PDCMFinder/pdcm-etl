@@ -17,7 +17,7 @@ def get_empty(sc: SparkContext, spark_session, schema):
 
 
 def test_treatment_protocol_patient_treatment(spark_context, spark_session):
-    schema_patient_treatment = build_schema_from_cols(drug_dosing_columns )
+    schema_patient_treatment = build_schema_from_cols(drug_dosing_columns)
 
     raw_drug_dosing_parquet_df = get_empty(spark_context, spark_session, schema_patient_treatment)
     raw_patient_treatment_parquet_df = convert_to_dataframe(spark_session, raw_treatment_protocol_patient_treatment)
