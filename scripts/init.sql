@@ -381,3 +381,10 @@ CREATE TABLE treatment_protocol (
     response_classification_id BIGINT
 
 );
+
+CREATE TABLE treatment_component (
+    id BIGINT NOT NULL,
+    dose TEXT,
+    treatment_protocol_id BIGINT
+
+);

@@ -58,5 +58,6 @@ entities = {
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: TransformSampleToOntology(),
     Constants.PATIENT_TREATMENT_ENTITY: TransformPatientTreatment(),
     Constants.MODEL_DRUG_DOSING_ENTITY: TransformModelDrugDosing(),
-    Constants.TREATMENT_PROTOCOL_ENTITY: TransformTreatmentProtocol()
+    Constants.TREATMENT_PROTOCOL_ENTITY: TransformTreatmentProtocol(),
+    Constants.TREATMENT_COMPONENT: TransformTreatmentComponent()
 }
