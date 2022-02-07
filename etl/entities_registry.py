@@ -44,6 +44,7 @@ import etl.jobs.transformation.patient_treatment_transformer_job
 import etl.jobs.transformation.model_drug_dosing_transformer_job
 import etl.jobs.transformation.treatment_protocol_transformer_job
 import etl.jobs.transformation.treatment_and_component_helper_transformer_job
+import etl.jobs.transformation.treatment_component_transformer_job
 from etl.constants import Constants
 
 
@@ -461,6 +462,14 @@ entities = {
     Constants.TREATMENT_AND_COMPONENT_HELPER: {
         "spark_job": etl.jobs.transformation.treatment_and_component_helper_transformer_job.main,
         "expected_database_columns": []
+    },
+    Constants.TREATMENT_COMPONENT: {
+        "spark_job": etl.jobs.transformation.treatment_component_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "dose",
+            "treatment_protocol_id"
+        ]
     }
 
 }

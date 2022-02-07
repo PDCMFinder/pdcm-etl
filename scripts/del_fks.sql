@@ -55,3 +55,6 @@ ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_tre
 ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_response CASCADE;
 ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_response_classification CASCADE;
 ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_model CASCADE;
+ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS fk_treatment_protocol_model CASCADE;
+ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS fk_treatment_protocol_patient CASCADE;
+ALTER TABLE treatment_component DROP CONSTRAINT IF EXISTS fk_treatment_component_treatment_protocol CASCADE;

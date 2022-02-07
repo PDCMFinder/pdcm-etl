@@ -435,5 +435,12 @@ class TransformModelDrugDosing(TransformEntity):
     entity_name = Constants.MODEL_DRUG_DOSING_ENTITY
 
 
+class TransformTreatmentComponent(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentAndComponentHelper()
+    ]
+    entity_name = Constants.TREATMENT_COMPONENT
+
+
 if __name__ == "__main__":
     luigi.run()
