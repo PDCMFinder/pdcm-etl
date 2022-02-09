@@ -43,6 +43,8 @@ cancer_systems = [
     "Unclassified",
 ]
 
+NOT_SPECIFIED_VALUE = "Not specified"
+
 
 def main(argv):
     """
@@ -591,7 +593,7 @@ def extend_patient_sample(
     patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
     patient_df = patient_df.withColumn(
         "patient_sex",
-        when(lower(col("patient_sex")).contains("not"), "Not Specified").otherwise(
+        when(lower(col("patient_sex")).contains("not"), NOT_SPECIFIED_VALUE).otherwise(
             lower(col("patient_sex"))
         ),
     )
@@ -620,7 +622,7 @@ def extend_patient_sample(
             lower(col("treatment_naive_at_collection")) == "no",
             lit("Not treatment naive"),
         )
-        .otherwise(lit("Not specified")),
+        .otherwise(lit(NOT_SPECIFIED_VALUE)),
     )
 
     patient_sample_ext_df = join_left_dfs(
@@ -638,7 +640,7 @@ def extend_patient_sample(
 
 def _bin_age(age_str: str):
     if age_str is None or "not" in age_str.lower():
-        return "Not specified"
+        return NOT_SPECIFIED_VALUE
 
     if "months" in age_str:
         return "0 - 23 months"
@@ -652,7 +654,7 @@ def _bin_age(age_str: str):
             if bin_range[0] <= age <= bin_range[1]:
                 return f"{bin_range[0]} - {bin_range[1] - 1}"
     except ValueError:
-        return "Not specified"
+        return NOT_SPECIFIED_VALUE
 
     return age_str
 
