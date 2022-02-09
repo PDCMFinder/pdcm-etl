@@ -42,6 +42,9 @@ import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.sample_to_ontology_transformer_job
 import etl.jobs.transformation.patient_treatment_transformer_job
 import etl.jobs.transformation.model_drug_dosing_transformer_job
+import etl.jobs.transformation.treatment_protocol_transformer_job
+import etl.jobs.transformation.treatment_and_component_helper_transformer_job
+import etl.jobs.transformation.treatment_component_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 from etl.constants import Constants
@@ -57,6 +60,17 @@ def get_columns_by_entity_name(entity_name):
 
 def get_all_entities_names():
     return list(entities.keys())
+
+
+# Some entities (exceptional cases) are not to be stored into the database because they are just temporary entities
+# that help with other transformations.
+def get_all_entities_names_to_store_db():
+    entities_names_to_store_db = []
+    for k in entities:
+        if len(entities[k]["expected_database_columns"]) > 0:
+            entities_names_to_store_db.append(k)
+
+    return entities_names_to_store_db
 
 
 entities = {
@@ -434,6 +448,29 @@ entities = {
             "response_id",
             "response_classification_id",
             "model_id"
+        ]
+    },
+    Constants.TREATMENT_PROTOCOL_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_protocol_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "model_id",
+            "patient_id",
+            "treatment_target",
+            "response_id",
+            "response_classification_id"
+        ]
+    },
+    Constants.TREATMENT_AND_COMPONENT_HELPER: {
+        "spark_job": etl.jobs.transformation.treatment_and_component_helper_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.TREATMENT_COMPONENT: {
+        "spark_job": etl.jobs.transformation.treatment_component_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "dose",
+            "treatment_protocol_id"
         ]
     },
 

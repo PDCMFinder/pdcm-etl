@@ -277,3 +277,18 @@ ALTER TABLE model_drug_dosing
     ADD CONSTRAINT fk_model_drug_dosing_model
     FOREIGN KEY (model_id)
     REFERENCES model_information (id);
+
+ALTER TABLE treatment_protocol
+    ADD CONSTRAINT fk_treatment_protocol_model
+    FOREIGN KEY (model_id)
+    REFERENCES model_information (id);
+
+ALTER TABLE treatment_protocol
+    ADD CONSTRAINT fk_treatment_protocol_patient
+    FOREIGN KEY (patient_id)
+    REFERENCES patient (id);
+
+ALTER TABLE treatment_component
+    ADD CONSTRAINT fk_treatment_component_treatment_protocol
+    FOREIGN KEY (treatment_protocol_id)
+    REFERENCES treatment_protocol (id);

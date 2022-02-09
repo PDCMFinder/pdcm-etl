@@ -229,14 +229,6 @@ class TransformHostStrain(TransformEntity):
     entity_name = Constants.HOST_STRAIN_ENTITY
 
 
-class TransformTreatment(TransformEntity):
-    requiredTasks = [
-        ExtractDrugDosing(),
-        ExtractPatientTreatment()
-    ]
-    entity_name = Constants.TREATMENT_ENTITY
-
-
 class TransformResponse(TransformEntity):
     requiredTasks = [
         ExtractDrugDosing(),
@@ -251,6 +243,32 @@ class TransformResponseClassification(TransformEntity):
         ExtractPatientTreatment()
     ]
     entity_name = Constants.RESPONSE_CLASSIFICATION_ENTITY
+
+
+class TransformTreatmentProtocol(TransformEntity):
+    requiredTasks = [
+        ExtractDrugDosing(),
+        ExtractPatientTreatment(),
+        TransformModel(),
+        TransformPatient(),
+        TransformResponse(),
+        TransformResponseClassification()
+    ]
+    entity_name = Constants.TREATMENT_PROTOCOL_ENTITY
+
+
+class TransformTreatmentAndComponentHelper(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentProtocol()
+    ]
+    entity_name = Constants.TREATMENT_AND_COMPONENT_HELPER
+
+
+class TransformTreatment(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentAndComponentHelper()
+    ]
+    entity_name = Constants.TREATMENT_ENTITY
 
 
 class TransformMolecularCharacterizationType(TransformEntity):
@@ -415,6 +433,13 @@ class TransformModelDrugDosing(TransformEntity):
         TransformModel()
     ]
     entity_name = Constants.MODEL_DRUG_DOSING_ENTITY
+
+
+class TransformTreatmentComponent(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentAndComponentHelper()
+    ]
+    entity_name = Constants.TREATMENT_COMPONENT
 
 
 class TransformSearchIndex(TransformEntity):

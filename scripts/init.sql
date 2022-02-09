@@ -372,6 +372,23 @@ CREATE TABLE model_drug_dosing (
     model_id BIGINT
 );
 
+CREATE TABLE treatment_protocol (
+    id BIGINT NOT NULL,
+    model_id BIGINT,
+    patient_id BIGINT,
+    treatment_target TEXT,
+    response_id BIGINT,
+    response_classification_id BIGINT
+
+);
+
+CREATE TABLE treatment_component (
+    id BIGINT NOT NULL,
+    dose TEXT,
+    treatment_protocol_id BIGINT
+
+);
+
 
 CREATE TABLE search_index (
     pdcm_model_id BIGINT NOT NULL,

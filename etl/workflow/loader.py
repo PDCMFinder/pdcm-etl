@@ -3,7 +3,7 @@ from luigi.contrib.spark import SparkSubmitTask
 import time
 
 from etl.constants import Constants
-from etl.entities_registry import get_all_entities_names
+from etl.entities_registry import get_all_entities_names, get_all_entities_names_to_store_db
 from etl.entities_task_index import get_transformation_class_by_entity_name, get_all_transformation_classes
 from etl.jobs.load.database_manager import copy_entity_to_database, get_database_connection, \
     delete_fks, delete_indexes, create_indexes, create_fks
@@ -87,7 +87,7 @@ class CopyEntityFromCsvToDb(luigi.Task):
 
 def get_all_copying_tasks():
     tasks = []
-    for entity_name in get_all_entities_names():
+    for entity_name in get_all_entities_names_to_store_db():
         tasks.append(CopyEntityFromCsvToDb(entity_name=entity_name))
     return tasks
 
