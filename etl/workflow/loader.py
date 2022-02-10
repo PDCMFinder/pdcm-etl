@@ -94,7 +94,7 @@ def get_all_copying_tasks():
 
 def get_all_copying_cluster_tasks():
     tasks = []
-    for entity_name in get_all_entities_names():
+    for entity_name in get_all_entities_names_to_store_db():
         tasks.append(ParquetToPg(entity_name=entity_name))
     return tasks
 
