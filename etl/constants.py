@@ -25,6 +25,7 @@ class Constants:
     GENE_MARKER_MODULE = "markers"
     ONTOLOGY_MODULE = "ontology"
     MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
+    MAPPING_TREATMENTS_MODULE = "mapping_treatments"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 

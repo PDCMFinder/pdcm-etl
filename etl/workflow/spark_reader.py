@@ -67,15 +67,12 @@ def read_json(session, json_content):
 
 
 def read_obo_file(session, file_path, columns):
-    start = time.time()
-
     term_id = ""
     term_name = ""
     term_url = ""
     term_is_a = []
 
     term_list = []
-    # graph = nx.DiGraph()
 
     if session.sparkContext.master != "yarn":
         with open(file_path) as fp:
@@ -87,7 +84,6 @@ def read_obo_file(session, file_path, columns):
         if line.strip() == "[Term]":
             # check if the term is initialised and if so, add it to ontology_terms
             if term_id != "":
-                # graph.add_node(term_id, name=term_name, term_id=term_id)
                 term_list.append((term_id, term_name, term_url, ','.join(term_is_a)))
                 # reset term attributes
                 term_id = ""
@@ -106,14 +102,9 @@ def read_obo_file(session, file_path, columns):
             start = "is_a:"
             end = "!"
             is_a_id = line[line.find(start) + len(start):line.rfind(end)].strip()
-            # graph.add_edge(is_a_id, term_id)
             term_is_a.append(is_a_id)
 
-    # return graph
-
-    print("Num of terms:" + str(len(term_list)))
     df = session.createDataFrame(data=term_list, schema=columns)
-    end = time.time()
 
     return df
 
@@ -392,6 +383,53 @@ def read_diagnosis_mapping_file(session, input_path, columns):
         justification = entity['justification']
         map_type = entity['mapType']
         data_rows.append((datasource, diagnosis, primary_tissue, tumor_type, mapped_term_url, justification, map_type))
+
+    df = session.createDataFrame(data=data_rows, schema=columns)
+    return df
+
+
+class ReadTreatmentMappingsFromJson(PySparkTask):
+    data_dir = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+
+    def main(self, sc, *args):
+        spark = SparkSession(sc)
+
+        input_path = args[0]
+        output_path = args[1]
+
+        columns = ["datasource", "treatment",  "mapped_term_url", "justification",
+                   "map_type"]
+        df = read_treatment_mapping_file(spark, input_path, columns)
+        df.show()
+        df.write.mode("overwrite").parquet(output_path)
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.MAPPING_TREATMENTS_MODULE))
+
+    def app_options(self):
+        return [
+            self.data_dir,
+            self.output().path]
+
+
+def read_treatment_mapping_file(session, input_path, columns):
+    if session.sparkContext.master != "yarn":
+        with open(input_path + "/mapping/treatment_mappings.json", 'r') as jsonfile:
+            data = jsonfile.read()
+    else:
+        rdd = session.sparkContext.textFile(input_path + "/mapping/treatment_mappings.json")
+        data = rdd.collect()[0]
+    obj = json.loads(data)
+    data_rows = []
+    for entity in obj['mappings']:
+        datasource = entity['mappingValues']['DataSource']
+        treatment = entity['mappingValues']['TreatmentName']
+        mapped_term_url = entity['mappedTermUrl']
+        justification = entity['justification']
+        map_type = entity['mapType']
+        data_rows.append((datasource, treatment, mapped_term_url, justification, map_type))
 
     df = session.createDataFrame(data=data_rows, schema=columns)
     return df
