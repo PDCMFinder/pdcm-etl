@@ -8,7 +8,8 @@ patient_treatment_columns = [
     "elapsed_time",
     "treatment_response",
     "response_classification",
-    "model_id"]
+    "model_id",
+    "data_source_tmp"]
 
 drug_dosing_columns = [
     "model_id",
@@ -20,7 +21,8 @@ drug_dosing_columns = [
     "treatment_schedule",
     "treatment_length",
     "treatment_response",
-    "response_classification"]
+    "response_classification",
+    "data_source_tmp"]
 
 
 ethnicity = [

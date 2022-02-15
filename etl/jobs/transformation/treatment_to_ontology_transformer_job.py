@@ -45,7 +45,7 @@ def transform_treatment_to_ontology(
 
 
 def lower_treatment_columns(treatment_df: DataFrame) -> DataFrame:
-    treatment_df = treatment_df.withColumn('datasource', lower_and_trim_all(Constants.DATA_SOURCE_COLUMN))
+    treatment_df = treatment_df.withColumn('datasource', lower_and_trim_all("data_source"))
     # Name is already lowercase
     return treatment_df
 

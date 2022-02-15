@@ -71,6 +71,8 @@ def set_fk_treatment(model_drug_dosing_df: DataFrame, treatment_df: DataFrame) -
     model_drug_dosing_df = model_drug_dosing_df.withColumn("treatment_name", lower_and_trim_all("treatment_name"))
     treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
     treatment_df = treatment_df.withColumnRenamed("name", "treatment_name")
+    treatment_df = treatment_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
+
     model_drug_dosing_df = model_drug_dosing_df.alias("a").join(
         treatment_df.alias("b"), on=["treatment_name", Constants.DATA_SOURCE_COLUMN])
     return model_drug_dosing_df

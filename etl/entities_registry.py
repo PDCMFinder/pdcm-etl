@@ -258,7 +258,7 @@ entities = {
     },
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
-        "expected_database_columns": ["id", "name", "datasource"]
+        "expected_database_columns": ["id", "name", "data_source"]
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,

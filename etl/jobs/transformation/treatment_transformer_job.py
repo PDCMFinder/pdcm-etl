@@ -30,8 +30,7 @@ def transform_treatment(treatment_and_component_helper_df) -> DataFrame:
     treatment_df = treatment_df.withColumn("name", lower_and_trim_all("name"))
     treatment_df = treatment_df.drop_duplicates()
     treatment_df = add_id(treatment_df, "id")
-    treatment_df = treatment_df.select("id", "name", Constants.DATA_SOURCE_COLUMN)
-    treatment_df = treatment_df.withColumn("datasource", col(Constants.DATA_SOURCE_COLUMN))
+    treatment_df = treatment_df.select("id", "name", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"))
     return treatment_df
 
 
