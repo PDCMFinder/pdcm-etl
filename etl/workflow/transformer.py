@@ -7,7 +7,7 @@ from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel,
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
-    ExtractCellModel
+    ExtractCellModel, ExtractMappingTreatment
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -410,6 +410,15 @@ class TransformSampleToOntology(TransformEntity):
         ExtractMappingDiagnosis()
     ]
     entity_name = Constants.SAMPLE_TO_ONTOLOGY_ENTITY
+
+
+class TransformTreatmentToOntology(TransformEntity):
+    requiredTasks = [
+        TransformTreatment(),
+        TransformOntologyTermTreatment(),
+        ExtractMappingTreatment()
+    ]
+    entity_name = Constants.TREATMENT_TO_ONTOLOGY
 
 
 class TransformPatientTreatment(TransformEntity):
