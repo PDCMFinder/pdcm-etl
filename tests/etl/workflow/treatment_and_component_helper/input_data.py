@@ -7,7 +7,8 @@ treatment_protocol_one_treatment_one_dose = [
         "treatment_dose": "40.0mg/kg",
         "treatment_target": "drug dosing",
         "response_id": "1",
-        "response_classification_id": "1"
+        "response_classification_id": "1",
+        "data_source_tmp": "trace"
     }
 ]
 
@@ -20,7 +21,8 @@ treatment_protocol_several_treatment_several_doses = [
         "treatment_dose": "500 mg/m2 + 75 mg/m2 + 500 mg/m2",
         "treatment_target": "drug dosing",
         "response_id": "1",
-        "response_classification_id": "1"
+        "response_classification_id": "1",
+        "data_source_tmp": "trace"
     }
 ]
 
@@ -33,7 +35,8 @@ treatment_protocol_one_treatment_several_doses = [
         "treatment_dose": "500 mg/m2 + 75 mg/m2 + 500 mg/m2",
         "treatment_target": "drug dosing",
         "response_id": "1",
-        "response_classification_id": "1"
+        "response_classification_id": "1",
+        "data_source_tmp": "trace"
     }
 ]
 
@@ -46,6 +49,7 @@ treatment_protocol_several_treatments_one_dose = [
         "treatment_dose": "500 mg/m2",
         "treatment_target": "drug dosing",
         "response_id": "1",
-        "response_classification_id": "1"
+        "response_classification_id": "1",
+        "data_source_tmp": "trace"
     }
 ]

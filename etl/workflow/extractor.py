@@ -2,7 +2,7 @@ import luigi
 
 from etl.constants import Constants
 from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module, \
-    ReadMarkerFromTsv, ReadOntologyFromObo, ReadDiagnosisMappingsFromJson
+    ReadMarkerFromTsv, ReadOntologyFromObo, ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
 from etl.workflow.config import PdcmConfig
 
 
@@ -112,6 +112,10 @@ class ExtractOntology(ReadOntologyFromObo):
 
 class ExtractMappingDiagnosis(ReadDiagnosisMappingsFromJson):
     module_name = Constants.MAPPING_DIAGNOSIS_MODULE
+
+
+class ExtractMappingTreatment(ReadTreatmentMappingsFromJson):
+    module_name = Constants.MAPPING_TREATMENTS_MODULE
 
 
 if __name__ == "__main__":

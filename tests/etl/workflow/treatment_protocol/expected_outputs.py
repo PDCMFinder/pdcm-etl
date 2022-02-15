@@ -5,6 +5,7 @@ expected_treatment_protocol_patient_treatment = [
         "treatment_name": "Radiotherapy",
         "treatment_dose": "55,06 Gy in total",
         "treatment_target": "patient",
+        "data_source_tmp": "trace",
         "response_id": "1",
         "response_classification_id": "1"
     }
@@ -17,6 +18,7 @@ expected_treatment_protocol_drug_dosing = [
         "treatment_name": "Dactolisib",
         "treatment_dose": "40.0mg/kg",
         "treatment_target": "drug dosing",
+        "data_source_tmp": "trace",
         "response_id": "2",
         "response_classification_id": "2"
     }

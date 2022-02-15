@@ -77,3 +77,4 @@ class Constants:
     TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
     TREATMENT_AND_COMPONENT_HELPER = "treatment_and_component_helper"
     TREATMENT_COMPONENT = "treatment_component"
+    TREATMENT_TO_ONTOLOGY = "treatment_to_ontology"
