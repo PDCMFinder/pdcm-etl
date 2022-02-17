@@ -9,7 +9,8 @@ raw_treatment_protocol_patient_treatment = [
         "treatment_event": "",
         "elapsed_time": "",
         "treatment_response": "complete response",
-        "response_classification": "RECIST 1.1"
+        "response_classification": "RECIST 1.1",
+        "data_source_tmp": "trace"
     }
 ]
 
@@ -24,6 +25,7 @@ raw_treatment_protocol_drug_dosing = [
         "treatment_schedule": "",
         "treatment_length": "",
         "treatment_response": "stable disease",
-        "response_classification": "modified RECIST criteria"
+        "response_classification": "modified RECIST criteria",
+        "data_source_tmp": "trace"
     }
 ]

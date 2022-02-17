@@ -182,7 +182,8 @@ CREATE TABLE project_group (
 
 CREATE TABLE treatment (
     id BIGINT NOT NULL,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    data_source TEXT NOT NULL
 );
 
 CREATE TABLE response (
@@ -341,6 +342,12 @@ CREATE TABLE ontology_term_regimen(
 CREATE TABLE sample_to_ontology(
     id BIGINT NOT NULL,
     sample_id BIGINT,
+    ontology_term_id BIGINT
+);
+
+CREATE TABLE treatment_to_ontology (
+    id BIGINT NOT NULL,
+    treatment_id BIGINT,
     ontology_term_id BIGINT
 );
 

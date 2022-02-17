@@ -45,6 +45,7 @@ import etl.jobs.transformation.model_drug_dosing_transformer_job
 import etl.jobs.transformation.treatment_protocol_transformer_job
 import etl.jobs.transformation.treatment_and_component_helper_transformer_job
 import etl.jobs.transformation.treatment_component_transformer_job
+import etl.jobs.transformation.treatment_to_ontology_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 from etl.constants import Constants
@@ -259,7 +260,7 @@ entities = {
     },
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name", "data_source"]
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
@@ -471,6 +472,14 @@ entities = {
             "id",
             "dose",
             "treatment_protocol_id"
+        ]
+    },
+    Constants.TREATMENT_TO_ONTOLOGY: {
+        "spark_job": etl.jobs.transformation.treatment_to_ontology_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "treatment_id",
+            "ontology_term_id"
         ]
     },
 

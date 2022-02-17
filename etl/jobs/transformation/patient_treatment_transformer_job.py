@@ -77,8 +77,11 @@ def set_fk_patient(patient_treatment_df: DataFrame, patient_df: DataFrame) -> Da
 
 def set_fk_treatment(patient_treatment_df: DataFrame, treatment_df: DataFrame) -> DataFrame:
     patient_treatment_df = patient_treatment_df.withColumn("treatment_name", lower_and_trim_all("treatment_name"))
-    patient_treatment_df = transform_to_fk(
-        patient_treatment_df, treatment_df, "treatment_name", "name", "id", "treatment_id")
+    treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
+    treatment_df = treatment_df.withColumnRenamed("name", "treatment_name")
+    treatment_df = treatment_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
+
+    patient_treatment_df = patient_treatment_df.join(treatment_df, on=["treatment_name", Constants.DATA_SOURCE_COLUMN])
     return patient_treatment_df
 
 

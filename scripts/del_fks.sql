@@ -46,6 +46,8 @@ ALTER TABLE xenograft_model_specimen DROP CONSTRAINT IF EXISTS fk_specimen_host_
 ALTER TABLE xenograft_model_specimen DROP CONSTRAINT IF EXISTS fk_specimen_model CASCADE;
 ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS fk_sample_to_ontology_patient_sample CASCADE;
 ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS fk_sample_to_ontology_ontology_term_diagnosis CASCADE;
+ALTER TABLE treatment_to_ontology DROP CONSTRAINT IF EXISTS fk_treatment_to_ontology_treatment CASCADE;
+ALTER TABLE treatment_to_ontology DROP CONSTRAINT IF EXISTS fk_treatment_to_ontology_ontology_term_treatment CASCADE;
 ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_patient CASCADE;
 ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_treatment CASCADE;
 ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_response CASCADE;

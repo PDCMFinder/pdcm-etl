@@ -233,6 +233,16 @@ ALTER TABLE sample_to_ontology
     FOREIGN KEY (ontology_term_id)
     REFERENCES ontology_term_diagnosis (id);
 
+ALTER TABLE treatment_to_ontology
+    ADD CONSTRAINT fk_treatment_to_ontology_treatment
+    FOREIGN KEY (treatment_id)
+    REFERENCES treatment (id);
+
+ALTER TABLE treatment_to_ontology
+    ADD CONSTRAINT fk_treatment_to_ontology_ontology_term_treatment
+    FOREIGN KEY (ontology_term_id)
+    REFERENCES ontology_term_treatment (id);
+
 ALTER TABLE patient_treatment
     ADD CONSTRAINT fk_patient_treatment_patient
     FOREIGN KEY (patient_id)

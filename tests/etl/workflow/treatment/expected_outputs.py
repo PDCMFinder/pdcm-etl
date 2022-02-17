@@ -1,18 +1,22 @@
 expected_treatments = [
     {
         "id": "1",
-        "name": "dactolisib"
+        "name": "dactolisib",
+        "data_source": "trace"
     },
     {
         "id": "2",
-        "name": "capecitabine"
+        "name": "capecitabine",
+        "data_source": "trace"
     },
     {
         "id": "3",
-        "name": "prednisone"
+        "name": "prednisone",
+        "data_source": "trace"
     },
     {
         "id": "4",
-        "name": "fu-lv regimen"
+        "name": "fu-lv regimen",
+        "data_source": "trace"
     }
 ]
