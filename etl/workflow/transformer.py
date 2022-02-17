@@ -48,9 +48,9 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
 
 class TransformDiagnosis(TransformEntity):
     requiredTasks = [
-            ExtractPatient(),
-            ExtractSample()
-        ]
+        ExtractPatient(),
+        ExtractSample()
+    ]
     entity_name = Constants.DIAGNOSIS_ENTITY
 
 
@@ -397,7 +397,7 @@ class TransformOntologyTermRegimen(TransformEntity):
         ExtractOntology()
     ]
     entity_name = Constants.ONTOLOGY_TERM_REGIMEN_ENTITY
-    
+
 
 class TransformSampleToOntology(TransformEntity):
     requiredTasks = [
@@ -449,6 +449,41 @@ class TransformTreatmentComponent(TransformEntity):
         TransformTreatmentAndComponentHelper()
     ]
     entity_name = Constants.TREATMENT_COMPONENT
+
+
+class TransformSearchIndex(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformMolecularCharacterization(),
+        TransformMolecularCharacterizationType(),
+        TransformPatientSample(),
+        TransformPatientSnapshot(),
+        TransformPatient(),
+        TransformEthnicity(),
+        TransformXenograftSample(),
+        TransformCellModel(),
+        TransformTumourType(),
+        TransformTissue(),
+        TransformGeneMarker(),
+        TransformMutationMarker(),
+        TransformMutationMeasurementData(),
+        TransformCnaMolecularData(),
+        TransformExpressionMolecularData(),
+        TransformCytogeneticsMolecularData(),
+        TransformProviderGroup(),
+        TransformProjectGroup(),
+        TransformSampleToOntology(),
+        TransformOntologyTermDiagnosis(),
+        TransformPatientTreatment(),
+        TransformModelDrugDosing(),
+        TransformTreatment()
+    ]
+    entity_name = Constants.SEARCH_INDEX_ENTITY
+
+
+class TransformSearchFacet(TransformEntity):
+    requiredTasks = [TransformSearchIndex()]
+    entity_name = Constants.SEARCH_FACET_ENTITY
 
 
 if __name__ == "__main__":

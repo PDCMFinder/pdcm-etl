@@ -5,6 +5,7 @@ import yaml
 
 import luigi
 from luigi.contrib.spark import PySparkTask
+from py4j.protocol import Py4JJavaError
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.utils import IllegalArgumentException
@@ -142,10 +143,14 @@ class ReadByModuleAndPathPatterns(PySparkTask):
                              path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
         try:
             df = read_files(spark, path_patterns, schema)
-        except (FileNotFoundError, IOError, IllegalArgumentException):
-            empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
-            df = empty_df
-            df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
+        except (Py4JJavaError, IllegalArgumentException, FileNotFoundError, IOError) as error:
+            no_empty_patterns = list(filter(lambda x: x != '', path_patterns))
+            if "java.io.FileNotFoundException" in str(error) or len(no_empty_patterns) == 0 or error.__class__ in [FileNotFoundError, IOError]:
+                empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
+                df = empty_df
+                df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
+            else:
+                raise error
         df.write.mode("overwrite").parquet(output_path)
 
 
@@ -239,7 +244,7 @@ class ReadYamlsByModule(PySparkTask):
                     all_json_and_providers.append(json_content_and_provider)
 
         source_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), build_schema_from_cols(columns_to_read))
-        source_df = source_df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(None))
+        source_df = source_df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(None).astype(StringType()))
         for json_and_provider in all_json_and_providers:
             json_content = json_and_provider[0]
             provider = json_and_provider[1]

@@ -396,3 +396,42 @@ CREATE TABLE treatment_component (
 
 );
 
+
+CREATE TABLE search_index (
+    pdcm_model_id BIGINT NOT NULL,
+    external_model_id TEXT NOT NULL,
+    data_source TEXT,
+    project_name TEXT,
+    provider_name TEXT,
+    model_type TEXT,
+    histology TEXT,
+    search_terms TEXT[],
+    cancer_system TEXT,
+    dataset_available TEXT[],
+    primary_site TEXT,
+    collection_site TEXT,
+    tumour_type TEXT,
+    cancer_grade TEXT,
+    cancer_grading_system TEXT,
+    cancer_stage TEXT,
+    cancer_staging_system TEXT,
+    patient_age TEXT,
+    patient_sex TEXT,
+    patient_ethnicity TEXT,
+    patient_treatment_status TEXT,
+    makers_with_cna_data TEXT[],
+    makers_with_mutation_data TEXT[],
+    makers_with_expression_data TEXT[],
+    makers_with_cytogenetics_data TEXT[],
+    breast_cancer_biomarkers TEXT[],
+    treatment_list TEXT[],
+    model_treatment_list TEXT[]
+);
+
+
+CREATE TABLE search_facet (
+    facet_section TEXT,
+    facet_name TEXT,
+    facet_column TEXT,
+    facet_options TEXT[]
+);

@@ -33,6 +33,29 @@ class ParquetToCsv(SparkSubmitTask):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.name))
 
 
+class ParquetToPg(SparkSubmitTask):
+    name = "parquet_to_pg_load_all"
+    app = "etl/jobs/load/database_loader.py"
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    entity_name = luigi.Parameter()
+
+    def requires(self):
+        return get_transformation_class_by_entity_name(self.entity_name)
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.entity_name))
+
+    def app_options(self):
+        return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name, self.input().path,
+                self.entity_name, self.output().path]
+
+
 class CopyEntityFromCsvToDb(luigi.Task):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
@@ -69,6 +92,13 @@ def get_all_copying_tasks():
     return tasks
 
 
+def get_all_copying_cluster_tasks():
+    tasks = []
+    for entity_name in get_all_entities_names_to_store_db():
+        tasks.append(ParquetToPg(entity_name=entity_name))
+    return tasks
+
+
 class DeleteFksAndIndexes(luigi.Task):
     data_dir_out = luigi.Parameter()
     db_host = luigi.Parameter()
@@ -102,7 +132,9 @@ class CreateFksAndIndexes(luigi.Task):
 
     def requires(self):
         return CopyAll(self.data_dir, self.providers,
-                       self.data_dir_out) if PdcmConfig().deploy_mode != "cluster" else ParquetToPg()
+                       self.data_dir_out) if PdcmConfig().deploy_mode != "cluster" else CopyAllCluster(self.data_dir,
+                                                                                                       self.providers,
+                                                                                                       self.data_dir_out)
 
     def output(self):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes_created"))
@@ -130,26 +162,16 @@ class CopyAll(luigi.WrapperTask):
         yield get_all_copying_tasks()
 
 
-class ParquetToPg(SparkSubmitTask):
-    name = "parquet_to_pg_load_all"
-    app = "etl/jobs/load/database_loader.py"
-    db_host = luigi.Parameter()
-    db_port = luigi.Parameter()
-    db_name = luigi.Parameter()
-    db_user = luigi.Parameter()
-    db_password = luigi.Parameter()
+class CopyAllCluster(luigi.WrapperTask):
+    data_dir = luigi.Parameter()
+    providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
-    table_names = get_all_entities_names()
-
-    def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "parquet_to_pg_load_all"))
 
     def requires(self):
-        return [DeleteFksAndIndexes()] + get_all_transformation_classes()
+        return DeleteFksAndIndexes()
 
-    def app_options(self):
-        return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name,
-                "|".join(i.path for i in self.input()[1:]), "|".join(self.table_names), self.output().path]
+    def run(self):
+        yield get_all_copying_cluster_tasks()
 
 
 class Cache(luigi.Task):

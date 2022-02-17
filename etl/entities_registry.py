@@ -46,6 +46,8 @@ import etl.jobs.transformation.treatment_protocol_transformer_job
 import etl.jobs.transformation.treatment_and_component_helper_transformer_job
 import etl.jobs.transformation.treatment_component_transformer_job
 import etl.jobs.transformation.treatment_to_ontology_transformer_job
+import etl.jobs.transformation.search_facet_transformer_job
+import etl.jobs.transformation.search_index_transformer_job
 from etl.constants import Constants
 
 
@@ -479,6 +481,50 @@ entities = {
             "treatment_id",
             "ontology_term_id"
         ]
+    },
+
+    Constants.SEARCH_INDEX_ENTITY: {
+        "spark_job": etl.jobs.transformation.search_index_transformer_job.main,
+        "expected_database_columns": [
+            "pdcm_model_id",
+            "external_model_id",
+            "data_source",
+            "provider_name",
+            "project_name",
+            "model_type",
+            "histology",
+            "search_terms",
+            "cancer_system",
+            "dataset_available",
+            "primary_site",
+            "collection_site",
+            "tumour_type",
+            "cancer_grade",
+            "cancer_grading_system",
+            "cancer_stage",
+            "cancer_staging_system",
+            "patient_age",
+            "patient_sex",
+            "patient_ethnicity",
+            "patient_treatment_status",
+            "makers_with_cna_data",
+            "makers_with_mutation_data",
+            "makers_with_expression_data",
+            "makers_with_cytogenetics_data",
+            "breast_cancer_biomarkers",
+            "treatment_list",
+            "model_treatment_list"
+        ]
+    },
+    Constants.SEARCH_FACET_ENTITY: {
+        "spark_job": etl.jobs.transformation.search_facet_transformer_job.main,
+        "expected_database_columns": [
+            "facet_section",
+            "facet_name",
+            "facet_column",
+            "facet_options"
+        ]
     }
 
 }
+
