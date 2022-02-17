@@ -60,7 +60,7 @@ entities = {
     Constants.MODEL_DRUG_DOSING_ENTITY: TransformModelDrugDosing(),
     Constants.TREATMENT_PROTOCOL_ENTITY: TransformTreatmentProtocol(),
     Constants.TREATMENT_COMPONENT: TransformTreatmentComponent(),
-    Constants.TREATMENT_TO_ONTOLOGY: TransformTreatmentToOntology()
+    Constants.TREATMENT_TO_ONTOLOGY: TransformTreatmentToOntology(),
     Constants.SEARCH_INDEX_ENTITY: TransformSearchIndex(),
     Constants.SEARCH_FACET_ENTITY: TransformSearchFacet()
 }
