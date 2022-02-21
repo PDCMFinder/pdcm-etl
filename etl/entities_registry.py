@@ -48,6 +48,7 @@ import etl.jobs.transformation.treatment_component_transformer_job
 import etl.jobs.transformation.treatment_to_ontology_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
+import etl.jobs.transformation.regimen_to_treatment_transformer_job
 from etl.constants import Constants
 
 
@@ -402,6 +403,10 @@ entities = {
         "spark_job": etl.jobs.transformation.ontology_term_regimen_transformer_job.main,
         "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
     },
+    Constants.REGIMENT_TO_TREATMENT_ENTITY: {
+        "spark_job": etl.jobs.transformation.regimen_to_treatment_transformer_job.main,
+        "expected_database_columns": ["id", "regimen_ontology_term_id", "treatment_ontology_term_id"]
+    },
     Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: {
         "spark_job": etl.jobs.transformation.xenograft_model_specimen_transformer_job.main,
         "expected_database_columns": [
@@ -462,11 +467,11 @@ entities = {
             "response_classification_id"
         ]
     },
-    Constants.TREATMENT_AND_COMPONENT_HELPER: {
+    Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_and_component_helper_transformer_job.main,
         "expected_database_columns": []
     },
-    Constants.TREATMENT_COMPONENT: {
+    Constants.TREATMENT_COMPONENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_component_transformer_job.main,
         "expected_database_columns": [
             "id",
@@ -474,7 +479,7 @@ entities = {
             "treatment_protocol_id"
         ]
     },
-    Constants.TREATMENT_TO_ONTOLOGY: {
+    Constants.TREATMENT_TO_ONTOLOGY_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_to_ontology_transformer_job.main,
         "expected_database_columns": [
             "id",
