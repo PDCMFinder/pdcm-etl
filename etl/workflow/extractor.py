@@ -1,6 +1,7 @@
 import luigi
 
 from etl.constants import Constants
+from etl.workflow.readers.ontolia_reader import ReadOntoliaFile
 from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module, \
     ReadMarkerFromTsv, ReadOntologyFromObo, ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
 from etl.workflow.config import PdcmConfig
@@ -116,6 +117,10 @@ class ExtractMappingDiagnosis(ReadDiagnosisMappingsFromJson):
 
 class ExtractMappingTreatment(ReadTreatmentMappingsFromJson):
     module_name = Constants.MAPPING_TREATMENTS_MODULE
+
+
+class ExtractOntolia(ReadOntoliaFile):
+    module_name = Constants.REGIMENT_TO_TREATMENT_ENTITY
 
 
 if __name__ == "__main__":

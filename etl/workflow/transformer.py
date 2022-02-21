@@ -7,7 +7,7 @@ from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel,
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
-    ExtractCellModel, ExtractMappingTreatment
+    ExtractCellModel, ExtractMappingTreatment, ExtractOntolia
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -261,7 +261,7 @@ class TransformTreatmentAndComponentHelper(TransformEntity):
     requiredTasks = [
         TransformTreatmentProtocol()
     ]
-    entity_name = Constants.TREATMENT_AND_COMPONENT_HELPER
+    entity_name = Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY
 
 
 class TransformTreatment(TransformEntity):
@@ -399,6 +399,15 @@ class TransformOntologyTermRegimen(TransformEntity):
     entity_name = Constants.ONTOLOGY_TERM_REGIMEN_ENTITY
 
 
+class TransformRegimenToTreatment(TransformEntity):
+    requiredTasks = [
+        ExtractOntolia(),
+        TransformOntologyTermRegimen(),
+        TransformOntologyTermTreatment(),
+    ]
+    entity_name = Constants.REGIMENT_TO_TREATMENT_ENTITY
+
+
 class TransformSampleToOntology(TransformEntity):
     requiredTasks = [
         TransformModel(),
@@ -418,7 +427,7 @@ class TransformTreatmentToOntology(TransformEntity):
         TransformOntologyTermTreatment(),
         ExtractMappingTreatment()
     ]
-    entity_name = Constants.TREATMENT_TO_ONTOLOGY
+    entity_name = Constants.TREATMENT_TO_ONTOLOGY_ENTITY
 
 
 class TransformPatientTreatment(TransformEntity):
@@ -448,7 +457,7 @@ class TransformTreatmentComponent(TransformEntity):
     requiredTasks = [
         TransformTreatmentAndComponentHelper()
     ]
-    entity_name = Constants.TREATMENT_COMPONENT
+    entity_name = Constants.TREATMENT_COMPONENT_ENTITY
 
 
 class TransformSearchIndex(TransformEntity):

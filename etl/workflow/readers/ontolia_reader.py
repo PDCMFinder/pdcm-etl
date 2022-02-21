@@ -1,6 +1,6 @@
 import luigi
 from luigi.contrib.spark import PySparkTask
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 
 from etl.constants import Constants
@@ -32,7 +32,7 @@ class ReadOntoliaFile(PySparkTask):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.REGIMENT_TO_TREATMENT))
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.REGIMENT_TO_TREATMENT_ENTITY))
 
 
 def read_ontolia_file(spark_session, file_path):

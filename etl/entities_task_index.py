@@ -54,13 +54,14 @@ entities = {
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: TransformOntologyTermDiagnosis(),
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: TransformOntologyTermTreatment(),
     Constants.ONTOLOGY_TERM_REGIMEN_ENTITY: TransformOntologyTermRegimen(),
+    Constants.REGIMENT_TO_TREATMENT_ENTITY: TransformRegimenToTreatment(),
     Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: TransformXenograftModelSpecimen(),
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: TransformSampleToOntology(),
     Constants.PATIENT_TREATMENT_ENTITY: TransformPatientTreatment(),
     Constants.MODEL_DRUG_DOSING_ENTITY: TransformModelDrugDosing(),
     Constants.TREATMENT_PROTOCOL_ENTITY: TransformTreatmentProtocol(),
-    Constants.TREATMENT_COMPONENT: TransformTreatmentComponent(),
-    Constants.TREATMENT_TO_ONTOLOGY: TransformTreatmentToOntology(),
+    Constants.TREATMENT_COMPONENT_ENTITY: TransformTreatmentComponent(),
+    Constants.TREATMENT_TO_ONTOLOGY_ENTITY: TransformTreatmentToOntology(),
     Constants.SEARCH_INDEX_ENTITY: TransformSearchIndex(),
     Constants.SEARCH_FACET_ENTITY: TransformSearchFacet()
 }
