@@ -59,7 +59,6 @@ def set_fk_ontology_term_regimen(regimen_to_treatment_df: DataFrame, ontology_te
 def set_fk_ontology_term_treatment(regimen_to_treatment_df: DataFrame, ontology_term_treatment_df: DataFrame) -> DataFrame:
     ontology_term_treatment_df = ontology_term_treatment_df.select("id", "term_id")
     regimen_to_treatment_df = regimen_to_treatment_df.withColumn("treatment", regexp_replace(col("treatment"), "_", ":"))
-    regimen_to_treatment_df.show()
     regimen_to_treatment_df = transform_to_fk(
         regimen_to_treatment_df, ontology_term_treatment_df, "treatment", "term_id", "id", "treatment_ontology_term_id")
     return regimen_to_treatment_df
