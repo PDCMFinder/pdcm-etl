@@ -1,9 +1,11 @@
 import luigi
 
 from etl.constants import Constants
+from etl.workflow.readers.mapping_rules_reader import ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
+from etl.workflow.readers.markers_reader import ReadMarkerFromTsv
+from etl.workflow.readers.ncit_reader import ReadOntologyFromObo
 from etl.workflow.readers.ontolia_reader import ReadOntoliaFile
-from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module, \
-    ReadMarkerFromTsv, ReadOntologyFromObo, ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
+from etl.workflow.spark_reader import get_tsv_extraction_task_by_module, get_yaml_extraction_task_by_module
 from etl.workflow.config import PdcmConfig
 
 

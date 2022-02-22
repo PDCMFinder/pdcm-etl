@@ -6,7 +6,7 @@ import yaml
 import luigi
 from luigi.contrib.spark import PySparkTask
 from py4j.protocol import Py4JJavaError
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkContext
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.utils import IllegalArgumentException
 from pyspark.sql.functions import lit, input_file_name, regexp_extract
@@ -18,7 +18,6 @@ from etl.jobs.util.cleaner import trim_all_str
 from etl.source_files_conf_reader import read_module
 from etl.workflow.config import PdcmConfig
 
-import csv
 
 ROOT_FOLDER = "data/UPDOG"
 
@@ -64,49 +63,6 @@ def read_files(session, path_patterns, schema):
 
 def read_json(session, json_content):
     df = session.read.option("multiline", True).json(session.sparkContext.parallelize([json_content]))
-    return df
-
-
-def read_obo_file(session, file_path, columns):
-    term_id = ""
-    term_name = ""
-    term_url = ""
-    term_is_a = []
-
-    term_list = []
-
-    if session.sparkContext.master != "yarn":
-        with open(file_path) as fp:
-            lines = fp.readlines()
-    else:
-        rdd = session.sparkContext.textFile(file_path)
-        lines = rdd.collect()
-    for line in lines:
-        if line.strip() == "[Term]":
-            # check if the term is initialised and if so, add it to ontology_terms
-            if term_id != "":
-                term_list.append((term_id, term_name, term_url, ','.join(term_is_a)))
-                # reset term attributes
-                term_id = ""
-                term_name = ""
-                term_url = ""
-                term_is_a = []
-
-        elif line.startswith("id:"):
-            term_id = line[4:].strip()
-            term_url = "http://purl.obolibrary.org/obo/" + term_id.replace(":", "_")
-
-        elif line.startswith("name:"):
-            term_name = line[5:].strip()
-
-        elif line.startswith("is_a:"):
-            start = "is_a:"
-            end = "!"
-            is_a_id = line[line.find(start) + len(start):line.rfind(end)].strip()
-            term_is_a.append(is_a_id)
-
-    df = session.createDataFrame(data=term_list, schema=columns)
-
     return df
 
 
@@ -270,174 +226,7 @@ def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module
     return ReadYamlsByModule(module_name, yaml_paths, columns, data_dir_out)
 
 
-def extract_markers(input_path):
-    markers = []
-    with open(input_path + "/markers.tsv") as fp:
-        tsv_file = csv.reader(fp, delimiter="\t")
-        first_row = True
-        for line in tsv_file:
-            if first_row:
-                first_row = False
-            else:
-                markers.append(line)
-    return markers
 
-
-def create_marker_dataframe(markers) -> DataFrame:
-    spark = SparkSession.builder.getOrCreate()
-    columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
-               "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
-    df = spark.createDataFrame(data=markers, schema=columns)
-    return df
-
-
-class ReadMarkerFromTsv(PySparkTask):
-    data_dir = luigi.Parameter()
-    data_dir_out = luigi.Parameter()
-
-    def main(self, sc, *args):
-        spark = SparkSession(sc)
-
-        input_path = args[0]
-        output_path = args[1]
-
-        columns = ["hgnc_id", "approved_symbol", "approved_name", "status", "previous_symbols", "alias_symbols",
-                   "accession_numbers", "refseq_ids", "alias_names", "ensembl_gene_id", "ncbi_gene_id"]
-        df = read_files(spark, input_path + "/markers/markers.tsv", build_schema_from_cols(columns))
-        df.write.mode("overwrite").parquet(output_path)
-
-    def output(self):
-        return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.GENE_MARKER_MODULE))
-
-    def app_options(self):
-        return [
-            self.data_dir,
-            self.output().path]
-
-
-class ReadOntologyFromObo(PySparkTask):
-    data_dir = luigi.Parameter()
-    data_dir_out = luigi.Parameter()
-
-    def setup(self, conf: SparkConf):
-        conf.set("spark.kryoserializer.buffer.max", "128m")
-
-    def main(self, sc, *args):
-        spark = SparkSession(sc)
-
-        input_path = args[0]
-        output_path = args[1]
-
-        columns = ["term_id", "term_name", "term_url", "is_a"]
-        df = read_obo_file(spark, input_path + "/ontology/ncit.obo", columns)
-        df.show()
-        df.write.mode("overwrite").parquet(output_path)
-
-    def output(self):
-        return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.ONTOLOGY_MODULE))
-
-    def app_options(self):
-        return [
-            self.data_dir,
-            self.output().path]
-
-
-class ReadDiagnosisMappingsFromJson(PySparkTask):
-    data_dir = luigi.Parameter()
-    data_dir_out = luigi.Parameter()
-
-    def main(self, sc, *args):
-        spark = SparkSession(sc)
-
-        input_path = args[0]
-        output_path = args[1]
-
-        columns = ["datasource", "diagnosis", "primary_tissue", "tumor_type", "mapped_term_url", "justification",
-                   "map_type"]
-        df = read_diagnosis_mapping_file(spark, input_path, columns)
-        df.show()
-        df.write.mode("overwrite").parquet(output_path)
-
-    def output(self):
-        return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.MAPPING_DIAGNOSIS_MODULE))
-
-    def app_options(self):
-        return [
-            self.data_dir,
-            self.output().path]
-
-
-def read_diagnosis_mapping_file(session, input_path, columns):
-    if session.sparkContext.master != "yarn":
-        with open(input_path + "/mapping/diagnosis_mappings.json", 'r') as jsonfile:
-            data = jsonfile.read()
-    else:
-        rdd = session.sparkContext.textFile(input_path + "/mapping/diagnosis_mappings.json")
-        data = rdd.collect()[0]
-    obj = json.loads(data)
-    data_rows = []
-    for entity in obj['mappings']:
-        datasource = entity['mappingValues']['DataSource']
-        diagnosis = entity['mappingValues']['SampleDiagnosis']
-        primary_tissue = entity['mappingValues']['OriginTissue']
-        tumor_type = entity['mappingValues']['TumorType']
-        mapped_term_url = entity['mappedTermUrl']
-        justification = entity['justification']
-        map_type = entity['mapType']
-        data_rows.append((datasource, diagnosis, primary_tissue, tumor_type, mapped_term_url, justification, map_type))
-
-    df = session.createDataFrame(data=data_rows, schema=columns)
-    return df
-
-
-class ReadTreatmentMappingsFromJson(PySparkTask):
-    data_dir = luigi.Parameter()
-    data_dir_out = luigi.Parameter()
-
-    def main(self, sc, *args):
-        spark = SparkSession(sc)
-
-        input_path = args[0]
-        output_path = args[1]
-
-        columns = ["datasource", "treatment",  "mapped_term_url", "justification",
-                   "map_type"]
-        df = read_treatment_mapping_file(spark, input_path, columns)
-        df.show()
-        df.write.mode("overwrite").parquet(output_path)
-
-    def output(self):
-        return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.MAPPING_TREATMENTS_MODULE))
-
-    def app_options(self):
-        return [
-            self.data_dir,
-            self.output().path]
-
-
-def read_treatment_mapping_file(session, input_path, columns):
-    if session.sparkContext.master != "yarn":
-        with open(input_path + "/mapping/treatment_mappings.json", 'r') as jsonfile:
-            data = jsonfile.read()
-    else:
-        rdd = session.sparkContext.textFile(input_path + "/mapping/treatment_mappings.json")
-        data = rdd.collect()[0]
-    obj = json.loads(data)
-    data_rows = []
-    for entity in obj['mappings']:
-        datasource = entity['mappingValues']['DataSource']
-        treatment = entity['mappingValues']['TreatmentName']
-        mapped_term_url = entity['mappedTermUrl']
-        justification = entity['justification']
-        map_type = entity['mapType']
-        data_rows.append((datasource, treatment, mapped_term_url, justification, map_type))
-
-    df = session.createDataFrame(data=data_rows, schema=columns)
-    return df
 
 
 if __name__ == "__main__":
