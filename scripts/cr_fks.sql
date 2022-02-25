@@ -243,6 +243,16 @@ ALTER TABLE treatment_to_ontology
     FOREIGN KEY (ontology_term_id)
     REFERENCES ontology_term_treatment (id);
 
+ALTER TABLE regimen_to_ontology
+    ADD CONSTRAINT fk_regimen_to_ontology_ontology_term_regimen
+    FOREIGN KEY (ontology_term_id)
+    REFERENCES ontology_term_regimen (id);
+
+ALTER TABLE regimen_to_ontology
+    ADD CONSTRAINT fk_regimen_to_ontology_treatment
+    FOREIGN KEY (regimen_id)
+    REFERENCES treatment (id);
+
 ALTER TABLE regimen_to_treatment
     ADD CONSTRAINT fk_regimen_to_treatment_ontology_term_regimen
     FOREIGN KEY (regimen_ontology_term_id)

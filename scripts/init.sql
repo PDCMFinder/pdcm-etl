@@ -351,6 +351,12 @@ CREATE TABLE treatment_to_ontology (
     ontology_term_id BIGINT
 );
 
+CREATE TABLE regimen_to_ontology (
+    id BIGINT NOT NULL,
+    regimen_id BIGINT,
+    ontology_term_id BIGINT
+);
+
 CREATE TABLE regimen_to_treatment (
     id BIGINT NOT NULL,
     regimen_ontology_term_id BIGINT,
