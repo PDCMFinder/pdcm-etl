@@ -48,6 +48,8 @@ ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS fk_sample_to_ontology_p
 ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS fk_sample_to_ontology_ontology_term_diagnosis CASCADE;
 ALTER TABLE treatment_to_ontology DROP CONSTRAINT IF EXISTS fk_treatment_to_ontology_treatment CASCADE;
 ALTER TABLE treatment_to_ontology DROP CONSTRAINT IF EXISTS fk_treatment_to_ontology_ontology_term_treatment CASCADE;
+ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS fk_regimen_to_ontology_treatment CASCADE;
+ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS fk_regimen_to_ontology_ontology_term_regimen CASCADE;
 ALTER TABLE regimen_to_treatment DROP CONSTRAINT IF EXISTS fk_regimen_to_treatment_ontology_term_regimen CASCADE;
 ALTER TABLE regimen_to_treatment DROP CONSTRAINT IF EXISTS fk_regimen_to_treatment_ontology_term_treatment CASCADE;
 ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_patient CASCADE;
