@@ -46,6 +46,7 @@ import etl.jobs.transformation.treatment_protocol_transformer_job
 import etl.jobs.transformation.treatment_and_component_helper_transformer_job
 import etl.jobs.transformation.treatment_component_transformer_job
 import etl.jobs.transformation.treatment_to_ontology_transformer_job
+import etl.jobs.transformation.regimen_to_ontology_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.regimen_to_treatment_transformer_job
@@ -484,6 +485,14 @@ entities = {
         "expected_database_columns": [
             "id",
             "treatment_id",
+            "ontology_term_id"
+        ]
+    },
+    Constants.REGIMEN_TO_ONTOLOGY_ENTITY: {
+        "spark_job": etl.jobs.transformation.regimen_to_ontology_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "regimen_id",
             "ontology_term_id"
         ]
     },

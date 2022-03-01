@@ -79,5 +79,6 @@ class Constants:
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
     TREATMENT_COMPONENT_ENTITY = "treatment_component"
     TREATMENT_TO_ONTOLOGY_ENTITY = "treatment_to_ontology"
+    REGIMEN_TO_ONTOLOGY_ENTITY = "regimen_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
