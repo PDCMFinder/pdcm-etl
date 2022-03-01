@@ -430,6 +430,15 @@ class TransformTreatmentToOntology(TransformEntity):
     entity_name = Constants.TREATMENT_TO_ONTOLOGY_ENTITY
 
 
+class TransformRegimenToOntology(TransformEntity):
+    requiredTasks = [
+        TransformTreatment(),
+        TransformOntologyTermRegimen(),
+        ExtractMappingTreatment()
+    ]
+    entity_name = Constants.REGIMEN_TO_ONTOLOGY_ENTITY
+
+
 class TransformPatientTreatment(TransformEntity):
     requiredTasks = [
         ExtractPatientTreatment(),
