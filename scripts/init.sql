@@ -404,7 +404,8 @@ CREATE TABLE treatment_protocol (
 CREATE TABLE treatment_component (
     id BIGINT NOT NULL,
     dose TEXT,
-    treatment_protocol_id BIGINT
+    treatment_protocol_id BIGINT,
+    treatment_id BIGINT
 
 );
 

@@ -322,3 +322,8 @@ ALTER TABLE treatment_component
     ADD CONSTRAINT fk_treatment_component_treatment_protocol
     FOREIGN KEY (treatment_protocol_id)
     REFERENCES treatment_protocol (id);
+
+ALTER TABLE treatment_component
+    ADD CONSTRAINT fk_treatment_component_treatment
+    FOREIGN KEY (treatment_id)
+    REFERENCES treatment (id);
