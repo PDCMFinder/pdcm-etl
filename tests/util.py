@@ -1,13 +1,43 @@
 from typing import List, Dict
-from pyspark.sql import DataFrame, SparkSession, Row
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.types import StructType, StructField, StringType, ArrayType
 from chispa.dataframe_comparer import *
+
+
+def is_array(string_value):
+    if not string_value or not isinstance(string_value, str):
+        return False
+    return string_value.startswith("[") and string_value.endswith("]")
+
+
+def convert_comma_separated_string_to_array(value: str):
+    result = []
+    for x in value.split(","):
+        result.append(x.strip())
+    return result
 
 
 def convert_to_dataframe(spark: SparkSession, dict_list: List[Dict]) -> DataFrame:
     # Passing an explicit schema allows to have null (None) values in the data without issues
-    schema = StructType([StructField(x, StringType(), True) for x in dict_list[0]])
-    return spark.createDataFrame([Row(**x) for x in dict_list], schema=schema)
+    schema = []
+    for x in dict_list[0]:
+        if is_array(dict_list[0][x]):
+            schema.append(StructField(x, ArrayType(StringType()), True))
+        else:
+            schema.append(StructField(x, StringType(), True))
+    schema = StructType(schema)
+
+    data = []
+    for element in dict_list:
+        for x in element.keys():
+            value = str(element[x])
+            if value.startswith("[") and value.endswith("]"):
+                content = value[1:len(value)-1]
+                element[x] = convert_comma_separated_string_to_array(content)
+
+        data.append(element)
+
+    return spark.createDataFrame([Row(**x) for x in data], schema=schema)
 
 
 def assert_df_are_equal_ignore_id(df_a: DataFrame, df_b: DataFrame):
