@@ -477,7 +477,8 @@ entities = {
         "expected_database_columns": [
             "id",
             "dose",
-            "treatment_protocol_id"
+            "treatment_protocol_id",
+            "treatment_id"
         ]
     },
     Constants.TREATMENT_TO_ONTOLOGY_ENTITY: {
