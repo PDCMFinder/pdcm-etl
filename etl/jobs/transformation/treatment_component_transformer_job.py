@@ -39,12 +39,14 @@ def transform_treatment_component(treatment_and_component_helper_df, treatment: 
     return treatment_component_df
 
 
-def set_fk_treatment(treatment_and_component_helper_df: DataFrame, treatment: DataFrame) -> DataFrame:
+def set_fk_treatment(treatment_and_component_helper_df: DataFrame, treatment_df: DataFrame) -> DataFrame:
+
     treatment_and_component_helper_df = treatment_and_component_helper_df.withColumn(
         "treatment_name", lower_and_trim_all("treatment_name"))
-    treatment = treatment.withColumn("treatment_name", lower_and_trim_all("name"))
+    treatment_df = treatment_df.withColumn("treatment_name", lower_and_trim_all("name"))
+    
     treatment_and_component_helper_df = transform_to_fk(
-        treatment_and_component_helper_df, treatment, "treatment_name", "name", "id", "treatment_id")
+        treatment_and_component_helper_df, treatment_df, "treatment_name", "treatment_name", "id", "treatment_id")
     return treatment_and_component_helper_df
 
 
