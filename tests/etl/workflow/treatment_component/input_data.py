@@ -1,3 +1,26 @@
+treatment = [
+    {
+        "id": "1",
+        "name": "Dactolisib",
+        "data_source": "TRACE"
+    },
+    {
+        "id": "2",
+        "name": "capecitabine",
+        "data_source": "TRACE"
+    },
+    {
+        "id": "3",
+        "name": "PREDNISONE",
+        "data_source": "TRACE"
+    },
+    {
+        "id": "4",
+        "name": "FU-LV regimen",
+        "data_source": "TRACE"
+    }
+]
+
 treatment_and_component_helper = [
     {
         "treatment_protocol_id": "1",
