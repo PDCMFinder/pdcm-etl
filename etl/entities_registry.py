@@ -40,8 +40,6 @@ import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
 import etl.jobs.transformation.ontology_term_regimen_transformer_job
 import etl.jobs.transformation.sample_to_ontology_transformer_job
-import etl.jobs.transformation.patient_treatment_transformer_job
-import etl.jobs.transformation.model_drug_dosing_transformer_job
 import etl.jobs.transformation.treatment_protocol_transformer_job
 import etl.jobs.transformation.treatment_and_component_helper_transformer_job
 import etl.jobs.transformation.treatment_component_transformer_job
@@ -425,38 +423,6 @@ entities = {
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: {
         "spark_job": etl.jobs.transformation.sample_to_ontology_transformer_job.main,
         "expected_database_columns": ["id", "sample_id", "ontology_term_id"]
-    },
-    Constants.PATIENT_TREATMENT_ENTITY: {
-        "spark_job": etl.jobs.transformation.patient_treatment_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "patient_id",
-            "treatment_id",
-            "treatment_dose",
-            "treatment_starting_date",
-            "treatment_duration",
-            "treatment_event",
-            "elapsed_time",
-            "response_id",
-            "response_classification_id",
-            "model_id"
-        ]
-    },
-    Constants.MODEL_DRUG_DOSING_ENTITY: {
-        "spark_job": etl.jobs.transformation.model_drug_dosing_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "passage_range",
-            "treatment_id",
-            "treatment_type",
-            "treatment_dose",
-            "administration_route",
-            "treatment_schedule",
-            "treatment_length",
-            "response_id",
-            "response_classification_id",
-            "model_id"
-        ]
     },
     Constants.TREATMENT_PROTOCOL_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_protocol_transformer_job.main,

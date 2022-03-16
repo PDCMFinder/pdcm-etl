@@ -363,34 +363,6 @@ CREATE TABLE regimen_to_treatment (
     treatment_ontology_term_id BIGINT
 );
 
-CREATE TABLE patient_treatment (
-    id BIGINT NOT NULL,
-    patient_id BIGINT NOT NULL,
-    treatment_id BIGINT,
-    treatment_dose TEXT,
-    treatment_starting_date TEXT,
-    treatment_duration TEXT,
-    treatment_event TEXT,
-    elapsed_time TEXT,
-    response_id BIGINT,
-    response_classification_id BIGINT,
-    model_id BIGINT
-);
-
-CREATE TABLE model_drug_dosing (
-    id BIGINT NOT NULL,
-    passage_range TEXT,
-    treatment_id BIGINT,
-    treatment_type TEXT,
-    treatment_dose TEXT,
-    administration_route TEXT,
-    treatment_schedule TEXT,
-    treatment_length TEXT,
-    response_id BIGINT,
-    response_classification_id BIGINT,
-    model_id BIGINT
-);
-
 CREATE TABLE treatment_protocol (
     id BIGINT NOT NULL,
     model_id BIGINT,

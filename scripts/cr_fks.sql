@@ -263,51 +263,6 @@ ALTER TABLE regimen_to_treatment
     FOREIGN KEY (treatment_ontology_term_id)
     REFERENCES ontology_term_treatment (id);
 
-ALTER TABLE patient_treatment
-    ADD CONSTRAINT fk_patient_treatment_patient
-    FOREIGN KEY (patient_id)
-    REFERENCES patient (id);
-
-ALTER TABLE patient_treatment
-    ADD CONSTRAINT fk_patient_treatment_treatment
-    FOREIGN KEY (treatment_id)
-    REFERENCES treatment (id);
-
-ALTER TABLE patient_treatment
-    ADD CONSTRAINT fk_patient_treatment_response
-    FOREIGN KEY (response_id)
-    REFERENCES response (id);
-
-ALTER TABLE patient_treatment
-    ADD CONSTRAINT fk_patient_treatment_response_classification
-    FOREIGN KEY (response_classification_id)
-    REFERENCES response_classification (id);
-
-ALTER TABLE patient_treatment
-    ADD CONSTRAINT fk_patient_treatment_model
-    FOREIGN KEY (model_id)
-    REFERENCES model_information (id);
-
-ALTER TABLE model_drug_dosing
-    ADD CONSTRAINT fk_model_drug_dosing_treatment
-    FOREIGN KEY (treatment_id)
-    REFERENCES treatment (id);
-
-ALTER TABLE model_drug_dosing
-    ADD CONSTRAINT fk_model_drug_dosing_response
-    FOREIGN KEY (response_id)
-    REFERENCES response (id);
-
-ALTER TABLE model_drug_dosing
-    ADD CONSTRAINT fk_model_drug_dosing_response_classification
-    FOREIGN KEY (response_classification_id)
-    REFERENCES response_classification (id);
-
-ALTER TABLE model_drug_dosing
-    ADD CONSTRAINT fk_model_drug_dosing_model
-    FOREIGN KEY (model_id)
-    REFERENCES model_information (id);
-
 ALTER TABLE treatment_protocol
     ADD CONSTRAINT fk_treatment_protocol_model
     FOREIGN KEY (model_id)

@@ -439,29 +439,6 @@ class TransformRegimenToOntology(TransformEntity):
     entity_name = Constants.REGIMEN_TO_ONTOLOGY_ENTITY
 
 
-class TransformPatientTreatment(TransformEntity):
-    requiredTasks = [
-        ExtractPatientTreatment(),
-        TransformPatient(),
-        TransformTreatment(),
-        TransformResponse(),
-        TransformResponseClassification(),
-        TransformModel()
-    ]
-    entity_name = Constants.PATIENT_TREATMENT_ENTITY
-
-
-class TransformModelDrugDosing(TransformEntity):
-    requiredTasks = [
-        ExtractDrugDosing(),
-        TransformTreatment(),
-        TransformResponse(),
-        TransformResponseClassification(),
-        TransformModel()
-    ]
-    entity_name = Constants.MODEL_DRUG_DOSING_ENTITY
-
-
 class TransformTreatmentComponent(TransformEntity):
     requiredTasks = [
         TransformTreatmentAndComponentHelper(),
