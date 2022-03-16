@@ -1,6 +1,6 @@
 from pyspark.sql import DataFrame
 
-from pyspark.sql.functions import collect_list, col
+from pyspark.sql.functions import collect_list, col, lower
 from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 
@@ -19,8 +19,11 @@ def harmonise_treatments(
         ontology_term_treatment_df: DataFrame,
         ontology_term_regimen_df: DataFrame) -> DataFrame:
 
-    protocols_with_model_df = get_protocols_with_model(
-        treatment_protocol_df, patient_sample_df, patient_snapshot_df)
+    # Protocols that are related to patient_treatment don't have a explicit association with a model so this method
+    # makes sure every protocol is associated to a model
+    protocols_with_model_df = get_protocols_with_model(treatment_protocol_df, patient_sample_df, patient_snapshot_df)
+
+    # Formatting the dataframes to work only with the needed columns and also with suitable names for the columns
 
     treatment_protocol_df = treatment_protocol_df.select(
         "id", "model_id", "patient_id", "treatment_target", Constants.DATA_SOURCE_COLUMN)
@@ -38,9 +41,11 @@ def harmonise_treatments(
 
     regimen_to_treatment_df = regimen_to_treatment_df.select("regimen_ontology_term_id", "treatment_ontology_term_id")
 
+    # Get the ontology terms of treatments that are explicitly defined in the protocol
     direct_treatment_ontologies_by_protocol_df = get_direct_treatment_ontologies_by_protocol(
         treatment_protocol_df, treatment_component_df, treatment_df, treatment_to_ontology_df)
 
+    # Get the ontology terms of regimens that are explicitly defined in the protocol
     direct_regimen_ontologies_by_protocol_df = get_direct_regimen_ontologies_by_protocol(
         treatment_protocol_df, treatment_component_df, treatment_df, regimen_to_ontology_df)
 
@@ -66,27 +71,40 @@ def harmonise_treatments(
     harmonised_terms_by_protocol_df = all_treatment_ontologies_names_by_protocol_df.union(
         all_regimen_ontologies_names_by_protocol_df)
 
-    harmonised_terms_by_protocol_df = harmonised_terms_by_protocol_df.\
-        groupBy("treatment_protocol_id").agg(collect_list("term_name").alias("terms_names"))
+    formatted_data_df = format_output(harmonised_terms_by_protocol_df, protocols_with_model_df)
 
-    df = protocols_with_model_df.join(harmonised_terms_by_protocol_df, on=["treatment_protocol_id"], how="left")
+    return formatted_data_df
 
-    model_drug_dosing_df = df.where("treatment_target == 'drug dosing'")
+
+# Receive a dataframe in the format [treatment_protocol_id|term_name] and creates a df with only model_id and
+# list of treatment names coming from model_drug_doses and patient_treatment.
+def format_output(harmonised_terms_by_protocol_df: DataFrame, protocols_with_model_df: DataFrame) -> DataFrame:
+
+    harmonised_treatments_by_models_df = protocols_with_model_df.join(
+        harmonised_terms_by_protocol_df, on=["treatment_protocol_id"], how='left')
+
+    # Now we don't need the details of the protocol so we can remove the column and any duplicates that can appear
+    # when the only thing that was making a difference was the protocol_id
+    harmonised_treatments_by_models_df = harmonised_treatments_by_models_df\
+        .drop("treatment_protocol_id").drop_duplicates()
+
+    harmonised_treatments_by_models_df = harmonised_treatments_by_models_df.withColumn("term_name", lower("term_name"))
+
+    grouped_harmonised_treatments_by_model_df = harmonised_treatments_by_models_df. \
+        groupBy("protocol_model", "treatment_target").agg(collect_list("term_name").alias("terms_names"))
+
+    model_drug_dosing_df = grouped_harmonised_treatments_by_model_df.where("treatment_target == 'drug dosing'")
     model_drug_dosing_df = model_drug_dosing_df.withColumnRenamed("terms_names", "model_treatment_list")
     model_drug_dosing_df = model_drug_dosing_df.select("protocol_model", "model_treatment_list")
 
-    patient_treatment_df = df.where("treatment_target == 'patient'")
+    patient_treatment_df = grouped_harmonised_treatments_by_model_df.where("treatment_target == 'patient'")
     patient_treatment_df = patient_treatment_df.withColumnRenamed("terms_names", "treatment_list")
     patient_treatment_df = patient_treatment_df.select("protocol_model", "treatment_list")
 
-    model_df = protocols_with_model_df.select("protocol_model")
+    result_df = model_drug_dosing_df.join(patient_treatment_df, on=["protocol_model"], how="outer")
+    result_df = result_df.withColumnRenamed("protocol_model", "model_id")
 
-    harmonised_treatments_df = model_df.join(model_drug_dosing_df, on=["protocol_model"], how="left")
-    harmonised_treatments_df = harmonised_treatments_df.join(patient_treatment_df, on=["protocol_model"], how="left")
-
-    harmonised_treatments_df = harmonised_treatments_df.drop_duplicates()
-
-    return harmonised_treatments_df
+    return result_df
 
 
 def get_protocols_with_model(
@@ -206,12 +224,14 @@ def get_ordered_list_treatments_by_protocol(treatment_ontologies_by_protocol_df:
 
 
 def get_ordered_list_treatments_by_regimen(regimen_to_treatment_df: DataFrame) -> DataFrame:
+
     regimen_treatments_window = Window.partitionBy(
         "regimen_ontology_term_id").orderBy(col("treatment_ontology_term_id"))
     ordered_list_treatments_by_regimen_df = regimen_to_treatment_df.withColumn(
         'ontology_treatments_list', collect_list('treatment_ontology_term_id').over(regimen_treatments_window)) \
         .groupBy('regimen_ontology_term_id') \
         .agg(F.max('ontology_treatments_list').alias('ontology_treatments_list'))
+
     return ordered_list_treatments_by_regimen_df
 
 
@@ -240,5 +260,6 @@ def discover_additional_regimen_connections(
         protocols_with_discovered_treatments_df)
 
     return total_regimens_by_protocol_df
+
 
 

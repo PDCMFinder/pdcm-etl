@@ -50,6 +50,7 @@ import etl.jobs.transformation.regimen_to_ontology_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.regimen_to_treatment_transformer_job
+import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
 from etl.constants import Constants
 
 
@@ -496,6 +497,10 @@ entities = {
             "regimen_id",
             "ontology_term_id"
         ]
+    },
+    Constants.TREATMENT_HARMONISATION_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_harmonisation_helper_transformer_job.main,
+        "expected_database_columns": []
     },
 
     Constants.SEARCH_INDEX_ENTITY: {
