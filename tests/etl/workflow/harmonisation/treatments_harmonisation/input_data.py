@@ -43,6 +43,11 @@ treatment = [
         "id": "8",
         "name": "t6(r2)",
         "data_source": "TRACE"
+    },
+    {
+        "id": "9",
+        "name": "t7(protocol2)",
+        "data_source": "TRACE"
     }
 ]
 
@@ -80,6 +85,15 @@ treatment_protocol = [
         "response_id": "",
         "response_classification_id": "",
         "data_source_tmp": "TRACE"
+    },
+    {
+        "id": "3",
+        "model_id": None,
+        "patient_id": "1",
+        "treatment_target": "patient",
+        "response_id": "",
+        "response_classification_id": "",
+        "data_source_tmp": "TRACE"
     }
 ]
 
@@ -107,6 +121,18 @@ treatment_component = [
         "treatment_id": "7",
         "dose": "2 mg",
         "treatment_protocol_id": "2"
+    },
+    {
+        "id": "5",
+        "treatment_id": "9",
+        "dose": "2 mg",
+        "treatment_protocol_id": "3"
+    },
+    {
+        "id": "6",
+        "treatment_id": "1",
+        "dose": "4 mg",
+        "treatment_protocol_id": "3"
     }
 ]
 
@@ -153,6 +179,11 @@ ontology_term_treatment = [
         "id": "6",
         "term_id": "NCIT:0006",
         "term_name": "ontology_t6(r2)"
+    },
+    {
+        "id": "7",
+        "term_id": "NCIT:0007",
+        "term_name": "ontology_t7(protocol2)"
     }
 ]
 
@@ -186,6 +217,11 @@ treatment_to_ontology = [
         "id": "6",
         "treatment_id": "8",
         "ontology_term_id": "6"
+    },
+    {
+        "id": "7",
+        "treatment_id": "9",
+        "ontology_term_id": "7"
     }
 ]
 
