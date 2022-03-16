@@ -76,9 +76,13 @@ class Constants:
     PATIENT_TREATMENT_ENTITY = "patient_treatment"
     MODEL_DRUG_DOSING_ENTITY = "model_drug_dosing"
     TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
-    TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
     TREATMENT_COMPONENT_ENTITY = "treatment_component"
     TREATMENT_TO_ONTOLOGY_ENTITY = "treatment_to_ontology"
     REGIMEN_TO_ONTOLOGY_ENTITY = "regimen_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
+
+    # Helper Entities (do not get stored into the database, they just provide data to other transformations)
+    TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
+    TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
+

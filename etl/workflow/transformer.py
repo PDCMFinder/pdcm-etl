@@ -470,6 +470,22 @@ class TransformTreatmentComponent(TransformEntity):
     entity_name = Constants.TREATMENT_COMPONENT_ENTITY
 
 
+class TransformTreatmentHarmonisationHelper(TransformEntity):
+    requiredTasks = [
+        TransformPatientSample(),
+        TransformPatientSnapshot(),
+        TransformTreatmentProtocol(),
+        TransformTreatmentComponent(),
+        TransformTreatment(),
+        TransformTreatmentToOntology(),
+        TransformRegimenToTreatment(),
+        TransformRegimenToOntology(),
+        TransformOntologyTermTreatment(),
+        TransformOntologyTermRegimen()
+    ]
+    entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
+
+
 class TransformSearchIndex(TransformEntity):
     requiredTasks = [
         TransformModel(),
@@ -493,9 +509,7 @@ class TransformSearchIndex(TransformEntity):
         TransformProjectGroup(),
         TransformSampleToOntology(),
         TransformOntologyTermDiagnosis(),
-        TransformPatientTreatment(),
-        TransformModelDrugDosing(),
-        TransformTreatment()
+        TransformTreatmentHarmonisationHelper()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 

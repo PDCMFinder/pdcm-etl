@@ -15,7 +15,7 @@ groups:
 
       - name: "model"
         type: "tsv"
-        name_patterns: ["$provider_metadata-pdx_models.tsv"]
+        name_patterns: ["$provider_metadata-pdx_model.tsv"]
         columns:
           - "model_id"
           - "host_strain_name"

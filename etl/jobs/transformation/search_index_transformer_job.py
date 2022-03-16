@@ -2,8 +2,6 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import (
-    array_join,
-    collect_list,
     col,
     concat_ws,
     collect_set,
@@ -15,14 +13,11 @@ from pyspark.sql.functions import (
     udf,
     split,
     array_intersect,
-    explode,
     concat,
 )
-from pyspark.sql.types import ArrayType, StringType, DoubleType
+from pyspark.sql.types import ArrayType, StringType
 
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
-from etl.jobs.util.id_assigner import add_id
-from etl.workflow.config import PdcmConfig
 
 cancer_systems = [
     "Breast Cancer",
@@ -74,10 +69,8 @@ def main(argv):
     project_group_parquet_path = argv[19]
     sample_to_ontology_parquet_path = argv[20]
     ontology_term_diagnosis_parquet_path = argv[21]
-    patient_treatment_parquet_path = argv[22]
-    model_drug_dosing_parquet_path = argv[23]
-    treatment_parquet_path = argv[24]
-    output_path = argv[25]
+    treatment_harmonisation_helper_parquet_path = argv[22]
+    output_path = argv[23]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -97,21 +90,15 @@ def main(argv):
     tissue_df = spark.read.parquet(tissue_parquet_path)
     gene_marker_df = spark.read.parquet(gene_marker_parquet_path)
     mutation_marker_df = spark.read.parquet(mutation_marker_parquet_path)
-    mutation_measurement_data_df = spark.read.parquet(
-        mutation_measurement_data_parquet_path
-    )
+    mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
     cytogenetics_data_df = spark.read.parquet(cytogenetics_data_parquet_path)
     provider_group_df = spark.read.parquet(provider_group_parquet_path)
     project_group_df = spark.read.parquet(project_group_parquet_path)
     sample_to_ontology_df = spark.read.parquet(sample_to_ontology_parquet_path)
-    ontology_term_diagnosis_df = spark.read.parquet(
-        ontology_term_diagnosis_parquet_path
-    )
-    patient_treatment_df = spark.read.parquet(patient_treatment_parquet_path)
-    model_drug_dosing_df = spark.read.parquet(model_drug_dosing_parquet_path)
-    treatment_df = spark.read.parquet(treatment_parquet_path)
+    ontology_term_diagnosis_df = spark.read.parquet(ontology_term_diagnosis_parquet_path)
+    treatment_harmonisation_helper_df = spark.read.parquet(treatment_harmonisation_helper_parquet_path)
 
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
@@ -138,9 +125,7 @@ def main(argv):
         project_group_df,
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
-        patient_treatment_df,
-        model_drug_dosing_df,
-        treatment_df,
+        treatment_harmonisation_helper_df
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
@@ -167,9 +152,7 @@ def transform_search_index(
     project_group_df,
     sample_to_ontology_df,
     ontology_term_diagnosis_df,
-    patient_treatment_df,
-    model_drug_dosing_df,
-    treatment_df,
+    treatment_harmonisation_helper_df
 ) -> DataFrame:
     search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
 
@@ -428,39 +411,9 @@ def transform_search_index(
         "id",
     )
 
-    # Adding treatment list to search_index
-    treatment_df = treatment_df.withColumn(
-        "treatment_name", explode(split("name", "\s*\\+\s*"))
-    )
-    treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
-    patient_treatment_df = patient_treatment_df.join(
-        treatment_df, "treatment_id", "inner"
-    ).select("model_id", "treatment_name")
-    patient_treatment_df = patient_treatment_df.groupby("model_id").agg(
-        collect_set("treatment_name").alias("treatment_list")
-    )
-    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
-    search_index_df = join_left_dfs(
-        search_index_df,
-        patient_treatment_df,
-        "temp_model_id",
-        "model_id",
-    )
-
-    # Adding drug dosing information
-    model_drug_dosing_df = model_drug_dosing_df.join(
-        treatment_df, "treatment_id", "inner"
-    ).select("model_id", "treatment_name")
-    model_drug_dosing_df = model_drug_dosing_df.groupby("model_id").agg(
-        collect_set("treatment_name").alias("model_treatment_list")
-    )
-    search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
-    search_index_df = join_left_dfs(
-        search_index_df,
-        model_drug_dosing_df,
-        "temp_model_id",
-        "model_id",
-    )
+    # Adding treatment list (patient treatment) and model treatment list (model drug dosing) to search_index
+    treatment_harmonisation_helper_df = treatment_harmonisation_helper_df.withColumnRenamed("model_id", "pdcm_model_id")
+    search_index_df = search_index_df.join(treatment_harmonisation_helper_df, on=["pdcm_model_id"], how="left")
 
     # Adding drug dosing and patient treatment to dataset_available
 
@@ -468,16 +421,20 @@ def transform_search_index(
         "dataset_available",
         when(
             col("model_treatment_list").isNotNull() & (size("model_treatment_list") > 0),
-            concat("dataset_available", array(lit("dosing studies"))),
-        ).otherwise(col("dataset_available")),
+            when(col("dataset_available").isNotNull(),
+                 concat(col("dataset_available"), array(lit("dosing studies")))).otherwise(
+                array(lit("dosing studies")))
+        ).otherwise(col("dataset_available"))
     )
 
     search_index_df = search_index_df.withColumn(
         "dataset_available",
         when(
             col("treatment_list").isNotNull() & (size("treatment_list") > 0),
-            concat("dataset_available", array(lit("patient treatment"))),
-        ).otherwise(col("dataset_available")),
+            when(col("dataset_available").isNotNull(),
+                 concat(col("dataset_available"), array(lit("patient treatment")))).otherwise(
+                array(lit("patient treatment")))
+        ).otherwise(col("dataset_available"))
     )
 
     search_index_df = (
@@ -509,7 +466,7 @@ def transform_search_index(
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
             "treatment_list",
-            "model_treatment_list",
+            "model_treatment_list"
         )
         .where(col("histology").isNotNull())
         .distinct()
