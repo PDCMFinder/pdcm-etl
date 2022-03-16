@@ -73,8 +73,6 @@ class Constants:
     ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"
     REGIMENT_TO_TREATMENT_ENTITY = "regimen_to_treatment"
     SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
-    PATIENT_TREATMENT_ENTITY = "patient_treatment"
-    MODEL_DRUG_DOSING_ENTITY = "model_drug_dosing"
     TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
     TREATMENT_COMPONENT_ENTITY = "treatment_component"
     TREATMENT_TO_ONTOLOGY_ENTITY = "treatment_to_ontology"

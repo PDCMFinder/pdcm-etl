@@ -57,8 +57,6 @@ entities = {
     Constants.REGIMENT_TO_TREATMENT_ENTITY: TransformRegimenToTreatment(),
     Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: TransformXenograftModelSpecimen(),
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: TransformSampleToOntology(),
-    Constants.PATIENT_TREATMENT_ENTITY: TransformPatientTreatment(),
-    Constants.MODEL_DRUG_DOSING_ENTITY: TransformModelDrugDosing(),
     Constants.TREATMENT_PROTOCOL_ENTITY: TransformTreatmentProtocol(),
     Constants.TREATMENT_COMPONENT_ENTITY: TransformTreatmentComponent(),
     Constants.TREATMENT_TO_ONTOLOGY_ENTITY: TransformTreatmentToOntology(),
