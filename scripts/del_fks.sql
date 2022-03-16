@@ -52,15 +52,6 @@ ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS fk_regimen_to_ontology
 ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS fk_regimen_to_ontology_ontology_term_regimen CASCADE;
 ALTER TABLE regimen_to_treatment DROP CONSTRAINT IF EXISTS fk_regimen_to_treatment_ontology_term_regimen CASCADE;
 ALTER TABLE regimen_to_treatment DROP CONSTRAINT IF EXISTS fk_regimen_to_treatment_ontology_term_treatment CASCADE;
-ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_patient CASCADE;
-ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_treatment CASCADE;
-ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_response CASCADE;
-ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_response_classification CASCADE;
-ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS fk_patient_treatment_model CASCADE;
-ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_treatment CASCADE;
-ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_response CASCADE;
-ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_response_classification CASCADE;
-ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS fk_model_drug_dosing_model CASCADE;
 ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS fk_treatment_protocol_model CASCADE;
 ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS fk_treatment_protocol_patient CASCADE;
 ALTER TABLE treatment_component DROP CONSTRAINT IF EXISTS fk_treatment_component_treatment_protocol CASCADE;

@@ -44,7 +44,5 @@ ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS pk_sample_to_ontology C
 ALTER TABLE treatment_to_ontology DROP CONSTRAINT IF EXISTS pk_treatment_to_ontology CASCADE;
 ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS pk_regimen_to_ontology CASCADE;
 ALTER TABLE regimen_to_treatment DROP CONSTRAINT IF EXISTS pk_regimen_to_treatment CASCADE;
-ALTER TABLE patient_treatment DROP CONSTRAINT IF EXISTS pk_patient_treatment CASCADE;
-ALTER TABLE model_drug_dosing DROP CONSTRAINT IF EXISTS pk_model_drug_dosing CASCADE;
 ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS pk_treatment_protocol CASCADE;
 ALTER TABLE treatment_component DROP CONSTRAINT IF EXISTS pk_treatment_component CASCADE;

@@ -2,22 +2,12 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import (
-    array_join,
-    collect_list,
-    col,
-    concat_ws,
     collect_set,
-    size,
-    when,
     lit,
-    array,
     explode,
 )
 from pyspark.sql.types import ArrayType, StringType, StructType, StructField
 
-from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
-from etl.jobs.util.id_assigner import add_id
-from etl.workflow.config import PdcmConfig
 
 column_names = ["facet_section", "facet_name", "facet_options"]
 
