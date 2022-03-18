@@ -1,6 +1,6 @@
 import sys
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, lower
+from pyspark.sql.functions import col, lower, when
 from etl.jobs.util.cleaner import lower_and_trim_all
 
 from etl.jobs.util.id_assigner import add_id
@@ -48,6 +48,7 @@ def main(argv):
         tumor_type_df,
         ontology_term_diagnosis_df,
         raw_diagnosis_mappings_df)
+    sample_to_ontology_df.show(n=100)
     sample_to_ontology_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -68,11 +69,33 @@ def transform_sample_to_ontology(
     return sample_to_ontology_df
 
 
+# Make tumour_type be '*' as a way to unify values that represent a value that does not exist
+def format_tumour_type(tumour_type_df: DataFrame) -> DataFrame:
+    tumour_type_df = tumour_type_df.withColumn("name", lower_and_trim_all('name'))
+    return tumour_type_df.withColumn(
+        "name",
+        when(
+            (col("name") == 'not provided') |
+            (col("name") == 'not specified') |
+            (col("name") == 'not collected'), '*')
+        .otherwise(lower_and_trim_all('name')))
+
+
 def lower_mapping_column_values(diagnosis_mappings_df: DataFrame) -> DataFrame:
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('datasource', lower_and_trim_all('datasource'))
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('diagnosis', lower_and_trim_all('diagnosis'))
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('primary_tissue', lower_and_trim_all('primary_tissue'))
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('tumor_type', lower_and_trim_all('tumor_type'))
+
+    # Just a way to unify several terms that at the end kind o represent a null
+    diagnosis_mappings_df = diagnosis_mappings_df.withColumn(
+        "tumor_type",
+        when(
+            (col("tumor_type") == 'not provided') |
+            (col("tumor_type") == 'not specified') |
+            (col("tumor_type") == 'not collected'), '*')
+        .otherwise(col("tumor_type")))
+
     return diagnosis_mappings_df
 
 
@@ -100,6 +123,7 @@ def join_sample_with_linked_data(
     tissue_df = tissue_df.withColumnRenamed("name", "primary_tissue")
     sample_data_df = sample_data_df.join(tissue_df, on=['primary_site_id'], how='left')
 
+    tumor_type_df = format_tumour_type(tumor_type_df)
     tumor_type_df = tumor_type_df.withColumnRenamed("id", "tumour_type_id")
     tumor_type_df = tumor_type_df.withColumnRenamed("name", "tumor_type")
     sample_data_df = sample_data_df.join(tumor_type_df, on=['tumour_type_id'], how='left')
@@ -122,9 +146,6 @@ def link_samples_to_ontology(
     ontology_term_diagnosis_df = ontology_term_diagnosis_df.withColumnRenamed("id", "ontology_term_id")
     diagnosis_mappings_df = diagnosis_mappings_df.join(
         ontology_term_diagnosis_df, diagnosis_mappings_df.term_url == ontology_term_diagnosis_df.term_url, how='left')
-
-    #diagnosis_mappings_df.filter(diagnosis_mappings_df.datasource == "cmp").show()
-    #sample_data_df.filter(sample_data_df.data_source == "cmp").show()
 
     sample_to_ontology_df = sample_data_df.join(
         diagnosis_mappings_df, [diagnosis_mappings_df.datasource == sample_data_df.data_source,
