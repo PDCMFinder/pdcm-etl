@@ -8,45 +8,58 @@ from etl.jobs.util.id_assigner import add_id
 
 def main(argv):
     """
-    Creates a parquet file with provider group data.
+    Creates a parquet file with sample_to_ontology data.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw sharing data
-                    [2]: Output file
+                    [1]: Parquet file path with model data
+                    [2]: Parquet file path with patient_sample data
+                    [3]: Parquet file path with diagnosis data
+                    [4]: Parquet file path with tumor_type data
+                    [5]: Parquet file path with tissue data
+                    [6]: Parquet file path with ontology_term_diagnosis data
+                    [7]: Parquet file path with the diagnosis mappings data
+                    [8]: Output file
     """
-    raw_model_parquet_path = argv[1]
-    raw_patient_sample_parquet_path = argv[2]
-    raw_diagnosis_parquet_path = argv[3]
-    raw_tumor_type_parquet_path = argv[4]
-    raw_tissue_parquet_path = argv[5]
+    model_parquet_path = argv[1]
+    patient_sample_parquet_path = argv[2]
+    diagnosis_parquet_path = argv[3]
+    tumor_type_parquet_path = argv[4]
+    tissue_parquet_path = argv[5]
 
-    raw_ontology_term_diagnosis_parquet_path = argv[6]
+    ontology_term_diagnosis_parquet_path = argv[6]
     raw_diagnosis_mappings_parquet_path = argv[7]
 
     output_path = argv[8]
 
     spark = SparkSession.builder.getOrCreate()
-    raw_model_df = spark.read.parquet(raw_model_parquet_path)
-    raw_patient_sample_df = spark.read.parquet(raw_patient_sample_parquet_path)
-    raw_diagnosis_df = spark.read.parquet(raw_diagnosis_parquet_path)
-    raw_tissue_df = spark.read.parquet(raw_tissue_parquet_path)
-    raw_tumor_type_df = spark.read.parquet(raw_tumor_type_parquet_path)
+    model_df = spark.read.parquet(model_parquet_path)
+    patient_sample_df = spark.read.parquet(patient_sample_parquet_path)
+    diagnosis_df = spark.read.parquet(diagnosis_parquet_path)
+    tissue_df = spark.read.parquet(tissue_parquet_path)
+    tumor_type_df = spark.read.parquet(tumor_type_parquet_path)
 
-    raw_ontology_term_diagnosis_df = spark.read.parquet(raw_ontology_term_diagnosis_parquet_path)
+    ontology_term_diagnosis_df = spark.read.parquet(ontology_term_diagnosis_parquet_path)
     raw_diagnosis_mappings_df = spark.read.parquet(raw_diagnosis_mappings_parquet_path)
 
-    sample_to_ontology_df = transform_sample_to_ontology(raw_model_df, raw_patient_sample_df, raw_diagnosis_df,
-                                                         raw_tissue_df, raw_tumor_type_df,
-                                                         raw_ontology_term_diagnosis_df, raw_diagnosis_mappings_df)
+    sample_to_ontology_df = transform_sample_to_ontology(
+        model_df,
+        patient_sample_df,
+        diagnosis_df,
+        tissue_df,
+        tumor_type_df,
+        ontology_term_diagnosis_df,
+        raw_diagnosis_mappings_df)
     sample_to_ontology_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_sample_to_ontology(model_df: DataFrame,
-                                 patient_sample_df: DataFrame,
-                                 diagnosis_df: DataFrame,
-                                 tissue_df: DataFrame,
-                                 tumor_type_df: DataFrame,
-                                 ontology_term_diagnosis_df: DataFrame,
-                                 diagnosis_mappings_df: DataFrame) -> DataFrame:
+def transform_sample_to_ontology(
+        model_df: DataFrame,
+        patient_sample_df: DataFrame,
+        diagnosis_df: DataFrame,
+        tissue_df: DataFrame,
+        tumor_type_df: DataFrame,
+        ontology_term_diagnosis_df: DataFrame,
+        diagnosis_mappings_df: DataFrame) -> DataFrame:
+
     sample_data_df = join_sample_with_linked_data(model_df, patient_sample_df, diagnosis_df, tissue_df, tumor_type_df)
     diagnosis_mappings_df = lower_mapping_column_values(diagnosis_mappings_df)
     sample_to_ontology_df = link_samples_to_ontology(sample_data_df, ontology_term_diagnosis_df, diagnosis_mappings_df)
@@ -63,15 +76,17 @@ def lower_mapping_column_values(diagnosis_mappings_df: DataFrame) -> DataFrame:
     return diagnosis_mappings_df
 
 
-def join_sample_with_linked_data(model_df: DataFrame,
-                                 patient_sample_df: DataFrame,
-                                 diagnosis_df: DataFrame,
-                                 tissue_df: DataFrame,
-                                 tumor_type_df: DataFrame) -> DataFrame:
+def join_sample_with_linked_data(
+        model_df: DataFrame,
+        patient_sample_df: DataFrame,
+        diagnosis_df: DataFrame,
+        tissue_df: DataFrame,
+        tumor_type_df: DataFrame) -> DataFrame:
+
     model_df = model_df.select("id", "data_source")
     patient_sample_df = patient_sample_df.withColumnRenamed("id", "sample_id")
-    patient_sample_df = patient_sample_df.select("sample_id", "model_id", "diagnosis_id", "primary_site_id",
-                                                 "tumour_type_id")
+    patient_sample_df = patient_sample_df.select(
+        "sample_id", "model_id", "diagnosis_id", "primary_site_id", "tumour_type_id")
     model_df = model_df.withColumnRenamed("id", "model_id")
     sample_data_df = model_df.join(
         patient_sample_df,
@@ -98,9 +113,11 @@ def join_sample_with_linked_data(model_df: DataFrame,
     return sample_data_df.select("sample_id", "data_source", "diagnosis", "primary_tissue", "tumor_type")
 
 
-def link_samples_to_ontology(sample_data_df: DataFrame,
-                             ontology_term_diagnosis_df: DataFrame,
-                             diagnosis_mappings_df: DataFrame) -> DataFrame:
+def link_samples_to_ontology(
+        sample_data_df: DataFrame,
+        ontology_term_diagnosis_df: DataFrame,
+        diagnosis_mappings_df: DataFrame) -> DataFrame:
+
     diagnosis_mappings_df = diagnosis_mappings_df.withColumnRenamed("mapped_term_url", "term_url")
     ontology_term_diagnosis_df = ontology_term_diagnosis_df.withColumnRenamed("id", "ontology_term_id")
     diagnosis_mappings_df = diagnosis_mappings_df.join(
