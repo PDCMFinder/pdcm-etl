@@ -114,7 +114,6 @@ def set_fk_contact_people(model_df: DataFrame, contact_people_df: DataFrame) -> 
 
     model_df = model_df.join(contact_people_df, cond, how='left')
     model_df = model_df.drop(contact_people_df[Constants.DATA_SOURCE_COLUMN])
-    model_df.show()
     return model_df
 
 

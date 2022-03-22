@@ -48,7 +48,6 @@ def main(argv):
         tumor_type_df,
         ontology_term_diagnosis_df,
         raw_diagnosis_mappings_df)
-    sample_to_ontology_df.show(n=100)
     sample_to_ontology_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -65,7 +64,6 @@ def transform_sample_to_ontology(
     diagnosis_mappings_df = lower_mapping_column_values(diagnosis_mappings_df)
     sample_to_ontology_df = link_samples_to_ontology(sample_data_df, ontology_term_diagnosis_df, diagnosis_mappings_df)
     sample_to_ontology_df = add_id(sample_to_ontology_df, "id")
-    sample_to_ontology_df.show()
     return sample_to_ontology_df
 
 

@@ -191,7 +191,7 @@ GROUP  BY model_id,
           response,
           dose;
 
-CREATE MATERIALIZED VIEW dosing_studies AS
+CREATE MATERIALIZED VIEW patient_treatment AS
  SELECT model_id,
        String_agg(treatment, ' And ') treatment,
        response,

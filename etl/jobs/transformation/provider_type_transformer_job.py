@@ -20,7 +20,6 @@ def main(argv):
     spark = SparkSession.builder.getOrCreate()
     raw_source_df = spark.read.parquet(raw_source_parquet_path)
     provider_group_df = transform_provider_group(raw_source_df)
-    provider_group_df.show()
     provider_group_df.write.mode("overwrite").parquet(output_path)
 
 
