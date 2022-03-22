@@ -38,14 +38,12 @@ def write_exploded_columns_harmonisation(spark, output_path):
     previous_symbols_df = previous_symbols_df.withColumn("previous_symbol", trim_all("previous_symbol"))
     previous_symbols_df = previous_symbols_df.drop("previous_symbols")
     previous_symbols_df.write.mode("overwrite").parquet(output_path + '_previous_symbols')
-    previous_symbols_df.show(truncate=False)
 
     alias_symbols_df = gene_marker_df.select("id", "alias_symbols").where("alias_symbols is not null")
     alias_symbols_df = alias_symbols_df.withColumn("alias_symbol", explode(split("alias_symbols", ",")))
     alias_symbols_df = alias_symbols_df.withColumn("alias_symbol", trim_all("alias_symbol"))
     alias_symbols_df = alias_symbols_df.drop("alias_symbols")
     alias_symbols_df.write.mode("overwrite").parquet(output_path + '_alias_symbols')
-    alias_symbols_df.show(truncate=False)
 
 
 if __name__ == "__main__":
