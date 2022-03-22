@@ -15,8 +15,6 @@ rebundle-submit: clean libs build        ##@submit Submit luigi workflows to the
 build: clean-build        ##@deploy Build to the dist package
 	mkdir -p ./dist
 	zip -r ./dist/etl.zip etl
-	cp etl/entities.yaml ./
-	cp etl/sources.yaml ./
 
 libs: clean-libs
 	cd ./dist && mkdir libs

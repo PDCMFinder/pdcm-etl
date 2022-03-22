@@ -65,7 +65,6 @@ class ReadOntologyFromObo(PySparkTask):
 
         columns = ["term_id", "term_name", "term_url", "is_a"]
         df = read_obo_file(spark, input_path + "/ontology/ncit.obo", columns)
-        df.show()
         df.write.mode("overwrite").parquet(output_path)
 
     def output(self):

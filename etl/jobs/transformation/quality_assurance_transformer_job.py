@@ -49,7 +49,6 @@ def set_fk_model(quality_assurance_df, model_df):
     quality_assurance_df = quality_assurance_df.withColumn("xyz", col("model_id_ref"))
     quality_assurance_df = transform_to_fk(
         quality_assurance_df, model_df, "model_id_ref", "external_model_id", "id", "model_id")
-    quality_assurance_df.show()
     return quality_assurance_df
 
 
