@@ -4,7 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col
 
 from etl.constants import Constants
-from etl.jobs.util.cleaner import init_cap_and_trim_all
+from etl.jobs.util.cleaner import init_cap_and_trim_all, lower_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
@@ -80,17 +80,20 @@ def clean_data_before_join(patient_sample_df: DataFrame) -> DataFrame:
 
 
 def set_fk_diagnosis(patient_sample_df: DataFrame, diagnosis_df: DataFrame) -> DataFrame:
+    patient_sample_df = patient_sample_df.withColumn("diagnosis", lower_and_trim_all("diagnosis"))
     patient_sample_df = transform_to_fk(
         patient_sample_df, diagnosis_df, "diagnosis", "name", "id", "diagnosis_id")
     return patient_sample_df
 
 
 def set_fk_origin_tissue(patient_sample_df: DataFrame, tissue_df: DataFrame) -> DataFrame:
+    patient_sample_df = patient_sample_df.withColumn("primary_site", lower_and_trim_all("primary_site"))
     patient_sample_df = transform_to_fk(patient_sample_df, tissue_df, "primary_site", "name", "id", "primary_site_id")
     return patient_sample_df
 
 
 def set_fk_sample_site(patient_sample_df: DataFrame, tissue_df: DataFrame) -> DataFrame:
+    patient_sample_df = patient_sample_df.withColumn("collection_site", lower_and_trim_all("collection_site"))
     patient_sample_df = transform_to_fk(
         patient_sample_df, tissue_df, "collection_site", "name", "id", "collection_site_id")
     return patient_sample_df
