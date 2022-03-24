@@ -1,8 +1,8 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
 
+from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -36,11 +36,11 @@ def transform_diagnosis(raw_patient_df: DataFrame, raw_sample_df: DataFrame) -> 
 
 
 def get_diagnosis_from_patient(raw_patient_df: DataFrame) -> DataFrame:
-    return raw_patient_df.select(col("initial_diagnosis").alias("name"))
+    return raw_patient_df.select(lower_and_trim_all("initial_diagnosis").alias("name"))
 
 
 def get_diagnosis_from_sample(raw_sample_df: DataFrame) -> DataFrame:
-    return raw_sample_df.select(col("diagnosis").alias("name"))
+    return raw_sample_df.select(lower_and_trim_all("diagnosis").alias("name"))
 
 
 if __name__ == "__main__":
