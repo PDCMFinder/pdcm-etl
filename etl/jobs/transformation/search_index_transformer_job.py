@@ -56,21 +56,20 @@ def main(argv):
     patient_parquet_path = argv[6]
     ethnicity_df_parquet_path = argv[7]
     xenograft_sample_parquet_path = argv[8]
-    cell_model_parquet_path = argv[9]
-    tumour_type_parquet_path = argv[10]
-    tissue_parquet_path = argv[11]
-    gene_marker_parquet_path = argv[12]
-    mutation_marker_parquet_path = argv[13]
-    mutation_measurement_data_parquet_path = argv[14]
-    cna_data_parquet_path = argv[15]
-    expression_data_parquet_path = argv[16]
-    cytogenetics_data_parquet_path = argv[17]
-    provider_group_parquet_path = argv[18]
-    project_group_parquet_path = argv[19]
-    sample_to_ontology_parquet_path = argv[20]
-    ontology_term_diagnosis_parquet_path = argv[21]
-    treatment_harmonisation_helper_parquet_path = argv[22]
-    output_path = argv[23]
+    tumour_type_parquet_path = argv[9]
+    tissue_parquet_path = argv[10]
+    gene_marker_parquet_path = argv[11]
+    mutation_marker_parquet_path = argv[12]
+    mutation_measurement_data_parquet_path = argv[13]
+    cna_data_parquet_path = argv[14]
+    expression_data_parquet_path = argv[15]
+    cytogenetics_data_parquet_path = argv[16]
+    provider_group_parquet_path = argv[17]
+    project_group_parquet_path = argv[18]
+    sample_to_ontology_parquet_path = argv[19]
+    ontology_term_diagnosis_parquet_path = argv[20]
+    treatment_harmonisation_helper_parquet_path = argv[21]
+    output_path = argv[22]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -85,7 +84,6 @@ def main(argv):
     patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
-    cell_model_df = spark.read.parquet(cell_model_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
     gene_marker_df = spark.read.parquet(gene_marker_parquet_path)
@@ -110,7 +108,6 @@ def main(argv):
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
-        cell_model_df,
         tumour_type_df,
         tissue_df,
         gene_marker_df,
@@ -137,7 +134,6 @@ def transform_search_index(
     patient_df,
     ethnicity_df,
     xenograft_sample_df,
-    cell_model_df,
     tumour_type_df,
     tissue_df,
     gene_marker_df,
@@ -154,7 +150,9 @@ def transform_search_index(
     ontology_term_diagnosis_df,
     treatment_harmonisation_helper_df
 ) -> DataFrame:
-    search_index_df = model_df.withColumnRenamed("id", "pdcm_model_id")
+    model_df = model_df.withColumnRenamed("type", "model_type")
+    model_df = model_df.withColumnRenamed("id", "pdcm_model_id")
+    search_index_df = model_df
 
     patient_sample_df = patient_sample_df.withColumnRenamed("grade", "cancer_grade")
     patient_sample_df = patient_sample_df.withColumnRenamed(
@@ -382,34 +380,7 @@ def transform_search_index(
         "model_id",
     )
 
-    # Adding model_type, join with xenograft_sample and cell_model if there is match in xenograft_sample
-    # the model is a xenograft, if there is a match in cell_model the model is a cell_model
-    xenograft_sample_df = xenograft_sample_df.withColumnRenamed(
-        "id", "xenograft_model_id"
-    )
-    cell_model_df = cell_model_df.withColumnRenamed("id", "cell_model_id")
-    model_model_type_df = model_df.join(
-        xenograft_sample_df, col("id") == col("model_id"), "left"
-    ).drop("model_id")
-    model_model_type_df = model_model_type_df.join(
-        cell_model_df, col("id") == col("model_id"), "left"
-    )
-    model_model_type_df = model_model_type_df.withColumn(
-        "model_type",
-        when(col("xenograft_model_id").isNotNull(), lit("xenograft model"))
-        .when(col("cell_model_id").isNotNull(), lit("cell model"))
-        .otherwise(lit(None).astype(StringType())),
-    )
-    model_model_type_df = model_model_type_df.select(
-        "id", "model_type"
-    ).drop_duplicates()
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
-    search_index_df = join_left_dfs(
-        search_index_df,
-        model_model_type_df,
-        "temp_model_id",
-        "id",
-    )
 
     # Adding treatment list (patient treatment) and model treatment list (model drug dosing) to search_index
     treatment_harmonisation_helper_df = treatment_harmonisation_helper_df.withColumnRenamed("model_id", "pdcm_model_id")
