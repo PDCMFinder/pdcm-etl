@@ -484,7 +484,7 @@ def extend_patient_sample(
         "inner",
     )
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
-        "search_terms", split(concat_ws("|", "term_name", "ancestors"), "|")
+        "search_terms", split(concat_ws("|", "term_name", "ancestors"), "\\|")
     )
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
         "cancer_system",
