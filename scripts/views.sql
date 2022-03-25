@@ -241,3 +241,11 @@ CREATE MATERIALIZED VIEW models_by_treatment AS
    FROM search_index
   GROUP BY (unnest(search_index.treatment_list));
 
+CREATE materialized VIEW models_by_type AS
+SELECT
+  model_type,
+  count(1) 
+FROM
+  search_index
+GROUP BY
+  model_type;
