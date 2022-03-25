@@ -473,7 +473,6 @@ class TransformSearchIndex(TransformEntity):
         TransformPatient(),
         TransformEthnicity(),
         TransformXenograftSample(),
-        TransformCellModel(),
         TransformTumourType(),
         TransformTissue(),
         TransformGeneMarker(),
