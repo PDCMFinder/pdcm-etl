@@ -1,9 +1,10 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession, Column
-from pyspark.sql.functions import col, trim
+from pyspark.sql.functions import col, trim, lit, when
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
@@ -71,10 +72,24 @@ def transform_model(
 
 
 def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
+
     model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+    model_df = model_df.withColumn("type", lit("xenograft"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
-    cell_model_df = raw_cell_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+
+    cell_model_df = raw_cell_model_df.select("model_id", "publications", "type", Constants.DATA_SOURCE_COLUMN)
+    cell_model_df = cell_model_df.withColumn("type", lower_and_trim_all("type"))
+    cell_model_df = cell_model_df.select(
+        "model_id", "publications", Constants.DATA_SOURCE_COLUMN, "type").drop_duplicates()
     cell_model_df = cell_model_df.withColumnRenamed("model_id", "external_model_id")
+    # Standardise some of the model type values
+    cell_model_df = cell_model_df.withColumn(
+        "type",
+        when((col("type") == 'cell line'), "cell line")
+        .when((col("type").like('%organoid%')), "organoid")
+        .otherwise(lit("other"))
+    )
+
     union_df = model_df.union(cell_model_df)
     return union_df
 
@@ -149,7 +164,8 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "accessibility_group_id",
         "contact_people_id",
         "contact_form_id",
-        "source_database_id")
+        "source_database_id",
+        "type")
 
 
 if __name__ == "__main__":
