@@ -55,7 +55,7 @@ def create_term_ancestors(spark, graph) -> DataFrame:
     for term_id in cancer_term_id_list:
         ancestor_id_list = get_term_ancestors(graph, term_id)
         ancestor_list = get_term_names_from_term_id_list(graph, ancestor_id_list)
-        ancestors.append((term_id, ','.join(ancestor_list)))
+        ancestors.append((term_id, '|'.join(ancestor_list)))
 
     df = spark.createDataFrame(data=ancestors, schema=columns)
     return df
