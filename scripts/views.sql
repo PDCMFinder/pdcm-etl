@@ -1,19 +1,6 @@
-CREATE MATERIALIZED VIEW details_molecular_data AS
- SELECT molecular_characterization.id,
-    ps.external_patient_sample_id AS patient_sample_id,
-    ps.model_id AS patient_model_id,
-    xs.external_xenograft_sample_id AS xenograft_sample_id,
-    xs.model_id AS xenograft_model_id,
-    xs.passage AS xenograft_passage,
-    molecular_characterization.raw_data_url,
-    data_type.name AS data_type,
-    platform.id AS platform_id,
-    platform.instrument_model AS platform_name
-   FROM ((((molecular_characterization
-     JOIN platform ON ((molecular_characterization.platform_id = platform.id)))
-     JOIN molecular_characterization_type data_type ON ((molecular_characterization.molecular_characterization_type_id = data_type.id)))
-     LEFT JOIN patient_sample ps ON ((molecular_characterization.patient_sample_id = ps.id)))
-     LEFT JOIN xenograft_sample xs ON ((molecular_characterization.xenograft_sample_id = xs.id)));
+/*
+  DETAILS PAGE VIEWS
+*/
 
 CREATE MATERIALIZED VIEW mutation_data_table AS
  SELECT mmpxmg.molecular_characterization_id,
@@ -132,6 +119,40 @@ CREATE MATERIALIZED VIEW cna_data_table_columns AS
             jsonb_object_keys(jsonb_strip_nulls(to_jsonb(cna_data_table.*))) AS not_empty_cols
            FROM cna_data_table) temp
   GROUP BY temp.molecular_characterization_id;
+
+
+CREATE MATERIALIZED VIEW details_molecular_data AS
+ SELECT molecular_characterization.id,
+    ps.external_patient_sample_id AS patient_sample_id,
+    ps.model_id AS patient_model_id,
+    xs.external_xenograft_sample_id AS xenograft_sample_id,
+    xs.model_id AS xenograft_model_id,
+    xs.passage AS xenograft_passage,
+    molecular_characterization.raw_data_url,
+    data_type.name AS data_type,
+    platform.id AS platform_id,
+    platform.instrument_model AS platform_name,
+        CASE
+            WHEN data_type.name = 'mutation'::text AND (molecular_characterization.id IN ( SELECT DISTINCT mutation_data_table.molecular_characterization_id
+               FROM mutation_data_table)) THEN 'TRUE'::text
+            WHEN data_type.name = 'expression'::text AND (molecular_characterization.id IN ( SELECT DISTINCT expression_data_table.molecular_characterization_id
+               FROM expression_data_table)) THEN 'TRUE'::text
+            WHEN data_type.name = 'copy number alteration'::text AND (molecular_characterization.id IN ( SELECT DISTINCT cna_data_table.molecular_characterization_id
+               FROM cna_data_table)) THEN 'TRUE'::text
+            WHEN data_type.name = 'cytogenetics'::text AND (molecular_characterization.id IN ( SELECT DISTINCT cytogenetics_data_table.molecular_characterization_id
+               FROM cytogenetics_data_table)) THEN 'TRUE'::text
+            ELSE 'FALSE'::text
+        END AS data_availability
+   FROM molecular_characterization
+     JOIN platform ON molecular_characterization.platform_id = platform.id
+     JOIN molecular_characterization_type data_type ON molecular_characterization.molecular_characterization_type_id = data_type.id
+     LEFT JOIN patient_sample ps ON molecular_characterization.patient_sample_id = ps.id
+     LEFT JOIN xenograft_sample xs ON molecular_characterization.xenograft_sample_id = xs.id;
+
+
+/*
+  DATA OVERVIEW VIEWS
+*/
 
 CREATE MATERIALIZED VIEW models_by_cancer AS
  SELECT search_index.cancer_system,
