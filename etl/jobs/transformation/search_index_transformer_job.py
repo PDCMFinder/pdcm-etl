@@ -415,6 +415,17 @@ def transform_search_index(
         ).otherwise(col("dataset_available"))
     )
 
+    # Add publication flag to dataset available
+    search_index_df = search_index_df.withColumn(
+        "dataset_available",
+        when(
+            col("publication_group_id").isNotNull(),
+            when(col("dataset_available").isNotNull(),
+                 concat(col("dataset_available"), array(lit("publication")))).otherwise(
+                array(lit("publication")))
+        ).otherwise(col("dataset_available"))
+    )
+
     search_index_df = (
         search_index_df.select(
             "pdcm_model_id",
