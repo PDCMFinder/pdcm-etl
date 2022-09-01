@@ -22,7 +22,7 @@ def add_node_to_graph(graph, row):
 
 
 def extract_cancer_ontology_graph(graph):
-    return extract_subgraph_from_graph(graph, "NCIT:C9305")
+    return extract_subgraph_from_graph(graph, "NCIT:C3262")
 
 
 def extract_subgraph_from_graph(graph, top_term):
@@ -81,4 +81,7 @@ def extract_treatment_ontology_terms(graph, ontology_id):
 
 
 def update_term_name(term_name):
-    return re.sub(r"(.*)Malignant(.*)Neoplasm(.*)", r"\1\2Cancer\3", term_name).strip()
+    if "Malignant" in term_name:
+        return re.sub(r"(.*)Malignant(.*)Neoplasm(.*)", r"\1\2Cancer\3", term_name).strip()
+    else:
+        return re.sub(r"(.*)Neoplasm(.*)", r"\1Cancer\2", term_name).strip()

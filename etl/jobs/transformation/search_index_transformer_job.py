@@ -13,7 +13,7 @@ from pyspark.sql.functions import (
     udf,
     split,
     array_intersect,
-    concat,
+    concat, array_except,
 )
 from pyspark.sql.types import ArrayType, StringType
 
@@ -36,6 +36,13 @@ cancer_systems = [
     "Skin Cancer",
     "Urinary System Cancer",
     "Unclassified",
+]
+
+exclude_top_level_terms = [
+    "Cancer",
+    "Cancer by Special Category",
+    "Cancer by Morphology",
+    "Cancer by Site"
 ]
 
 NOT_SPECIFIED_VALUE = "Not specified"
@@ -408,6 +415,17 @@ def transform_search_index(
         ).otherwise(col("dataset_available"))
     )
 
+    # Add publication flag to dataset available
+    search_index_df = search_index_df.withColumn(
+        "dataset_available",
+        when(
+            col("publication_group_id").isNotNull(),
+            when(col("dataset_available").isNotNull(),
+                 concat(col("dataset_available"), array(lit("publication")))).otherwise(
+                array(lit("publication")))
+        ).otherwise(col("dataset_available"))
+    )
+
     search_index_df = (
         search_index_df.select(
             "pdcm_model_id",
@@ -484,7 +502,8 @@ def extend_patient_sample(
         "inner",
     )
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
-        "search_terms", split(concat_ws("|", "term_name", "ancestors"), "\\|")
+        "search_terms",
+        array_except(split(concat_ws("|", "term_name", "ancestors"), "\\|"), array(*map(lit, exclude_top_level_terms)))
     )
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
         "cancer_system",
@@ -492,6 +511,10 @@ def extend_patient_sample(
     )
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
         "cancer_system", col("cancer_system").getItem(0)
+    )
+    sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
+        "cancer_system",
+        when(col("cancer_system").isNull(), lit("Unclassified")).otherwise(col("cancer_system"))
     )
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn(
         "histology", col("term_name")
