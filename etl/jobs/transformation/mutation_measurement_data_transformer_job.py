@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
 from etl.jobs.util.id_assigner import add_id
+from etl.jobs.util.molecular_characterization_fk_assigner import set_fk_molecular_characterization
 
 
 def main(argv):
@@ -33,7 +34,7 @@ def transform_mutation_measurement_data(
     mutation_measurement_data_df = get_mutation_measurement_data_df(raw_mutation_marker_df)
     mutation_measurement_data_df = set_fk_mutation_marker(mutation_measurement_data_df, mutation_marker_df)
     mutation_measurement_data_df = set_fk_molecular_characterization(
-        mutation_measurement_data_df, molecular_characterization_df)
+        mutation_measurement_data_df, 'mutation', molecular_characterization_df)
 
     mutation_measurement_data_df = add_id(mutation_measurement_data_df, "id")
     mutation_measurement_data_df = get_expected_columns(mutation_measurement_data_df)
@@ -83,31 +84,6 @@ def set_fk_mutation_marker(mutation_measurement_data_df: DataFrame, mutation_mar
             mutation_measurement_data_df.functional_prediction.eqNullSafe(mutation_marker_df.functional_prediction_ref)]
     mutation_measurement_data_df = mutation_measurement_data_df.join(
         mutation_marker_df, cond, how='left').drop(*to_drop)
-    return mutation_measurement_data_df
-
-
-def set_fk_molecular_characterization(
-        mutation_measurement_data_df: DataFrame, molecular_characterization_df: DataFrame) -> DataFrame:
-    mutation_measurement_data_df = mutation_measurement_data_df.withColumnRenamed("platform_id", "platform_external_id")
-
-    molecular_characterization_df = molecular_characterization_df.withColumnRenamed(
-        "id", "molecular_characterization_id").where("molecular_characterisation_type = 'mutation'")
-
-    molecular_characterization_df = molecular_characterization_df.select(
-        "molecular_characterization_id", "sample_origin", "external_patient_sample_id", "external_xenograft_sample_id",
-        "platform_external_id", Constants.DATA_SOURCE_COLUMN)
-
-    mol_char_patient_df = molecular_characterization_df.where("sample_origin = 'patient'")
-    mol_char_patient_df = mol_char_patient_df.withColumnRenamed("external_patient_sample_id", "sample_id")
-    mutation_measurement_patient_sample_df = mutation_measurement_data_df.join(
-        mol_char_patient_df, on=["sample_id", "platform_external_id", Constants.DATA_SOURCE_COLUMN], how='inner')
-
-    mol_char_xenograft_df = molecular_characterization_df.where("sample_origin = 'xenograft'")
-    mol_char_xenograft_df = mol_char_xenograft_df.withColumnRenamed("external_xenograft_sample_id", "sample_id")
-    mutation_measurement_xenograft_sample_df = mutation_measurement_data_df.join(
-        mol_char_xenograft_df, on=["sample_id", "platform_external_id", Constants.DATA_SOURCE_COLUMN], how='inner')
-
-    mutation_measurement_data_df = mutation_measurement_patient_sample_df.union(mutation_measurement_xenograft_sample_df)
     return mutation_measurement_data_df
 
 

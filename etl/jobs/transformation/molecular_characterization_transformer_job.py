@@ -206,7 +206,8 @@ def get_columns_expected_order(molecular_characterization_df: DataFrame) -> Data
     return molecular_characterization_df.select(
         "id", "molecular_characterization_type_id", "platform_id", "patient_sample_id", "xenograft_sample_id",
         "cell_sample_id", "sample_origin", "molecular_characterisation_type", "platform_external_id",
-        "external_patient_sample_id", "external_xenograft_sample_id", "raw_data_url", Constants.DATA_SOURCE_COLUMN)
+        "external_patient_sample_id", "external_xenograft_sample_id", "raw_data_url", "external_cell_sample_id",
+        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":
