@@ -110,6 +110,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "treatment_drug_dosing",
             "facet_name": "Patient treatment status",
             "facet_column": "patient_treatment_status",
+            "facet_example": "NULL"
         },
         {
             "facet_section": "treatment_drug_dosing",
