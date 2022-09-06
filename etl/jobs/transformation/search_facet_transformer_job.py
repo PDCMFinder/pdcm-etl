@@ -29,7 +29,8 @@ def main(argv):
             StructField("facet_section", StringType(), True),
             StructField("facet_name", StringType(), True),
             StructField("facet_column", StringType(), True),
-            StructField("facet_options", ArrayType(StringType()), True)
+            StructField("facet_options", ArrayType(StringType()), True),
+            StructField("facet_example", StringType(), True),
         ]
     )
     search_facet_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema)
