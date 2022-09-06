@@ -143,7 +143,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
         facet_df = search_index_df.withColumn("temp", lit(0))
         column_name = facet_definition["facet_column"]
         if "facet_example" not in facet_definition:
-            facet_definition["facet_example"] = None
+            facet_definition["facet_example"] = ''
         if "array" in dict(search_index_df.dtypes)[column_name]:
             facet_df = facet_df.withColumn(column_name, explode(column_name))
         facet_df = facet_df.groupby("temp").agg(
