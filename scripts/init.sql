@@ -418,5 +418,6 @@ CREATE TABLE search_facet (
     facet_section TEXT,
     facet_name TEXT,
     facet_column TEXT,
-    facet_options TEXT[]
+    facet_options TEXT[],
+    facet_example TEXT
 );
