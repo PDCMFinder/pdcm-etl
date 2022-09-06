@@ -508,7 +508,8 @@ entities = {
             "facet_section",
             "facet_name",
             "facet_column",
-            "facet_options"
+            "facet_options",
+            "facet_example"
         ]
     }
 
