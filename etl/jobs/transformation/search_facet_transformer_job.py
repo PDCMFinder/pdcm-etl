@@ -50,19 +50,19 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "model",
             "facet_name": "Dataset available",
             "facet_column": "dataset_available",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "model",
             "facet_name": "Datasource",
             "facet_column": "data_source",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "model",
             "facet_name": "Type",
             "facet_column": "model_type",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "model",
@@ -74,7 +74,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "model",
             "facet_name": "Project",
             "facet_column": "project_name",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "molecular_data",
@@ -98,7 +98,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "molecular_data",
             "facet_name": "Breast cancer biomarkers",
             "facet_column": "breast_cancer_biomarkers",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "molecular_data",
@@ -110,7 +110,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "treatment_drug_dosing",
             "facet_name": "Patient treatment status",
             "facet_column": "patient_treatment_status",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "treatment_drug_dosing",
@@ -128,25 +128,25 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "patient_tumour",
             "facet_name": "Tumour type",
             "facet_column": "tumour_type",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Patient sex",
             "facet_column": "patient_sex",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Patient age",
             "facet_column": "patient_age",
-            "facet_example": "NULL"
+            "facet_example": '""'
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Cancer system",
             "facet_column": "cancer_system",
-            "facet_example": "NULL"
+            "facet_example": '""'
         }
     ]
 
