@@ -246,6 +246,7 @@ def transform_search_index(
     mutation_marker_df = mutation_marker_df.select(
         "id", "gene_symbol", "amino_acid_change"
     )
+    mutation_marker_gene_df = mutation_marker_df.withColumn("gene_variant", col("gene_symbol"))
     mutation_marker_df = mutation_marker_df.withColumn(
         "gene_variant",
         when(
@@ -253,6 +254,8 @@ def transform_search_index(
             concat_ws("/", "gene_symbol", "amino_acid_change"),
         ).otherwise(col("gene_symbol")),
     )
+    mutation_marker_df = mutation_marker_df.union(mutation_marker_gene_df).distinct()
+
     mutation_mol_char_df = mutation_measurement_data_df.select(
         "mutation_marker_id", "molecular_characterization_id"
     )
