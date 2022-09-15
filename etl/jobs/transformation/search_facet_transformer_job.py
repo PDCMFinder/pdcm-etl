@@ -9,7 +9,7 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import ArrayType, StringType, StructType, StructField
 
 
-column_names = ["facet_section", "facet_name", "facet_options"]
+column_names = ["facet_section", "facet_name", "facet_options", "facet_example"]
 
 
 def main(argv):
@@ -29,7 +29,8 @@ def main(argv):
             StructField("facet_section", StringType(), True),
             StructField("facet_name", StringType(), True),
             StructField("facet_column", StringType(), True),
-            StructField("facet_options", ArrayType(StringType()), True)
+            StructField("facet_options", ArrayType(StringType()), True),
+            StructField("facet_example", StringType(), True),
         ]
     )
     search_facet_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema)
@@ -43,91 +44,109 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             "facet_section": "search",
             "facet_name": "Search",
             "facet_column": "search_terms",
+            "facet_example": "Melanoma"
         },
         {
             "facet_section": "model",
             "facet_name": "Dataset available",
             "facet_column": "dataset_available",
+            "facet_example": '""'
         },
         {
             "facet_section": "model",
             "facet_name": "Datasource",
             "facet_column": "data_source",
+            "facet_example": '""'
         },
         {
             "facet_section": "model",
             "facet_name": "Type",
             "facet_column": "model_type",
+            "facet_example": '""'
         },
         {
             "facet_section": "model",
             "facet_name": "Model ID",
             "facet_column": "external_model_id",
+            "facet_example": "TM00015"
         },
         {
             "facet_section": "model",
             "facet_name": "Project",
             "facet_column": "project_name",
+            "facet_example": '""'
         },
         {
             "facet_section": "molecular_data",
             "facet_name": "Gene mutation",
             "facet_column": "makers_with_mutation_data",
+            "facet_example": "RTP3"
         },
         {
             "facet_section": "molecular_data",
             "facet_name": "Copy Number Alteration",
             "facet_column": "makers_with_cna_data",
+            "facet_example": "RTP3"
         },
         {
             "facet_section": "molecular_data",
             "facet_name": "Gene Expression",
             "facet_column": "makers_with_expression_data",
+            "facet_example": "BEST1"
         },
         {
             "facet_section": "molecular_data",
             "facet_name": "Breast cancer biomarkers",
             "facet_column": "breast_cancer_biomarkers",
+            "facet_example": '""'
         },
         {
             "facet_section": "molecular_data",
             "facet_name": "Cytogenetics",
             "facet_column": "makers_with_cytogenetics_data",
+            "facet_example": "ESR1"
         },
         {
             "facet_section": "treatment_drug_dosing",
             "facet_name": "Patient treatment status",
             "facet_column": "patient_treatment_status",
+            "facet_example": '""'
         },
         {
             "facet_section": "treatment_drug_dosing",
             "facet_name": "Patient treatment",
             "facet_column": "treatment_list",
+            "facet_example": "radiation therapy"
         },
         {
             "facet_section": "treatment_drug_dosing",
             "facet_name": "Model dosing",
             "facet_column": "model_treatment_list",
+            "facet_example": "cyclophosphamide"
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Tumour type",
             "facet_column": "tumour_type",
+            "facet_example": '""'
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Patient sex",
             "facet_column": "patient_sex",
+            "facet_example": '""'
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Patient age",
             "facet_column": "patient_age",
+            "facet_example": '""'
         },
         {
             "facet_section": "patient_tumour",
             "facet_name": "Cancer system",
             "facet_column": "cancer_system",
+            "facet_example": '""'
         }
     ]
 
@@ -144,7 +163,7 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             facet_df = facet_df.withColumn(k, lit(v))
         search_facet_df = search_facet_df.union(
             facet_df.select(
-                "facet_section", "facet_name", "facet_column", "facet_options"
+                "facet_section", "facet_name", "facet_column", "facet_options", "facet_example"
             )
         )
     return search_facet_df
