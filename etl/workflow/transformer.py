@@ -458,7 +458,8 @@ class TransformTreatmentHarmonisationHelper(TransformEntity):
         TransformRegimenToTreatment(),
         TransformRegimenToOntology(),
         TransformOntologyTermTreatment(),
-        TransformOntologyTermRegimen()
+        TransformOntologyTermRegimen(),
+        TransformResponse()
     ]
     entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
 
