@@ -3,13 +3,13 @@ all: default
 default: clean devDeps build
 
 submit: build
-	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi.cfg'  PYTHONPATH='.'  YARN_CONF_DIR=/homes/mi_hadoop/hadoop-yarn-conf/ PYSPARK_PYTHON=python36  luigi --module etl.workflow.main --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
+	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi-lsf-dev.cfg'  PYTHONPATH='.' TMPDIR='/nfs/production/tudor/pdcm/tmp' PYSPARK_PYTHON=python3  luigi --module etl.workflow.main --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
 
 rebundle-submit: clean libs build        ##@submit Submit luigi workflows to the cluster
-	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi.cfg'  PYTHONPATH='.' PYSPARK_PYTHON=python36  python etl/workflow/main.py --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 8
+	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi-lsf-dev.cfg'  PYTHONPATH='.' TMPDIR='/nfs/production/tudor/pdcm/tmp'  PYSPARK_PYTHON=python3  python etl/workflow/main.py --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 8
 
 .venv:          ##@environment Create a venv
-	if [ ! -e "venv/bin/activate" ] ; then $(PYTHON) -m venv --clear venv ; fi
+	if [ ! -e "venv/bin/activate" ] ; then python3 -m venv --clear venv ; fi
 	source venv/bin/activate && pip install --upgrade pip
 
 build: clean-build        ##@deploy Build to the dist package
