@@ -124,7 +124,7 @@ def format_output(harmonised_terms_by_protocol_df: DataFrame, formatted_protocol
         "term_name_with_response",
         when(
             col("response_name").isNotNull(),
-            concat_ws("/", "term_name", "response_name"),
+            concat_ws(" / ", "term_name", "response_name"),
         ).otherwise(col("term_name")))
 
     grouped_term_names_df = harmonised_treatments_by_models_df. \
