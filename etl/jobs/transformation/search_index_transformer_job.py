@@ -66,17 +66,16 @@ def main(argv):
     tumour_type_parquet_path = argv[9]
     tissue_parquet_path = argv[10]
     gene_marker_parquet_path = argv[11]
-    mutation_marker_parquet_path = argv[12]
-    mutation_measurement_data_parquet_path = argv[13]
-    cna_data_parquet_path = argv[14]
-    expression_data_parquet_path = argv[15]
-    cytogenetics_data_parquet_path = argv[16]
-    provider_group_parquet_path = argv[17]
-    project_group_parquet_path = argv[18]
-    sample_to_ontology_parquet_path = argv[19]
-    ontology_term_diagnosis_parquet_path = argv[20]
-    treatment_harmonisation_helper_parquet_path = argv[21]
-    output_path = argv[22]
+    mutation_measurement_data_parquet_path = argv[12]
+    cna_data_parquet_path = argv[13]
+    expression_data_parquet_path = argv[14]
+    cytogenetics_data_parquet_path = argv[15]
+    provider_group_parquet_path = argv[16]
+    project_group_parquet_path = argv[17]
+    sample_to_ontology_parquet_path = argv[18]
+    ontology_term_diagnosis_parquet_path = argv[19]
+    treatment_harmonisation_helper_parquet_path = argv[20]
+    output_path = argv[21]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -94,7 +93,6 @@ def main(argv):
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
     gene_marker_df = spark.read.parquet(gene_marker_parquet_path)
-    mutation_marker_df = spark.read.parquet(mutation_marker_parquet_path)
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
@@ -120,7 +118,6 @@ def main(argv):
         gene_marker_df,
         molecular_characterization_df,
         molecular_characterization_type_df,
-        mutation_marker_df,
         mutation_measurement_data_df,
         cna_data_df,
         expression_data_df,
@@ -146,7 +143,6 @@ def transform_search_index(
     gene_marker_df,
     molecular_characterization_df,
     molecular_characterization_type_df,
-    mutation_marker_df,
     mutation_measurement_data_df,
     cna_data_df,
     expression_data_df,
@@ -242,39 +238,35 @@ def transform_search_index(
     # Generate tables mol_char_id, tmp_symbol/gene_variant
     # Join left model_mol_char with mol_char_gene
     # then group by model, mol_char_type to collect the set of gene_variants and then pivot over mol_char_type
-    mutation_marker_df = add_gene_symbol(mutation_marker_df, gene_marker_df)
-    mutation_marker_df = mutation_marker_df.select(
-        "id", "gene_symbol", "amino_acid_change"
+    mutation_measurement_data_df = add_gene_symbol(mutation_measurement_data_df)
+    mutation_measurement_data_df = mutation_measurement_data_df.select(
+        "id", "gene_symbol", "amino_acid_change", "molecular_characterization_id"
     )
-    mutation_marker_gene_df = mutation_marker_df.withColumn("gene_variant", col("gene_symbol"))
-    mutation_marker_df = mutation_marker_df.withColumn(
+    mutation_measurement_data_gene_df = mutation_measurement_data_df.withColumn("gene_variant", col("gene_symbol"))
+    mutation_measurement_data_df = mutation_measurement_data_df.withColumn(
         "gene_variant",
         when(
             col("amino_acid_change").isNotNull(),
             concat_ws("/", "gene_symbol", "amino_acid_change"),
         ).otherwise(col("gene_symbol")),
     )
-    mutation_marker_df = mutation_marker_df.union(mutation_marker_gene_df).distinct()
+    mutation_measurement_data_df = mutation_measurement_data_df.union(mutation_measurement_data_gene_df).distinct()
+    print("mutation_measurement_data_df")
+    mutation_measurement_data_df.show()
 
     mutation_mol_char_df = mutation_measurement_data_df.select(
-        "mutation_marker_id", "molecular_characterization_id"
-    )
-    mutation_mol_char_df = join_dfs(
-        mutation_mol_char_df, mutation_marker_df, "mutation_marker_id", "id", "inner"
-    )
-    mutation_mol_char_df = mutation_mol_char_df.select(
         "molecular_characterization_id", "gene_variant"
     )
 
     # Adding CNA data availability by gene
-    cna_data_df = add_gene_symbol(cna_data_df, gene_marker_df)
+    cna_data_df = add_gene_symbol(cna_data_df)
     cna_data_df = cna_data_df.withColumnRenamed("gene_symbol", "gene_variant")
     cna_data_df = cna_data_df.select(
         "molecular_characterization_id", "gene_variant"
     ).distinct()
 
     # Adding expression data availability by gene
-    expression_data_df = add_gene_symbol(expression_data_df, gene_marker_df)
+    expression_data_df = add_gene_symbol(expression_data_df)
     expression_data_df = expression_data_df.withColumnRenamed(
         "gene_symbol", "gene_variant"
     )
@@ -283,7 +275,7 @@ def transform_search_index(
     ).distinct()
 
     # Adding cytogenetics data availability by gene and result
-    cytogenetics_mol_char_df = add_gene_symbol(cytogenetics_data_df, gene_marker_df)
+    cytogenetics_mol_char_df = add_gene_symbol(cytogenetics_data_df)
     cytogenetics_mol_char_df = cytogenetics_mol_char_df.withColumnRenamed(
         "gene_symbol", "gene_variant"
     )
@@ -339,7 +331,7 @@ def transform_search_index(
         "model_id",
     )
     # Adding breast cancer biomarkers data
-    breast_cancer_biomarkers_df = add_gene_symbol(cytogenetics_data_df, gene_marker_df)
+    breast_cancer_biomarkers_df = add_gene_symbol(cytogenetics_data_df)
     breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.withColumnRenamed(
         "gene_symbol", "breast_cancer_biomarker"
     )
@@ -466,18 +458,11 @@ def transform_search_index(
     return search_index_df
 
 
-def add_gene_symbol(mol_char_data_df: DataFrame, gene_marker_df: DataFrame):
+def add_gene_symbol(mol_char_data_df: DataFrame):
     """
-    Takes in a molecular characterization dataframe and adds
-    a gene symbol using a gene_marker dataframe.
+    Takes in a molecular characterization dataframe renames the hgnc_symbol to gene_symbol
     """
-    gene_marker_df = gene_marker_df.where(col("approved_symbol").isNotNull())
-    gene_marker_df = gene_marker_df.select("id", "approved_symbol")
-    gene_marker_df = gene_marker_df.withColumnRenamed("approved_symbol", "gene_symbol")
-    mol_char_data_df = join_dfs(
-        mol_char_data_df, gene_marker_df, "gene_marker_id", "id", "inner"
-    )
-    return mol_char_data_df
+    return mol_char_data_df.withColumnRenamed("hgnc_symbol", "gene_symbol")
 
 
 def extend_patient_sample(

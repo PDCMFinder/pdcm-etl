@@ -5,6 +5,19 @@ from pyspark.sql import DataFrame, SparkSession
 
 
 def harmonise_mutation_marker_symbols(molecular_data_df: DataFrame, gene_markers_parquet_path):
+    """
+        Check if the symbols in a molecular data df correspond to valid data, taking into account cases like:
+         - The symbol is an approved symbol.
+         - The symbol is a previous name so the current official name is different
+         - The symbol is an alias
+         - There is not a match using the symbol, but it matches if we use the ensembl gene id
+         - There is not a match using the symbol, but it matches if we use the ncbi gene id
+
+        The reference list for the official gene names is in the df stored as a parquet file in gene_markers_parquet_path
+
+        :param molecular_data_df: df with molecular data.
+        :param gene_markers_parquet_path: Parquet file path with the gene markers.
+    """
     spark = SparkSession.builder.getOrCreate()
     molecular_data_df = molecular_data_df.withColumn("non_harmonised_symbol", col("symbol"))
     gene_markers_df = get_gene_markers_df(gene_markers_parquet_path, spark)
@@ -33,11 +46,20 @@ def harmonise_mutation_marker_symbols(molecular_data_df: DataFrame, gene_markers
     no_matched_df = no_matched_df.withColumn("gene_marker_id", lit(None))
     no_matched_df = no_matched_df.withColumn("harmonisation_result", lit("no_mapping"))
 
-    return matched_approved_symbol_df.union(matched_previous_symbols_df)\
+    result_df = matched_approved_symbol_df.union(matched_previous_symbols_df)\
         .unionByName(matched_alias_symbols_df) \
         .unionByName(matched_ensembl_gene_id_df) \
         .unionByName(matched_ncbi_gene_id_df) \
         .unionByName(no_matched_df)
+
+    # Return also the approved symbol (as hgnc_symbol) so the molecular data tables can store that value
+    # directly without needed to do a join again with gene_markers
+    gene_markers_df = gene_markers_df.withColumnRenamed("approved_symbol", "hgnc_symbol")
+    gene_markers_df = gene_markers_df.select("gene_marker_id", "hgnc_symbol")
+
+    result_df = result_df.join(gene_markers_df, on=["gene_marker_id"], how="left")
+
+    return result_df
 
 
 def get_gene_markers_df(gene_marker_parquet_path, spark) -> DataFrame:

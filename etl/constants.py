@@ -65,7 +65,6 @@ class Constants:
     CNA_MOLECULAR_DATA_ENTITY = "cna_molecular_data"
     CYTOGENETICS_MOLECULAR_DATA_ENTITY = "cytogenetics_molecular_data"
     EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
-    MUTATION_MARKER_ENTITY = "mutation_marker"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
     GENE_MARKER_ENTITY = "gene_marker"
     ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
@@ -79,6 +78,8 @@ class Constants:
     REGIMEN_TO_ONTOLOGY_ENTITY = "regimen_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
+    MOLECULAR_DATA_RESTRICTION_ENTITY = "molecular_data_restriction"
+    AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY = "available_molecular_data_columns"
 
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"

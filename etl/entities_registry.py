@@ -49,6 +49,8 @@ import etl.jobs.transformation.search_facet_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.regimen_to_treatment_transformer_job
 import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
+import etl.jobs.transformation.molecular_data_restriction_transformer_job
+import etl.jobs.transformation.available_molecular_data_columns_transformer_job
 from etl.constants import Constants
 
 
@@ -301,33 +303,36 @@ entities = {
         "spark_job": etl.jobs.transformation.cna_molecular_data_transformer_job.main,
         "expected_database_columns": [
             "id",
+            "hgnc_symbol",
             "log10r_cna",
             "log2r_cna",
             "copy_number_status",
             "gistic_value",
             "picnic_value",
-            "gene_marker_id",
             "non_harmonised_symbol",
             "harmonisation_result",
-            "molecular_characterization_id"
+            "molecular_characterization_id",
+            "data_source"
         ]
     },
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.cytogenetics_molecular_data_transformer_job.main,
         "expected_database_columns": [
             "id",
+            "hgnc_symbol",
             "marker_status",
             "essential_or_additional_marker",
-            "gene_marker_id",
             "non_harmonised_symbol",
             "harmonisation_result",
-            "molecular_characterization_id"
+            "molecular_characterization_id",
+            "data_source",
         ]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.expression_molecular_data_transformer_job.main,
         "expected_database_columns": [
             "id",
+            "hgnc_symbol",
             "z_score",
             "rnaseq_coverage",
             "rnaseq_fpkm",
@@ -337,42 +342,36 @@ entities = {
             "affy_hgea_expression_value",
             "illumina_hgea_probe_id",
             "illumina_hgea_expression_value",
-            "gene_marker_id",
             "non_harmonised_symbol",
             "harmonisation_result",
             "molecular_characterization_id",
-        ]
-    },
-    Constants.MUTATION_MARKER_ENTITY: {
-        "spark_job": etl.jobs.transformation.mutation_marker_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "biotype",
-            "coding_sequence_change",
-            "variant_class",
-            "codon_change",
-            "amino_acid_change",
-            "consequence",
-            "functional_prediction",
-            "seq_start_position",
-            "ref_allele",
-            "alt_allele",
-            "ncbi_transcript_id",
-            "ensembl_transcript_id",
-            "variation_id",
-            "gene_marker_id",
-            "non_harmonised_symbol",
-            "harmonisation_result"
+            "data_source",
         ]
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.mutation_measurement_data_transformer_job.main,
         "expected_database_columns": [
             "id",
+            "hgnc_symbol",
+            "amino_acid_change",
+            "consequence",
             "read_depth",
             "allele_frequency",
-            "mutation_marker_id",
-            "molecular_characterization_id"
+            "seq_start_position",
+            "ref_allele",
+            "alt_allele",
+            "biotype",
+            "coding_sequence_change",
+            "variant_class",
+            "codon_change",
+            "functional_prediction",
+            "ncbi_transcript_id",
+            "ensembl_transcript_id",
+            "variation_id",
+            "molecular_characterization_id",
+            "non_harmonised_symbol",
+            "harmonisation_result",
+            "data_source"
         ]
     },
     Constants.GENE_MARKER_ENTITY: {
@@ -510,6 +509,21 @@ entities = {
             "facet_column",
             "facet_options",
             "facet_example"
+        ]
+    },
+    Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: {
+        "spark_job": etl.jobs.transformation.molecular_data_restriction_transformer_job.main,
+        "expected_database_columns": [
+            "data_source",
+            "molecular_data_table"
+        ]
+    },
+    Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY: {
+        "spark_job": etl.jobs.transformation.available_molecular_data_columns_transformer_job.main,
+        "expected_database_columns": [
+            "data_source",
+            "not_empty_cols",
+            "molecular_characterization_type"
         ]
     }
 

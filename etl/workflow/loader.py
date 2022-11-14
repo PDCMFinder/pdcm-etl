@@ -1,19 +1,18 @@
 import luigi
 from luigi.contrib.spark import SparkSubmitTask
-import time
 
 from etl.constants import Constants
-from etl.entities_registry import get_all_entities_names, get_all_entities_names_to_store_db
-from etl.entities_task_index import get_transformation_class_by_entity_name, get_all_transformation_classes
+from etl.entities_registry import get_all_entities_names_to_store_db
+from etl.entities_task_index import get_transformation_class_by_entity_name
 from etl.jobs.load.database_manager import copy_entity_to_database, get_database_connection, \
-    delete_fks, delete_indexes, create_indexes, create_fks
+    create_indexes, create_fks, recreate_tables, create_views
 from etl.jobs.util.file_manager import copy_directory
 from etl.workflow.config import PdcmConfig
 
 
 class ParquetToCsv(SparkSubmitTask):
-    data_dir = luigi.Parameter()
-    providers = luigi.ListParameter()
+    # data_dir = luigi.Parameter()
+    # providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
     name = luigi.Parameter()
 
@@ -69,20 +68,19 @@ class CopyEntityFromCsvToDb(luigi.Task):
     db_password = luigi.Parameter()
 
     def requires(self):
-        return ParquetToCsv(name=self.entity_name)
+        return {'parquetToCsvDependency': ParquetToCsv(name=self.entity_name),
+                'recreateTablesDependency': RecreateTables()}
 
     def output(self):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database/copied", self.entity_name))
 
     def run(self):
-        start = time.time()
         copy_entity_to_database(
-            self.entity_name, self.input().path, self.db_host, self.db_port, self.db_name, self.db_user,
-            self.db_password)
-        end = time.time()
-        print("Ended {0} in {1} seconds".format(self.entity_name, round(end - start, 4)))
+            self.entity_name, self.input()['parquetToCsvDependency'].path, self.db_host, self.db_port, self.db_name,
+            self.db_user, self.db_password)
+
         with self.output().open('w') as outfile:
-            outfile.write("Ended in {0} seconds".format(round(end - start, 4)))
+            outfile.write("Entity {0} copied".format(self.entity_name))
 
 
 def get_all_copying_tasks():
@@ -99,7 +97,7 @@ def get_all_copying_cluster_tasks():
     return tasks
 
 
-class DeleteFksAndIndexes(luigi.Task):
+class RecreateTables(luigi.Task):
     data_dir_out = luigi.Parameter()
     db_host = luigi.Parameter()
     db_port = luigi.Parameter()
@@ -108,14 +106,13 @@ class DeleteFksAndIndexes(luigi.Task):
     db_password = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes_deleted"))
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "tables_recreated"))
 
     def run(self):
         connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
-        delete_fks(connection)
-        delete_indexes(connection)
+        recreate_tables(connection)
         with self.output().open('w') as outfile:
-            outfile.write("Fks and indexes deleted")
+            outfile.write("Tables recreated")
         connection.commit()
         connection.close()
 
@@ -150,16 +147,22 @@ class CreateFksAndIndexes(luigi.Task):
         connection.close()
 
 
-class CopyAll(luigi.WrapperTask):
+class CopyAll(luigi.Task):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
 
+    def output(self):
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "all_entities_copied"))
+
     def requires(self):
-        return [Cache(), DeleteFksAndIndexes()]
+        return get_all_copying_tasks()
 
     def run(self):
         yield get_all_copying_tasks()
+
+        with self.output().open('w') as outfile:
+            outfile.write("All entities copied")
 
 
 class CopyAllCluster(luigi.WrapperTask):
@@ -168,7 +171,7 @@ class CopyAllCluster(luigi.WrapperTask):
     data_dir_out = luigi.Parameter()
 
     def requires(self):
-        return DeleteFksAndIndexes()
+        return [Cache(), RecreateTables()]
 
     def run(self):
         yield get_all_copying_cluster_tasks()
@@ -190,6 +193,58 @@ class Cache(luigi.Task):
             copy_directory(PdcmConfig().deploy_mode, self.cache_dir, self.data_dir_out)
         with self.output().open('w') as outfile:
             outfile.write("use_cache: {0}. folder: {1}".format(use_cache, self.cache_dir))
+
+
+class CreateViews(luigi.Task):
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    """
+        Creates all the views.
+    """
+
+    def output(self):
+        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "views_created"))
+
+    def run(self):
+        print("\n\n********** Loading views ***********\n")
+
+        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+
+        create_views(connection)
+        connection.commit()
+        connection.close()
+
+        with self.output().open('w') as outfile:
+            outfile.write("Views created")
+
+        print("\n********** End Loading views ***********\n")
+
+
+class LoadPublicDBObjects(luigi.Task):
+    """
+        Loads all the objects (views and materialized views) that are going to be exposed in the schema created for the api.
+    """
+    data_dir_out = luigi.Parameter()
+
+    def requires(self):
+        return [CreateFksAndIndexes()]
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, "database", "all_public_DB_objects_loaded"))
+
+    def run(self):
+        print("\n\n********** Loading all public DB objects ***********\n")
+        # yield [CreateMaterializedViews(), CreateViews()]
+        yield [CreateViews()]
+        with self.output().open('w') as outfile:
+            outfile.write("all public DB objects loaded")
+
+        print("\n********** End Loading all public DB objects ***********\n")
 
 
 if __name__ == "__main__":
