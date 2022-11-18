@@ -17,6 +17,7 @@ from pyspark.sql.functions import (
 )
 from pyspark.sql.types import ArrayType, StringType
 
+from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 
 cancer_systems = [
@@ -115,7 +116,6 @@ def main(argv):
         xenograft_sample_df,
         tumour_type_df,
         tissue_df,
-        gene_marker_df,
         molecular_characterization_df,
         molecular_characterization_type_df,
         mutation_measurement_data_df,
@@ -132,26 +132,25 @@ def main(argv):
 
 
 def transform_search_index(
-    model_df,
-    patient_sample_df,
-    patient_snapshot_df,
-    patient_df,
-    ethnicity_df,
-    xenograft_sample_df,
-    tumour_type_df,
-    tissue_df,
-    gene_marker_df,
-    molecular_characterization_df,
-    molecular_characterization_type_df,
-    mutation_measurement_data_df,
-    cna_data_df,
-    expression_data_df,
-    cytogenetics_data_df,
-    provider_group_df,
-    project_group_df,
-    sample_to_ontology_df,
-    ontology_term_diagnosis_df,
-    treatment_harmonisation_helper_df
+        model_df,
+        patient_sample_df,
+        patient_snapshot_df,
+        patient_df,
+        ethnicity_df,
+        xenograft_sample_df,
+        tumour_type_df,
+        tissue_df,
+        molecular_characterization_df,
+        molecular_characterization_type_df,
+        mutation_measurement_data_df,
+        cna_data_df,
+        expression_data_df,
+        cytogenetics_data_df,
+        provider_group_df,
+        project_group_df,
+        sample_to_ontology_df,
+        ontology_term_diagnosis_df,
+        treatment_harmonisation_helper_df
 ) -> DataFrame:
     model_df = model_df.withColumnRenamed("type", "model_type")
     model_df = model_df.withColumnRenamed("id", "pdcm_model_id")
@@ -251,8 +250,6 @@ def transform_search_index(
         ).otherwise(col("gene_symbol")),
     )
     mutation_measurement_data_df = mutation_measurement_data_df.union(mutation_measurement_data_gene_df).distinct()
-    print("mutation_measurement_data_df")
-    mutation_measurement_data_df.show()
 
     mutation_mol_char_df = mutation_measurement_data_df.select(
         "molecular_characterization_id", "gene_variant"
@@ -466,16 +463,16 @@ def add_gene_symbol(mol_char_data_df: DataFrame):
 
 
 def extend_patient_sample(
-    patient_sample_df,
-    patient_df,
-    tissue_df,
-    ethnicity_df,
-    patient_snapshot_df,
-    tumour_type_df,
-    provider_group_df,
-    project_group_df,
-    sample_to_ontology_df,
-    ontology_term_diagnosis_df,
+        patient_sample_df,
+        patient_df,
+        tissue_df,
+        ethnicity_df,
+        patient_snapshot_df,
+        tumour_type_df,
+        provider_group_df,
+        project_group_df,
+        sample_to_ontology_df,
+        ontology_term_diagnosis_df,
 ):
     """
     Takes in a patient sample DataFrame and extends it with
@@ -570,6 +567,7 @@ def extend_patient_sample(
 
     # Adding tumour_type name to patient_sample
     tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
+    tumour_type_df = remove_rows(tumour_type_df, "tumour_type", ["Not Collected", "Not Provided"])
     patient_sample_ext_df = join_left_dfs(
         patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id"
     )
@@ -596,6 +594,18 @@ def _bin_age(age_str: str):
         return NOT_SPECIFIED_VALUE
 
     return age_str
+
+
+def remove_rows(original_df: DataFrame, column_name: str, rows_values_to_delete):
+    """
+    Removes in dataframe original_df the rows in the column column_name that match values rows_values_to_delete
+    """
+    rows_values_to_delete = list(map(lambda x: x.lower(), rows_values_to_delete))
+    df = original_df.withColumn("filter_col", lower_and_trim_all(column_name))
+    df = df.filter(~col("filter_col").isin(rows_values_to_delete))
+    df = df.drop("filter_col")
+
+    return df
 
 
 if __name__ == "__main__":
