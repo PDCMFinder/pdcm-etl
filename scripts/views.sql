@@ -169,6 +169,12 @@ AS
   FROM   cna_molecular_data cnamd
   WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+DROP VIEW IF EXISTS pdcm_api.cna_data_table;
+
+CREATE VIEW pdcm_api.molecular_data_restriction
+AS
+  SELECT mdr.*
+  FROM   molecular_data_restriction mdr;
 
 -- search_index materialized view: Index to search for models
 
@@ -210,6 +216,8 @@ CREATE MATERIALIZED VIEW pdcm_api.details_molecular_data AS
     xs.external_xenograft_sample_id AS xenograft_sample_id,
     xs.model_id AS xenograft_model_id,
     xs.passage AS xenograft_passage,
+	cs.external_cell_sample_id AS cell_sample_id,
+	cs.model_id AS cell_model_id,
     molecular_characterization.raw_data_url,
     data_type.name AS data_type,
     platform.id AS platform_id,
@@ -229,7 +237,8 @@ CREATE MATERIALIZED VIEW pdcm_api.details_molecular_data AS
      JOIN platform ON molecular_characterization.platform_id = platform.id
      JOIN molecular_characterization_type data_type ON molecular_characterization.molecular_characterization_type_id = data_type.id
      LEFT JOIN patient_sample ps ON molecular_characterization.patient_sample_id = ps.id
-     LEFT JOIN xenograft_sample xs ON molecular_characterization.xenograft_sample_id = xs.id;
+     LEFT JOIN xenograft_sample xs ON molecular_characterization.xenograft_sample_id = xs.id
+	 LEFT JOIN cell_sample cs ON molecular_characterization.cell_sample_id = cs.id;
 
 /*
   DATA OVERVIEW VIEWS
