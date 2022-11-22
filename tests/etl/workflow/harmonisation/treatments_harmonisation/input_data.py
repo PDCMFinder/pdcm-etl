@@ -97,6 +97,39 @@ treatment_protocol = [
     }
 ]
 
+formatted_protocol = [
+    {
+        "treatment_protocol_id": "1",
+        "protocol_model": "1",
+        "patient_id": "1",
+        "treatment_target": "patient",
+        "response_id": "1",
+        "response_name": "r1",
+        "response_classification_id": "",
+        "data_source_tmp": "TRACE"
+    },
+    {
+        "treatment_protocol_id": "2",
+        "protocol_model": "1",
+        "patient_id": None,
+        "treatment_target": "drug dosing",
+        "response_id": "2",
+        "response_name": "r2",
+        "response_classification_id": "",
+        "data_source_tmp": "TRACE"
+    },
+    {
+        "treatment_protocol_id": "3",
+        "protocol_model": "1",
+        "patient_id": "1",
+        "treatment_target": "patient",
+        "response_id": "3",
+        "response_name": "r3",
+        "response_classification_id": "",
+        "data_source_tmp": "TRACE"
+    }
+]
+
 treatment_component = [
     {
         "id": "1",
