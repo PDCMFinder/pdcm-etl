@@ -42,7 +42,8 @@ def transform_cytogenetics_molecular_data(
 
     cytogenetics_df = set_fk_molecular_characterization(cytogenetics_df, 'cytogenetics', molecular_characterization_df)
     cytogenetics_df = harmonise_mutation_marker_symbols(cytogenetics_df, gene_markers_parquet_path)
-    cytogenetics_df = get_expected_columns(cytogenetics_df)
+    cytogenetics_df = cytogenetics_df.withColumnRenamed(
+        Constants.DATA_SOURCE_COLUMN, "data_source")
     cytogenetics_df = add_id(cytogenetics_df, "id")
     return cytogenetics_df
 
@@ -55,12 +56,6 @@ def get_cytogenetics_df(raw_cytogenetics_df: DataFrame) -> DataFrame:
         "platform_id",
         "essential_or_additional_marker",
         Constants.DATA_SOURCE_COLUMN,).drop_duplicates()
-
-
-def get_expected_columns(ethnicity_df: DataFrame) -> DataFrame:
-    return ethnicity_df.select(
-        "marker_status", "essential_or_additional_marker", "gene_marker_id",
-        "non_harmonised_symbol", "harmonisation_result", "molecular_characterization_id")
 
 
 if __name__ == "__main__":

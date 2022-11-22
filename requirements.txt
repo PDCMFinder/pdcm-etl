@@ -1,4 +1,4 @@
-luigi==2.8.7
+luigi==3.1.1
 
 #Making pyspark 3.1.1 because 3.2.0 and 3.2.1 have a bug regarding replacing a dataset view which is fixed in spark 3.2.2 but it's not available in pyspark at the moment (3.2.1)
 pyspark==3.1.1
@@ -7,9 +7,9 @@ pip
 py4j~=0.10.9
 python-dateutil~=2.8.1
 six~=1.15.0
-tornado~=4.5.3
+tornado
 lockfile~=0.12.2
-numpy~=1.20.2
+numpy
 cloudpickle~=1.6.0
 setuptools~=41.2.0
 
@@ -17,7 +17,7 @@ quinn~=0.9.0
 pyyaml
 hdfs
 
-psycopg2~=2.8.6
+psycopg2-binary
 networkx~=2.5.1
 pytest
 pytest-spark

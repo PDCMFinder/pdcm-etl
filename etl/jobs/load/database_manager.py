@@ -12,16 +12,16 @@ def get_database_connection(db_host, db_port, db_name, db_user, db_password):
 
 
 def copy_entity_to_database(entity_name, data_dir_out, db_host, db_port, db_name, db_user, db_password):
-    start = time.time()
-    logger.info("Starts copying data for {0}".format(entity_name))
+    logger.info("Copying data for {0}".format(entity_name))
     connection = get_database_connection(db_host, db_port, db_name, db_user, db_password)
+    # The table should not have data because the task that recreates all tables should have been executed at this
+    # point, but this is an extra measure in case the task has not been executed.
     cur = connection.cursor()
     cur.execute("TRUNCATE {0} CASCADE".format(entity_name))
+    print("Truncated " + entity_name)
     copy_to_database(connection, entity_name, data_dir_out)
     connection.commit()
     connection.close()
-    end = time.time()
-    print("{0} data copied in {1} seconds".format(entity_name, round(end - start, 4)))
 
 
 def delete_indexes(connection):
@@ -55,6 +55,24 @@ def create_fks(connection):
         cursor.execute(open("scripts/cr_fks.sql", "r").read())
     end = time.time()
     print("Fkd created in {0} seconds".format(round(end - start, 4)))
+
+
+def create_views(connection):
+    start = time.time()
+    print("creating  views")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/views.sql", "r").read())
+    end = time.time()
+    print("Views created in {0} seconds".format(round(end - start, 4)))
+
+
+def recreate_tables(connection):
+    start = time.time()
+    print("Recreating tables")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/init.sql", "r").read())
+    end = time.time()
+    print("Tables recreated in {0} seconds".format(round(end - start, 4)))
 
 
 def truncate_tables(connection, tables):

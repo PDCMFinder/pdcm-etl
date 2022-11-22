@@ -36,6 +36,11 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
         for dependency_output in self.input():
             spark_input_parameters.append(dependency_output.path)
 
+        # Exceptional case: this particular task needs an additional parameter. If set in the transformation
+        # class itself the value cannot be read here. Maybe ther is a better way to do this but for now it works
+        if self.entity_name == Constants.MOLECULAR_DATA_RESTRICTION_ENTITY:
+            spark_input_parameters.append(self.molecular_data_restrictions)
+
         """ The last parameter of the spark job is the output directory """
         spark_input_parameters.append(self.output().path)
 
@@ -336,8 +341,8 @@ class TransformGeneMarker(TransformEntity):
 
 class TransformCnaMolecularData(TransformEntity):
     requiredTasks = [
-        TransformMolecularCharacterization(),
         ExtractCna(),
+        TransformMolecularCharacterization(),
         TransformGeneMarker()
     ]
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
@@ -354,26 +359,18 @@ class TransformCytogeneticsMolecularData(TransformEntity):
 
 class TransformExpressionMolecularData(TransformEntity):
     requiredTasks = [
-        TransformMolecularCharacterization(),
         ExtractExpression(),
+        TransformMolecularCharacterization(),
         TransformGeneMarker()
     ]
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
 
 
-class TransformMutationMarker(TransformEntity):
-    requiredTasks = [
-        ExtractMutation(),
-        TransformGeneMarker()
-    ]
-    entity_name = Constants.MUTATION_MARKER_ENTITY
-
-
 class TransformMutationMeasurementData(TransformEntity):
     requiredTasks = [
         ExtractMutation(),
-        TransformMutationMarker(),
-        TransformMolecularCharacterization()
+        TransformMolecularCharacterization(),
+        TransformGeneMarker()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
 
@@ -458,7 +455,8 @@ class TransformTreatmentHarmonisationHelper(TransformEntity):
         TransformRegimenToTreatment(),
         TransformRegimenToOntology(),
         TransformOntologyTermTreatment(),
-        TransformOntologyTermRegimen()
+        TransformOntologyTermRegimen(),
+        TransformResponse()
     ]
     entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
 
@@ -476,7 +474,6 @@ class TransformSearchIndex(TransformEntity):
         TransformTumourType(),
         TransformTissue(),
         TransformGeneMarker(),
-        TransformMutationMarker(),
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
@@ -493,6 +490,21 @@ class TransformSearchIndex(TransformEntity):
 class TransformSearchFacet(TransformEntity):
     requiredTasks = [TransformSearchIndex()]
     entity_name = Constants.SEARCH_FACET_ENTITY
+
+
+class TransformMolecularDataRestriction(TransformEntity):
+    requiredTasks = []
+    entity_name = Constants.MOLECULAR_DATA_RESTRICTION_ENTITY
+    molecular_data_restrictions = luigi.Parameter()
+
+
+class TransformAvailableMolecularDataColumns(TransformEntity):
+    requiredTasks = [
+        TransformExpressionMolecularData(),
+        TransformCnaMolecularData(),
+        TransformCytogeneticsMolecularData(),
+        TransformMutationMeasurementData()]
+    entity_name = Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY
 
 
 if __name__ == "__main__":

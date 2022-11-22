@@ -48,7 +48,6 @@ entities = {
     Constants.CNA_MOLECULAR_DATA_ENTITY: TransformCnaMolecularData(),
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: TransformCytogeneticsMolecularData(),
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: TransformExpressionMolecularData(),
-    Constants.MUTATION_MARKER_ENTITY: TransformMutationMarker(),
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: TransformMutationMeasurementData(),
     Constants.GENE_MARKER_ENTITY: TransformGeneMarker(),
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: TransformOntologyTermDiagnosis(),
@@ -62,5 +61,7 @@ entities = {
     Constants.TREATMENT_TO_ONTOLOGY_ENTITY: TransformTreatmentToOntology(),
     Constants.REGIMEN_TO_ONTOLOGY_ENTITY: TransformRegimenToOntology(),
     Constants.SEARCH_INDEX_ENTITY: TransformSearchIndex(),
-    Constants.SEARCH_FACET_ENTITY: TransformSearchFacet()
+    Constants.SEARCH_FACET_ENTITY: TransformSearchFacet(),
+    Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: TransformMolecularDataRestriction(),
+    Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY: TransformAvailableMolecularDataColumns()
 }

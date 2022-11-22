@@ -10,13 +10,14 @@ from etl.jobs.util.molecular_characterization_fk_assigner import set_fk_molecula
 
 def main(argv):
     """
-    Creates a parquet file with provider type data.
+    Creates a parquet file with cna molecular data.
     :param list argv: the list elements should be:
                     [1]: Parquet file path with raw cna data
-                    [2]: Output file
+                    [2]: Parquet file path with molecular characterization data
+                    [3]: Output file
     """
-    molecular_characterization_path = argv[1]
-    raw_cna_parquet_path = argv[2]
+    raw_cna_parquet_path = argv[1]
+    molecular_characterization_path = argv[2]
     gene_markers_parquet_path = argv[3]
 
     output_path = argv[4]
@@ -36,7 +37,7 @@ def transform_cna_molecular_data(
     cna_df = get_cna_df(raw_cna_df)
     cna_df = set_fk_molecular_characterization(cna_df, 'copy number alteration', molecular_characterization_df)
     cna_df = harmonise_mutation_marker_symbols(cna_df, gene_markers_parquet_path)
-    cna_df = get_expected_columns(cna_df)
+    cna_df = cna_df.withColumnRenamed(Constants.DATA_SOURCE_COLUMN, "data_source")
     cna_df = add_id(cna_df, "id")
     return cna_df
 
@@ -56,11 +57,6 @@ def get_cna_df(raw_cna_df: DataFrame) -> DataFrame:
         "picnic_value",
         "ensembl_gene_id",
         "ncbi_gene_id").drop_duplicates()
-
-def get_expected_columns(cna_df: DataFrame) -> DataFrame:
-    return cna_df.select(
-        "log10r_cna", "log2r_cna", "copy_number_status", "gistic_value", "picnic_value", "gene_marker_id",
-        "non_harmonised_symbol", "harmonisation_result", "molecular_characterization_id")
 
 
 if __name__ == "__main__":

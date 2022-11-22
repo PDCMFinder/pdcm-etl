@@ -1,17 +1,27 @@
+CREATE SCHEMA IF NOT EXISTS pdcm_api;
+
+DROP TABLE IF EXISTS diagnosis CASCADE;
+
 CREATE TABLE diagnosis (
     id BIGINT NOT NULL,
     name TEXT
 );
+
+DROP TABLE IF EXISTS ethnicity CASCADE;
 
 CREATE TABLE ethnicity (
     id BIGINT NOT NULL,
     name TEXT
 );
 
+DROP TABLE IF EXISTS provider_type CASCADE;
+
 CREATE TABLE provider_type (
     id BIGINT NOT NULL,
     name TEXT
 );
+
+DROP TABLE IF EXISTS provider_group CASCADE;
 
 CREATE TABLE provider_group (
     id BIGINT NOT NULL,
@@ -21,6 +31,8 @@ CREATE TABLE provider_group (
     provider_type_id BIGINT,
     project_group_id BIGINT
 );
+
+DROP TABLE IF EXISTS patient CASCADE;
 
 CREATE TABLE patient (
     id BIGINT NOT NULL,
@@ -34,10 +46,14 @@ CREATE TABLE patient (
     provider_group_id BIGINT
 );
 
+DROP TABLE IF EXISTS publication_group CASCADE;
+
 CREATE TABLE publication_group (
     id BIGINT NOT NULL,
     pubmed_ids TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS accessibility_group CASCADE;
 
 CREATE TABLE accessibility_group (
     id BIGINT NOT NULL,
@@ -45,21 +61,29 @@ CREATE TABLE accessibility_group (
     accessibility TEXT
 );
 
+DROP TABLE IF EXISTS contact_people CASCADE;
+
 CREATE TABLE contact_people (
     id BIGINT NOT NULL,
     name_list TEXT,
     email_list TEXT
 );
 
+DROP TABLE IF EXISTS contact_form CASCADE;
+
 CREATE TABLE contact_form (
     id BIGINT NOT NULL,
     form_url TEXT NOT NULL
 );
 
+DROP TABLE IF EXISTS source_database CASCADE;
+
 CREATE TABLE source_database (
     id BIGINT NOT NULL,
     database_url TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS model_information CASCADE;
 
 CREATE TABLE model_information (
     id BIGINT NOT NULL,
@@ -71,6 +95,8 @@ CREATE TABLE model_information (
     contact_form_id BIGINT,
     source_database_id BIGINT
 );
+
+DROP TABLE IF EXISTS cell_model CASCADE;
 
 CREATE TABLE cell_model (
     id BIGINT NOT NULL,
@@ -85,12 +111,16 @@ CREATE TABLE cell_model (
     external_ids TEXT
 );
 
+DROP TABLE IF EXISTS cell_sample CASCADE;
+
 CREATE TABLE cell_sample (
     id BIGINT NOT NULL,
     external_cell_sample_id TEXT,
     model_id BIGINT,
     platform_id BIGINT
 );
+
+DROP TABLE IF EXISTS quality_assurance CASCADE;
 
 CREATE TABLE quality_assurance (
     id BIGINT NOT NULL,
@@ -101,15 +131,21 @@ CREATE TABLE quality_assurance (
     model_id BIGINT NOT NULL
 );
 
+DROP TABLE IF EXISTS tissue CASCADE;
+
 CREATE TABLE tissue (
     id BIGINT NOT NULL,
     name TEXT
 );
 
+DROP TABLE IF EXISTS tumour_type CASCADE;
+
 CREATE TABLE tumour_type (
     id BIGINT NOT NULL,
     name TEXT
 );
+
+DROP TABLE IF EXISTS patient_sample CASCADE;
 
 CREATE TABLE patient_sample (
     id BIGINT NOT NULL,
@@ -126,6 +162,8 @@ CREATE TABLE patient_sample (
     model_id BIGINT
 );
 
+DROP TABLE IF EXISTS xenograft_sample CASCADE;
+
 CREATE TABLE xenograft_sample (
     id BIGINT NOT NULL,
     external_xenograft_sample_id TEXT,
@@ -135,6 +173,8 @@ CREATE TABLE xenograft_sample (
     platform_id BIGINT
 
 );
+
+DROP TABLE IF EXISTS patient_snapshot CASCADE;
 
 CREATE TABLE patient_snapshot (
     id BIGINT NOT NULL,
@@ -148,10 +188,14 @@ CREATE TABLE patient_snapshot (
     sample_id BIGINT
 );
 
+DROP TABLE IF EXISTS engraftment_site CASCADE;
+
 CREATE TABLE engraftment_site (
     id BIGINT NOT NULL,
     name TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS engraftment_type CASCADE;
 
 CREATE TABLE engraftment_type (
     id BIGINT NOT NULL,
@@ -159,15 +203,21 @@ CREATE TABLE engraftment_type (
 );
 
 
+DROP TABLE IF EXISTS engraftment_sample_state CASCADE;
+
 CREATE TABLE engraftment_sample_state (
     id BIGINT NOT NULL,
     name TEXT NOT NULL
 );
 
+DROP TABLE IF EXISTS engraftment_sample_type CASCADE;
+
 CREATE TABLE engraftment_sample_type (
     id BIGINT NOT NULL,
     name TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS host_strain CASCADE;
 
 CREATE TABLE host_strain (
     id BIGINT NOT NULL,
@@ -175,10 +225,15 @@ CREATE TABLE host_strain (
     nomenclature TEXT NOT NULL
 );
 
+
+DROP TABLE IF EXISTS project_group CASCADE;
+
 CREATE TABLE project_group (
     id BIGINT NOT NULL,
     name TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS treatment CASCADE;
 
 CREATE TABLE treatment (
     id BIGINT NOT NULL,
@@ -186,20 +241,28 @@ CREATE TABLE treatment (
     data_source TEXT NOT NULL
 );
 
+DROP TABLE IF EXISTS response CASCADE;
+
 CREATE TABLE response (
     id BIGINT NOT NULL,
     name TEXT
 );
+
+DROP TABLE IF EXISTS response_classification CASCADE;
 
 CREATE TABLE response_classification (
     id BIGINT NOT NULL,
     name TEXT
 );
 
+DROP TABLE IF EXISTS molecular_characterization_type CASCADE;
+
 CREATE TABLE molecular_characterization_type (
     id BIGINT NOT NULL,
     name TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS platform CASCADE;
 
 CREATE TABLE platform (
     id BIGINT NOT NULL,
@@ -208,6 +271,8 @@ CREATE TABLE platform (
     instrument_model TEXT,
     library_selection TEXT
 );
+
+DROP TABLE IF EXISTS molecular_characterization CASCADE;
 
 CREATE TABLE molecular_characterization (
     id BIGINT NOT NULL,
@@ -219,33 +284,40 @@ CREATE TABLE molecular_characterization (
     cell_sample_id BIGINT
 );
 
+DROP TABLE IF EXISTS cna_molecular_data CASCADE;
+
 CREATE TABLE cna_molecular_data (
     id BIGINT NOT NULL,
+    hgnc_symbol TEXT,
     log10r_cna TEXT,
     log2r_cna TEXT,
     copy_number_status TEXT,
     gistic_value TEXT,
     picnic_value TEXT,
-    gene_marker_id BIGINT,
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
-    molecular_characterization_id BIGINT
-    --loci_marker_id BIGINT
+    molecular_characterization_id BIGINT,
+    data_source TEXT
 );
 
+DROP TABLE IF EXISTS cytogenetics_molecular_data CASCADE;
 
 CREATE TABLE cytogenetics_molecular_data (
     id BIGINT NOT NULL,
+    hgnc_symbol TEXT,
     marker_status TEXT,
     essential_or_additional_marker TEXT,
-    gene_marker_id BIGINT,
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
-    molecular_characterization_id BIGINT
+    molecular_characterization_id BIGINT,
+    data_source TEXT
 );
+
+DROP TABLE IF EXISTS expression_molecular_data CASCADE;
 
 CREATE TABLE expression_molecular_data (
     id BIGINT NOT NULL,
+    hgnc_symbol TEXT,
     z_score TEXT,
     rnaseq_coverage TEXT,
     rnaseq_fpkm TEXT,
@@ -255,12 +327,13 @@ CREATE TABLE expression_molecular_data (
     affy_hgea_expression_value TEXT,
     illumina_hgea_probe_id TEXT,
     illumina_hgea_expression_value TEXT,
-    gene_marker_id BIGINT,
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
-    molecular_characterization_id BIGINT
-    --loci_marker_id BIGINT
+    molecular_characterization_id BIGINT,
+    data_source TEXT
 );
+
+DROP TABLE IF EXISTS mutation_marker CASCADE;
 
 CREATE TABLE mutation_marker (
     id BIGINT NOT NULL,
@@ -283,13 +356,34 @@ CREATE TABLE mutation_marker (
     --loci_marker_id BIGINT
 );
 
+-- New
+DROP TABLE IF EXISTS mutation_measurement_data CASCADE;
+
 CREATE TABLE mutation_measurement_data (
     id BIGINT NOT NULL,
+    hgnc_symbol TEXT,
+    amino_acid_change TEXT,
+    consequence TEXT,
     read_depth TEXT,
     allele_frequency TEXT,
-    mutation_marker_id BIGINT,
-    molecular_characterization_id BIGINT
+    seq_start_position TEXT,
+    ref_allele TEXT,
+    alt_allele TEXT,
+    biotype TEXT,
+    coding_sequence_change TEXT,
+    variant_class TEXT,
+    codon_change TEXT,
+    functional_prediction TEXT,
+    ncbi_transcript_id TEXT,
+    ensembl_transcript_id TEXT,
+    variation_id TEXT,
+    molecular_characterization_id BIGINT,
+    non_harmonised_symbol TEXT,
+    harmonisation_result TEXT,
+    data_source TEXT
 );
+
+DROP TABLE IF EXISTS xenograft_model_specimen CASCADE;
 
 CREATE TABLE xenograft_model_specimen (
     id BIGINT NOT NULL,
@@ -301,6 +395,8 @@ CREATE TABLE xenograft_model_specimen (
     host_strain_id BIGINT,
     model_id BIGINT
 );
+
+DROP TABLE IF EXISTS gene_marker CASCADE;
 
 CREATE TABLE gene_marker (
     id BIGINT NOT NULL,
@@ -316,6 +412,8 @@ CREATE TABLE gene_marker (
     ncbi_gene_id TEXT
 );
 
+DROP TABLE IF EXISTS ontology_term_diagnosis CASCADE;
+
 CREATE TABLE ontology_term_diagnosis(
     id BIGINT NOT NULL,
     term_id TEXT NOT NULL,
@@ -325,12 +423,16 @@ CREATE TABLE ontology_term_diagnosis(
     ancestors TEXT
 );
 
+DROP TABLE IF EXISTS ontology_term_treatment CASCADE;
+
 CREATE TABLE ontology_term_treatment(
     id BIGINT NOT NULL,
     term_id TEXT NOT NULL,
     term_name TEXT,
     is_a TEXT
 );
+
+DROP TABLE IF EXISTS ontology_term_regimen CASCADE;
 
 CREATE TABLE ontology_term_regimen(
     id BIGINT NOT NULL,
@@ -339,11 +441,15 @@ CREATE TABLE ontology_term_regimen(
     is_a TEXT
 );
 
+DROP TABLE IF EXISTS sample_to_ontology CASCADE;
+
 CREATE TABLE sample_to_ontology(
     id BIGINT NOT NULL,
     sample_id BIGINT,
     ontology_term_id BIGINT
 );
+
+DROP TABLE IF EXISTS treatment_to_ontology CASCADE;
 
 CREATE TABLE treatment_to_ontology (
     id BIGINT NOT NULL,
@@ -351,17 +457,23 @@ CREATE TABLE treatment_to_ontology (
     ontology_term_id BIGINT
 );
 
+DROP TABLE IF EXISTS regimen_to_ontology CASCADE;
+
 CREATE TABLE regimen_to_ontology (
     id BIGINT NOT NULL,
     regimen_id BIGINT,
     ontology_term_id BIGINT
 );
 
+DROP TABLE IF EXISTS regimen_to_treatment CASCADE;
+
 CREATE TABLE regimen_to_treatment (
     id BIGINT NOT NULL,
     regimen_ontology_term_id BIGINT,
     treatment_ontology_term_id BIGINT
 );
+
+DROP TABLE IF EXISTS treatment_protocol CASCADE;
 
 CREATE TABLE treatment_protocol (
     id BIGINT NOT NULL,
@@ -373,6 +485,8 @@ CREATE TABLE treatment_protocol (
 
 );
 
+DROP TABLE IF EXISTS treatment_component CASCADE;
+
 CREATE TABLE treatment_component (
     id BIGINT NOT NULL,
     dose TEXT,
@@ -381,6 +495,7 @@ CREATE TABLE treatment_component (
 
 );
 
+DROP TABLE IF EXISTS search_index CASCADE;
 
 CREATE TABLE search_index (
     pdcm_model_id BIGINT NOT NULL,
@@ -413,6 +528,7 @@ CREATE TABLE search_index (
     model_treatment_list TEXT[]
 );
 
+DROP TABLE IF EXISTS search_facet CASCADE;
 
 CREATE TABLE search_facet (
     facet_section TEXT,
@@ -420,4 +536,18 @@ CREATE TABLE search_facet (
     facet_column TEXT,
     facet_options TEXT[],
     facet_example TEXT
+);
+
+DROP TABLE IF EXISTS molecular_data_restriction CASCADE;
+
+CREATE TABLE molecular_data_restriction (
+    data_source TEXT,
+    molecular_data_table TEXT
+);
+
+DROP TABLE IF EXISTS available_molecular_data_columns CASCADE;
+CREATE TABLE available_molecular_data_columns (
+    data_source TEXT,
+    not_empty_cols TEXT[],
+    molecular_characterization_type TEXT
 );

@@ -30,6 +30,7 @@ def build_schema_from_cols(columns):
 
 
 def select_rows_with_data(df: DataFrame, columns) -> DataFrame:
+    print(f"cols from select_rows_with_data: {columns}")
     if "Field" in df.columns:
         df = df.select(columns).where("nvl(field, '') not like '#%'")
     else:
@@ -47,7 +48,7 @@ def clean_column_names(df: DataFrame):
 def read_files(session, path_patterns, schema):
     start = time.time()
 
-    df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(path_patterns)
+    df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv([p.replace("'", "") for p in path_patterns])
     df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
     datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
@@ -77,15 +78,16 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.raw_folder_name))
 
     def app_options(self):
+        print(f"from app_oprions: {self.path_patterns}")
         return [
-            '|'.join([p for p in self.path_patterns]),
+            f"'{','.join([p for p in self.path_patterns])}'",
             ','.join(self.columns_to_read),
             self.output().path]
 
     def main(self, sc: SparkContext, *args):
         spark = SparkSession(sc)
-
-        path_patterns = args[0].split('|')
+        print(f"input: {args}")
+        path_patterns = args[0].split(',')
         columns_to_read = args[1].split(',')
         output_path = args[2]
 
@@ -98,6 +100,8 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             path_patterns = [path for path in path_patterns if
                              path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
         try:
+            if path_patterns == ["''"]:
+                raise IOError("Empty path")
             df = read_files(spark, path_patterns, schema)
         except (Py4JJavaError, IllegalArgumentException, FileNotFoundError, IOError) as error:
             no_empty_patterns = list(filter(lambda x: x != '', path_patterns))
@@ -118,17 +122,8 @@ def build_path_patterns(data_dir, providers, file_patterns):
         matching_providers = []
         for provider in providers:
             current_file_pattern = str(file_pattern).replace("$provider", provider)
-            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider,
-                                              current_file_pattern)) or PdcmConfig().deploy_mode == "cluster":
-                matching_providers.append(provider)
-
-        if matching_providers:
-            joined_providers_list = ','.join([p for p in matching_providers])
-            providers_pattern = "{" + joined_providers_list + "}"
-            path_pattern = "{0}/{1}/{2}".format(
-                data_dir_root, providers_pattern, file_pattern.replace("$provider", providers_pattern))
-            paths_patterns.append(path_pattern)
-
+            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
+                paths_patterns.append("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern))
     return paths_patterns
 
 
@@ -143,6 +138,7 @@ def get_tsv_extraction_task_by_module(data_dir, providers, data_dir_out, module_
     file_patterns = module["name_patterns"]
     columns = module["columns"]
     path_patterns = build_path_patterns(data_dir, list(providers), file_patterns)
+    print(f"from get_tsv_extraction_task_by_module: {path_patterns}")
     return ReadByModuleAndPathPatterns(module_name, path_patterns, columns, data_dir_out)
 
 

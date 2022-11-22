@@ -172,7 +172,7 @@ groups:
     modules:
       - name: "cna"
         type: "tsv"
-        name_patterns: ["cna/$provider_cna*.tsv"]
+        name_patterns: ["cna/$provider_cna*.tsv", "cna/*/$provider_cna*.tsv"]
         columns:
           - "sample_id"
           - "chromosome"
