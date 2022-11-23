@@ -169,7 +169,7 @@ AS
   FROM   cna_molecular_data cnamd
   WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
-DROP VIEW IF EXISTS pdcm_api.cna_data_table;
+DROP VIEW IF EXISTS pdcm_api.molecular_data_restriction;
 
 CREATE VIEW pdcm_api.molecular_data_restriction
 AS
