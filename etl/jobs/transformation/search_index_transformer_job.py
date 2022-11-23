@@ -64,9 +64,9 @@ def main(argv):
     patient_parquet_path = argv[6]
     ethnicity_df_parquet_path = argv[7]
     xenograft_sample_parquet_path = argv[8]
-    tumour_type_parquet_path = argv[9]
-    tissue_parquet_path = argv[10]
-    gene_marker_parquet_path = argv[11]
+    cell_sample_parquet_path = argv[9]
+    tumour_type_parquet_path = argv[10]
+    tissue_parquet_path = argv[11]
     mutation_measurement_data_parquet_path = argv[12]
     cna_data_parquet_path = argv[13]
     expression_data_parquet_path = argv[14]
@@ -91,9 +91,9 @@ def main(argv):
     patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
+    cell_sample_df = spark.read.parquet(cell_sample_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
-    gene_marker_df = spark.read.parquet(gene_marker_parquet_path)
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
@@ -114,6 +114,7 @@ def main(argv):
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
+        cell_sample_df,
         tumour_type_df,
         tissue_df,
         molecular_characterization_df,
@@ -138,6 +139,7 @@ def transform_search_index(
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
+        cell_sample_df,
         tumour_type_df,
         tissue_df,
         molecular_characterization_df,
@@ -190,6 +192,7 @@ def transform_search_index(
             "name", "molecular_characterization_type_name"
         )
     )
+
     molecular_characterization_with_type_df = join_dfs(
         molecular_characterization_df,
         molecular_characterization_type_df,
@@ -197,6 +200,7 @@ def transform_search_index(
         "id",
         "inner",
     )
+
     patient_sample_mol_char_df = join_dfs(
         patient_sample_df,
         molecular_characterization_with_type_df,
@@ -219,9 +223,19 @@ def transform_search_index(
         "model_id", "mol_char_id", "molecular_characterization_type_name"
     ).distinct()
 
-    model_mol_char_type_df = patient_sample_mol_char_df.union(
-        xenograft_sample_mol_char_df
+    cell_sample_mol_char_df = join_dfs(
+        cell_sample_df,
+        molecular_characterization_with_type_df,
+        "id",
+        "cell_sample_id",
+        "inner",
     )
+    cell_sample_mol_char_df = cell_sample_mol_char_df.select(
+        "model_id", "mol_char_id", "molecular_characterization_type_name"
+    ).distinct()
+
+    model_mol_char_type_df = \
+        patient_sample_mol_char_df.union(xenograft_sample_mol_char_df).union(cell_sample_mol_char_df)
 
     model_mol_char_availability_df = model_mol_char_type_df.groupby("model_id").agg(
         collect_set("molecular_characterization_type_name").alias("dataset_available")
