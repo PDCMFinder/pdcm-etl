@@ -2,6 +2,30 @@ all: default
 
 default: clean devDeps build
 
+luigi.cfg:
+	echo "Creating luigi file local"
+	cp luigi_template.cfg luigi.cfg
+	sh inject.sh local.properties luigi.cfg
+
+luigi-cluster-dev.cfg:
+	echo "Creating luigi file cluster (dev)"
+	cp luigi_template.cfg luigi-cluster-dev.cfg
+	sh inject.sh cluster-dev.properties luigi-cluster-dev.cfg
+
+luigi-cluster-prod.cfg:
+	echo "Creating luigi file cluster (prod)"
+	cp luigi_template.cfg luigi-cluster-prod.cfg
+	sh inject.sh cluster-prod.properties luigi-cluster-prod.cfg
+
+submit-local:
+	source venv/bin/activate && PYTHONPATH='.' PYSPARK_PYTHON=python3  time luigi --module etl.workflow.main --scheduler-host localhost PdcmEtl --workers 8
+
+submit-dev: build
+	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi-cluster-dev.cfg'  PYTHONPATH='.' TMPDIR='/nfs/production/tudor/pdcm/tmp' PYSPARK_PYTHON=python3 time luigi --module etl.workflow.main --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
+
+submit-prod: build
+	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi-cluster-prod.cfg'  PYTHONPATH='.' TMPDIR='/nfs/production/tudor/pdcm/tmp' PYSPARK_PYTHON=python3 time luigi --module etl.workflow.main --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
+
 submit: build
 	source venv/bin/activate && LUIGI_CONFIG_PATH='luigi-lsf-dev.cfg'  PYTHONPATH='.' TMPDIR='/nfs/production/tudor/pdcm/tmp' PYSPARK_PYTHON=python3  luigi --module etl.workflow.main --scheduler-host ves-ebi-d9.ebi.ac.uk PdcmEtl --workers 10
 
