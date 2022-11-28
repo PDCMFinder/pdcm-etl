@@ -18,6 +18,10 @@ do
 
 	if [ -n "$EXISTS" ]; then
 		VALUE2=${EXISTS#*=}
-	 	sed -i '' 's+'$VALUE2'+'$VALUE'+g' $TARGET
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			sed -i '' 's+'$VALUE2'+'$VALUE'+g' $TARGET
+		else
+        	sed -i 's+'$VALUE2'+'$VALUE'+g' $TARGET
+		fi
 	fi
 done
