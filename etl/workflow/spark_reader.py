@@ -18,7 +18,6 @@ from etl.jobs.util.cleaner import trim_all_str
 from etl.source_files_conf_reader import read_module
 from etl.workflow.config import PdcmConfig
 
-
 ROOT_FOLDER = "data/UPDOG"
 
 
@@ -48,7 +47,8 @@ def clean_column_names(df: DataFrame):
 def read_files(session, path_patterns, schema):
     start = time.time()
 
-    df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv([p.replace("'", "") for p in path_patterns])
+    df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(
+        [p.replace("'", "") for p in path_patterns])
     df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
     datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
@@ -78,7 +78,6 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.raw_folder_name))
 
     def app_options(self):
-        print(f"from app_oprions: {self.path_patterns}")
         return [
             f"'{','.join([p for p in self.path_patterns])}'",
             ','.join(self.columns_to_read),
@@ -93,19 +92,14 @@ class ReadByModuleAndPathPatterns(PySparkTask):
 
         schema = build_schema_from_cols(columns_to_read)
 
-        if sc.master == "yarn":
-            hadoop = sc._jvm.org.apache.hadoop
-            fs = hadoop.fs.FileSystem
-            current_fs = fs.get(sc._jsc.hadoopConfiguration())
-            path_patterns = [path for path in path_patterns if
-                             path != "" and current_fs.globStatus(hadoop.fs.Path(path))]
         try:
             if path_patterns == ["''"]:
                 raise IOError("Empty path")
             df = read_files(spark, path_patterns, schema)
         except (Py4JJavaError, IllegalArgumentException, FileNotFoundError, IOError) as error:
             no_empty_patterns = list(filter(lambda x: x != '', path_patterns))
-            if "java.io.FileNotFoundException" in str(error) or len(no_empty_patterns) == 0 or error.__class__ in [FileNotFoundError, IOError]:
+            if "java.io.FileNotFoundException" in str(error) or len(no_empty_patterns) == 0 or error.__class__ in [
+                FileNotFoundError, IOError]:
                 empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
                 df = empty_df
                 df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
@@ -169,7 +163,6 @@ class ReadYamlsByModule(PySparkTask):
         return [
             ','.join(self.yaml_paths),
             ','.join(self.columns_to_read),
-            PdcmConfig().deploy_mode,
             self.output().path]
 
     def main(self, sc, *args):
@@ -177,23 +170,15 @@ class ReadYamlsByModule(PySparkTask):
 
         yaml_file_paths = args[0].split(',')
         columns_to_read = args[1].split(',')
-        deploy_mode = args[2]
-        output_path = args[3]
+        output_path = args[2]
 
         all_json_and_providers = []
 
-        if deploy_mode == "cluster":
-            for yaml_file_path in yaml_file_paths:
-                yaml_as_json = sc.wholeTextFiles(yaml_file_path).collect()[0][1]
-                yaml_as_json = get_json_by_yaml(yaml_as_json)
+        for yaml_file_path in yaml_file_paths:
+            with open(yaml_file_path, 'r') as stream:
+                yaml_as_json = get_json_by_yaml(stream)
                 json_content_and_provider = (yaml_as_json, extract_provider_name(yaml_file_path))
                 all_json_and_providers.append(json_content_and_provider)
-        else:
-            for yaml_file_path in yaml_file_paths:
-                with open(yaml_file_path, 'r') as stream:
-                    yaml_as_json = get_json_by_yaml(stream)
-                    json_content_and_provider = (yaml_as_json, extract_provider_name(yaml_file_path))
-                    all_json_and_providers.append(json_content_and_provider)
 
         source_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), build_schema_from_cols(columns_to_read))
         source_df = source_df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(None).astype(StringType()))
@@ -220,9 +205,6 @@ def get_yaml_extraction_task_by_module(data_dir, providers, data_dir_out, module
         yaml_file_path = build_path_pattern_by_provider(data_dir, provider, file_path)
         yaml_paths.append(yaml_file_path)
     return ReadYamlsByModule(module_name, yaml_paths, columns, data_dir_out)
-
-
-
 
 
 if __name__ == "__main__":
