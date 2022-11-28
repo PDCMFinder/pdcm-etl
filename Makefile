@@ -10,12 +10,12 @@ luigi.cfg:
 luigi-cluster-dev.cfg:
 	echo "Creating luigi file cluster (dev)"
 	cp luigi_template.cfg luigi-cluster-dev.cfg
-	sh inject.sh cluster-dev.properties luigi-cluster-dev.cfg
+	sh inject.sh cluster_dev.properties luigi-cluster-dev.cfg
 
 luigi-cluster-prod.cfg:
 	echo "Creating luigi file cluster (prod)"
 	cp luigi_template.cfg luigi-cluster-prod.cfg
-	sh inject.sh cluster-prod.properties luigi-cluster-prod.cfg
+	sh inject.sh cluster_prod.properties luigi-cluster-prod.cfg
 
 submit-local:
 	source venv/bin/activate && PYTHONPATH='.' PYSPARK_PYTHON=python3  time luigi --module etl.workflow.main --scheduler-host localhost PdcmEtl --workers 8
