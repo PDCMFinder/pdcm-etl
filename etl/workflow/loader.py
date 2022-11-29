@@ -11,8 +11,6 @@ from etl.workflow.config import PdcmConfig
 
 
 class ParquetToCsv(SparkSubmitTask):
-    # data_dir = luigi.Parameter()
-    # providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
     name = luigi.Parameter()
 
@@ -32,29 +30,6 @@ class ParquetToCsv(SparkSubmitTask):
         return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.name))
 
 
-class ParquetToPg(SparkSubmitTask):
-    name = "parquet_to_pg_load_all"
-    app = "etl/jobs/load/database_loader.py"
-    db_host = luigi.Parameter()
-    db_port = luigi.Parameter()
-    db_name = luigi.Parameter()
-    db_user = luigi.Parameter()
-    db_password = luigi.Parameter()
-    data_dir_out = luigi.Parameter()
-    entity_name = luigi.Parameter()
-
-    def requires(self):
-        return get_transformation_class_by_entity_name(self.entity_name)
-
-    def output(self):
-        return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.entity_name))
-
-    def app_options(self):
-        return [self.db_user, self.db_password, self.db_host, self.db_port, self.db_name, self.input().path,
-                self.entity_name, self.output().path]
-
-
 class CopyEntityFromCsvToDb(luigi.Task):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
@@ -66,13 +41,15 @@ class CopyEntityFromCsvToDb(luigi.Task):
     db_name = luigi.Parameter()
     db_user = luigi.Parameter()
     db_password = luigi.Parameter()
+    env = luigi.Parameter()
 
     def requires(self):
         return {'parquetToCsvDependency': ParquetToCsv(name=self.entity_name),
                 'recreateTablesDependency': RecreateTables()}
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database/copied", self.entity_name))
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}/{4}".format(self.data_dir_out, "database", self.env, "copied", self.entity_name))
 
     def run(self):
         copy_entity_to_database(
@@ -90,13 +67,6 @@ def get_all_copying_tasks():
     return tasks
 
 
-def get_all_copying_cluster_tasks():
-    tasks = []
-    for entity_name in get_all_entities_names_to_store_db():
-        tasks.append(ParquetToPg(entity_name=entity_name))
-    return tasks
-
-
 class RecreateTables(luigi.Task):
     data_dir_out = luigi.Parameter()
     db_host = luigi.Parameter()
@@ -104,9 +74,11 @@ class RecreateTables(luigi.Task):
     db_name = luigi.Parameter()
     db_user = luigi.Parameter()
     db_password = luigi.Parameter()
+    env = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "tables_recreated"))
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "tables_recreated"))
 
     def run(self):
         connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
@@ -126,15 +98,14 @@ class CreateFksAndIndexes(luigi.Task):
     db_name = luigi.Parameter()
     db_user = luigi.Parameter()
     db_password = luigi.Parameter()
+    env = luigi.Parameter()
 
     def requires(self):
-        return CopyAll(self.data_dir, self.providers,
-                       self.data_dir_out) if PdcmConfig().deploy_mode != "cluster" else CopyAllCluster(self.data_dir,
-                                                                                                       self.providers,
-                                                                                                       self.data_dir_out)
+        return CopyAll(self.data_dir, self.providers, self.data_dir_out)
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "fks_indexes_created"))
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "fks_indexes_created"))
 
     def run(self):
         connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
@@ -151,9 +122,11 @@ class CopyAll(luigi.Task):
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
+    env = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "all_entities_copied"))
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "all_entities_copied"))
 
     def requires(self):
         return get_all_copying_tasks()
@@ -163,18 +136,6 @@ class CopyAll(luigi.Task):
 
         with self.output().open('w') as outfile:
             outfile.write("All entities copied")
-
-
-class CopyAllCluster(luigi.WrapperTask):
-    data_dir = luigi.Parameter()
-    providers = luigi.ListParameter()
-    data_dir_out = luigi.Parameter()
-
-    def requires(self):
-        return [Cache(), RecreateTables()]
-
-    def run(self):
-        yield get_all_copying_cluster_tasks()
 
 
 class Cache(luigi.Task):
@@ -190,7 +151,7 @@ class Cache(luigi.Task):
         if self.cache:
             use_cache = "yes" == str(self.cache).lower()
         if use_cache:
-            copy_directory(PdcmConfig().deploy_mode, self.cache_dir, self.data_dir_out)
+            copy_directory(self.cache_dir, self.data_dir_out)
         with self.output().open('w') as outfile:
             outfile.write("use_cache: {0}. folder: {1}".format(use_cache, self.cache_dir))
 
@@ -202,12 +163,14 @@ class CreateViews(luigi.Task):
     db_user = luigi.Parameter()
     db_password = luigi.Parameter()
     data_dir_out = luigi.Parameter()
+    env = luigi.Parameter()
     """
         Creates all the views.
     """
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, "database", "views_created"))
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "views_created"))
 
     def run(self):
         print("\n\n********** Loading views ***********\n")
@@ -229,13 +192,14 @@ class LoadPublicDBObjects(luigi.Task):
         Loads all the objects (views and materialized views) that are going to be exposed in the schema created for the api.
     """
     data_dir_out = luigi.Parameter()
+    env = luigi.Parameter()
 
     def requires(self):
         return [CreateFksAndIndexes()]
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, "database", "all_public_DB_objects_loaded"))
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "all_public_DB_objects_loaded"))
 
     def run(self):
         print("\n\n********** Loading all public DB objects ***********\n")
