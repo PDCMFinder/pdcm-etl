@@ -195,6 +195,15 @@ AS
  SELECT search_facet.*
    FROM search_facet;
 
+-- release_info view: Name, date and list of processed providers
+
+DROP VIEW IF EXISTS pdcm_api.release_info;
+
+CREATE VIEW pdcm_api.release_info
+AS
+ SELECT release_info.*
+   FROM release_info;
+
 --------------------------------- Materialized Views -------------------------------------------------------------------
 
 -- Available columns by provider and molecular characterization type
