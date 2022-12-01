@@ -260,10 +260,10 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_cancer AS
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_mutated_gene;
 
 CREATE MATERIALIZED VIEW pdcm_api.models_by_mutated_gene AS
- SELECT "left"(unnest(search_index.makers_with_mutation_data), (strpos(unnest(search_index.makers_with_mutation_data), '/'::text) - 1)) AS mutated_gene,
+ SELECT (SPLIT_PART(unnest(search_index.makers_with_mutation_data), '/', 1)) AS mutated_gene,
     count(DISTINCT search_index.pdcm_model_id) AS count
    FROM search_index
-  GROUP BY ("left"(unnest(search_index.makers_with_mutation_data), (strpos(unnest(search_index.makers_with_mutation_data), '/'::text) - 1)));
+  GROUP BY mutated_gene ;
 
 -- models_by_dataset_availability materialized view: Molecular data availability information by model
 
