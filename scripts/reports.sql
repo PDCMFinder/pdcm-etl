@@ -25,6 +25,39 @@ SELECT table_name, row_estimate, pg_size_pretty(total_bytes) AS total
   ) a
 ) a;
 
+CREATE OR REPLACE PROCEDURE process_number_records_by_private_table()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    cu_private_tables CURSOR FOR
+        -- Tables that are not exposed in the API
+        SELECT schemaname, tablename
+        FROM pg_tables
+        WHERE schemaname IN ('pdcm_admin', 'public')
+        ORDER BY tablename;
+
+    sb_schema_name varchar;
+    sb_table_name varchar;
+  	num_records numeric;
+
+  	rfcu_records_by_table refcursor;
+
+BEGIN
+	OPEN cu_private_tables;
+  	LOOP
+    	FETCH FROM cu_private_tables INTO sb_schema_name, sb_table_name;
+    	EXIT WHEN NOT FOUND;
+
+    	OPEN rfcu_records_by_table FOR
+    	    EXECUTE 'SELECT count(1) FROM ' || quote_ident(sb_schema_name) || '.' || quote_ident(sb_table_name);
+        FETCH rfcu_records_by_table INTO num_records;
+        INSERT INTO report (report_type, report_key, report_value)
+		VALUES ('records_by_private_table', sb_table_name, num_records);
+        CLOSE rfcu_records_by_table;
+    END LOOP;
+    CLOSE cu_private_tables;
+END$$;
+
 
 /*
 Inserts in the table report the number (estimate) of records by table

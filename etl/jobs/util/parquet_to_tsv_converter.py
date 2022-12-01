@@ -1,10 +1,10 @@
 import sys
 
-from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import transform, concat, lit, when, array_join, size
+from pyspark.sql import SparkSession
 
 from etl.constants import Constants
 from etl.entities_registry import get_columns_by_entity_name
+from etl.jobs.util.dataframe_functions import flatten_array_columns
 
 
 def main(argv):
@@ -29,24 +29,6 @@ def main(argv):
     df.write.option("sep", "\t").option("quote", "\u0000").option(
         "header", "true"
     ).mode("overwrite").csv(output_path)
-
-
-def flatten_array_columns(df: DataFrame):
-    for col_name, dtype in df.dtypes:
-        if "array" in dtype:
-            if "string" in dtype:
-                df = df.withColumn(
-                    col_name,
-                    transform(col_name, lambda v: concat(lit('"'), v, lit('"'))),
-                )
-            df = df.withColumn(
-                col_name,
-                when(
-                    df[col_name].isNotNull() & (size(df[col_name]) > 0),
-                    concat(lit("{"), array_join(col_name, ","), lit("}")),
-                ).otherwise(lit(None)),
-            )
-    return df
 
 
 if __name__ == "__main__":
