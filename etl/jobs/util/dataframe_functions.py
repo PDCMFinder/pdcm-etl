@@ -1,4 +1,5 @@
 from pyspark.sql import DataFrame
+from pyspark.sql.functions import transform, concat, lit, array_join, when, size
 
 from etl.constants import Constants
 
@@ -54,3 +55,20 @@ def transform_to_fk(
     join_df = join_df.withColumnRenamed("id_ref", new_column_name)
     return join_df
 
+
+def flatten_array_columns(df: DataFrame):
+    for col_name, dtype in df.dtypes:
+        if "array" in dtype:
+            if "string" in dtype:
+                df = df.withColumn(
+                    col_name,
+                    transform(col_name, lambda v: concat(lit('"'), v, lit('"'))),
+                )
+            df = df.withColumn(
+                col_name,
+                when(
+                    df[col_name].isNotNull() & (size(df[col_name]) > 0),
+                    concat(lit("{"), array_join(col_name, ","), lit("}")),
+                ).otherwise(lit(None)),
+            )
+    return df

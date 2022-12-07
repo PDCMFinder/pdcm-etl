@@ -551,3 +551,10 @@ CREATE TABLE available_molecular_data_columns (
     not_empty_cols TEXT[],
     molecular_characterization_type TEXT
 );
+
+DROP TABLE IF EXISTS release_info CASCADE;
+CREATE TABLE release_info (
+    name TEXT,
+    date TIMESTAMP,
+    providers TEXT[]
+);

@@ -80,6 +80,7 @@ class Constants:
     SEARCH_FACET_ENTITY = "search_facet"
     MOLECULAR_DATA_RESTRICTION_ENTITY = "molecular_data_restriction"
     AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY = "available_molecular_data_columns"
+    RELEASE_INFO_ENTITY = "release_info"
 
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
