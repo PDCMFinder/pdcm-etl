@@ -8,6 +8,7 @@ from etl.jobs.load.database_manager import copy_entity_to_database, get_database
     create_indexes, create_fks, recreate_tables, create_views
 from etl.jobs.util.file_manager import copy_directory
 from etl.workflow.config import PdcmConfig
+from etl.workflow.reporter import WriteReleaseInfoCsv
 
 
 class ParquetToCsv(SparkSubmitTask):
@@ -195,7 +196,7 @@ class LoadPublicDBObjects(luigi.Task):
     env = luigi.Parameter()
 
     def requires(self):
-        return [CreateFksAndIndexes()]
+        return [CreateFksAndIndexes(), LoadReleaseInfo()]
 
     def output(self):
         return PdcmConfig().get_target(
@@ -209,6 +210,35 @@ class LoadPublicDBObjects(luigi.Task):
             outfile.write("all public DB objects loaded")
 
         print("\n********** End Loading all public DB objects ***********\n")
+
+
+class LoadReleaseInfo(luigi.Task):
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    env = luigi.Parameter()
+    """
+        Write data in release_info.
+    """
+
+    def requires(self):
+        return WriteReleaseInfoCsv()
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, Constants.RELEASE_INFO_ENTITY))
+
+    def run(self):
+
+        copy_entity_to_database(
+            Constants.RELEASE_INFO_ENTITY, self.input().path, self.db_host, self.db_port, self.db_name,
+            self.db_user, self.db_password)
+
+        with self.output().open('w') as outfile:
+            outfile.write("Entity {0} copied".format(Constants.RELEASE_INFO_ENTITY))
 
 
 if __name__ == "__main__":

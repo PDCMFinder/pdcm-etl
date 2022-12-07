@@ -1,7 +1,6 @@
 import luigi
 
 from etl.workflow.loader import LoadPublicDBObjects, Cache
-from etl.workflow.reporter import LoadReleaseInfo
 
 
 class PdcmEtl(luigi.Task):
@@ -11,7 +10,7 @@ class PdcmEtl(luigi.Task):
     providers = luigi.ListParameter()
 
     def requires(self):
-        return [LoadPublicDBObjects(), Cache(), LoadReleaseInfo()]
+        return [LoadPublicDBObjects(), Cache()]
 
 
 if __name__ == "__main__":
