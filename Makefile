@@ -4,17 +4,22 @@ default: clean devDeps build
 
 luigi.cfg:
 	echo "Creating luigi file local"
+	rm -f luigi.cfg
 	cp luigi_template.cfg luigi.cfg
 	sh inject.sh local.properties luigi.cfg
 
 luigi-cluster-dev.cfg:
 	echo "Creating luigi file cluster (dev)"
+	rm -f luigi-cluster-dev.cfg
 	cp luigi_template.cfg luigi-cluster-dev.cfg
+	sh inject.sh cluster_common.properties luigi-cluster-prod.cfg
 	sh inject.sh cluster_dev.properties luigi-cluster-dev.cfg
 
 luigi-cluster-prod.cfg:
 	echo "Creating luigi file cluster (prod)"
+	rm -f luigi-cluster-prod.cfg
 	cp luigi_template.cfg luigi-cluster-prod.cfg
+	sh inject.sh cluster_common.properties luigi-cluster-prod.cfg
 	sh inject.sh cluster_prod.properties luigi-cluster-prod.cfg
 
 submit-local:
