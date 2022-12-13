@@ -1,4 +1,3 @@
-import etl.jobs.transformation.diagnosis_transformer_job
 import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
@@ -15,7 +14,6 @@ import etl.jobs.transformation.tissue_transformer_job
 import etl.jobs.transformation.tumour_type_transformer_job
 import etl.jobs.transformation.patient_sample_transformer_job
 import etl.jobs.transformation.xenograft_sample_transformer_job
-import etl.jobs.transformation.patient_snapshot_transformer_job
 import etl.jobs.transformation.engraftment_site_transformer_job
 import etl.jobs.transformation.engraftment_type_transformer_job
 import etl.jobs.transformation.engraftment_sample_state_transformer_job
@@ -78,10 +76,6 @@ def get_all_entities_names_to_store_db():
 
 
 entities = {
-    Constants.DIAGNOSIS_ENTITY: {
-        "spark_job": etl.jobs.transformation.diagnosis_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
-    },
     Constants.ETHNICITY_ENTITY: {
         "spark_job": etl.jobs.transformation.ethnicity_transformer_job.main,
         "expected_database_columns": ["id", "name"]
@@ -95,7 +89,7 @@ entities = {
             "history",
             "ethnicity_id",
             "ethnicity_assessment_method",
-            "initial_diagnosis_id",
+            "initial_diagnosis",
             "age_at_initial_diagnosis",
             "provider_group_id"
         ]
@@ -191,8 +185,9 @@ entities = {
         "spark_job": etl.jobs.transformation.patient_sample_transformer_job.main,
         "expected_database_columns": [
             "id",
-            "diagnosis_id",
             "external_patient_sample_id",
+            "patient_id",
+            "diagnosis",
             "grade",
             "grading_system",
             "stage",
@@ -201,6 +196,12 @@ entities = {
             "collection_site_id",
             "prior_treatment",
             "tumour_type_id",
+            "age_in_years_at_collection",
+            "collection_event",
+            "collection_date",
+            "months_since_collection_1",
+            "treatment_naive_at_collection",
+            "virology_status",
             "model_id"
         ]
     },
@@ -213,20 +214,6 @@ entities = {
             "host_strain_id",
             "model_id",
             "platform_id",
-        ]
-    },
-    Constants.PATIENT_SNAPSHOT_ENTITY: {
-        "spark_job": etl.jobs.transformation.patient_snapshot_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "patient_id",
-            "age_in_years_at_collection",
-            "collection_event",
-            "collection_date",
-            "months_since_collection_1",
-            "treatment_naive_at_collection",
-            "virology_status",
-            "sample_id"
         ]
     },
     Constants.ENGRAFTMENT_SITE_ENTITY: {

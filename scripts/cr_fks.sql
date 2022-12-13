@@ -9,11 +9,6 @@ ALTER TABLE provider_group
     REFERENCES project_group (id);
 
 ALTER TABLE patient
-    ADD CONSTRAINT fk_patient_diagnosis
-    FOREIGN KEY (initial_diagnosis_id)
-    REFERENCES diagnosis (id);
-
-ALTER TABLE patient
     ADD CONSTRAINT fk_patient_provider_group
     FOREIGN KEY (provider_group_id)
     REFERENCES provider_group (id);
@@ -69,11 +64,6 @@ ALTER TABLE quality_assurance
     REFERENCES model_information (id);
 
 ALTER TABLE patient_sample
-    ADD CONSTRAINT fk_patient_sample_diagnosis
-    FOREIGN KEY (diagnosis_id)
-    REFERENCES diagnosis (id);
-
-ALTER TABLE patient_sample
     ADD CONSTRAINT fk_patient_primary_site
     FOREIGN KEY (primary_site_id)
     REFERENCES tissue (id);
@@ -107,16 +97,6 @@ ALTER TABLE xenograft_sample
     ADD CONSTRAINT fk_xenograft_sample_platform
     FOREIGN KEY (platform_id)
     REFERENCES platform (id);
-
-ALTER TABLE patient_snapshot
-    ADD CONSTRAINT fk_patient_snapshot_patient
-    FOREIGN KEY (patient_id)
-    REFERENCES patient (id);
-
-ALTER TABLE patient_snapshot
-    ADD CONSTRAINT fk_patient_snapshot_patient_sample
-    FOREIGN KEY (sample_id)
-    REFERENCES patient_sample (id);
 
 ALTER TABLE platform
     ADD CONSTRAINT fk_platform_provider_group

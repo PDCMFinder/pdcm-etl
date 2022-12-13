@@ -14,14 +14,13 @@ def main(argv):
     Creates a parquet file with patient sample data.
     :param list argv: the list elements should be:
                     [1]: Parquet file path with raw sample data
-                    [2]: Parquet file path with diagnosis data
-                    [3]: Parquet file path with tissue data
-                    [4]: Parquet file path with tumour type data
-                    [5]: Parquet file path with model data
-                    [6]: Output file
+                    [2]: Parquet file path with tissue data
+                    [3]: Parquet file path with tumour type data
+                    [4]: Parquet file path with model data
+                    [5]: Output file
     """
     raw_sample_parquet_path = argv[1]
-    diagnosis_parquet_path = argv[2]
+    patient_parquet_path = argv[2]
     tissue_parquet_path = argv[3]
     tumour_type_parquet_path = argv[4]
     model_parquet_path = argv[5]
@@ -29,24 +28,23 @@ def main(argv):
 
     spark = SparkSession.builder.getOrCreate()
     raw_sample_df = spark.read.parquet(raw_sample_parquet_path)
-    diagnosis_df = spark.read.parquet(diagnosis_parquet_path)
+    patient_df = spark.read.parquet(patient_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     model_df = spark.read.parquet(model_parquet_path)
-    patient_sample_df = transform_patient_sample(
-        raw_sample_df, diagnosis_df, tissue_df, tumour_type_df, model_df)
+    patient_sample_df = transform_patient_sample(raw_sample_df, patient_df, tissue_df, tumour_type_df, model_df)
     patient_sample_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_patient_sample(
         raw_sample_df: DataFrame,
-        diagnosis_df: DataFrame,
+        patient_df: DataFrame,
         tissue_df: DataFrame,
         tumour_type_df: DataFrame,
         model_df: DataFrame) -> DataFrame:
     patient_sample_df = extract_patient_sample(raw_sample_df)
     patient_sample_df = clean_data_before_join(patient_sample_df)
-    patient_sample_df = set_fk_diagnosis(patient_sample_df, diagnosis_df)
+    patient_sample_df = set_fk_patient(patient_sample_df, patient_df)
     patient_sample_df = set_fk_origin_tissue(patient_sample_df, tissue_df)
     patient_sample_df = set_fk_sample_site(patient_sample_df, tissue_df)
     patient_sample_df = set_fk_tumour_type(patient_sample_df, tumour_type_df)
@@ -68,6 +66,13 @@ def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
         "collection_site",
         init_cap_and_trim_all("treated_prior_to_collection").alias("prior_treatment"),
         "tumour_type",
+        "patient_id",
+        "age_in_years_at_collection",
+        "collection_event",
+        "collection_date",
+        "months_since_collection_1",
+        "treatment_naive_at_collection",
+        "virology_status",
         col("model_id").alias("model_name"),
         Constants.DATA_SOURCE_COLUMN
     ).where("sample_id is not null").drop_duplicates()
@@ -79,10 +84,14 @@ def clean_data_before_join(patient_sample_df: DataFrame) -> DataFrame:
     return patient_sample_df
 
 
-def set_fk_diagnosis(patient_sample_df: DataFrame, diagnosis_df: DataFrame) -> DataFrame:
-    patient_sample_df = patient_sample_df.withColumn("diagnosis", lower_and_trim_all("diagnosis"))
-    patient_sample_df = transform_to_fk(
-        patient_sample_df, diagnosis_df, "diagnosis", "name", "id", "diagnosis_id")
+def set_fk_patient(patient_sample_df: DataFrame, patient_df: DataFrame) -> DataFrame:
+    patient_sample_df = patient_sample_df.drop_duplicates()
+    patient_sample_df = patient_sample_df.withColumnRenamed("patient_id", "external_patient_id")
+    patient_df = patient_df.withColumnRenamed("id", "patient_id")
+    patient_sample_df = patient_sample_df.join(
+        patient_df, on=["external_patient_id", Constants.DATA_SOURCE_COLUMN], how='left')
+    print("patient_sample_df:::>>")
+    patient_sample_df.show()
     return patient_sample_df
 
 
@@ -100,7 +109,8 @@ def set_fk_sample_site(patient_sample_df: DataFrame, tissue_df: DataFrame) -> Da
 
 
 def set_fk_tumour_type(patient_sample_df: DataFrame, tumour_type_df: DataFrame) -> DataFrame:
-    patient_sample_df = transform_to_fk(patient_sample_df, tumour_type_df, "tumour_type", "name", "id", "tumour_type_id")
+    patient_sample_df = transform_to_fk(patient_sample_df, tumour_type_df, "tumour_type", "name", "id",
+                                        "tumour_type_id")
     return patient_sample_df
 
 
@@ -117,7 +127,8 @@ def set_fk_model(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame
 def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
     return patient_df.select(
         "id",
-        "diagnosis_id",
+        "diagnosis",
+        "patient_id",
         "external_patient_sample_id",
         "grade",
         "grading_system",
@@ -127,6 +138,12 @@ def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
         "collection_site_id",
         "prior_treatment",
         "tumour_type_id",
+        "age_in_years_at_collection",
+        "collection_event",
+        "collection_date",
+        "months_since_collection_1",
+        "treatment_naive_at_collection",
+        "virology_status",
         "model_id",
         "model_name",
         Constants.DATA_SOURCE_COLUMN)

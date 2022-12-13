@@ -30,7 +30,6 @@ class Constants:
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
     # Entities names
-    DIAGNOSIS_ENTITY = "diagnosis"
     ETHNICITY_ENTITY = "ethnicity"
     MODEL_INFORMATION_ENTITY = "model_information"
     CELL_MODEL_ENTITY = "cell_model"
@@ -47,7 +46,6 @@ class Constants:
     TUMOUR_TYPE_ENTITY = "tumour_type"
     PATIENT_SAMPLE_ENTITY = "patient_sample"
     XENOGRAFT_SAMPLE_ENTITY = "xenograft_sample"
-    PATIENT_SNAPSHOT_ENTITY = "patient_snapshot"
     XENOGRAFT_MODEL_SPECIMEN_ENTITY = "xenograft_model_specimen"
     ENGRAFTMENT_SITE_ENTITY = "engraftment_site"
     ENGRAFTMENT_TYPE_ENTITY = "engraftment_type"

@@ -51,14 +51,6 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
             self.data_dir_out, Constants.TRANSFORMED_DIRECTORY, self.entity_name))
 
 
-class TransformDiagnosis(TransformEntity):
-    requiredTasks = [
-        ExtractPatient(),
-        ExtractSample()
-    ]
-    entity_name = Constants.DIAGNOSIS_ENTITY
-
-
 class TransformEthnicity(TransformEntity):
     requiredTasks = [
         ExtractPatient()
@@ -92,7 +84,6 @@ class TransformProviderGroup(TransformEntity):
 class TransformPatient(TransformEntity):
     requiredTasks = [
         ExtractPatient(),
-        TransformDiagnosis(),
         TransformEthnicity(),
         TransformProviderGroup()
     ]
@@ -182,21 +173,12 @@ class TransformTumourType(TransformEntity):
 class TransformPatientSample(TransformEntity):
     requiredTasks = [
         ExtractSample(),
-        TransformDiagnosis(),
+        TransformPatient(),
         TransformTissue(),
         TransformTumourType(),
         TransformModel()
     ]
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
-
-
-class TransformPatientSnapshot(TransformEntity):
-    requiredTasks = [
-        ExtractSample(),
-        TransformPatientSample(),
-        TransformPatient()
-    ]
-    entity_name = Constants.PATIENT_SNAPSHOT_ENTITY
 
 
 class TransformEngraftmentSite(TransformEntity):
@@ -409,7 +391,6 @@ class TransformSampleToOntology(TransformEntity):
     requiredTasks = [
         TransformModel(),
         TransformPatientSample(),
-        TransformDiagnosis(),
         TransformTumourType(),
         TransformTissue(),
         TransformOntologyTermDiagnosis(),
@@ -447,7 +428,6 @@ class TransformTreatmentComponent(TransformEntity):
 class TransformTreatmentHarmonisationHelper(TransformEntity):
     requiredTasks = [
         TransformPatientSample(),
-        TransformPatientSnapshot(),
         TransformTreatmentProtocol(),
         TransformTreatmentComponent(),
         TransformTreatment(),
@@ -467,7 +447,6 @@ class TransformSearchIndex(TransformEntity):
         TransformMolecularCharacterization(),
         TransformMolecularCharacterizationType(),
         TransformPatientSample(),
-        TransformPatientSnapshot(),
         TransformPatient(),
         TransformEthnicity(),
         TransformXenograftSample(),
