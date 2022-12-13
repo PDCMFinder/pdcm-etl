@@ -1,6 +1,3 @@
-ALTER TABLE diagnosis DROP CONSTRAINT IF EXISTS pk_diagnosis CASCADE;
-ALTER TABLE diagnosis ADD CONSTRAINT pk_diagnosis PRIMARY KEY  (id);
-
 ALTER TABLE ethnicity DROP CONSTRAINT IF EXISTS pk_ethnicity CASCADE;
 ALTER TABLE ethnicity ADD CONSTRAINT pk_ethnicity PRIMARY KEY (id);
 
@@ -49,14 +46,8 @@ ALTER TABLE tumour_type ADD CONSTRAINT pk_tumour_type PRIMARY KEY (id);
 ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS pk_patient_sample CASCADE;
 ALTER TABLE patient_sample ADD CONSTRAINT pk_patient_sample PRIMARY KEY (id);
 
-
-
-
 ALTER TABLE xenograft_sample DROP CONSTRAINT IF EXISTS pk_xenograft_sample CASCADE;
 ALTER TABLE xenograft_sample ADD CONSTRAINT pk_xenograft_sample PRIMARY KEY (id);
-
-ALTER TABLE patient_snapshot DROP CONSTRAINT IF EXISTS pk_patient_snapshot CASCADE;
-ALTER TABLE patient_snapshot ADD CONSTRAINT pk_patient_snapshot PRIMARY KEY (id);
 
 ALTER TABLE engraftment_type DROP CONSTRAINT IF EXISTS pk_engraftment_type CASCADE;
 ALTER TABLE engraftment_type ADD CONSTRAINT pk_engraftment_type PRIMARY KEY (id);

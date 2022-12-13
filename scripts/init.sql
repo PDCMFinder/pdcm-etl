@@ -1,12 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS pdcm_api;
 
-DROP TABLE IF EXISTS diagnosis CASCADE;
-
-CREATE TABLE diagnosis (
-    id BIGINT NOT NULL,
-    name TEXT
-);
-
 DROP TABLE IF EXISTS ethnicity CASCADE;
 
 CREATE TABLE ethnicity (
@@ -41,7 +34,7 @@ CREATE TABLE patient (
     history TEXT,
     ethnicity_id BIGINT,
     ethnicity_assessment_method TEXT,
-    initial_diagnosis_id BIGINT,
+    initial_diagnosis TEXT,
     age_at_initial_diagnosis TEXT,
     provider_group_id BIGINT
 );
@@ -149,8 +142,9 @@ DROP TABLE IF EXISTS patient_sample CASCADE;
 
 CREATE TABLE patient_sample (
     id BIGINT NOT NULL,
-    diagnosis_id BIGINT,
     external_patient_sample_id TEXT,
+    patient_id BIGINT,
+    diagnosis TEXT,
     grade TEXT,
     grading_system TEXT,
     stage TEXT,
@@ -159,6 +153,12 @@ CREATE TABLE patient_sample (
     collection_site_id BIGINT,
     prior_treatment TEXT,
     tumour_type_id BIGINT,
+    age_in_years_at_collection TEXT,
+    collection_event TEXT,
+    collection_date TEXT,
+    months_since_collection_1 TEXT,
+    treatment_naive_at_collection TEXT,
+    virology_status TEXT,
     model_id BIGINT
 );
 
@@ -172,20 +172,6 @@ CREATE TABLE xenograft_sample (
     model_id BIGINT,
     platform_id BIGINT
 
-);
-
-DROP TABLE IF EXISTS patient_snapshot CASCADE;
-
-CREATE TABLE patient_snapshot (
-    id BIGINT NOT NULL,
-    patient_id BIGINT,
-    age_in_years_at_collection TEXT,
-    collection_event TEXT,
-    collection_date TEXT,
-    months_since_collection_1 TEXT,
-    treatment_naive_at_collection TEXT,
-    virology_status TEXT,
-    sample_id BIGINT
 );
 
 DROP TABLE IF EXISTS engraftment_site CASCADE;

@@ -353,7 +353,6 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
                        t.NAME        treatment_raw
                 FROM
 					   patient_sample ps,
-					   patient_snapshot psnap,
 					   model_information m,
                        treatment_protocol tp,
                        response r,
@@ -364,8 +363,7 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
                        LEFT JOIN ontology_term_treatment ott
                               ON ( tont.ontology_term_id = ott.id )
                 WHERE  treatment_target = 'patient'
-				       AND tp.patient_id = psnap.patient_id
-				       AND psnap.sample_id = ps.id
+				       AND tp.patient_id = ps.patient_id
                        AND m.id = ps.model_id
                        AND tp.response_id = r.id
                        AND tc.treatment_protocol_id = tp.id
@@ -373,7 +371,7 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
                        AND t.data_source = m.data_source) a)b
  GROUP  BY model_id,
           response,
-          dose;
+          dose
 
 -- models_by_treatment materialized view: Models by treatment
 

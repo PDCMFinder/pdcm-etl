@@ -60,23 +60,22 @@ def main(argv):
     molecular_characterization_parquet_path = argv[2]
     molecular_characterization_type_parquet_path = argv[3]
     patient_sample_parquet_path = argv[4]
-    patient_snapshot_parquet_path = argv[5]
-    patient_parquet_path = argv[6]
-    ethnicity_df_parquet_path = argv[7]
-    xenograft_sample_parquet_path = argv[8]
-    cell_sample_parquet_path = argv[9]
-    tumour_type_parquet_path = argv[10]
-    tissue_parquet_path = argv[11]
-    mutation_measurement_data_parquet_path = argv[12]
-    cna_data_parquet_path = argv[13]
-    expression_data_parquet_path = argv[14]
-    cytogenetics_data_parquet_path = argv[15]
-    provider_group_parquet_path = argv[16]
-    project_group_parquet_path = argv[17]
-    sample_to_ontology_parquet_path = argv[18]
-    ontology_term_diagnosis_parquet_path = argv[19]
-    treatment_harmonisation_helper_parquet_path = argv[20]
-    output_path = argv[21]
+    patient_parquet_path = argv[5]
+    ethnicity_df_parquet_path = argv[6]
+    xenograft_sample_parquet_path = argv[7]
+    cell_sample_parquet_path = argv[8]
+    tumour_type_parquet_path = argv[9]
+    tissue_parquet_path = argv[10]
+    mutation_measurement_data_parquet_path = argv[11]
+    cna_data_parquet_path = argv[12]
+    expression_data_parquet_path = argv[13]
+    cytogenetics_data_parquet_path = argv[14]
+    provider_group_parquet_path = argv[15]
+    project_group_parquet_path = argv[16]
+    sample_to_ontology_parquet_path = argv[17]
+    ontology_term_diagnosis_parquet_path = argv[18]
+    treatment_harmonisation_helper_parquet_path = argv[19]
+    output_path = argv[20]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -88,7 +87,6 @@ def main(argv):
     )
     patient_sample_df = spark.read.parquet(patient_sample_parquet_path)
     ethnicity_df = spark.read.parquet(ethnicity_df_parquet_path)
-    patient_snapshot_df = spark.read.parquet(patient_snapshot_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
     cell_sample_df = spark.read.parquet(cell_sample_parquet_path)
@@ -110,7 +108,6 @@ def main(argv):
     search_index_df = transform_search_index(
         model_df,
         patient_sample_df,
-        patient_snapshot_df,
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
@@ -135,7 +132,6 @@ def main(argv):
 def transform_search_index(
         model_df,
         patient_sample_df,
-        patient_snapshot_df,
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
@@ -171,7 +167,6 @@ def transform_search_index(
         patient_df,
         tissue_df,
         ethnicity_df,
-        patient_snapshot_df,
         tumour_type_df,
         provider_group_df,
         project_group_df,
@@ -481,7 +476,6 @@ def extend_patient_sample(
         patient_df,
         tissue_df,
         ethnicity_df,
-        patient_snapshot_df,
         tumour_type_df,
         provider_group_df,
         project_group_df,
@@ -551,18 +545,18 @@ def extend_patient_sample(
     ethnicity_df = ethnicity_df.withColumnRenamed("name", "patient_ethnicity")
     patient_df = join_left_dfs(patient_df, ethnicity_df, "ethnicity_id", "id")
 
-    patient_snapshot_df = join_left_dfs(
-        patient_snapshot_df, patient_df, "patient_id", "id"
+    patient_sample_ext_df = join_left_dfs(
+        patient_sample_ext_df, patient_df, "patient_id", "id"
     )
 
-    patient_snapshot_df = patient_snapshot_df.withColumnRenamed(
+    patient_sample_ext_df = patient_sample_ext_df.withColumnRenamed(
         "age_in_years_at_collection", "patient_age"
     )
     bin_age_udf = udf(_bin_age, StringType())
-    patient_snapshot_df = patient_snapshot_df.withColumn(
+    patient_sample_ext_df = patient_sample_ext_df.withColumn(
         "patient_age", bin_age_udf("patient_age")
     )
-    patient_snapshot_df = patient_snapshot_df.withColumn(
+    patient_sample_ext_df = patient_sample_ext_df.withColumn(
         "patient_treatment_status",
         when(
             lower(col("treatment_naive_at_collection")) == "yes",
@@ -573,10 +567,6 @@ def extend_patient_sample(
             lit("Not treatment naive"),
         )
         .otherwise(lit(NOT_SPECIFIED_VALUE)),
-    )
-
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, patient_snapshot_df, "id", "sample_id"
     )
 
     # Adding tumour_type name to patient_sample
