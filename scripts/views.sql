@@ -371,7 +371,7 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
                        AND t.data_source = m.data_source) a)b
  GROUP  BY model_id,
           response,
-          dose
+          dose;
 
 -- models_by_treatment materialized view: Models by treatment
 
