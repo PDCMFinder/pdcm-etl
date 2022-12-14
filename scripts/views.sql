@@ -378,10 +378,13 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_treatment;
 
 CREATE MATERIALIZED VIEW pdcm_api.models_by_treatment AS
- SELECT unnest(search_index.treatment_list) AS treatment,
-    count(DISTINCT search_index.pdcm_model_id) AS count
-   FROM search_index
-  GROUP BY (unnest(search_index.treatment_list));
+   SELECT treatment,
+          COUNT(DISTINCT pdcm_model_id) AS count
+   FROM   (SELECT UNNEST(search_index.treatment_list) AS treatment,
+                  search_index.pdcm_model_id
+           FROM   search_index) treatment_model
+   WHERE  treatment_model.treatment NOT LIKE '% = %'
+   GROUP  BY ( treatment );
 
 -- models_by_type materialized view: Models by type
 
