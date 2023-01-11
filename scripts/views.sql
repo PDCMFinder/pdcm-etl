@@ -1,4 +1,88 @@
 -------------------------------------------Views -----------------------------------------------------------------------
+-- model_metadata view
+
+DROP VIEW IF EXISTS pdcm_api.model_metadata CASCADE;
+
+CREATE VIEW pdcm_api.model_metadata AS
+SELECT
+  mi.external_model_id AS model_id,
+  mi.data_source,
+  si.provider_name,
+  si.model_type AS type,
+  hs.name AS host_strain_name,
+  hs.nomenclature AS host_strain_nomenclature,
+  es.name AS engraftment_site,
+  et.name AS engraftment_type,
+  est.name AS engraftment_sample_type,
+  ess.name AS engraftment_sample_state,
+  xms.passage_number,
+  si.histology,
+  si.cancer_system,
+  si.primary_site,
+  si.collection_site,
+  si.tumour_type AS tumor_type,
+  si.cancer_grade,
+  si.cancer_grading_system,
+  si.cancer_stage,
+  si.patient_age,
+  si.patient_sex,
+  si.patient_ethnicity,
+  si.patient_treatment_status,
+  pg.pubmed_ids,
+  ag.europdx_access_modalities,
+  ag.accessibility,
+  cp.name_list AS contact_name_list,
+  cp.email_list AS contact_email_list,
+  cf.form_url AS contact_form_url,
+  sd.database_url AS source_database_url
+FROM
+  model_information mi
+  JOIN search_index si ON si.pdcm_model_id = mi.id
+  LEFT JOIN xenograft_model_specimen xms ON xms.model_id = mi.id
+  LEFT JOIN host_strain hs ON hs.id = xms.host_strain_id
+  LEFT JOIN engraftment_site es ON es.id = xms.engraftment_site_id
+  LEFT JOIN engraftment_type et ON et.id = xms.engraftment_type_id
+  LEFT JOIN engraftment_sample_type est ON est.id = xms.engraftment_sample_type_id
+  LEFT JOIN engraftment_sample_state ess ON ess.id = xms.engraftment_sample_state_id
+  LEFT JOIN publication_group pg ON pg.id = mi.publication_group_id
+  LEFT JOIN accessibility_group ag ON ag.id = mi.accessibility_group_id
+  LEFT JOIN contact_people cp ON cp.id = mi.contact_people_id
+  LEFT JOIN contact_form cf ON cf.id = mi.contact_form_id
+  LEFT JOIN source_database sd ON sd.id = mi.source_database_id;
+
+
+COMMENT ON VIEW pdcm_api.model_metadata IS 'Metadata associated to a model';
+
+COMMENT ON COLUMN pdcm_api.model_information.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.model_information.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.model_information.provider_name IS 'Provider full name';
+COMMENT ON COLUMN pdcm_api.model_information.type IS 'Model type (xenograft, cell_line, …)';
+COMMENT ON COLUMN pdcm_api.model_information.host_strain_name IS 'Host mouse strain name (e.g. NOD-SCID, NSG, etc)';
+COMMENT ON COLUMN pdcm_api.model_information.host_strain_nomenclature IS 'The full nomenclature form of the host mouse strain name';
+COMMENT ON COLUMN pdcm_api.model_information.engraftment_site IS 'Organ or anatomical site used for the tumour engraftment (e.g. mammary fat pad, Right flank)';
+COMMENT ON COLUMN pdcm_api.model_information.engraftment_type IS 'Orthotopic: if the tumour was engrafted at a corresponding anatomical site. Hererotopic: If grafted subcuteanously';
+COMMENT ON COLUMN pdcm_api.model_information.engraftment_sample_type IS 'Description of the type of material grafted into the mouse. (e.g. tissue fragments, cell suspension)';
+COMMENT ON COLUMN pdcm_api.model_information.engraftment_sample_state IS 'PDX Engraftment material state (e.g. fresh or frozen)';
+COMMENT ON COLUMN pdcm_api.model_information.passage_number IS 'Passage number';
+COMMENT ON COLUMN pdcm_api.model_information.histology IS 'Diagnosis at time of collection of the patient tumor';
+COMMENT ON COLUMN pdcm_api.model_information.cancer_system IS 'Cancer System';
+COMMENT ON COLUMN pdcm_api.model_information.primary_site IS 'Site of the primary tumor where primary cancer is originating from (may not correspond to the site of the current tissue sample)';
+COMMENT ON COLUMN pdcm_api.model_information.collection_site IS 'Site of collection of the tissue sample (can be different than the primary site if tumour type is metastatic)';
+COMMENT ON COLUMN pdcm_api.model_information.tumor_type IS 'Collected tumor type';
+COMMENT ON COLUMN pdcm_api.model_information.cancer_grade IS 'The implanted tumor grade value';
+COMMENT ON COLUMN pdcm_api.model_information.cancer_grading_system IS 'Stage classification system used to describe the stage';
+COMMENT ON COLUMN pdcm_api.model_information.cancer_stage IS 'Stage of the patient at the time of collection';
+COMMENT ON COLUMN pdcm_api.model_information.patient_age IS 'Patient age at collection';
+COMMENT ON COLUMN pdcm_api.model_information.patient_sex IS 'Sex of the patient';
+COMMENT ON COLUMN pdcm_api.model_information.patient_ethnicity IS 'Patient Ethnic group';
+COMMENT ON COLUMN pdcm_api.model_information.patient_treatment_status IS 'Patient treatment status';
+COMMENT ON COLUMN pdcm_api.model_information.pubmed_ids IS 'PubMed ids related to the model';
+COMMENT ON COLUMN pdcm_api.model_information.europdx_access_modalities IS 'If a model is part of EUROPDX consortium, then this field defines if the model is accessible for transnational access through the EDIReX infrastructure, or only on a collaborative basis';
+COMMENT ON COLUMN pdcm_api.model_information.accessibility IS 'Defines any limitation of access of the model per type of users like academia only, industry and academia, or national limitation';
+COMMENT ON COLUMN pdcm_api.model_information.contact_name_list IS 'List of names of the contact people for the model';
+COMMENT ON COLUMN pdcm_api.model_information.contact_email_list IS 'Emails of the contact names for the model';
+COMMENT ON COLUMN pdcm_api.model_information.contact_form_url IS 'URL to the providers resource for each model';
+COMMENT ON COLUMN pdcm_api.model_information.source_database_url IS 'URL to the source database for each model';
 
 -- model_information view
 
