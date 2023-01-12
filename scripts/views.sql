@@ -84,6 +84,32 @@ COMMENT ON COLUMN pdcm_api.model_information.contact_email_list IS 'Emails of th
 COMMENT ON COLUMN pdcm_api.model_information.contact_form_url IS 'URL to the providers resource for each model';
 COMMENT ON COLUMN pdcm_api.model_information.source_database_url IS 'URL to the source database for each model';
 
+
+-- model_quality_assurance view
+
+DROP VIEW IF EXISTS pdcm_api.model_quality_assurance CASCADE;
+
+CREATE VIEW pdcm_api.model_quality_assurance AS
+SELECT
+  mi.external_model_id AS model_id,
+  mi.data_source,
+  qa.description,
+  qa.passages_tested,
+  qa.validation_technique,
+  qa.validation_host_strain_nomenclature
+FROM
+  quality_assurance qa
+  JOIN model_information mi ON qa.model_id = mi.id;
+
+COMMENT ON VIEW pdcm_api.model_quality_assurance IS 'Quality assurance data related to a model';
+
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.description IS 'Short description of what was compared and what was the result: (e.g. high, good, moderate concordance between xenograft, ''model validated against histological features of same diagnosis'' or ''not determined'')';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.passages_tested IS 'List of all passages where validation was performed. Passage 0 correspond to first engraftment';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_technique IS 'Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_host_strain_nomenclature IS 'Validation host mouse strain, following mouse strain nomenclature from MGI JAX';
+
 -- model_information view
 
 DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
