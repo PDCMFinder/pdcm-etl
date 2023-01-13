@@ -647,6 +647,54 @@ COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_sex IS 'Sex of the
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_ethnicity IS 'Patient Ethnic group';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_treatment_status IS 'Status of the patient treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.histology IS 'Diagnosis at time of collection of the patient tumor';
-COMMENT ON COLUMN pdcm_api.patient_treatment_extended.treatment IS 'Treatment name. It can be surgery, radotherapy,  drug name  or drug combination';
+COMMENT ON COLUMN pdcm_api.patient_treatment_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.dose IS 'Treatment dose and unit';
+
+-- drug_dosing_extended materialized view: drug dosing treatment data + model information
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.drug_dosing_extended;
+
+CREATE MATERIALIZED VIEW pdcm_api.drug_dosing_extended AS
+SELECT
+	external_model_id AS model_id,
+	data_source,
+	histology,
+	string_agg(a.treatment, ' + ') AS treatment,
+	response,
+	string_agg(dose, ' + ') AS dose
+FROM (
+	SELECT
+		tp.id,
+		si.external_model_id,
+		si.data_source,
+		si.patient_age,
+		si.patient_sex,
+		si.patient_ethnicity,
+		si.patient_treatment_status,
+		si.histology,
+		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
+		r.name AS response,
+		tc.dose
+	FROM treatment_protocol tp
+	JOIN search_index si on si.pdcm_model_id = tp.model_id
+	JOIN treatment_component tc on tc.treatment_protocol_id = tp.id
+	JOIN response r on r.id = tp.response_id
+	JOIN treatment t on t.id = tc.treatment_id
+	LEFT JOIN treatment_to_ontology tont ON t.id = tont.treatment_id
+	LEFT JOIN ontology_term_treatment ott ON tont.ontology_term_id = ott.id
+	WHERE treatment_target = 'drug dosing'
+	AND t.data_source=si.data_source
+	) a
+GROUP BY
+	id, external_model_id, data_source, histology, response;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.drug_dosing_extended IS 'Drug dosing treatment data';
+
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.data_source IS 'Data source of the model';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.histology IS 'Diagnosis at time of collection of the patient tumor';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.response IS 'Response of prior treatment';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.dose IS 'Treatment dose and unit';
+
