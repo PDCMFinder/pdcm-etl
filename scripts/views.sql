@@ -521,3 +521,58 @@ AS
    FROM search_facet
 WITH DATA;
 
+-- model_molecular_metadata materialized view: Model molecular metadata
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.details_molecular_data;
+
+CREATE MATERIALIZED VIEW pdcm_api.model_molecular_metadata AS
+SELECT
+mol_char.data_availability,
+	mi.external_model_id AS model_id,
+	mi.data_source,
+	mol_char.source,
+	mol_char.sample_id,
+	xs.passage AS xenograft_passage,
+	mol_char.raw_data_url,
+	mol_char.data_type,
+	pf.instrument_model AS platform_name
+FROM
+(
+SELECT
+	mc.*, mct.name AS data_type,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN 'patient'
+		WHEN xenograft_sample_id IS NOT NULL THEN 'xenograft'
+		WHEN cell_sample_id IS NOT NULL THEN 'cell'
+		ELSE 'unknown'
+	END AS source,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN (SELECT model_id FROM patient_sample WHERE id = patient_sample_id)
+		WHEN xenograft_sample_id IS NOT NULL THEN (SELECT model_id FROM xenograft_sample WHERE id = xenograft_sample_id)
+		WHEN cell_sample_id IS NOT NULL THEN (SELECT model_id FROM cell_sample WHERE id = cell_sample_id)
+	END AS pdcm_model_id,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN (SELECT external_patient_sample_id FROM patient_sample WHERE id = patient_sample_id)
+		WHEN xenograft_sample_id IS NOT NULL THEN  (SELECT external_xenograft_sample_id FROM xenograft_sample WHERE id = xenograft_sample_id)
+		WHEN cell_sample_id IS NOT NULL THEN (SELECT external_cell_sample_id FROM cell_sample WHERE id = cell_sample_id)
+		ELSE null
+	END AS sample_id,
+	CASE
+		WHEN mct.name = 'mutation'::text AND (mc.id IN ( SELECT DISTINCT mutation_data_table.molecular_characterization_id
+		   FROM pdcm_api.mutation_data_table)) THEN 'TRUE'::text
+		WHEN mct.name = 'expression'::text AND (mc.id IN ( SELECT DISTINCT expression_data_table.molecular_characterization_id
+		   FROM pdcm_api.expression_data_table)) THEN 'TRUE'::text
+		WHEN mct.name = 'copy number alteration'::text AND (mc.id IN ( SELECT DISTINCT cna_data_table.molecular_characterization_id
+		   FROM pdcm_api.cna_data_table)) THEN 'TRUE'::text
+		WHEN mct.name = 'cytogenetics'::text AND (mc.id IN ( SELECT DISTINCT cytogenetics_data_table.molecular_characterization_id
+		   FROM pdcm_api.cytogenetics_data_table)) THEN 'TRUE'::text
+		ELSE 'FALSE'::text
+	END AS data_availability
+FROM
+  molecular_characterization mc
+  JOIN molecular_characterization_type mct ON mc.molecular_characterization_type_id = mct.id
+) mol_char
+  JOIN model_information mi ON mol_char.pdcm_model_id = mi.id
+  JOIN platform pf ON pf.id = mol_char.platform_id
+  LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
+
