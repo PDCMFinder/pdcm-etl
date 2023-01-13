@@ -597,7 +597,6 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment_extended AS
 SELECT
 	external_model_id AS model_id,
 	data_source,
-	treatment_target,
 	external_patient_id AS patient_id,
 	patient_age,
 	patient_sex,
@@ -635,14 +634,13 @@ FROM (
 	AND t.data_source=si.data_source
 	) a
 GROUP BY
-	id, external_model_id, data_source, treatment_target, external_patient_id, patient_age, patient_sex,
+	id, external_model_id, data_source, external_patient_id, patient_age, patient_sex,
 	patient_ethnicity, patient_treatment_status, histology, response;
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.patient_treatment_extended IS 'Patient treatment data';
 
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.data_source IS 'Data source of the model';
-COMMENT ON COLUMN pdcm_api.patient_treatment_extended.treatment_target IS 'Indicates if the treatment was applied to the patient or the model';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_id IS 'Anonymous/de-identified provider ID for the patient';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_age IS 'Patient age at collection';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_sex IS 'Sex of the patient';
