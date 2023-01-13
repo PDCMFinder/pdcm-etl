@@ -576,3 +576,14 @@ FROM
   JOIN platform pf ON pf.id = mol_char.platform_id
   LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
 
+COMMENT ON MATERIALIZED VIEW pdcm_api.model_molecular_metadata IS 'Information about the molecular data that is available for each sample';
+
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_source IS 'Data source of the model';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.xenograft_passage IS 'Passage number of the sample';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.raw_data_url IS 'URL where the raw data could be found';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_type IS 'Type of molecular data';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.platform_name IS 'Name of the platform technology used to produce the molecular characterization';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_availability IS 'True or False depending on whether or not there is molecular data for this sample';
