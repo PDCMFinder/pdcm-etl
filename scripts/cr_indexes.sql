@@ -92,6 +92,11 @@ ALTER TABLE molecular_characterization ADD CONSTRAINT pk_molecular_characterizat
 --ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_data PRIMARY KEY (id);
 --ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
 
+CREATE INDEX idx_cna_mol_char ON cna_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_cytogenetics_mol_char ON cytogenetics_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_expression_mol_char ON expression_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_mutation_mol_char ON mutation_measurement_data(molecular_characterization_id);
+
 ALTER TABLE xenograft_model_specimen DROP CONSTRAINT IF EXISTS pk_xenograft_model_specimen CASCADE;
 ALTER TABLE xenograft_model_specimen ADD CONSTRAINT pk_xenograft_model_specimen PRIMARY KEY (id);
 
