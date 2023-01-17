@@ -225,6 +225,45 @@ AS SELECT mmd.molecular_characterization_id,
 COMMENT ON VIEW pdcm_api.mutation_data_table IS 'Mutation data';
 COMMENT ON COLUMN pdcm_api.mutation_data_table.molecular_characterization_id IS 'Molecular characterization id';
 
+-- mutation_data_extended view
+
+DROP VIEW IF EXISTS pdcm_api.mutation_data_extended CASCADE;
+
+CREATE VIEW pdcm_api.mutation_data_extended
+AS
+SELECT
+	mmm.model_id,
+	mmm.sample_id,
+	mmm.source,
+	mmd.molecular_characterization_id,
+	mmd.hgnc_symbol,
+	mmd.amino_acid_change,
+	mmd.consequence,
+	mmd.read_depth,
+	mmd.allele_frequency,
+	mmd.seq_start_position,
+	mmd.ref_allele,
+	mmd.alt_allele,
+	mmd.data_source
+FROM
+	mutation_measurement_data mmd, pdcm_api.model_molecular_metadata mmm
+WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
+AND mmm.molecular_characterization_id = mmd.molecular_characterization_id;
+
+COMMENT ON VIEW pdcm_api.mutation_data_extended IS 'Mutation data with the model and sample it comes from.';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.amino_acid_change IS 'Changes in the amino acid due to the variant';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.consequence IS 'Genomic consequence of this variant, for example: insertion of a codon caused frameshift variation will be considered frameshift variant ';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.read_depth IS 'Read depth, the number of times each individual base was sequenced';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.allele_frequency IS 'Allele frequency, the relative frequency of an allele in a population';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.seq_start_position IS 'Location on the genome at which the variant is found';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.ref_allele IS 'The base seen in the reference genome';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.alt_allele IS 'The base other than the reference allele seen at the locus';
+
 -- expression_data_table view
 
 DROP VIEW IF EXISTS pdcm_api.expression_data_table;
