@@ -589,8 +589,8 @@ COMMENT ON COLUMN pdcm_api.model_molecular_metadata.xenograft_passage IS 'Passag
 COMMENT ON COLUMN pdcm_api.model_molecular_metadata.raw_data_url IS 'URL where the raw data could be found';
 COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_type IS 'Type of molecular data';
 COMMENT ON COLUMN pdcm_api.model_molecular_metadata.platform_name IS 'Name of the platform technology used to produce the molecular characterization';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_availability IS 'True or False depending on whether or not there is molecular data for this sample';
-
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_exists IS 'True or False depending on whether or not there is molecular data for this sample';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_restricted IS 'True or False depending on whether or not the molecular data is restricted (meaning provider need to be contacted directly to get the data from them).';
 
 -- patient_treatment_extended materialized view: patient treatment data + model information
 
