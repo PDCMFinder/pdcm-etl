@@ -523,11 +523,10 @@ WITH DATA;
 
 -- model_molecular_metadata materialized view: Model molecular metadata
 
-DROP MATERIALIZED VIEW IF EXISTS pdcm_api.details_molecular_data;
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.model_molecular_metadata;
 
 CREATE MATERIALIZED VIEW pdcm_api.model_molecular_metadata AS
 SELECT
-mol_char.data_availability,
 	mi.external_model_id AS model_id,
 	mi.data_source,
 	mol_char.source,
@@ -535,7 +534,22 @@ mol_char.data_availability,
 	xs.passage AS xenograft_passage,
 	mol_char.raw_data_url,
 	mol_char.data_type,
-	pf.instrument_model AS platform_name
+ 	pf.instrument_model AS platform_name,
+	CASE
+		WHEN mol_char.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'cytogenetics'::text AND EXISTS (SELECT 1 FROM cytogenetics_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		ELSE 'FALSE'::text
+	END AS data_exists,
+	CASE
+		WHEN mol_char.data_type = 'mutation'::text AND (mi.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'expression'::text AND (mi.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'copy number alteration'::text AND (mi.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'cytogenetics'::text AND (mi.data_source, 'cytogenetics_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		ELSE 'FALSE'::text
+	END AS data_restricted,
+	mol_char.id AS molecular_characterization_id
 FROM
 (
 SELECT
@@ -556,18 +570,7 @@ SELECT
 		WHEN xenograft_sample_id IS NOT NULL THEN  (SELECT external_xenograft_sample_id FROM xenograft_sample WHERE id = xenograft_sample_id)
 		WHEN cell_sample_id IS NOT NULL THEN (SELECT external_cell_sample_id FROM cell_sample WHERE id = cell_sample_id)
 		ELSE null
-	END AS sample_id,
-	CASE
-		WHEN mct.name = 'mutation'::text AND (mc.id IN ( SELECT DISTINCT mutation_data_table.molecular_characterization_id
-		   FROM pdcm_api.mutation_data_table)) THEN 'TRUE'::text
-		WHEN mct.name = 'expression'::text AND (mc.id IN ( SELECT DISTINCT expression_data_table.molecular_characterization_id
-		   FROM pdcm_api.expression_data_table)) THEN 'TRUE'::text
-		WHEN mct.name = 'copy number alteration'::text AND (mc.id IN ( SELECT DISTINCT cna_data_table.molecular_characterization_id
-		   FROM pdcm_api.cna_data_table)) THEN 'TRUE'::text
-		WHEN mct.name = 'cytogenetics'::text AND (mc.id IN ( SELECT DISTINCT cytogenetics_data_table.molecular_characterization_id
-		   FROM pdcm_api.cytogenetics_data_table)) THEN 'TRUE'::text
-		ELSE 'FALSE'::text
-	END AS data_availability
+	END AS sample_id
 FROM
   molecular_characterization mc
   JOIN molecular_characterization_type mct ON mc.molecular_characterization_type_id = mct.id
