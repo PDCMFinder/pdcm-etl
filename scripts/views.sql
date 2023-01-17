@@ -318,6 +318,40 @@ AS
   FROM   cna_molecular_data cnamd
   WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+-- cna_data_extended view
+
+DROP VIEW IF EXISTS pdcm_api.cna_data_extended;
+
+CREATE VIEW pdcm_api.cna_data_extended
+AS
+SELECT
+	mmm.model_id,
+	mmm.data_source,
+	mmm.source,
+	mmm.sample_id,
+	cnamd.hgnc_symbol,
+	cnamd.log10r_cna,
+	cnamd.log2r_cna,
+	cnamd.copy_number_status,
+	cnamd.gistic_value,
+	cnamd.picnic_value
+FROM   cna_molecular_data cnamd, pdcm_api.model_molecular_metadata mmm
+WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
+AND cnamd.molecular_characterization_id = mmm.molecular_characterization_id;
+
+COMMENT ON VIEW pdcm_api.cna_data_extended IS 'Mutation data with the model and sample it comes from.';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.log10r_cna IS 'Log10 scaled copy number variation ratio';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.log2r_cna IS 'Log2 scaled copy number variation ratio';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.copy_number_status IS 'Details whether there was a gain or loss of function. Categorized into gain, loss';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.gistic_value IS 'Score predicted using GISTIC tool for the copy number variation';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.picnic_value IS 'Score predicted using PICNIC algorithm for the copy number variation';
+
+
 DROP VIEW IF EXISTS pdcm_api.molecular_data_restriction;
 
 CREATE VIEW pdcm_api.molecular_data_restriction
