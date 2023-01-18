@@ -298,6 +298,32 @@ AS
   FROM   cytogenetics_molecular_data cmd
   WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+
+-- cytogenetics_data_extended view
+
+DROP VIEW IF EXISTS pdcm_api.cytogenetics_data_extended;
+
+CREATE VIEW pdcm_api.cytogenetics_data_extended
+AS
+SELECT
+	mmm.model_id,
+	mmm.data_source,
+	mmm.source,
+	mmm.sample_id,
+	cmd.hgnc_symbol,
+	cmd.marker_status AS result
+FROM   cytogenetics_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
+WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
+AND cmd.molecular_characterization_id = mmm.molecular_characterization_id;
+
+COMMENT ON VIEW pdcm_api.cytogenetics_data_extended IS 'Mutation data with the model and sample it comes from.';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.result IS 'Presence or absence of the cytogenetic marker';
+
 -- cna_data_table view
 
 DROP VIEW IF EXISTS pdcm_api.cna_data_table;
