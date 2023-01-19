@@ -1,4 +1,4 @@
--------------------------------------------Views -----------------------------------------------------------------------
+
 -- model_metadata view
 
 DROP VIEW IF EXISTS pdcm_api.model_metadata CASCADE;
@@ -51,38 +51,41 @@ FROM
   LEFT JOIN source_database sd ON sd.id = mi.source_database_id;
 
 
-COMMENT ON VIEW pdcm_api.model_metadata IS 'Metadata associated to a model';
+COMMENT ON VIEW pdcm_api.model_metadata IS
+  $$Model metadata
 
-COMMENT ON COLUMN pdcm_api.model_information.model_id IS 'Full name of the model used by provider';
-COMMENT ON COLUMN pdcm_api.model_information.data_source IS 'Data source of the model (provider abbreviation)';
-COMMENT ON COLUMN pdcm_api.model_information.provider_name IS 'Provider full name';
-COMMENT ON COLUMN pdcm_api.model_information.type IS 'Model type (xenograft, cell_line, …)';
-COMMENT ON COLUMN pdcm_api.model_information.host_strain_name IS 'Host mouse strain name (e.g. NOD-SCID, NSG, etc)';
-COMMENT ON COLUMN pdcm_api.model_information.host_strain_nomenclature IS 'The full nomenclature form of the host mouse strain name';
-COMMENT ON COLUMN pdcm_api.model_information.engraftment_site IS 'Organ or anatomical site used for the tumour engraftment (e.g. mammary fat pad, Right flank)';
-COMMENT ON COLUMN pdcm_api.model_information.engraftment_type IS 'Orthotopic: if the tumour was engrafted at a corresponding anatomical site. Hererotopic: If grafted subcuteanously';
-COMMENT ON COLUMN pdcm_api.model_information.engraftment_sample_type IS 'Description of the type of material grafted into the mouse. (e.g. tissue fragments, cell suspension)';
-COMMENT ON COLUMN pdcm_api.model_information.engraftment_sample_state IS 'PDX Engraftment material state (e.g. fresh or frozen)';
-COMMENT ON COLUMN pdcm_api.model_information.passage_number IS 'Passage number';
-COMMENT ON COLUMN pdcm_api.model_information.histology IS 'Diagnosis at time of collection of the patient tumor';
-COMMENT ON COLUMN pdcm_api.model_information.cancer_system IS 'Cancer System';
-COMMENT ON COLUMN pdcm_api.model_information.primary_site IS 'Site of the primary tumor where primary cancer is originating from (may not correspond to the site of the current tissue sample)';
-COMMENT ON COLUMN pdcm_api.model_information.collection_site IS 'Site of collection of the tissue sample (can be different than the primary site if tumour type is metastatic)';
-COMMENT ON COLUMN pdcm_api.model_information.tumor_type IS 'Collected tumor type';
-COMMENT ON COLUMN pdcm_api.model_information.cancer_grade IS 'The implanted tumor grade value';
-COMMENT ON COLUMN pdcm_api.model_information.cancer_grading_system IS 'Stage classification system used to describe the stage';
-COMMENT ON COLUMN pdcm_api.model_information.cancer_stage IS 'Stage of the patient at the time of collection';
-COMMENT ON COLUMN pdcm_api.model_information.patient_age IS 'Patient age at collection';
-COMMENT ON COLUMN pdcm_api.model_information.patient_sex IS 'Sex of the patient';
-COMMENT ON COLUMN pdcm_api.model_information.patient_ethnicity IS 'Patient Ethnic group';
-COMMENT ON COLUMN pdcm_api.model_information.patient_treatment_status IS 'Patient treatment status';
-COMMENT ON COLUMN pdcm_api.model_information.pubmed_ids IS 'PubMed ids related to the model';
-COMMENT ON COLUMN pdcm_api.model_information.europdx_access_modalities IS 'If a model is part of EUROPDX consortium, then this field defines if the model is accessible for transnational access through the EDIReX infrastructure, or only on a collaborative basis';
-COMMENT ON COLUMN pdcm_api.model_information.accessibility IS 'Defines any limitation of access of the model per type of users like academia only, industry and academia, or national limitation';
-COMMENT ON COLUMN pdcm_api.model_information.contact_name_list IS 'List of names of the contact people for the model';
-COMMENT ON COLUMN pdcm_api.model_information.contact_email_list IS 'Emails of the contact names for the model';
-COMMENT ON COLUMN pdcm_api.model_information.contact_form_url IS 'URL to the providers resource for each model';
-COMMENT ON COLUMN pdcm_api.model_information.source_database_url IS 'URL to the source database for each model';
+  Metadata associated to a model.$$;
+
+COMMENT ON COLUMN pdcm_api.model_metadata.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.model_metadata.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.model_metadata.provider_name IS 'Provider full name';
+COMMENT ON COLUMN pdcm_api.model_metadata.type IS 'Model type (xenograft, cell_line, …)';
+COMMENT ON COLUMN pdcm_api.model_metadata.host_strain_name IS 'Host mouse strain name (e.g. NOD-SCID, NSG, etc)';
+COMMENT ON COLUMN pdcm_api.model_metadata.host_strain_nomenclature IS 'The full nomenclature form of the host mouse strain name';
+COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_site IS 'Organ or anatomical site used for the tumour engraftment (e.g. mammary fat pad, Right flank)';
+COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_type IS 'Orthotopic: if the tumour was engrafted at a corresponding anatomical site. Hererotopic: If grafted subcuteanously';
+COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_sample_type IS 'Description of the type of material grafted into the mouse. (e.g. tissue fragments, cell suspension)';
+COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_sample_state IS 'PDX Engraftment material state (e.g. fresh or frozen)';
+COMMENT ON COLUMN pdcm_api.model_metadata.passage_number IS 'Passage number';
+COMMENT ON COLUMN pdcm_api.model_metadata.histology IS 'Diagnosis at time of collection of the patient tumor';
+COMMENT ON COLUMN pdcm_api.model_metadata.cancer_system IS 'Cancer System';
+COMMENT ON COLUMN pdcm_api.model_metadata.primary_site IS 'Site of the primary tumor where primary cancer is originating from (may not correspond to the site of the current tissue sample)';
+COMMENT ON COLUMN pdcm_api.model_metadata.collection_site IS 'Site of collection of the tissue sample (can be different than the primary site if tumour type is metastatic)';
+COMMENT ON COLUMN pdcm_api.model_metadata.tumor_type IS 'Collected tumor type';
+COMMENT ON COLUMN pdcm_api.model_metadata.cancer_grade IS 'The implanted tumor grade value';
+COMMENT ON COLUMN pdcm_api.model_metadata.cancer_grading_system IS 'Stage classification system used to describe the stage';
+COMMENT ON COLUMN pdcm_api.model_metadata.cancer_stage IS 'Stage of the patient at the time of collection';
+COMMENT ON COLUMN pdcm_api.model_metadata.patient_age IS 'Patient age at collection';
+COMMENT ON COLUMN pdcm_api.model_metadata.patient_sex IS 'Sex of the patient';
+COMMENT ON COLUMN pdcm_api.model_metadata.patient_ethnicity IS 'Patient Ethnic group';
+COMMENT ON COLUMN pdcm_api.model_metadata.patient_treatment_status IS 'Patient treatment status';
+COMMENT ON COLUMN pdcm_api.model_metadata.pubmed_ids IS 'PubMed ids related to the model';
+COMMENT ON COLUMN pdcm_api.model_metadata.europdx_access_modalities IS 'If a model is part of EUROPDX consortium, then this field defines if the model is accessible for transnational access through the EDIReX infrastructure, or only on a collaborative basis';
+COMMENT ON COLUMN pdcm_api.model_metadata.accessibility IS 'Defines any limitation of access of the model per type of users like academia only, industry and academia, or national limitation';
+COMMENT ON COLUMN pdcm_api.model_metadata.contact_name_list IS 'List of names of the contact people for the model';
+COMMENT ON COLUMN pdcm_api.model_metadata.contact_email_list IS 'Emails of the contact names for the model';
+COMMENT ON COLUMN pdcm_api.model_metadata.contact_form_url IS 'URL to the providers resource for each model';
+COMMENT ON COLUMN pdcm_api.model_metadata.source_database_url IS 'URL to the source database for each model';
 
 
 -- model_quality_assurance view
@@ -101,7 +104,10 @@ FROM
   quality_assurance qa
   JOIN model_information mi ON qa.model_id = mi.id;
 
-COMMENT ON VIEW pdcm_api.model_quality_assurance IS 'Quality assurance data related to a model';
+COMMENT ON VIEW pdcm_api.model_quality_assurance IS
+  $$Quality assurance
+
+  Quality assurance data related to a model.$$;
 
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.data_source IS 'Data source of the model (provider abbreviation)';
@@ -109,23 +115,6 @@ COMMENT ON COLUMN pdcm_api.model_quality_assurance.description IS 'Short descrip
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.passages_tested IS 'List of all passages where validation was performed. Passage 0 correspond to first engraftment';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_technique IS 'Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_host_strain_nomenclature IS 'Validation host mouse strain, following mouse strain nomenclature from MGI JAX';
-
--- model_information view
-
-DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
-
-CREATE VIEW pdcm_api.model_information AS
- SELECT * from model_information;
-
-COMMENT ON VIEW pdcm_api.model_information IS 'Model information';
-COMMENT ON COLUMN pdcm_api.model_information.id IS 'Record identifier';
-COMMENT ON COLUMN pdcm_api.model_information.external_model_id IS 'Identifier model given by the provider';
-COMMENT ON COLUMN pdcm_api.model_information.data_source IS 'Provider abbreviation';
-COMMENT ON COLUMN pdcm_api.model_information.publication_group_id IS 'Publication group the model is connected to';
-COMMENT ON COLUMN pdcm_api.model_information.accessibility_group_id IS 'Accessibility group the model is connected to';
-COMMENT ON COLUMN pdcm_api.model_information.contact_people_id IS 'Id referencing the contact people for this model';
-COMMENT ON COLUMN pdcm_api.model_information.contact_people_id IS 'Id referencing the source database for the model';
-
 
 -- contact_people view
 
@@ -222,8 +211,80 @@ AS SELECT mmd.molecular_characterization_id,
    FROM   mutation_measurement_data mmd
    WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
-COMMENT ON VIEW pdcm_api.mutation_data_table IS 'Mutation data';
-COMMENT ON COLUMN pdcm_api.mutation_data_table.molecular_characterization_id IS 'Molecular characterization id';
+-- model_molecular_metadata materialized view: Model molecular metadata
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.model_molecular_metadata CASCADE;
+
+CREATE MATERIALIZED VIEW pdcm_api.model_molecular_metadata AS
+SELECT
+	mi.external_model_id AS model_id,
+	mi.data_source,
+	mol_char.source,
+	mol_char.sample_id,
+	xs.passage AS xenograft_passage,
+	mol_char.raw_data_url,
+	mol_char.data_type,
+ 	pf.instrument_model AS platform_name,
+	CASE
+		WHEN mol_char.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'cytogenetics'::text AND EXISTS (SELECT 1 FROM cytogenetics_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		ELSE 'FALSE'::text
+	END AS data_exists,
+	CASE
+		WHEN mol_char.data_type = 'mutation'::text AND (mi.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'expression'::text AND (mi.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'copy number alteration'::text AND (mi.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'cytogenetics'::text AND (mi.data_source, 'cytogenetics_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		ELSE 'FALSE'::text
+	END AS data_restricted,
+	mol_char.id AS molecular_characterization_id
+FROM
+(
+SELECT
+	mc.*, mct.name AS data_type,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN 'patient'
+		WHEN xenograft_sample_id IS NOT NULL THEN 'xenograft'
+		WHEN cell_sample_id IS NOT NULL THEN 'cell'
+		ELSE 'unknown'
+	END AS source,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN (SELECT model_id FROM patient_sample WHERE id = patient_sample_id)
+		WHEN xenograft_sample_id IS NOT NULL THEN (SELECT model_id FROM xenograft_sample WHERE id = xenograft_sample_id)
+		WHEN cell_sample_id IS NOT NULL THEN (SELECT model_id FROM cell_sample WHERE id = cell_sample_id)
+	END AS pdcm_model_id,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN (SELECT external_patient_sample_id FROM patient_sample WHERE id = patient_sample_id)
+		WHEN xenograft_sample_id IS NOT NULL THEN  (SELECT external_xenograft_sample_id FROM xenograft_sample WHERE id = xenograft_sample_id)
+		WHEN cell_sample_id IS NOT NULL THEN (SELECT external_cell_sample_id FROM cell_sample WHERE id = cell_sample_id)
+		ELSE null
+	END AS sample_id
+FROM
+  molecular_characterization mc
+  JOIN molecular_characterization_type mct ON mc.molecular_characterization_type_id = mct.id
+) mol_char
+  JOIN model_information mi ON mol_char.pdcm_model_id = mi.id
+  JOIN platform pf ON pf.id = mol_char.platform_id
+  LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.model_molecular_metadata IS
+  $$Model Molecular Metadata
+
+  Information about the molecular data that is available for each sample.$$;
+
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_source IS 'Data source of the model';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.xenograft_passage IS 'Passage number of the sample';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.raw_data_url IS 'URL where the raw data could be found';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_type IS 'Type of molecular data';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.platform_name IS 'Name of the platform technology used to produce the molecular characterization';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_exists IS 'True or False depending on whether or not there is molecular data for this sample';
+COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_restricted IS 'True or False depending on whether or not the molecular data is restricted (meaning provider need to be contacted directly to get the data from them).';
+
 
 -- mutation_data_extended view
 
@@ -250,7 +311,11 @@ FROM
 WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND mmm.molecular_characterization_id = mmd.molecular_characterization_id;
 
-COMMENT ON VIEW pdcm_api.mutation_data_extended IS 'Mutation data with the model and sample it comes from.';
+COMMENT ON VIEW pdcm_api.mutation_data_extended IS
+  $$Mutation molecular data
+
+  Mutation data with the model and sample it comes from.$$;
+
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.source IS '(patient, xenograft, cell)';
@@ -285,6 +350,51 @@ AS
   FROM   expression_molecular_data emd
   WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+-- expression_data_extended view
+
+DROP VIEW IF EXISTS pdcm_api.expression_data_extended;
+
+CREATE VIEW pdcm_api.expression_data_extended
+AS
+SELECT
+	mmm.model_id,
+	mmm.data_source,
+	mmm.source,
+	mmm.sample_id,
+	emd.hgnc_symbol,
+	emd.rnaseq_coverage,
+	emd.rnaseq_fpkm,
+	emd.rnaseq_tpm,
+	emd.rnaseq_count,
+	emd.affy_hgea_probe_id,
+	emd.affy_hgea_expression_value,
+	emd.illumina_hgea_probe_id,
+	emd.illumina_hgea_expression_value,
+	emd.z_score
+FROM   expression_molecular_data emd, pdcm_api.model_molecular_metadata mmm
+WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
+AND emd.molecular_characterization_id = mmm.molecular_characterization_id;
+
+COMMENT ON VIEW pdcm_api.expression_data_extended IS
+  $$Expression molecular data
+
+  Expression data with the model and sample it comes from.$$;
+
+COMMENT ON COLUMN pdcm_api.expression_data_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.rnaseq_coverage IS 'The ratio between the number of bases of the mapped reads by the number of bases of a reference';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.rnaseq_fpkm IS 'Gene expression value represented in Fragments per kilo base of transcript per million mapped fragments (FPKM)';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.rnaseq_tpm IS 'Gene expression value represented in transcript per million (TPM)';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.rnaseq_count IS 'Read counts of the gene';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.affy_hgea_probe_id IS 'Affymetrix probe identifier';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.affy_hgea_expression_value IS 'Expresion value captured using Affymetrix arrays';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.illumina_hgea_probe_id IS 'Illumina probe identifier';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.illumina_hgea_expression_value IS 'Expresion value captured using Illumina arrays';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.z_score IS 'Z-score representing the gene expression level';
+
 -- cytogenetics_data_table view
 
 DROP VIEW IF EXISTS pdcm_api.cytogenetics_data_table;
@@ -316,7 +426,11 @@ FROM   cytogenetics_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
 WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cmd.molecular_characterization_id = mmm.molecular_characterization_id;
 
-COMMENT ON VIEW pdcm_api.cytogenetics_data_extended IS 'Mutation data with the model and sample it comes from.';
+COMMENT ON VIEW pdcm_api.cytogenetics_data_extended IS
+  $$Cytogenetics molecular data
+
+  Cytogenetics data with the model and sample it comes from.$$;
+
 COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
 COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.source IS '(patient, xenograft, cell)';
@@ -365,7 +479,11 @@ FROM   cna_molecular_data cnamd, pdcm_api.model_molecular_metadata mmm
 WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cnamd.molecular_characterization_id = mmm.molecular_characterization_id;
 
-COMMENT ON VIEW pdcm_api.cna_data_extended IS 'Mutation data with the model and sample it comes from.';
+COMMENT ON VIEW pdcm_api.cna_data_extended IS
+  $$CNA molecular data
+
+  CNA data with the model and sample it comes from.$$;
+
 COMMENT ON COLUMN pdcm_api.cna_data_extended.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.source IS '(patient, xenograft, cell)';
@@ -620,77 +738,6 @@ AS
    FROM search_facet
 WITH DATA;
 
--- model_molecular_metadata materialized view: Model molecular metadata
-
-DROP MATERIALIZED VIEW IF EXISTS pdcm_api.model_molecular_metadata;
-
-CREATE MATERIALIZED VIEW pdcm_api.model_molecular_metadata AS
-SELECT
-	mi.external_model_id AS model_id,
-	mi.data_source,
-	mol_char.source,
-	mol_char.sample_id,
-	xs.passage AS xenograft_passage,
-	mol_char.raw_data_url,
-	mol_char.data_type,
- 	pf.instrument_model AS platform_name,
-	CASE
-		WHEN mol_char.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'cytogenetics'::text AND EXISTS (SELECT 1 FROM cytogenetics_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		ELSE 'FALSE'::text
-	END AS data_exists,
-	CASE
-		WHEN mol_char.data_type = 'mutation'::text AND (mi.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'expression'::text AND (mi.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'copy number alteration'::text AND (mi.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'cytogenetics'::text AND (mi.data_source, 'cytogenetics_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		ELSE 'FALSE'::text
-	END AS data_restricted,
-	mol_char.id AS molecular_characterization_id
-FROM
-(
-SELECT
-	mc.*, mct.name AS data_type,
-	CASE
-		WHEN patient_sample_id IS NOT NULL THEN 'patient'
-		WHEN xenograft_sample_id IS NOT NULL THEN 'xenograft'
-		WHEN cell_sample_id IS NOT NULL THEN 'cell'
-		ELSE 'unknown'
-	END AS source,
-	CASE
-		WHEN patient_sample_id IS NOT NULL THEN (SELECT model_id FROM patient_sample WHERE id = patient_sample_id)
-		WHEN xenograft_sample_id IS NOT NULL THEN (SELECT model_id FROM xenograft_sample WHERE id = xenograft_sample_id)
-		WHEN cell_sample_id IS NOT NULL THEN (SELECT model_id FROM cell_sample WHERE id = cell_sample_id)
-	END AS pdcm_model_id,
-	CASE
-		WHEN patient_sample_id IS NOT NULL THEN (SELECT external_patient_sample_id FROM patient_sample WHERE id = patient_sample_id)
-		WHEN xenograft_sample_id IS NOT NULL THEN  (SELECT external_xenograft_sample_id FROM xenograft_sample WHERE id = xenograft_sample_id)
-		WHEN cell_sample_id IS NOT NULL THEN (SELECT external_cell_sample_id FROM cell_sample WHERE id = cell_sample_id)
-		ELSE null
-	END AS sample_id
-FROM
-  molecular_characterization mc
-  JOIN molecular_characterization_type mct ON mc.molecular_characterization_type_id = mct.id
-) mol_char
-  JOIN model_information mi ON mol_char.pdcm_model_id = mi.id
-  JOIN platform pf ON pf.id = mol_char.platform_id
-  LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
-
-COMMENT ON MATERIALIZED VIEW pdcm_api.model_molecular_metadata IS 'Information about the molecular data that is available for each sample';
-
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.model_id IS 'Full name of the model used by provider';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_source IS 'Data source of the model';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.source IS '(patient, xenograft, cell)';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.sample_id IS 'Sample identifier given by the provider';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.xenograft_passage IS 'Passage number of the sample';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.raw_data_url IS 'URL where the raw data could be found';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_type IS 'Type of molecular data';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.platform_name IS 'Name of the platform technology used to produce the molecular characterization';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_exists IS 'True or False depending on whether or not there is molecular data for this sample';
-COMMENT ON COLUMN pdcm_api.model_molecular_metadata.data_restricted IS 'True or False depending on whether or not the molecular data is restricted (meaning provider need to be contacted directly to get the data from them).';
-
 -- patient_treatment_extended materialized view: patient treatment data + model information
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.patient_treatment_extended;
@@ -739,7 +786,10 @@ GROUP BY
 	id, external_model_id, data_source, external_patient_id, patient_age, patient_sex,
 	patient_ethnicity, patient_treatment_status, histology, response;
 
-COMMENT ON MATERIALIZED VIEW pdcm_api.patient_treatment_extended IS 'Patient treatment data';
+COMMENT ON MATERIALIZED VIEW pdcm_api.patient_treatment_extended IS
+  $$Patient treatment
+
+  Information about treatments in patients$$;
 
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.data_source IS 'Data source of the model';
@@ -791,7 +841,10 @@ FROM (
 GROUP BY
 	id, external_model_id, data_source, histology, response;
 
-COMMENT ON MATERIALIZED VIEW pdcm_api.drug_dosing_extended IS 'Drug dosing treatment data';
+COMMENT ON MATERIALIZED VIEW pdcm_api.drug_dosing_extended IS
+  $$Drug dosing
+
+  Information about treatments in models$$;
 
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.model_id IS 'Full name of the model used by provider';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.data_source IS 'Data source of the model';
