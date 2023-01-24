@@ -1,5 +1,8 @@
 CREATE SCHEMA IF NOT EXISTS pdcm_api;
 
+COMMENT ON SCHEMA pdcm_api IS
+  'Patient-derived cancer models (PDCMs) are a powerful oncology research platform for studying tumour biology, mechanisms of drug response and resistance and for testing personalised medicine. Distributed nature of repositories for PDCMs (xenografts, organoids and cell lines) and the use of different metadata standards for describing model''s characteristics make it difficult for researchers to identify suitable PDCM models relevant to specific cancer research questions. PDCM Finder aims to solve this problem by providing harmonized and integrated model attributes to support consistent searching across the originating resources';
+
 DROP TABLE IF EXISTS ethnicity CASCADE;
 
 CREATE TABLE ethnicity (
