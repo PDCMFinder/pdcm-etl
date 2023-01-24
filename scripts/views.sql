@@ -296,7 +296,6 @@ SELECT
 	mmm.model_id,
 	mmm.sample_id,
 	mmm.source,
-	mmd.molecular_characterization_id,
 	mmd.hgnc_symbol,
 	mmd.amino_acid_change,
 	mmd.consequence,
@@ -397,7 +396,7 @@ COMMENT ON COLUMN pdcm_api.expression_data_extended.z_score IS 'Z-score represen
 
 -- cytogenetics_data_table view
 
-DROP VIEW IF EXISTS pdcm_api.cytogenetics_data_table;
+DROP VIEW IF EXISTS pdcm_api.cytogenetics_data_table CASCADE;
 
 CREATE VIEW pdcm_api.cytogenetics_data_table
 AS
