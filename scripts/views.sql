@@ -1,3 +1,9 @@
+-- model_information view
+
+DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
+
+CREATE VIEW pdcm_api.model_information AS
+ SELECT * from model_information;
 
 -- model_metadata view
 
