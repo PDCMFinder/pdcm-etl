@@ -59,14 +59,6 @@ patient_sample = [
     }
 ]
 
-patient_snapshot = [
-    {
-        "id": "1",
-        "patient_id": "1",
-        "sample_id": "1"
-    }
-]
-
 treatment_protocol = [
     {
         "id": "1",

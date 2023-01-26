@@ -1,6 +1,3 @@
-ALTER TABLE diagnosis DROP CONSTRAINT IF EXISTS pk_diagnosis CASCADE;
-ALTER TABLE diagnosis ADD CONSTRAINT pk_diagnosis PRIMARY KEY  (id);
-
 ALTER TABLE ethnicity DROP CONSTRAINT IF EXISTS pk_ethnicity CASCADE;
 ALTER TABLE ethnicity ADD CONSTRAINT pk_ethnicity PRIMARY KEY (id);
 
@@ -49,14 +46,8 @@ ALTER TABLE tumour_type ADD CONSTRAINT pk_tumour_type PRIMARY KEY (id);
 ALTER TABLE patient_sample DROP CONSTRAINT IF EXISTS pk_patient_sample CASCADE;
 ALTER TABLE patient_sample ADD CONSTRAINT pk_patient_sample PRIMARY KEY (id);
 
-
-
-
 ALTER TABLE xenograft_sample DROP CONSTRAINT IF EXISTS pk_xenograft_sample CASCADE;
 ALTER TABLE xenograft_sample ADD CONSTRAINT pk_xenograft_sample PRIMARY KEY (id);
-
-ALTER TABLE patient_snapshot DROP CONSTRAINT IF EXISTS pk_patient_snapshot CASCADE;
-ALTER TABLE patient_snapshot ADD CONSTRAINT pk_patient_snapshot PRIMARY KEY (id);
 
 ALTER TABLE engraftment_type DROP CONSTRAINT IF EXISTS pk_engraftment_type CASCADE;
 ALTER TABLE engraftment_type ADD CONSTRAINT pk_engraftment_type PRIMARY KEY (id);
@@ -100,6 +91,11 @@ ALTER TABLE molecular_characterization ADD CONSTRAINT pk_molecular_characterizat
 --ALTER TABLE cytogenetics_molecular_data ADD CONSTRAINT pk_cytogenetics_molecular_data PRIMARY KEY (id);
 --ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_data PRIMARY KEY (id);
 --ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
+
+CREATE INDEX idx_cna_mol_char ON cna_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_cytogenetics_mol_char ON cytogenetics_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_expression_mol_char ON expression_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_mutation_mol_char ON mutation_measurement_data(molecular_characterization_id);
 
 ALTER TABLE xenograft_model_specimen DROP CONSTRAINT IF EXISTS pk_xenograft_model_specimen CASCADE;
 ALTER TABLE xenograft_model_specimen ADD CONSTRAINT pk_xenograft_model_specimen PRIMARY KEY (id);

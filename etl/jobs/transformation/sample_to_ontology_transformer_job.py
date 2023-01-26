@@ -21,19 +21,17 @@ def main(argv):
     """
     model_parquet_path = argv[1]
     patient_sample_parquet_path = argv[2]
-    diagnosis_parquet_path = argv[3]
-    tumor_type_parquet_path = argv[4]
-    tissue_parquet_path = argv[5]
+    tumor_type_parquet_path = argv[3]
+    tissue_parquet_path = argv[4]
 
-    ontology_term_diagnosis_parquet_path = argv[6]
-    raw_diagnosis_mappings_parquet_path = argv[7]
+    ontology_term_diagnosis_parquet_path = argv[5]
+    raw_diagnosis_mappings_parquet_path = argv[6]
 
-    output_path = argv[8]
+    output_path = argv[7]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
     patient_sample_df = spark.read.parquet(patient_sample_parquet_path)
-    diagnosis_df = spark.read.parquet(diagnosis_parquet_path)
     tissue_df = spark.read.parquet(tissue_parquet_path)
     tumor_type_df = spark.read.parquet(tumor_type_parquet_path)
 
@@ -43,7 +41,6 @@ def main(argv):
     sample_to_ontology_df = transform_sample_to_ontology(
         model_df,
         patient_sample_df,
-        diagnosis_df,
         tissue_df,
         tumor_type_df,
         ontology_term_diagnosis_df,
@@ -54,13 +51,12 @@ def main(argv):
 def transform_sample_to_ontology(
         model_df: DataFrame,
         patient_sample_df: DataFrame,
-        diagnosis_df: DataFrame,
         tissue_df: DataFrame,
         tumor_type_df: DataFrame,
         ontology_term_diagnosis_df: DataFrame,
         diagnosis_mappings_df: DataFrame) -> DataFrame:
 
-    sample_data_df = join_sample_with_linked_data(model_df, patient_sample_df, diagnosis_df, tissue_df, tumor_type_df)
+    sample_data_df = join_sample_with_linked_data(model_df, patient_sample_df, tissue_df, tumor_type_df)
     diagnosis_mappings_df = lower_mapping_column_values(diagnosis_mappings_df)
     sample_to_ontology_df = link_samples_to_ontology(sample_data_df, ontology_term_diagnosis_df, diagnosis_mappings_df)
     sample_to_ontology_df = add_id(sample_to_ontology_df, "id")
@@ -100,22 +96,17 @@ def lower_mapping_column_values(diagnosis_mappings_df: DataFrame) -> DataFrame:
 def join_sample_with_linked_data(
         model_df: DataFrame,
         patient_sample_df: DataFrame,
-        diagnosis_df: DataFrame,
         tissue_df: DataFrame,
         tumor_type_df: DataFrame) -> DataFrame:
 
     model_df = model_df.select("id", "data_source")
     patient_sample_df = patient_sample_df.withColumnRenamed("id", "sample_id")
     patient_sample_df = patient_sample_df.select(
-        "sample_id", "model_id", "diagnosis_id", "primary_site_id", "tumour_type_id")
+        "sample_id", "model_id", "diagnosis", "primary_site_id", "tumour_type_id")
     model_df = model_df.withColumnRenamed("id", "model_id")
     sample_data_df = model_df.join(
         patient_sample_df,
         on=['model_id'], how='left')
-
-    diagnosis_df = diagnosis_df.withColumnRenamed("id", "diagnosis_id")
-    diagnosis_df = diagnosis_df.withColumnRenamed("name", "diagnosis")
-    sample_data_df = sample_data_df.join(diagnosis_df, on=['diagnosis_id'], how='left')
 
     tissue_df = tissue_df.withColumnRenamed("id", "primary_site_id")
     tissue_df = tissue_df.withColumnRenamed("name", "primary_tissue")

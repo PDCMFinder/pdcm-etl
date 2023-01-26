@@ -1,4 +1,3 @@
-from etl.constants import Constants
 from etl.workflow.transformer import *
 
 
@@ -14,7 +13,6 @@ def get_all_transformation_classes():
 
 
 entities = {
-    Constants.DIAGNOSIS_ENTITY: TransformDiagnosis(),
     Constants.ETHNICITY_ENTITY: TransformEthnicity(),
     Constants.PATIENT_ENTITY: TransformPatient(),
     Constants.PROVIDER_TYPE_ENTITY: TransformProviderType(),
@@ -31,7 +29,6 @@ entities = {
     Constants.TUMOUR_TYPE_ENTITY: TransformTumourType(),
     Constants.PATIENT_SAMPLE_ENTITY: TransformPatientSample(),
     Constants.XENOGRAFT_SAMPLE_ENTITY: TransformXenograftSample(),
-    Constants.PATIENT_SNAPSHOT_ENTITY: TransformPatientSnapshot(),
     Constants.ENGRAFTMENT_SITE_ENTITY: TransformEngraftmentSite(),
     Constants.ENGRAFTMENT_TYPE_ENTITY: TransformEngraftmentType(),
     Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY: TransformEngraftmentSampleState(),
