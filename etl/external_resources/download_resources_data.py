@@ -34,6 +34,7 @@ def download_json_from_url(url, download_name):
 
 
 def download_csv_from_url(url, download_name):
+    print(f"starts download: {download_name}")
     #  Using verify=False because of certificate issue when accessing data.oncomx.org
     with open(os.path.join(tmp_folder, download_name), 'wb') as f, \
             requests.get(url, stream=True, verify=False) as r:
@@ -44,7 +45,7 @@ def download_csv_from_url(url, download_name):
 
 
 # Read local JSON and extract only the wanted property, keeping only unique entries
-def get_unique_entries_local_json(local_json_name, json_node_with_data, property_to_keep):
+def get_unique_entries_local_json(local_json_name, json_node_with_data,  entry_value_property, entry_id_property):
     f = open(os.path.join(tmp_folder, local_json_name))
 
     # returns JSON object as a dictionary
@@ -56,18 +57,18 @@ def get_unique_entries_local_json(local_json_name, json_node_with_data, property
 
     unique_values = set()
     for x in data:
-        unique_values.add(x[property_to_keep])
+        unique_values.add(str(x[entry_value_property]) + "|" + str(x[entry_id_property]))
 
     return unique_values
 
 
-def get_unique_entries_local_csv(local_csv_name, column):
+def get_unique_entries_local_csv(local_csv_name, entry_column, entry_id_column):
     unique_values = set()
 
     with open(os.path.join(tmp_folder, local_csv_name), 'r') as f:
         file = csv.DictReader(f)
         for row in file:
-            unique_values.add(row[column])
+            unique_values.add(row[entry_column] + "|" + row[entry_id_column])
     return unique_values
 
 
@@ -76,50 +77,51 @@ def write_entries_to_csv(entries, target_path, target_file):
     last_dot_index = target_file.index(".")
     target_file_csv_format = target_file[0:last_dot_index] + "_processed.csv"
     f = csv.writer(open(os.path.join(target_path, target_file_csv_format), "w"))
-    f.writerow(["entry"])
+    f.writerow(["entry", "entry_id"])
     for value in entries:
-        f.writerow([value])
+        f.writerow(value.split("|"))
 
 
 def download_civic_genes_data():
     url = "https://civicdb.org/api/datatables/genes?count=1000000"
     file_name = "civic_genes.csv"
     json_node_with_data = "result"
-    property_to_store = "name"
+    entry_value_property = "name"
+    entry_id_property = "name"
 
-    download_json_resource(url, file_name, json_node_with_data, property_to_store)
+    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property)
 
 
 def download_civic_variants_data():
     url = "https://civicdb.org/api/variants?count=10000"
     file_name = "civic_variants.csv"
     json_node_with_data = "records"
-    property_to_store = "entrez_name"
+    entry_value_property = "name"
+    entry_id_property = "id"
 
-    download_json_resource(url, file_name, json_node_with_data, property_to_store)
+    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property)
 
 
 def download_oncomx_genes_data():
     url = "https://data.oncomx.org/ln2wwwdata/reviewed/human_cancer_mutation.csv"
     file_name = "oncomx_genes.csv"
-    column_to_store = "gene_symbol"
+    entry_column = "gene_symbol"
+    entry_id_column = "gene_symbol"
 
-    download_csv_resource(url, file_name, column_to_store)
+    download_csv_resource(url, file_name, entry_column, entry_id_column)
 
 
-def download_json_resource(url, file_name, json_node_with_data, property_to_store):
-    # json_object = get_json_from_url(url)
-    # entries_from_json = get_entries_from_json(json_object, json_node_with_data, property_to_store)
-    # write_entries_to_csv(entries_from_json, download_folder, file_name)
+def download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property):
+    # Download the original JSON to process it later
     download_json_from_url(url, file_name)
-    entries = get_unique_entries_local_json(file_name, json_node_with_data, property_to_store)
+    entries = get_unique_entries_local_json(file_name, json_node_with_data,  entry_value_property, entry_id_property)
     write_entries_to_csv(entries, download_folder, file_name)
 
 
-def download_csv_resource(url, file_name, column_to_store):
+def download_csv_resource(url, file_name, entry_column, entry_id_column):
     # Download the original csv to process it later
     download_csv_from_url(url, file_name)
-    entries_from_csv = get_unique_entries_local_csv(file_name, column_to_store)
+    entries_from_csv = get_unique_entries_local_csv(file_name, entry_column, entry_id_column)
     write_entries_to_csv(entries_from_csv, download_folder, file_name)
 
 
