@@ -1,16 +1,16 @@
 external_resources:
   - name: "Civic"
-    type: "Genes"
+    type: "Gene"
     url_template: "https://civicdb.org/links/entrez_name/"
     file_location: "externalDBs/civic_genes_processed.csv"
 
   - name: "Civic"
-    type: "Variants"
+    type: "Variant"
     url_template: "https://civicdb.org/links?idtype=variant&id="
     file_location: "externalDBs/civic_variants_processed.csv"
 
   - name: "OncoMx"
-    type: "Genes"
+    type: "Gene"
     url_template: "https://oncomx.org/searchview/?gene="
     file_location: "externalDBs/oncomx_genes_processed.csv"
 
