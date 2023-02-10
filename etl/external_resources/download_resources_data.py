@@ -57,7 +57,13 @@ def get_unique_entries_local_json(local_json_name, json_node_with_data,  entry_v
 
     unique_values = set()
     for x in data:
-        unique_values.add(str(x[entry_value_property]) + "|" + str(x[entry_id_property]))
+        entry_values = []
+        props = entry_value_property.split("|")
+        print("props", props)
+        for prop in props:
+            entry_values.append(x[prop])
+        entry_value = " ".join(entry_values)
+        unique_values.add(entry_value + "|" + str(x[entry_id_property]))
 
     return unique_values
 
@@ -96,7 +102,7 @@ def download_civic_variants_data():
     url = "https://civicdb.org/api/variants?count=10000"
     file_name = "civic_variants.csv"
     json_node_with_data = "records"
-    entry_value_property = "name"
+    entry_value_property = "entrez_name|name"
     entry_id_property = "id"
 
     download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property)
@@ -125,6 +131,6 @@ def download_csv_resource(url, file_name, entry_column, entry_id_column):
     write_entries_to_csv(entries_from_csv, download_folder, file_name)
 
 
-download_civic_genes_data()
+# download_civic_genes_data()
 download_civic_variants_data()
-download_oncomx_genes_data()
+# download_oncomx_genes_data()
