@@ -286,7 +286,8 @@ CREATE TABLE cna_molecular_data (
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
     molecular_characterization_id BIGINT,
-    data_source TEXT
+    data_source TEXT,
+    external_db_links JSON
 );
 
 DROP TABLE IF EXISTS cytogenetics_molecular_data CASCADE;
@@ -299,7 +300,8 @@ CREATE TABLE cytogenetics_molecular_data (
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
     molecular_characterization_id BIGINT,
-    data_source TEXT
+    data_source TEXT,
+    external_db_links JSON
 );
 
 DROP TABLE IF EXISTS expression_molecular_data CASCADE;
@@ -319,33 +321,10 @@ CREATE TABLE expression_molecular_data (
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
     molecular_characterization_id BIGINT,
-    data_source TEXT
+    data_source TEXT,
+    external_db_links JSON
 );
 
-DROP TABLE IF EXISTS mutation_marker CASCADE;
-
-CREATE TABLE mutation_marker (
-    id BIGINT NOT NULL,
-    biotype TEXT,
-    coding_sequence_change TEXT,
-    variant_class TEXT,
-    codon_change TEXT,
-    amino_acid_change TEXT,
-    consequence TEXT,
-    functional_prediction TEXT,
-    seq_start_position TEXT,
-    ref_allele TEXT,
-    alt_allele TEXT,
-    ncbi_transcript_id TEXT,
-    ensembl_transcript_id TEXT,
-    variation_id TEXT,
-    gene_marker_id BIGINT,
-    non_harmonised_symbol TEXT,
-    harmonisation_result TEXT
-    --loci_marker_id BIGINT
-);
-
--- New
 DROP TABLE IF EXISTS mutation_measurement_data CASCADE;
 
 CREATE TABLE mutation_measurement_data (
@@ -369,7 +348,8 @@ CREATE TABLE mutation_measurement_data (
     molecular_characterization_id BIGINT,
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
-    data_source TEXT
+    data_source TEXT,
+    external_db_links JSON
 );
 
 DROP TABLE IF EXISTS xenograft_model_specimen CASCADE;

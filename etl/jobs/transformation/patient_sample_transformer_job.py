@@ -90,8 +90,6 @@ def set_fk_patient(patient_sample_df: DataFrame, patient_df: DataFrame) -> DataF
     patient_df = patient_df.withColumnRenamed("id", "patient_id")
     patient_sample_df = patient_sample_df.join(
         patient_df, on=["external_patient_id", Constants.DATA_SOURCE_COLUMN], how='left')
-    print("patient_sample_df:::>>")
-    patient_sample_df.show()
     return patient_sample_df
 
 

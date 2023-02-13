@@ -299,7 +299,8 @@ entities = {
             "non_harmonised_symbol",
             "harmonisation_result",
             "molecular_characterization_id",
-            "data_source"
+            "data_source",
+            "external_db_links"
         ]
     },
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
@@ -313,6 +314,7 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
+            "external_db_links"
         ]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
@@ -333,6 +335,7 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
+            "external_db_links"
         ]
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
@@ -358,7 +361,8 @@ entities = {
             "molecular_characterization_id",
             "non_harmonised_symbol",
             "harmonisation_result",
-            "data_source"
+            "data_source",
+            "external_db_links"
         ]
     },
     Constants.GENE_MARKER_ENTITY: {

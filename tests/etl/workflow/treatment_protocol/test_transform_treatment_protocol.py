@@ -43,7 +43,6 @@ def test_treatment_protocol_drug_dosing(spark_context, spark_session):
     schema_patient_treatment = build_schema_from_cols(patient_treatment_columns)
 
     raw_drug_dosing_parquet_df = convert_to_dataframe(spark_session, raw_treatment_protocol_drug_dosing)
-    raw_drug_dosing_parquet_df.show()
     raw_patient_treatment_parquet_df = get_empty(spark_context, spark_session, schema_patient_treatment)
     model_parquet_df = convert_to_dataframe(spark_session, models)
     patient_parquet_df = convert_to_dataframe(spark_session, patients)

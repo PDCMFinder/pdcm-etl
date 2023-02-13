@@ -7,7 +7,7 @@ from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel,
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
-    ExtractCellModel, ExtractOntolia, ExtractMappingTreatment
+    ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -324,6 +324,7 @@ class TransformGeneMarker(TransformEntity):
 class TransformCnaMolecularData(TransformEntity):
     requiredTasks = [
         ExtractCna(),
+        ExtractExternalResources(),
         TransformMolecularCharacterization(),
         TransformGeneMarker()
     ]
@@ -333,6 +334,7 @@ class TransformCnaMolecularData(TransformEntity):
 class TransformCytogeneticsMolecularData(TransformEntity):
     requiredTasks = [
         ExtractCytogenetics(),
+        ExtractExternalResources(),
         TransformMolecularCharacterization(),
         TransformGeneMarker()
     ]
@@ -342,6 +344,7 @@ class TransformCytogeneticsMolecularData(TransformEntity):
 class TransformExpressionMolecularData(TransformEntity):
     requiredTasks = [
         ExtractExpression(),
+        ExtractExternalResources(),
         TransformMolecularCharacterization(),
         TransformGeneMarker()
     ]
@@ -351,6 +354,7 @@ class TransformExpressionMolecularData(TransformEntity):
 class TransformMutationMeasurementData(TransformEntity):
     requiredTasks = [
         ExtractMutation(),
+        ExtractExternalResources(),
         TransformMolecularCharacterization(),
         TransformGeneMarker()
     ]
