@@ -90,7 +90,7 @@ def write_entries_to_csv(entries, target_path, target_file):
 
 def download_civic_genes_data():
     url = "https://civicdb.org/api/datatables/genes?count=1000000"
-    file_name = "civic_genes.csv"
+    file_name = "civic_genes.json"
     json_node_with_data = "result"
     entry_value_property = "name"
     entry_id_property = "name"

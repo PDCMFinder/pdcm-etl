@@ -1,6 +1,7 @@
 import luigi
 
 from etl.constants import Constants
+from etl.workflow.readers.external_resources_reader import ReadExternalResourcesFromCsv
 from etl.workflow.readers.mapping_rules_reader import ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
 from etl.workflow.readers.markers_reader import ReadMarkerFromTsv
 from etl.workflow.readers.ncit_reader import ReadOntologyFromObo
@@ -16,7 +17,8 @@ class ExtractModuleFromTsv(luigi.Task):
     module_name = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
 
     def requires(self):
         return get_tsv_extraction_task_by_module(
@@ -30,7 +32,8 @@ class ExtractModuleFromYaml(luigi.Task):
     module_name = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
 
     def requires(self):
         return get_yaml_extraction_task_by_module(
@@ -123,6 +126,10 @@ class ExtractMappingTreatment(ReadTreatmentMappingsFromJson):
 
 class ExtractOntolia(ReadOntoliaFile):
     module_name = Constants.REGIMENT_TO_TREATMENT_ENTITY
+
+
+class ExtractExternalResources(ReadExternalResourcesFromCsv):
+    module_name = Constants.EXTERNAL_RESOURCES_MODULE
 
 
 if __name__ == "__main__":

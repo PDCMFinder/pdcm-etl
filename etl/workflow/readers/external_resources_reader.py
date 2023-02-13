@@ -24,6 +24,7 @@ def read_external_resources_conf():
 class ReadExternalResourcesFromCsv(PySparkTask):
     data_dir = luigi.Parameter()
     data_dir_out = luigi.Parameter()
+    module_name = luigi.Parameter()
 
     def main(self, sc, *args):
         spark = SparkSession(sc)
@@ -53,7 +54,7 @@ class ReadExternalResourcesFromCsv(PySparkTask):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, Constants.EXTERNAL_RESOURCES_MODULE))
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
 
     def app_options(self):
         return [
