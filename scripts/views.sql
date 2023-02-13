@@ -868,3 +868,111 @@ COMMENT ON COLUMN pdcm_api.drug_dosing_extended.treatment IS 'Treatment name. It
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.dose IS 'Treatment dose and unit';
 
+-- models_by_primary_site materialized view: model count by primary site for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_primary_site;
+
+CREATE materialized VIEW pdcm_api.models_by_primary_site AS
+SELECT
+  primary_site,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  primary_site;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_primary_site IS
+  $$Models by primary site
+
+  Count of models by primary site$$;
+
+-- models_by_anatomical_system_and_diagnosis materialized view: model count by anatomical system and diagnosis for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_anatomical_system_and_diagnosis;
+
+CREATE materialized VIEW pdcm_api.models_by_anatomical_system_and_diagnosis AS
+SELECT
+  cancer_system,
+  histology,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  cancer_system, histology;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_anatomical_system_and_diagnosis IS
+  $$Models by anatomical system and diagnosis
+
+  Count of models by anatomical system and diagnosis$$;
+
+-- models_by_tumour_type materialized view: model count by tumour type for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_tumour_type;
+
+CREATE materialized VIEW pdcm_api.models_by_tumour_type AS
+SELECT
+  tumour_type,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  tumour_type;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_tumour_type IS
+  $$Models by tumour type
+
+  Count of models by tumour type$$;
+
+-- models_by_patient_age materialized view: model count by patient age for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_patient_age;
+
+CREATE materialized VIEW pdcm_api.models_by_patient_age AS
+SELECT
+  patient_age,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  patient_age;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_age IS
+  $$Models by patient age
+
+  Count of models by patient age$$;
+
+-- models_by_patient_sex materialized view: model count by patient sex for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_patient_sex;
+
+CREATE materialized VIEW pdcm_api.models_by_patient_sex AS
+SELECT
+  patient_sex,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  patient_sex;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_sex IS
+  $$Models by patient sex
+
+  Count of models by patient sex$$;
+
+-- models_by_patient_ethnicity materialized view: model count by patient ethnicity for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_patient_ethnicity;
+
+CREATE materialized VIEW pdcm_api.models_by_patient_ethnicity AS
+SELECT
+  patient_ethnicity,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  patient_ethnicity;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_ethnicity IS
+  $$Models by patient ethnicity
+
+  Count of models by patient ethnicity$$;
