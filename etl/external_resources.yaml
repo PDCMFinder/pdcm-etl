@@ -14,3 +14,102 @@ external_resources:
     url_template: "https://oncomx.org/searchview/?gene="
     file_location: "externalDBs/oncomx_genes_processed.csv"
 
+# External resources to which we want to generate links.
+
+# id: Internal identifier to be used in internal references.
+# name: Informative text for internal use, to help distinguish resources that differ only in their type.
+# label: Actual resource name to be displayed as the text of the generated links.
+# type: Indicates the type of data the resource holds. This helps in the logic to decide which links to generate.
+# link_building_method: Indicates the method to build the links. Possible values:
+# - referenceLookup: Resource data has been previously downloaded and contains a set of entries that are used as a
+#   lookup table to find matches when scanning columns which might require a link
+# - inline: The link is created based on the values of existing columns in a data row. No downloaded data required
+# link_template: Template to create the link to the resource for a specific entry or replacement of columns values.
+
+resources:
+  - id: 1
+    name: "Civic (Genes)"
+    label: "Civic"
+    type: "Gene"
+    link_building_method: "referenceLookup"
+    link_template: "https://civicdb.org/links/entrez_name/{}"
+
+  - id: 2
+    name: "Civic (Variants)"
+    label: "Civic"
+    type: "Variant"
+    link_building_method: "referenceLookup"
+    link_template: "https://civicdb.org/links?idtype=variant&id={}"
+
+  - id: 3
+    name: "OncoMx (Genes)"
+    label: "OncoMx"
+    type: "Gene"
+    link_building_method: "referenceLookup"
+    link_template: "https://oncomx.org/searchview/?gene={}"
+
+  - id: 4
+    name: "dbSNP (Variants)"
+    label: "dbSNP"
+    type: "Variant"
+    link_building_method: "dbSNPInlineLink"
+    link_template: "https://www.ncbi.nlm.nih.gov/snp/{}"
+
+  - id: 5
+    name: "COSMIC (Variants)"
+    label: "COSMIC"
+    type: "Variant"
+    link_building_method: "COSMICInlineLink"
+    link_template: "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id={}"
+
+  - id: 6
+    name: "OpenCravat (Variants)"
+    label: "OpenCravat"
+    type: "Variant"
+    link_building_method: "OpenCravatInlineLink"
+    link_template: "https://run.opencravat.org/webapps/variantreport/index.html?alt_base={}&chrom=chr{}&pos={}&ref_base={}"
+
+# Resources that require downloading data. These resources should be marked with link_building_method: "referenceLookup"
+# in the previous section
+
+# resource_id: Reference to the resource.
+# name: Informative text for internal use, to help distinguish resources that differ only in their type.
+# download_url: Url from where the data can be downloaded.
+# download_file_name: Local name for the file to download.
+# file_type: (json or csv) to know how to process the downloaded file
+# processed_file: processed file name (with only the needed columns and in csv format).
+# root_data: for JSON files, node in the downloaded JSON with the data.
+# entry_value_source: Property(s) for each object in `root_data` containing the entry that later should match a column value
+#   in our data. If separator "|" is used, it means they are several properties and the stored entry will be the
+#   concatenation of every property's value joined with an empty space.
+# entry_id_source: Property for each object in `root_data` containing the id (internal to the resource) to be used
+#   in the link.
+
+
+resources_download_conf:
+  - resource_id: 1
+    download_url: "https://civicdb.org/api/datatables/genes?count=1000000"
+    download_file_name: "civic_genes.json"
+    file_type: "json"
+    processed_file: "civic_genes_processed.csv"
+    root_data: "result"
+    entry_value_source: "name"
+    entry_id_source: "name"
+
+  - resource_id: 2
+    download_url: "https://civicdb.org/api/variants?count=10000"
+    download_file_name: "civic_variants.json"
+    file_type: "json"
+    processed_file: "civic_variants_processed.csv"
+    root_data: "records"
+    entry_value_source: "entrez_name|name"
+    entry_id_source: "id"
+
+  - resource_id: 3
+    download_url: "https://data.oncomx.org/ln2wwwdata/reviewed/human_cancer_mutation.csv"
+    download_file_name: "oncomx_genes.csv"
+    file_type: "csv"
+    processed_file: "oncomx_genes_processed.csv"
+    root_data:
+    entry_value_source: "gene_symbol"
+    entry_id_source: "gene_symbol"

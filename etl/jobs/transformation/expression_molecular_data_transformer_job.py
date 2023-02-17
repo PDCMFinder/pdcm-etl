@@ -4,7 +4,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
 from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
-from etl.jobs.util.external_resource_links_builder import add_links_column
+from etl.jobs.transformation.links_generation.external_resource_links_builder import add_links_column
 from etl.jobs.util.id_assigner import add_id
 from etl.jobs.util.molecular_characterization_fk_assigner import set_fk_molecular_characterization
 
