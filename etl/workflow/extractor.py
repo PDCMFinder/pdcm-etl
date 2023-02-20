@@ -1,7 +1,8 @@
 import luigi
 
 from etl.constants import Constants
-from etl.workflow.readers.external_resources_reader import ReadExternalResourcesFromCsv
+from etl.workflow.readers.external_resources_reader import ReadResources, \
+    ReadDownloadedExternalResourcesFromCsv
 from etl.workflow.readers.mapping_rules_reader import ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
 from etl.workflow.readers.markers_reader import ReadMarkerFromTsv
 from etl.workflow.readers.ncit_reader import ReadOntologyFromObo
@@ -128,8 +129,15 @@ class ExtractOntolia(ReadOntoliaFile):
     module_name = Constants.REGIMENT_TO_TREATMENT_ENTITY
 
 
-class ExtractExternalResources(ReadExternalResourcesFromCsv):
+class ExtractExternalResources(ReadResources):
     module_name = Constants.EXTERNAL_RESOURCES_MODULE
+
+
+class ExtractDownloadedResourcesData(ReadDownloadedExternalResourcesFromCsv):
+    module_name = Constants.EXTERNAL_RESOURCES_DATA_MODULE
+
+    def requires(self):
+        return ExtractExternalResources()
 
 
 if __name__ == "__main__":

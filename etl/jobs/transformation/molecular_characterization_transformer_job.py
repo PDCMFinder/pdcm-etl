@@ -1,13 +1,11 @@
-import sys
-
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 
 from etl.constants import Constants
 from etl.jobs.util.cleaner import lower_and_trim_all, trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
-from etl.jobs.util.raw_data_url_builder import build_raw_data_url
+from etl.jobs.transformation.links_generation.raw_data_url_builder import build_raw_data_url
 
 
 def main(argv):

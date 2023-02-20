@@ -1,12 +1,12 @@
 import csv
 import os
+import sys
 from urllib.request import urlopen
 
 import json
 
 import requests
 
-download_folder = "external_db"
 tmp_folder = "tmp"
 
 
@@ -59,7 +59,6 @@ def get_unique_entries_local_json(local_json_name, json_node_with_data,  entry_v
     for x in data:
         entry_values = []
         props = entry_value_property.split("|")
-        print("props", props)
         for prop in props:
             entry_values.append(x[prop])
         entry_value = " ".join(entry_values)
@@ -88,49 +87,55 @@ def write_entries_to_csv(entries, target_path, target_file):
         f.writerow(value.split("|"))
 
 
-def download_civic_genes_data():
+def download_civic_genes_data(download_path):
     url = "https://civicdb.org/api/datatables/genes?count=1000000"
     file_name = "civic_genes.json"
     json_node_with_data = "result"
     entry_value_property = "name"
     entry_id_property = "name"
 
-    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property)
+    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property, download_path)
 
 
-def download_civic_variants_data():
+def download_civic_variants_data(download_path):
     url = "https://civicdb.org/api/variants?count=10000"
-    file_name = "civic_variants.csv"
+    file_name = "civic_variants.json"
     json_node_with_data = "records"
     entry_value_property = "entrez_name|name"
     entry_id_property = "id"
 
-    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property)
+    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property, download_path)
 
 
-def download_oncomx_genes_data():
+def download_oncomx_genes_data(download_path):
     url = "https://data.oncomx.org/ln2wwwdata/reviewed/human_cancer_mutation.csv"
     file_name = "oncomx_genes.csv"
     entry_column = "gene_symbol"
     entry_id_column = "gene_symbol"
 
-    download_csv_resource(url, file_name, entry_column, entry_id_column)
+    download_csv_resource(url, file_name, entry_column, entry_id_column, download_path)
 
 
-def download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property):
+def download_json_resource(
+        url, file_name, json_node_with_data, entry_value_property, entry_id_property, download_path):
     # Download the original JSON to process it later
     download_json_from_url(url, file_name)
     entries = get_unique_entries_local_json(file_name, json_node_with_data,  entry_value_property, entry_id_property)
-    write_entries_to_csv(entries, download_folder, file_name)
+    write_entries_to_csv(entries, download_path, file_name)
 
 
-def download_csv_resource(url, file_name, entry_column, entry_id_column):
+def download_csv_resource(url, file_name, entry_column, entry_id_column, download_path):
     # Download the original csv to process it later
     download_csv_from_url(url, file_name)
     entries_from_csv = get_unique_entries_local_csv(file_name, entry_column, entry_id_column)
-    write_entries_to_csv(entries_from_csv, download_folder, file_name)
+    write_entries_to_csv(entries_from_csv, download_path, file_name)
 
 
-# download_civic_genes_data()
-download_civic_variants_data()
-# download_oncomx_genes_data()
+def download_external_resources(download_path):
+    download_civic_genes_data(download_path)
+    download_civic_variants_data(download_path)
+    download_oncomx_genes_data(download_path)
+
+
+if __name__ == "__main__":
+    download_external_resources(sys.argv[1])
