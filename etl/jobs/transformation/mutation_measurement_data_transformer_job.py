@@ -4,7 +4,8 @@ from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
 from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
-from etl.jobs.transformation.links_generation.external_resource_links_builder import add_links_column
+from etl.jobs.transformation.links_generation.external_resource_links_builder import  \
+    add_links_in_molecular_data_table
 from etl.jobs.util.id_assigner import add_id
 from etl.jobs.util.molecular_characterization_fk_assigner import set_fk_molecular_characterization
 
@@ -14,30 +15,38 @@ def main(argv):
     Creates a parquet file with the transformed data for mutation_measurement_data.
     :param list argv: the list elements should be:
                     [1]: Parquet file path with raw molecular data
-                    [2]: Parquet file path with raw external resources' data
+                    [2]: Parquet file path with raw external resources
+                    [3]: Parquet file path with raw external resources' data
                     [3]: Parquet file path with molecular_characterization data
                     [4]: Parquet file path with gene markers data
                     [5]: Output file
     """
     raw_mutation_parquet_path = argv[1]
     raw_external_resources_parquet_path = argv[2]
-    molecular_characterization_parquet_path = argv[3]
-    gene_markers_parquet_path = argv[4]
-    output_path = argv[5]
+    raw_external_resources_data_parquet_path = argv[3]
+    molecular_characterization_parquet_path = argv[4]
+    gene_markers_parquet_path = argv[5]
+    output_path = argv[6]
 
     spark = SparkSession.builder.getOrCreate()
     raw_mutation_df = spark.read.parquet(raw_mutation_parquet_path)
-    raw_external_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
+    raw_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
+    raw_resources_data_df = spark.read.parquet(raw_external_resources_data_parquet_path)
     molecular_characterization_df = spark.read.parquet(molecular_characterization_parquet_path)
 
     mutation_measurement_data_df = transform_mutation_measurement_data(
-        raw_mutation_df, raw_external_resources_df, molecular_characterization_df, gene_markers_parquet_path)
+        raw_mutation_df,
+        raw_resources_df,
+        raw_resources_data_df,
+        molecular_characterization_df,
+        gene_markers_parquet_path)
     mutation_measurement_data_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_mutation_measurement_data(
         raw_mutation_df: DataFrame,
-        raw_external_resources_df: DataFrame,
+        raw_resources_df: DataFrame,
+        raw_resources_data_df: DataFrame,
         molecular_characterization_df: DataFrame,
         gene_markers_parquet_path) -> DataFrame:
     mutation_measurement_data_df = get_mutation_measurement_data_df(raw_mutation_df)
@@ -49,21 +58,9 @@ def transform_mutation_measurement_data(
         Constants.DATA_SOURCE_COLUMN, "data_source")
 
     mutation_measurement_data_df = add_id(mutation_measurement_data_df, "id")
-    mutation_measurement_data_df = add_external_resources_links_column(
-        mutation_measurement_data_df, raw_external_resources_df)
+    mutation_measurement_data_df = add_links_in_molecular_data_table(
+        mutation_measurement_data_df, raw_resources_df, raw_resources_data_df)
 
-    return mutation_measurement_data_df
-
-
-def add_external_resources_links_column(mutation_measurement_data_df: DataFrame, raw_external_resources_df: DataFrame):
-    # For mutation data initially we will have the implementation of links for hgnc_symbol and amino_acid_change. The
-    # case of `amino_acid_change` is special because its value is not enough to resolve to which variant it refers
-    # to, so we need to use also the `hgnc_symbol` value.
-    column_to_link_1 = {"name": "hgnc_symbol", "source_columns": ["hgnc_symbol"], "type": "Gene"}
-    column_to_link_2 = {"name": "amino_acid_change", "source_columns": ["hgnc_symbol", "amino_acid_change"],
-                        "type": "Variant"}
-    mutation_measurement_data_df = add_links_column(
-        mutation_measurement_data_df, [column_to_link_1, column_to_link_2], raw_external_resources_df)
     return mutation_measurement_data_df
 
 
