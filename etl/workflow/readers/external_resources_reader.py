@@ -89,7 +89,7 @@ class ReadDownloadedExternalResourcesFromCsv(PySparkTask):
             resource_df = resource_df.withColumn("resource", lit(row["label"]))
             resource_df = resource_df.withColumn("type", lit(row["type"]))
             resource_df = resource_df.withColumn("link", lit(row["link_template"]))
-            resource_df = resource_df.withColumn("link", expr("regexp_replace(link, '\\\\{\\\\}', entry_id)"))
+            resource_df = resource_df.withColumn("link", expr("regexp_replace(link, 'ENTRY_ID', entry_id)"))
             resource_df = resource_df.select(["entry", "type", "resource", "link"])
             df = df.union(resource_df)
 

@@ -73,6 +73,8 @@ def get_mutation_measurement_data_df(raw_mutation_marker_df: DataFrame) -> DataF
         "variant_class",
         "codon_change",
         "amino_acid_change",
+        "chromosome",
+        "strand",
         "consequence",
         "functional_prediction",
         "seq_start_position",

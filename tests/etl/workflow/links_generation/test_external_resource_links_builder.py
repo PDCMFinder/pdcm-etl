@@ -1,9 +1,8 @@
 import json
-
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
-from etl.jobs.transformation.links_generation.external_resource_links_builder import add_links_column, \
+from etl.jobs.transformation.links_generation.external_resource_links_builder import \
     add_links_in_molecular_data_table
 from tests.util import assert_df_are_equal_ignore_id
 
@@ -44,12 +43,12 @@ def create_resources_df():
 
     spark = SparkSession.builder.getOrCreate()
 
-    data = [(1, "Civic (Genes)", "Civic", "Gene", "referenceLookup", "https://civicdb.org/links/entrez_name/{}"),
+    data = [(1, "Civic (Genes)", "Civic", "Gene", "referenceLookup", "https://civicdb.org/links/entrez_name/ENTRY_ID"),
             (2, "Civic (Variants)", "Civic", "Variant", "referenceLookup",
-             "https://civicdb.org/links?idtype=variant&id={}"),
-            (3, "OncoMx (Genes)", "OncoMx", "Gene", "referenceLookup", "https://oncomx.org/searchview/?gene={}"),
-            (4, "dbSNP (Variants)", "dbSNP", "Variant", "dbSNPInlineLink", "https://www.ncbi.nlm.nih.gov/snp/{}"),
-            (5, "COSMIC (Variants)", "COSMIC", "Variant", "COSMICInlineLink", "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id={}")]
+             "https://civicdb.org/links?idtype=variant&id=ENTRY_ID"),
+            (3, "OncoMx (Genes)", "OncoMx", "Gene", "referenceLookup", "https://oncomx.org/searchview/?gene=ENTRY_ID"),
+            (4, "dbSNP (Variants)", "dbSNP", "Variant", "dbSNPInlineLink", "https://www.ncbi.nlm.nih.gov/snp/RS_ID"),
+            (5, "COSMIC (Variants)", "COSMIC", "Variant", "COSMICInlineLink", "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=COSMIC_ID")]
     resources_df = spark.createDataFrame(data=data, schema=schema)
 
     return resources_df

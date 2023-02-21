@@ -140,7 +140,7 @@ def find_dbSNP_links(molecular_data_df: DataFrame, resource_definition):
     data_links_df = data_links_df.withColumn("link", lit(resource_definition["link_template"]))
     data_links_df = data_links_df.withColumn("link",
                                              when(col('rs_id') == '', None)
-                                             .otherwise(expr("regexp_replace(link, '\\\\{\\\\}', rs_id)")))
+                                             .otherwise(expr("regexp_replace(link, 'RS_ID', rs_id)")))
 
     return data_links_df.select("id", "resource", "column", "link")
 
@@ -156,7 +156,7 @@ def find_cosmic_links(molecular_data_df: DataFrame, resource_definition):
     data_links_df = data_links_df.withColumn("link", lit(resource_definition["link_template"]))
     data_links_df = data_links_df.withColumn("link",
                                              when(col('cosmic_id') == '', None)
-                                             .otherwise(expr("regexp_replace(link, '\\\\{\\\\}', cosmic_id)")))
+                                             .otherwise(expr("regexp_replace(link, 'COSMIC_ID', cosmic_id)")))
 
     return data_links_df.select("id", "resource", "column", "link")
 

@@ -278,6 +278,8 @@ DROP TABLE IF EXISTS cna_molecular_data CASCADE;
 CREATE TABLE cna_molecular_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
+    chromosome TEXT,
+    strand TEXT,
     log10r_cna TEXT,
     log2r_cna TEXT,
     copy_number_status TEXT,
@@ -331,6 +333,8 @@ CREATE TABLE mutation_measurement_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     amino_acid_change TEXT,
+    chromosome TEXT,
+    strand TEXT,
     consequence TEXT,
     read_depth TEXT,
     allele_frequency TEXT,

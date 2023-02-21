@@ -30,7 +30,6 @@ import etl.jobs.transformation.molecular_characterization_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
-import etl.jobs.transformation.mutation_marker_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
 import etl.jobs.transformation.xenograft_model_specimen_transformer_job
@@ -291,6 +290,8 @@ entities = {
         "expected_database_columns": [
             "id",
             "hgnc_symbol",
+            "chromosome",
+            "strand",
             "log10r_cna",
             "log2r_cna",
             "copy_number_status",
@@ -344,6 +345,8 @@ entities = {
             "id",
             "hgnc_symbol",
             "amino_acid_change",
+            "chromosome",
+            "strand",
             "consequence",
             "read_depth",
             "allele_frequency",
