@@ -43,13 +43,13 @@ def find_links_for_ref_lookup_data(
             columns_to_process.add(source)
     columns_to_process = list(columns_to_process)
 
-    input_df = molecular_data_df.select(columns_to_process)
+    # input_df = molecular_data_df.select(columns_to_process)
+    input_df = molecular_data_df
 
     data_with_references_df = create_empty_df_for_data_reference_processing(spark)
 
     # Check each one of the columns where we want to put a link
     for column_conf in link_build_confs:
-
         # Source columns are the columns in `df` that have the data to compare. If more than one, concatenate
         # with a space (as in the case of amino acid change that needs to be concatenated to the gene name
         input_df_columns = " || ' ' || ".join(column_conf["ref_source_columns"])
@@ -83,6 +83,11 @@ def find_inline_links(molecular_data_df: DataFrame, link_build_confs, resources_
         if inline_resource["link_building_method"] == "COSMICInlineLink":
             print("Create links for COSMIC")
             tmp_df = find_cosmic_links(molecular_data_df, inline_resource)
+            data_with_references_df = data_with_references_df.union(tmp_df)
+
+        if inline_resource["link_building_method"] == "OpenCravatInlineLink":
+            print("Create links for OpenCravat")
+            tmp_df = find_open_cravat_links(molecular_data_df, inline_resource)
             data_with_references_df = data_with_references_df.union(tmp_df)
 
     return data_with_references_df
@@ -160,3 +165,26 @@ def find_cosmic_links(molecular_data_df: DataFrame, resource_definition):
 
     return data_links_df.select("id", "resource", "column", "link")
 
+
+def find_open_cravat_links(molecular_data_df: DataFrame, resource_definition):
+    print("Processing molecular_data_df fo find open cravat links")
+    data_df = molecular_data_df.withColumn("resource", lit(resource_definition["label"]))
+    data_df = data_df.withColumn("column", lit(resource_definition["target_column"]))
+
+    # Only create links when there is a rs id in the variation id column
+    data_df = data_df.where("variation_id is not null and variation_id like '%rs%'")
+
+    # We also need to check for the existence of the columns that are going to be used to create the link:
+    # chromosome, seq_start_position, alt_allele, ref_allele
+    data_df = data_df.where(
+        "nvl(chromosome, '') != '' AND nvl(seq_start_position, '') != ''  AND "
+        "nvl(alt_allele, '') != '' AND nvl(ref_allele, '') != ''")
+
+    data_links_df = data_df.withColumn("link", lit(resource_definition["link_template"]))
+
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'ALT_BASE', alt_allele)"))
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'CHROM', chromosome)"))
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'POSITION', seq_start_position)"))
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'REF_BASE', ref_allele)"))
+
+    return data_links_df.select("id", "resource", "column", "link")
