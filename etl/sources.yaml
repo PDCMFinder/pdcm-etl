@@ -176,6 +176,7 @@ groups:
         columns:
           - "sample_id"
           - "chromosome"
+          - "strand"
           - "seq_start_position"
           - "seq_end_position"
           - "symbol"
@@ -239,6 +240,7 @@ groups:
           - "read_depth"
           - "allele_frequency"
           - "chromosome"
+          - "strand"
           - "seq_start_position"
           - "ref_allele"
           - "alt_allele"
