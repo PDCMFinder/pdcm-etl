@@ -24,6 +24,8 @@ class Constants:
     MOLECULAR_DATA_PLATFORM_WEB_MODULE = "molchar_platform_web"
     GENE_MARKER_MODULE = "markers"
     ONTOLOGY_MODULE = "ontology"
+    EXTERNAL_RESOURCES_MODULE = "external_resources"
+    EXTERNAL_RESOURCES_DATA_MODULE = "external_resources_data"
     MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
     MAPPING_TREATMENTS_MODULE = "mapping_treatments"
 
@@ -83,4 +85,5 @@ class Constants:
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
     TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
+    EXTERNAL_RESOURCES_REFERENCES = "external_resources_references_helper"
 

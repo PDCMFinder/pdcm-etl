@@ -213,6 +213,7 @@ AS SELECT mmd.molecular_characterization_id,
           mmd.seq_start_position,
           mmd.ref_allele,
           mmd.alt_allele,
+          mmd.external_db_links,
           ( mmd.* ) :: text AS text
    FROM   mutation_measurement_data mmd
    WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
@@ -310,7 +311,8 @@ SELECT
 	mmd.seq_start_position,
 	mmd.ref_allele,
 	mmd.alt_allele,
-	mmd.data_source
+	mmd.data_source,
+	mmd.external_db_links
 FROM
 	mutation_measurement_data mmd, pdcm_api.model_molecular_metadata mmm
 WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
@@ -351,6 +353,7 @@ AS
          emd.illumina_hgea_probe_id,
          emd.illumina_hgea_expression_value,
          emd.z_score,
+         emd.external_db_links,
          ( emd.* ) :: text AS text
   FROM   expression_molecular_data emd
   WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
@@ -375,7 +378,8 @@ SELECT
 	emd.affy_hgea_expression_value,
 	emd.illumina_hgea_probe_id,
 	emd.illumina_hgea_expression_value,
-	emd.z_score
+	emd.z_score,
+    emd.external_db_links
 FROM   expression_molecular_data emd, pdcm_api.model_molecular_metadata mmm
 WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND emd.molecular_characterization_id = mmm.molecular_characterization_id;
@@ -399,6 +403,7 @@ COMMENT ON COLUMN pdcm_api.expression_data_extended.affy_hgea_expression_value I
 COMMENT ON COLUMN pdcm_api.expression_data_extended.illumina_hgea_probe_id IS 'Illumina probe identifier';
 COMMENT ON COLUMN pdcm_api.expression_data_extended.illumina_hgea_expression_value IS 'Expresion value captured using Illumina arrays';
 COMMENT ON COLUMN pdcm_api.expression_data_extended.z_score IS 'Z-score representing the gene expression level';
+COMMENT ON COLUMN pdcm_api.expression_data_extended.external_db_links IS 'Links to external resources';
 
 -- cytogenetics_data_table view
 
@@ -409,6 +414,7 @@ AS
   SELECT cmd.molecular_characterization_id,
          cmd.hgnc_symbol,
          cmd.marker_status AS result,
+         cmd.external_db_links,
          ( cmd.* ) :: text AS text
   FROM   cytogenetics_molecular_data cmd
   WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
@@ -426,7 +432,8 @@ SELECT
 	mmm.source,
 	mmm.sample_id,
 	cmd.hgnc_symbol,
-	cmd.marker_status AS result
+	cmd.marker_status AS result,
+	cmd.external_db_links
 FROM   cytogenetics_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
 WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cmd.molecular_characterization_id = mmm.molecular_characterization_id;
@@ -442,6 +449,7 @@ COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.source IS '(patient, xenog
 COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.sample_id IS 'Sample identifier given by the provider';
 COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.hgnc_symbol IS 'Gene symbol';
 COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.result IS 'Presence or absence of the cytogenetic marker';
+COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.external_db_links IS 'Links to external resources';
 
 -- cna_data_table view
 
@@ -459,6 +467,7 @@ AS
          cnamd.non_harmonised_symbol,
          cnamd.harmonisation_result,
          cnamd.molecular_characterization_id,
+         cnamd.external_db_links,
          ( cnamd.* ) :: text AS text
   FROM   cna_molecular_data cnamd
   WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
@@ -479,7 +488,8 @@ SELECT
 	cnamd.log2r_cna,
 	cnamd.copy_number_status,
 	cnamd.gistic_value,
-	cnamd.picnic_value
+	cnamd.picnic_value,
+	cnamd.external_db_links
 FROM   cna_molecular_data cnamd, pdcm_api.model_molecular_metadata mmm
 WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cnamd.molecular_characterization_id = mmm.molecular_characterization_id;
@@ -499,7 +509,7 @@ COMMENT ON COLUMN pdcm_api.cna_data_extended.log2r_cna IS 'Log2 scaled copy numb
 COMMENT ON COLUMN pdcm_api.cna_data_extended.copy_number_status IS 'Details whether there was a gain or loss of function. Categorized into gain, loss';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.gistic_value IS 'Score predicted using GISTIC tool for the copy number variation';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.picnic_value IS 'Score predicted using PICNIC algorithm for the copy number variation';
-
+COMMENT ON COLUMN pdcm_api.cna_data_extended.external_db_links IS 'Links to external resources';
 
 DROP VIEW IF EXISTS pdcm_api.molecular_data_restriction;
 

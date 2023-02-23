@@ -30,7 +30,6 @@ import etl.jobs.transformation.molecular_characterization_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
-import etl.jobs.transformation.mutation_marker_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
 import etl.jobs.transformation.xenograft_model_specimen_transformer_job
@@ -291,6 +290,8 @@ entities = {
         "expected_database_columns": [
             "id",
             "hgnc_symbol",
+            "chromosome",
+            "strand",
             "log10r_cna",
             "log2r_cna",
             "copy_number_status",
@@ -299,7 +300,8 @@ entities = {
             "non_harmonised_symbol",
             "harmonisation_result",
             "molecular_characterization_id",
-            "data_source"
+            "data_source",
+            "external_db_links"
         ]
     },
     Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
@@ -313,6 +315,7 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
+            "external_db_links"
         ]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
@@ -333,6 +336,7 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
+            "external_db_links"
         ]
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
@@ -341,6 +345,8 @@ entities = {
             "id",
             "hgnc_symbol",
             "amino_acid_change",
+            "chromosome",
+            "strand",
             "consequence",
             "read_depth",
             "allele_frequency",
@@ -358,7 +364,8 @@ entities = {
             "molecular_characterization_id",
             "non_harmonised_symbol",
             "harmonisation_result",
-            "data_source"
+            "data_source",
+            "external_db_links"
         ]
     },
     Constants.GENE_MARKER_ENTITY: {

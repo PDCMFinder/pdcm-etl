@@ -14,11 +14,13 @@ cloudpickle~=1.6.0
 setuptools~=41.2.0
 
 quinn~=0.9.0
-pyyaml
+pyyaml~=6.0
 hdfs
 
 psycopg2-binary
 networkx~=2.5.1
 pytest
 pytest-spark
-chispa
+chispa~=0.9.2
+
+requests~=2.28.1
