@@ -9,11 +9,12 @@ from tests.util import assert_df_are_equal_ignore_id
 
 def create_molecular_data_df():
     spark = SparkSession.builder.getOrCreate()
-    columns = ["id", "hgnc_symbol", "amino_acid_change", "variation_id"]
-    data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSM1304&COSM96871"),
-            (2, "NRAS", "Q61R", ""),
-            (3, "WEE1", "P504L", ""),
-            (4, "BRAF", "V600E", "")]
+    columns = ["id", "hgnc_symbol", "amino_acid_change", "variation_id",
+               "chromosome", "seq_start_position", "alt_allele", "ref_allele"]
+    data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSM1304&COSM96871", None, None, None, None),
+            (2, "NRAS", "Q61R", "", None, None, None, None),
+            (3, "WEE1", "P504L", "", None, None, None, None),
+            (4, "BRAF", "V600E", "", None, None, None, None)]
     df_input = spark.createDataFrame(data=data, schema=columns)
 
     return df_input
@@ -48,7 +49,11 @@ def create_resources_df():
              "https://civicdb.org/links?idtype=variant&id=ENTRY_ID"),
             (3, "OncoMx (Genes)", "OncoMx", "Gene", "referenceLookup", "https://oncomx.org/searchview/?gene=ENTRY_ID"),
             (4, "dbSNP (Variants)", "dbSNP", "Variant", "dbSNPInlineLink", "https://www.ncbi.nlm.nih.gov/snp/RS_ID"),
-            (5, "COSMIC (Variants)", "COSMIC", "Variant", "COSMICInlineLink", "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=COSMIC_ID")]
+            (5, "COSMIC (Variants)", "COSMIC", "Variant", "COSMICInlineLink",
+                "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=COSMIC_ID"),
+            (6, "OpenCravat (Variants)", "OpenCravat", "Variant", "OpenCravatInlineLink",
+                "https://run.opencravat.org/webapps/variantreport/index.html?alt_base=ALT_BASE" +
+                "&chrom=chrCHROM&pos=POSITION&ref_base=REF_BASE")]
     resources_df = spark.createDataFrame(data=data, schema=schema)
 
     return resources_df
@@ -120,11 +125,20 @@ def test_add_links_in_molecular_data_table_with_aac():
 
     # Input data: molecular data containing hgnc_symbol, amino_acid_change, variant_id
     spark = SparkSession.builder.getOrCreate()
-    columns = ["id", "hgnc_symbol", "amino_acid_change", "variation_id"]
-    data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSM1304&COSM96871"),
-            (2, "NRAS", "Q61R", "rs123"),
-            (3, "WEE1", "P504L", "-"),
-            (4, "BRAF", "V600E", "")]
+    # columns = ["id", "hgnc_symbol", "amino_acid_change", "variation_id"]
+    # data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSM1304&COSM96871"),
+    #         (2, "NRAS", "Q61R", "rs123"),
+    #         (3, "WEE1", "P504L", "-"),
+    #         (4, "BRAF", "V600E", "")]
+
+    columns = ["id", "hgnc_symbol", "amino_acid_change", "variation_id",
+               "chromosome", "seq_start_position", "alt_allele", "ref_allele"]
+    data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSM1304&COSM96871", "", "", "", ""),
+            (2, "NRAS", "Q61R", "rs123", "4", "54728055", "G", "A"),
+            (3, "WEE1", "P504L", "-", "", "", "", ""),
+            (4, "BRAF", "V600E", "", "", "", "", "")]
+
+
     data_df = spark.createDataFrame(data=data, schema=columns)
 
     resources_data_df = create_resources_reference_data_df()
@@ -155,6 +169,12 @@ def test_add_links_in_molecular_data_table_with_aac():
             "column": "amino_acid_change",
             "resource": "dbSNP",
             "link": "https://www.ncbi.nlm.nih.gov/snp/rs123"
+        },
+        {
+            "column": "amino_acid_change",
+            "resource": "OpenCravat",
+            "link": "https://run.opencravat.org/webapps/variantreport/index.html?" +
+                    "alt_base=G&chrom=chr4&pos=54728055&ref_base=A"
         }
     ]
 
