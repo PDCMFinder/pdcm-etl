@@ -56,6 +56,11 @@ def find_links_for_molecular_characterization(
             tmp_df = find_ega_links(molecular_characterization_df, resource)
             data_with_references_df = data_with_references_df.union(tmp_df)
 
+        if resource["link_building_method"] == "GEOInlineLink":
+            print("Create links for GEO")
+            tmp_df = find_geo_links(molecular_characterization_df, resource)
+            data_with_references_df = data_with_references_df.union(tmp_df)
+
     return data_with_references_df
 
 
@@ -93,3 +98,22 @@ def find_ega_links(molecular_characterization_df, resource):
                                              .otherwise(expr("regexp_replace(link, 'EGA_ID', ega_id)")))
 
     return data_links_df.select("id", "resource", "column", "link")
+
+
+def find_geo_links(molecular_characterization_df, resource):
+    print("Processing molecular_characterization_df fo find GEO links")
+    data_df = molecular_characterization_df.withColumn("resource", lit(resource["label"]))
+    data_df = data_df.withColumn("column", lit(resource["target_column"]))
+
+    # Only create links when there is a raw_data_url value
+    data_df = data_df.where("raw_data_url is not null")
+
+    data_links_df = data_df.withColumn("geo_id", regexp_extract(col('raw_data_url'), r'GSM[A-Za-z0-9]+', 0))
+
+    data_links_df = data_links_df.withColumn("link", lit(resource["link_template"]))
+    data_links_df = data_links_df.withColumn("link",
+                                             when(col('geo_id') == '', None)
+                                             .otherwise(expr("regexp_replace(link, 'GEO_ID', geo_id)")))
+
+    return data_links_df.select("id", "resource", "column", "link")
+
