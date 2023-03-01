@@ -36,3 +36,35 @@ def test_add_links_in_molecular_characterization_table_ena_id():
     data_df_to_assert = data_df.select("id", "external_db_links")
 
     assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
+
+
+def test_add_links_in_molecular_characterization_table_ega_id():
+    spark = SparkSession.builder.getOrCreate()
+
+    columns = ["id", "raw_data_url"]
+    data = [(1, "EGAS00001000978")]
+
+    molecular_characterization_df = spark.createDataFrame(data=data, schema=columns)
+
+    resources_df = create_resources_df()
+
+    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df)
+    data_df.show(truncate=False)
+
+    # Assert links where generated
+    links_row_1 = [
+        {
+            "column": "raw_data_url",
+            "resource": "EGA",
+            "link": "https://ega-archive.org/studies/EGAS00001000978"
+        }
+    ]
+
+    expected_data = [
+        (1, json.dumps(links_row_1))
+    ]
+    expected_df = spark.createDataFrame(expected_data, ["id", "external_db_links"])
+
+    data_df_to_assert = data_df.select("id", "external_db_links")
+
+    assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
