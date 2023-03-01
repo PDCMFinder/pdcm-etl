@@ -22,7 +22,7 @@ def add_links_in_molecular_data_table(
     ref_links_df = find_links_for_ref_lookup_data(molecular_data_df, link_build_confs, resources_data_df)
 
     # Find links that are created based on values of columns in the molecular data table
-    inline_links_df = find_inline_links(molecular_data_df, link_build_confs, resources_df)
+    inline_links_df = find_inline_links_molecular_data(molecular_data_df, link_build_confs, resources_df)
 
     links_df = ref_links_df.union(inline_links_df)
 
@@ -63,7 +63,7 @@ def find_links_for_ref_lookup_data(
     return data_with_references_df
 
 
-def find_inline_links(molecular_data_df: DataFrame, link_build_confs, resources_df: DataFrame):
+def find_inline_links_molecular_data(molecular_data_df: DataFrame, link_build_confs, resources_df: DataFrame):
     inline_resources_df = resources_df.where("link_building_method != 'referenceLookup'")
     spark = SparkSession.builder.getOrCreate()
     link_build_confs_df = spark.createDataFrame(data=link_build_confs)
@@ -186,5 +186,72 @@ def find_open_cravat_links(molecular_data_df: DataFrame, resource_definition):
     data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'CHROM', chromosome)"))
     data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'POSITION', seq_start_position)"))
     data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'REF_BASE', ref_allele)"))
+
+    return data_links_df.select("id", "resource", "column", "link")
+
+
+def add_links_in_molecular_characterization_table(
+        molecular_characterization_df: DataFrame, resources_df: DataFrame):
+    """
+        Takes a molecular characterization data dataframe and adds an `external_db_links` column with links to external
+        resources based on the raw_url.
+        Molecular data tables can potentially have links in 2 columns: hgnc_symbol and amino_acid_change (amino_acid_change
+        only applies for mutation data).
+        """
+    # Get additional information about how to get links per column
+    link_build_confs = []
+    link_build_confs.append(get_raw_data_url_link_build_conf())
+
+    # Find links
+    links_df = find_links_for_molecular_characterization(molecular_characterization_df, link_build_confs, resources_df)
+
+    external_db_links_column_df = create_external_db_links_column(links_df)
+
+    # Join back to the `molecular_data_df` data frame to add the new column to it
+    molecular_data_df = molecular_characterization_df.join(external_db_links_column_df, on=["id"], how="left")
+    return molecular_data_df
+
+
+# Should include other types too
+def get_raw_data_url_link_build_conf():
+    link_build_conf = {"target_column": "raw_data_url", "ref_source_columns": ["raw_data_url"], "type": "Study"}
+    return link_build_conf
+
+
+def find_links_for_molecular_characterization(
+        molecular_characterization_df: DataFrame, link_build_confs, resources_df: DataFrame):
+    resources_df = resources_df.where("type in ('Study')")
+
+    spark = SparkSession.builder.getOrCreate()
+    link_build_confs_df = spark.createDataFrame(data=link_build_confs)
+    resources_df = resources_df.join(link_build_confs_df, on=["type"], how='inner')
+
+    data_with_references_df = create_empty_df_for_data_reference_processing(spark)
+
+    #  Iterate through the different resources to find the respective links, then join all
+    resources_list = [row.asDict() for row in resources_df.collect()]
+    for resource in resources_list:
+        if resource["link_building_method"] == "ENAInlineLink":
+            print("Create links for ENA")
+            tmp_df = find_ena_links(molecular_characterization_df, resource)
+            data_with_references_df = data_with_references_df.union(tmp_df)
+
+    return data_with_references_df
+
+
+def find_ena_links(molecular_characterization_df, resource):
+    print("Processing molecular_characterization_df fo find ENA links")
+    data_df = molecular_characterization_df.withColumn("resource", lit(resource["label"]))
+    data_df = data_df.withColumn("column", lit(resource["target_column"]))
+
+    # Only create links when there is a raw_data_url value
+    data_df = data_df.where("raw_data_url is not null")
+
+    data_links_df = data_df.withColumn("ena_id", regexp_extract(col('raw_data_url'), r'PRJ[EDN][A-Z][0-9]{0,15}', 0))
+
+    data_links_df = data_links_df.withColumn("link", lit(resource["link_template"]))
+    data_links_df = data_links_df.withColumn("link",
+                                             when(col('ena_id') == '', None)
+                                             .otherwise(expr("regexp_replace(link, 'ENA_ID', ena_id)")))
 
     return data_links_df.select("id", "resource", "column", "link")

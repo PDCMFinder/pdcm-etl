@@ -53,6 +53,14 @@ resources:
     link_building_method: "OpenCravatInlineLink"
     link_template: "https://run.opencravat.org/webapps/variantreport/index.html?alt_base=ALT_BASE&chrom=chrCHROM&pos=POSITION&ref_base=REF_BASE"
 
+  - id: 7
+    name: "ENA (Studies)"
+    label: "ENA"
+    type: "Study"
+    link_building_method: "ENAInlineLink"
+    link_template: "https://www.ebi.ac.uk/ena/browser/view/ENA_ID"
+
+
 # Resources that require downloading data. These resources should be marked with link_building_method: "referenceLookup"
 # in the previous section
 
