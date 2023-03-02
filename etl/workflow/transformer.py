@@ -309,7 +309,8 @@ class TransformMolecularCharacterization(TransformEntity):
         TransformPatientSample(),
         TransformXenograftSample(),
         TransformCellSample(),
-        TransformMolecularCharacterizationType()
+        TransformMolecularCharacterizationType(),
+        ExtractExternalResources()
     ]
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_ENTITY
 

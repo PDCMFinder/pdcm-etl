@@ -5,7 +5,7 @@ from pyspark.sql.functions import lit
 
 from etl.constants import Constants
 from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
-from etl.jobs.transformation.links_generation.external_resource_links_builder import \
+from etl.jobs.transformation.links_generation.molecular_data_links_builder import \
     add_links_in_molecular_data_table
 from etl.jobs.util.id_assigner import add_id
 from etl.jobs.util.molecular_characterization_fk_assigner import set_fk_molecular_characterization
