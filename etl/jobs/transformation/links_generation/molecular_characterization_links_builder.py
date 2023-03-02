@@ -72,7 +72,8 @@ def find_ena_links(molecular_characterization_df, resource):
     # Only create links when there is a raw_data_url value
     data_df = data_df.where("raw_data_url is not null")
 
-    data_links_df = data_df.withColumn("ena_id", regexp_extract(col('raw_data_url'), r'PRJ[EDN][A-Z][0-9]{0,15}', 0))
+    data_links_df = data_df.withColumn(
+        "ena_id", regexp_extract(col('raw_data_url'), r'PRJ[EDN][A-Z][0-9]{0,15}|[EDS]R[SXRP][0-9]{6,}', 0))
 
     data_links_df = data_links_df.withColumn("link", lit(resource["link_template"]))
     data_links_df = data_links_df.withColumn("link",

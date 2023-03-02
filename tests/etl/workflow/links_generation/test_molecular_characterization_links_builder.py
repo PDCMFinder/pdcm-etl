@@ -11,7 +11,7 @@ def test_add_links_in_molecular_characterization_table_ena_id():
     spark = SparkSession.builder.getOrCreate()
 
     columns = ["id", "raw_data_url"]
-    data = [(1, "PRJEB39708")]
+    data = [(1, "PRJEB39708"), (2, "ERR4290210")]
 
     molecular_characterization_df = spark.createDataFrame(data=data, schema=columns)
 
@@ -27,9 +27,17 @@ def test_add_links_in_molecular_characterization_table_ena_id():
             "link": "https://www.ebi.ac.uk/ena/browser/view/PRJEB39708"
         }
     ]
+    links_row_2 = [
+        {
+            "column": "raw_data_url",
+            "resource": "ENA",
+            "link": "https://www.ebi.ac.uk/ena/browser/view/ERR4290210"
+        }
+    ]
 
     expected_data = [
-        (1, json.dumps(links_row_1))
+        (1, json.dumps(links_row_1)),
+        (2, json.dumps(links_row_2))
     ]
     expected_df = spark.createDataFrame(expected_data, ["id", "external_db_links"])
 
