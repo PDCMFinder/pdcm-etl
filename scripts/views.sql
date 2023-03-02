@@ -246,7 +246,8 @@ SELECT
 		WHEN mol_char.data_type = 'cytogenetics'::text AND (mi.data_source, 'cytogenetics_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
 	END AS data_restricted,
-	mol_char.id AS molecular_characterization_id
+	mol_char.id AS molecular_characterization_id,
+    external_db_links
 FROM
 (
 SELECT
@@ -583,7 +584,8 @@ CREATE MATERIALIZED VIEW pdcm_api.details_molecular_data AS
             WHEN data_type.name = 'cytogenetics'::text AND (molecular_characterization.id IN ( SELECT DISTINCT cytogenetics_data_table.molecular_characterization_id
                FROM pdcm_api.cytogenetics_data_table)) THEN 'TRUE'::text
             ELSE 'FALSE'::text
-        END AS data_availability
+        END AS data_availability,
+    external_db_links
    FROM molecular_characterization
      JOIN platform ON molecular_characterization.platform_id = platform.id
      JOIN molecular_characterization_type data_type ON molecular_characterization.molecular_characterization_type_id = data_type.id

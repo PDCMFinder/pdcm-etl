@@ -34,8 +34,7 @@ def create_resources_df():
             (8, "EGA (Studies)", "EGA", "Study", "EGAInlineLink",
              "https://ega-archive.org/studies/EGA_ID"),
             (9, "GEO (Studies)", "GEO", "Study", "GEOInlineLink",
-             "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GEO_ID")
-            ]
+             "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GEO_ID")]
     resources_df = spark.createDataFrame(data=data, schema=schema)
 
     return resources_df

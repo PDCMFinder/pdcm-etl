@@ -272,7 +272,8 @@ entities = {
             "raw_data_url",
             "patient_sample_id",
             "xenograft_sample_id",
-            "cell_sample_id"
+            "cell_sample_id",
+            "external_db_links"
         ]
     },
     Constants.PLATFORM_ENTITY: {

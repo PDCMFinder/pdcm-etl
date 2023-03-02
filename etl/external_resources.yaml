@@ -60,6 +60,19 @@ resources:
     link_building_method: "ENAInlineLink"
     link_template: "https://www.ebi.ac.uk/ena/browser/view/ENA_ID"
 
+  - id: 8
+    name: "EGA (Studies)"
+    label: "EGA"
+    type: "Study"
+    link_building_method: "EGAInlineLink"
+    link_template: "https://ega-archive.org/studies/EGA_ID"
+
+  - id: 9
+    name: "GEO (Studies)"
+    label: "GEO"
+    type: "Study"
+    link_building_method: "GEOInlineLink"
+    link_template: "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GEO_ID"
 
 # Resources that require downloading data. These resources should be marked with link_building_method: "referenceLookup"
 # in the previous section
