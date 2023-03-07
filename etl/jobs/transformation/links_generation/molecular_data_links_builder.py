@@ -1,6 +1,8 @@
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, lit, concat, concat_ws, collect_list, expr, regexp_extract, when
-from pyspark.sql.types import StringType, StructType, StructField
+from pyspark.sql.functions import col, lit, expr, regexp_extract, when
+
+from etl.jobs.transformation.links_generation.link_builder_utils import create_external_db_links_column, \
+    create_empty_df_for_data_reference_processing
 
 
 def add_links_in_molecular_data_table(
@@ -22,7 +24,7 @@ def add_links_in_molecular_data_table(
     ref_links_df = find_links_for_ref_lookup_data(molecular_data_df, link_build_confs, resources_data_df)
 
     # Find links that are created based on values of columns in the molecular data table
-    inline_links_df = find_inline_links(molecular_data_df, link_build_confs, resources_df)
+    inline_links_df = find_inline_links_molecular_data(molecular_data_df, link_build_confs, resources_df)
 
     links_df = ref_links_df.union(inline_links_df)
 
@@ -43,13 +45,13 @@ def find_links_for_ref_lookup_data(
             columns_to_process.add(source)
     columns_to_process = list(columns_to_process)
 
-    input_df = molecular_data_df.select(columns_to_process)
+    # input_df = molecular_data_df.select(columns_to_process)
+    input_df = molecular_data_df
 
     data_with_references_df = create_empty_df_for_data_reference_processing(spark)
 
     # Check each one of the columns where we want to put a link
     for column_conf in link_build_confs:
-
         # Source columns are the columns in `df` that have the data to compare. If more than one, concatenate
         # with a space (as in the case of amino acid change that needs to be concatenated to the gene name
         input_df_columns = " || ' ' || ".join(column_conf["ref_source_columns"])
@@ -63,7 +65,7 @@ def find_links_for_ref_lookup_data(
     return data_with_references_df
 
 
-def find_inline_links(molecular_data_df: DataFrame, link_build_confs, resources_df: DataFrame):
+def find_inline_links_molecular_data(molecular_data_df: DataFrame, link_build_confs, resources_df: DataFrame):
     inline_resources_df = resources_df.where("link_building_method != 'referenceLookup'")
     spark = SparkSession.builder.getOrCreate()
     link_build_confs_df = spark.createDataFrame(data=link_build_confs)
@@ -85,6 +87,11 @@ def find_inline_links(molecular_data_df: DataFrame, link_build_confs, resources_
             tmp_df = find_cosmic_links(molecular_data_df, inline_resource)
             data_with_references_df = data_with_references_df.union(tmp_df)
 
+        if inline_resource["link_building_method"] == "OpenCravatInlineLink":
+            print("Create links for OpenCravat")
+            tmp_df = find_open_cravat_links(molecular_data_df, inline_resource)
+            data_with_references_df = data_with_references_df.union(tmp_df)
+
     return data_with_references_df
 
 
@@ -101,33 +108,7 @@ def get_amino_acid_change_link_build_conf():
     return link_build_conf
 
 
-def create_empty_df_for_data_reference_processing(spark):
-    data_with_references_df_schema = StructType([
-        StructField('id', StringType(), False),
-        StructField('resource', StringType(), False),
-        StructField('column', StringType(), False),
-        StructField('link', StringType(), False)
-    ])
 
-    data_with_references_df = spark.createDataFrame(
-        spark.sparkContext.emptyRDD(), schema=data_with_references_df_schema)
-    return data_with_references_df
-
-
-def create_external_db_links_column(links_df: DataFrame):
-    links_json_entry_column_df = links_df.withColumn(
-        "json_entry",
-        concat(lit("{"),
-               lit("\"column\": "), lit("\""), col("column"), lit("\", "),
-               lit("\"resource\": "), lit("\""), col("resource"), lit("\", "),
-               lit("\"link\": "), lit("\""), col("link"), lit("\""),
-               concat(lit("}"))))
-    external_db_links_column_df = links_json_entry_column_df.groupby("id").agg(
-        concat_ws(", ", collect_list(links_json_entry_column_df.json_entry)).alias("external_db_links"))
-    external_db_links_column_df = external_db_links_column_df.withColumn(
-        "external_db_links",
-        concat(lit("["), col("external_db_links"), concat(lit("]"))))
-    return external_db_links_column_df
 
 
 def find_dbSNP_links(molecular_data_df: DataFrame, resource_definition):
@@ -160,3 +141,26 @@ def find_cosmic_links(molecular_data_df: DataFrame, resource_definition):
 
     return data_links_df.select("id", "resource", "column", "link")
 
+
+def find_open_cravat_links(molecular_data_df: DataFrame, resource_definition):
+    print("Processing molecular_data_df fo find open cravat links")
+    data_df = molecular_data_df.withColumn("resource", lit(resource_definition["label"]))
+    data_df = data_df.withColumn("column", lit(resource_definition["target_column"]))
+
+    # Only create links when there is a rs id in the variation id column
+    data_df = data_df.where("variation_id is not null and variation_id like '%rs%'")
+
+    # We also need to check for the existence of the columns that are going to be used to create the link:
+    # chromosome, seq_start_position, alt_allele, ref_allele
+    data_df = data_df.where(
+        "nvl(chromosome, '') != '' AND nvl(seq_start_position, '') != ''  AND "
+        "nvl(alt_allele, '') != '' AND nvl(ref_allele, '') != ''")
+
+    data_links_df = data_df.withColumn("link", lit(resource_definition["link_template"]))
+
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'ALT_BASE', alt_allele)"))
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'CHROM', chromosome)"))
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'POSITION', seq_start_position)"))
+    data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'REF_BASE', ref_allele)"))
+
+    return data_links_df.select("id", "resource", "column", "link")

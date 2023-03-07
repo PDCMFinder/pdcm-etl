@@ -270,7 +270,8 @@ CREATE TABLE molecular_characterization (
     raw_data_url TEXT,
     patient_sample_id BIGINT,
     xenograft_sample_id BIGINT,
-    cell_sample_id BIGINT
+    cell_sample_id BIGINT,
+    external_db_links JSON
 );
 
 DROP TABLE IF EXISTS cna_molecular_data CASCADE;

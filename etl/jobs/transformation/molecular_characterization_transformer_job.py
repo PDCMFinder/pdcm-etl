@@ -2,6 +2,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 
 from etl.constants import Constants
+from etl.jobs.transformation.links_generation.molecular_characterization_links_builder import \
+    add_links_in_molecular_characterization_table
 from etl.jobs.util.cleaner import lower_and_trim_all, trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
@@ -18,8 +20,9 @@ def main(argv):
     xenograft_sample_path = argv[4]
     cell_sample_path = argv[5]
     mol_char_type_path = argv[6]
+    raw_external_resources_parquet_path = argv[7]
 
-    output_path = argv[7]
+    output_path = argv[8]
 
     spark = SparkSession.builder.getOrCreate()
     raw_molchar_metadata_sample_df = spark.read.parquet(raw_molchar_metadata_sample_parquet_path)
@@ -28,6 +31,7 @@ def main(argv):
     xenograft_sample_df = spark.read.parquet(xenograft_sample_path)
     cell_sample_df = spark.read.parquet(cell_sample_path)
     mol_char_type_df = spark.read.parquet(mol_char_type_path)
+    raw_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
 
     molecular_characterization_df = transform_molecular_characterization(
         raw_molchar_metadata_sample_df,
@@ -35,7 +39,8 @@ def main(argv):
         patient_sample_df,
         xenograft_sample_df,
         cell_sample_df,
-        mol_char_type_df)
+        mol_char_type_df,
+        raw_resources_df)
     molecular_characterization_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -45,7 +50,8 @@ def transform_molecular_characterization(
         patient_sample_df: DataFrame,
         xenograft_sample_df: DataFrame,
         cell_sample_df: DataFrame,
-        mol_char_type_df: DataFrame) -> DataFrame:
+        mol_char_type_df: DataFrame,
+        raw_resources_df: DataFrame) -> DataFrame:
     molchar_sample_df = get_molchar_sample(raw_molchar_metadata_sample_df)
 
     molchar_sample_df = molchar_sample_df.withColumn(
@@ -71,7 +77,10 @@ def transform_molecular_characterization(
     molecular_characterization_df = molecular_characterization_df.withColumn("raw_data_url", trim_all("raw_data_url"))
     molecular_characterization_df = build_raw_data_url(molecular_characterization_df, "raw_data_url")
     molecular_characterization_df = add_id(molecular_characterization_df, "id")
-    molecular_characterization_df = get_columns_expected_order(molecular_characterization_df)
+    molecular_characterization_df = add_links_in_molecular_characterization_table(
+        molecular_characterization_df, raw_resources_df)
+    print("molecular_characterization_df")
+    molecular_characterization_df.show(truncate=False)
     return molecular_characterization_df
 
 
@@ -198,14 +207,6 @@ def set_fk_mol_char_type(molecular_characterization_df: DataFrame, mol_char_type
         "name",
         "id",
         "molecular_characterization_type_id")
-
-
-def get_columns_expected_order(molecular_characterization_df: DataFrame) -> DataFrame:
-    return molecular_characterization_df.select(
-        "id", "molecular_characterization_type_id", "platform_id", "patient_sample_id", "xenograft_sample_id",
-        "cell_sample_id", "sample_origin", "molecular_characterisation_type", "platform_external_id",
-        "external_patient_sample_id", "external_xenograft_sample_id", "raw_data_url", "external_cell_sample_id",
-        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":
