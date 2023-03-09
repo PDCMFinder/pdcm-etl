@@ -455,13 +455,13 @@ class TransformSearchIndex(TransformEntity):
         TransformModel(),
         TransformMolecularCharacterization(),
         TransformMolecularCharacterizationType(),
+        TransformXenograftModelSpecimen(),
         TransformPatientSample(),
         TransformPatient(),
         TransformEthnicity(),
         TransformXenograftSample(),
         TransformCellSample(),
         TransformTumourType(),
-        TransformTissue(),
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
@@ -470,7 +470,8 @@ class TransformSearchIndex(TransformEntity):
         TransformProjectGroup(),
         TransformSampleToOntology(),
         TransformOntologyTermDiagnosis(),
-        TransformTreatmentHarmonisationHelper()
+        TransformTreatmentHarmonisationHelper(),
+        TransformQualityAssurance()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 

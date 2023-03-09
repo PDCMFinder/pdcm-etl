@@ -47,8 +47,7 @@ def get_platform_data(raw_sample_platform_df: DataFrame) -> DataFrame:
 
 
 def set_fk_provider_group(platform_df: DataFrame, provider_group_df: DataFrame) -> DataFrame:
-    # Keep the datasource
-    platform_df = platform_df.withColumn(Constants.DATA_SOURCE_COLUMN + "_ref", col(Constants.DATA_SOURCE_COLUMN))
+
     platform_df = transform_to_fk(
         platform_df,
         provider_group_df,
@@ -56,7 +55,7 @@ def set_fk_provider_group(platform_df: DataFrame, provider_group_df: DataFrame) 
         Constants.DATA_SOURCE_COLUMN,
         "id",
         "provider_group_id")
-    platform_df = platform_df.withColumnRenamed(Constants.DATA_SOURCE_COLUMN + "_ref", Constants.DATA_SOURCE_COLUMN)
+
     return platform_df
 
 
