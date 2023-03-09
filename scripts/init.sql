@@ -283,6 +283,8 @@ CREATE TABLE cna_molecular_data (
     strand TEXT,
     log10r_cna TEXT,
     log2r_cna TEXT,
+    seq_start_position NUMERIC,
+    seq_end_position NUMERIC,
     copy_number_status TEXT,
     gistic_value TEXT,
     picnic_value TEXT,
