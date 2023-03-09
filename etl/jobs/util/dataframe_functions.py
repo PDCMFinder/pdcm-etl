@@ -19,10 +19,11 @@ def join_dfs(df_a: DataFrame, df_b: DataFrame, col_df_a: str, col_df_b: str, how
     DataFrame: The dataframe with the join of both dataframes
 
    """
-    df_a_ref = df_a.withColumnRenamed(col_df_a, "column_to_join")
-    df_b_ref = df_b.withColumnRenamed(col_df_b, "column_to_join")
-    join_df = df_a_ref.join(df_b_ref, on=['column_to_join'], how=how)
-    join_df = join_df.drop("column_to_join")
+    cond = df_a[col_df_a] == df_b[col_df_b]
+    join_df = df_a.join(df_b, cond, how=how)
+
+    # Delete one of the columns that will become duplicated after the join
+    join_df = join_df.drop(df_b[col_df_b])
     return join_df
 
 
@@ -50,7 +51,13 @@ def transform_to_fk(
         col_df_b: str,
         reference_column_id: str,
         new_column_name: str) -> DataFrame:
-    df_b_ref = df_b.withColumnRenamed(reference_column_id, "id_ref")
+
+    # Select only needed values from the reference side: the id and the column to be used in the comparison
+    df_b_ref = df_b.select(reference_column_id, col_df_b)
+
+    # Standardize id column name
+    df_b_ref = df_b_ref.withColumnRenamed(reference_column_id, "id_ref")
+
     join_df = join_left_dfs(df_a, df_b_ref, col_df_a, col_df_b)
     join_df = join_df.withColumnRenamed("id_ref", new_column_name)
     return join_df

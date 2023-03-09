@@ -13,7 +13,7 @@ from pyspark.sql.functions import (
     udf,
     split,
     array_intersect,
-    concat, array_except,
+    concat, array_except, collect_list,
 )
 from pyspark.sql.types import ArrayType, StringType
 
@@ -59,13 +59,13 @@ def main(argv):
     model_parquet_path = argv[1]
     molecular_characterization_parquet_path = argv[2]
     molecular_characterization_type_parquet_path = argv[3]
-    patient_sample_parquet_path = argv[4]
-    patient_parquet_path = argv[5]
-    ethnicity_df_parquet_path = argv[6]
-    xenograft_sample_parquet_path = argv[7]
-    cell_sample_parquet_path = argv[8]
-    tumour_type_parquet_path = argv[9]
-    tissue_parquet_path = argv[10]
+    xenograft_model_specimen_parquet_path = argv[4]
+    patient_sample_parquet_path = argv[5]
+    patient_parquet_path = argv[6]
+    ethnicity_df_parquet_path = argv[7]
+    xenograft_sample_parquet_path = argv[8]
+    cell_sample_parquet_path = argv[9]
+    tumour_type_parquet_path = argv[10]
     mutation_measurement_data_parquet_path = argv[11]
     cna_data_parquet_path = argv[12]
     expression_data_parquet_path = argv[13]
@@ -75,7 +75,9 @@ def main(argv):
     sample_to_ontology_parquet_path = argv[17]
     ontology_term_diagnosis_parquet_path = argv[18]
     treatment_harmonisation_helper_parquet_path = argv[19]
-    output_path = argv[20]
+    quality_assurance_parquet_path = argv[20]
+
+    output_path = argv[21]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -85,13 +87,13 @@ def main(argv):
     molecular_characterization_type_df = spark.read.parquet(
         molecular_characterization_type_parquet_path
     )
+    xenograft_model_specimen_df = spark.read.parquet(xenograft_model_specimen_parquet_path)
     patient_sample_df = spark.read.parquet(patient_sample_parquet_path)
     ethnicity_df = spark.read.parquet(ethnicity_df_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
     cell_sample_df = spark.read.parquet(cell_sample_parquet_path)
     tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
-    tissue_df = spark.read.parquet(tissue_parquet_path)
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
@@ -101,19 +103,20 @@ def main(argv):
     sample_to_ontology_df = spark.read.parquet(sample_to_ontology_parquet_path)
     ontology_term_diagnosis_df = spark.read.parquet(ontology_term_diagnosis_parquet_path)
     treatment_harmonisation_helper_df = spark.read.parquet(treatment_harmonisation_helper_parquet_path)
+    quality_assurance_df = spark.read.parquet(quality_assurance_parquet_path)
 
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
 
     search_index_df = transform_search_index(
         model_df,
+        xenograft_model_specimen_df,
         patient_sample_df,
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
         cell_sample_df,
         tumour_type_df,
-        tissue_df,
         molecular_characterization_df,
         molecular_characterization_type_df,
         mutation_measurement_data_df,
@@ -124,20 +127,21 @@ def main(argv):
         project_group_df,
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
-        treatment_harmonisation_helper_df
+        treatment_harmonisation_helper_df,
+        quality_assurance_df
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_search_index(
         model_df,
+        xenograft_model_specimen_df,
         patient_sample_df,
         patient_df,
         ethnicity_df,
         xenograft_sample_df,
         cell_sample_df,
         tumour_type_df,
-        tissue_df,
         molecular_characterization_df,
         molecular_characterization_type_df,
         mutation_measurement_data_df,
@@ -148,7 +152,8 @@ def transform_search_index(
         project_group_df,
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
-        treatment_harmonisation_helper_df
+        treatment_harmonisation_helper_df,
+        quality_assurance_df
 ) -> DataFrame:
     model_df = model_df.withColumnRenamed("type", "model_type")
     model_df = model_df.withColumnRenamed("id", "pdcm_model_id")
@@ -165,7 +170,6 @@ def transform_search_index(
     patient_sample_ext_df = extend_patient_sample(
         patient_sample_df,
         patient_df,
-        tissue_df,
         ethnicity_df,
         tumour_type_df,
         provider_group_df,
@@ -173,6 +177,14 @@ def transform_search_index(
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
     )
+
+    xenograft_model_specimen_df = xenograft_model_specimen_df.select(
+        "model_id", "host_strain_name", "host_strain_nomenclature", "engraftment_site", "engraftment_type",
+        "sample_type", "sample_state", "passage_number")
+
+    search_index_df = search_index_df.join(
+        xenograft_model_specimen_df, search_index_df.pdcm_model_id == xenograft_model_specimen_df.model_id, how='left')
+
     search_index_df = search_index_df.withColumn("temp_model_id", col("pdcm_model_id"))
     search_index_df = join_left_dfs(
         search_index_df, patient_sample_ext_df, "temp_model_id", "model_id"
@@ -427,6 +439,28 @@ def transform_search_index(
         ).otherwise(col("dataset_available"))
     )
 
+    # Add column with a JSON for all quality assurance data related to the model
+    # tmp_search_index_df = search_index_df.select("")
+    print("quality_assurance_df")
+    quality_assurance_df.show()
+    quality_assurance_df = quality_assurance_df.withColumn(
+        "json_entry",
+        concat(lit("{"),
+               lit("\"validation_technique\": "), lit("\""), col("validation_technique"), lit("\", "),
+               lit("\"description\": "), lit("\""), col("description"), lit("\", "),
+               lit("\"passages_tested\": "), lit("\""), col("passages_tested"), lit("\", "),
+               lit("\"validation_host_strain_nomenclature\": "),
+               lit("\""), col("validation_host_strain_nomenclature"), lit("\""),
+               concat(lit("}"))))
+
+    quality_data_per_model_df = quality_assurance_df.groupby("model_id").agg(
+        concat_ws(", ", collect_list(quality_assurance_df.json_entry)).alias("quality_assurance"))
+    quality_data_per_model_df = quality_data_per_model_df.withColumn(
+        "quality_assurance",
+        concat(lit("["), col("quality_assurance"), concat(lit("]"))))
+    search_index_df = search_index_df.join(
+        quality_data_per_model_df, search_index_df.pdcm_model_id == quality_data_per_model_df.model_id, how='left')
+
     search_index_df = (
         search_index_df.select(
             "pdcm_model_id",
@@ -448,8 +482,29 @@ def transform_search_index(
             "cancer_staging_system",
             "patient_age",
             "patient_sex",
+            col("history").alias("patient_history"),
             "patient_ethnicity",
+            col("ethnicity_assessment_method").alias("patient_ethnicity_assessment_method"),
+            col("diagnosis").alias("patient_initial_diagnosis"),
+            col("age_at_initial_diagnosis").alias("patient_age_at_initial_diagnosis"),
             "patient_treatment_status",
+            col("external_patient_sample_id").alias("patient_sample_id"),
+            col("collection_date").alias("patient_sample_collection_date"),
+            col("collection_event").alias("patient_sample_collection_event"),
+            col("months_since_collection_1").alias("patient_sample_months_since_collection_1"),
+            col("virology_status").alias("patient_sample_virology_status"),
+            col("sharable").alias("patient_sample_sharable"),
+            col("treated_at_collection").alias("patient_sample_treated_at_collection"),
+            col("prior_treatment").alias("patient_sample_treated_prior_to_collection"),
+            col("host_strain_name").alias("pdx_model_host_strain_name"),
+            col("host_strain_nomenclature").alias("pdx_model_host_strain_nomenclature"),
+            col("engraftment_site").alias("pdx_model_engraftment_site"),
+            col("engraftment_type").alias("pdx_model_engraftment_type"),
+            col("sample_type").alias("pdx_model_sample_type"),
+            col("sample_state").alias("pdx_model_sample_state"),
+            col("passage_number").alias("pdx_model_passage_number"),
+            col("publications").alias("pdx_model_publications"),
+            "quality_assurance",
             "makers_with_cna_data",
             "makers_with_mutation_data",
             "makers_with_expression_data",
@@ -474,7 +529,6 @@ def add_gene_symbol(mol_char_data_df: DataFrame):
 def extend_patient_sample(
         patient_sample_df,
         patient_df,
-        tissue_df,
         ethnicity_df,
         tumour_type_df,
         provider_group_df,
@@ -486,7 +540,7 @@ def extend_patient_sample(
     Takes in a patient sample DataFrame and extends it with
      diagnosis, tumour, and patient information
     """
-    # Adding diagnosis, primary_site, collection_site and tumour_type data to patient_sample
+    # Adding additional data to patient_sample
     sample_to_ontology_term_df = join_dfs(
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
@@ -515,16 +569,6 @@ def extend_patient_sample(
     patient_sample_df = patient_sample_df.withColumn("sample_id_tmp", col("id"))
     patient_sample_ext_df = join_left_dfs(
         patient_sample_df, sample_to_ontology_term_df, "sample_id_tmp", "sample_id"
-    )
-
-    primary_site_df = tissue_df.withColumnRenamed("name", "primary_site")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, primary_site_df, "primary_site_id", "id"
-    )
-
-    collection_site_df = tissue_df.withColumnRenamed("name", "collection_site")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, collection_site_df, "collection_site_id", "id"
     )
 
     # Adding age, sex, ethnicity and project to patient_sample
@@ -572,6 +616,8 @@ def extend_patient_sample(
     # Adding tumour_type name to patient_sample
     tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
     tumour_type_df = remove_rows(tumour_type_df, "tumour_type", ["Not Collected", "Not Provided"])
+    # Delete original value that patient sample already had because some values could have been just cleaned
+    patient_sample_ext_df = patient_sample_ext_df.drop("tumour_type")
     patient_sample_ext_df = join_left_dfs(
         patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id"
     )

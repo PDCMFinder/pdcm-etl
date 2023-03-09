@@ -50,7 +50,6 @@ def transform_patient_sample(
     patient_sample_df = set_fk_tumour_type(patient_sample_df, tumour_type_df)
     patient_sample_df = set_fk_model(patient_sample_df, model_df)
     patient_sample_df = add_id(patient_sample_df, "id")
-    patient_sample_df = get_columns_expected_order(patient_sample_df)
     return patient_sample_df
 
 
@@ -72,7 +71,9 @@ def extract_patient_sample(raw_sample_df: DataFrame) -> DataFrame:
         "collection_date",
         "months_since_collection_1",
         "treatment_naive_at_collection",
+        "treated_at_collection",
         "virology_status",
+        "sharable",
         col("model_id").alias("model_name"),
         Constants.DATA_SOURCE_COLUMN
     ).where("sample_id is not null").drop_duplicates()
@@ -87,6 +88,7 @@ def clean_data_before_join(patient_sample_df: DataFrame) -> DataFrame:
 def set_fk_patient(patient_sample_df: DataFrame, patient_df: DataFrame) -> DataFrame:
     patient_sample_df = patient_sample_df.drop_duplicates()
     patient_sample_df = patient_sample_df.withColumnRenamed("patient_id", "external_patient_id")
+    patient_df = patient_df.select("id", "external_patient_id", Constants.DATA_SOURCE_COLUMN)
     patient_df = patient_df.withColumnRenamed("id", "patient_id")
     patient_sample_df = patient_sample_df.join(
         patient_df, on=["external_patient_id", Constants.DATA_SOURCE_COLUMN], how='left')
@@ -120,31 +122,6 @@ def set_fk_model(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame
     patient_sample_df = patient_sample_df.join(model_df, on=['model_name', Constants.DATA_SOURCE_COLUMN], how='left')
     patient_sample_df = patient_sample_df.withColumnRenamed("model_id_ref", "model_id")
     return patient_sample_df
-
-
-def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
-    return patient_df.select(
-        "id",
-        "diagnosis",
-        "patient_id",
-        "external_patient_sample_id",
-        "grade",
-        "grading_system",
-        "stage",
-        "staging_system",
-        "primary_site_id",
-        "collection_site_id",
-        "prior_treatment",
-        "tumour_type_id",
-        "age_in_years_at_collection",
-        "collection_event",
-        "collection_date",
-        "months_since_collection_1",
-        "treatment_naive_at_collection",
-        "virology_status",
-        "model_id",
-        "model_name",
-        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":
