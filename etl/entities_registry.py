@@ -295,6 +295,8 @@ entities = {
             "strand",
             "log10r_cna",
             "log2r_cna",
+            "seq_start_position",
+            "seq_end_position",
             "copy_number_status",
             "gistic_value",
             "picnic_value",
