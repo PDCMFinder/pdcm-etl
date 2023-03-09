@@ -161,6 +161,7 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "external_model_id",
         col(Constants.DATA_SOURCE_COLUMN).alias("data_source"),
         "publication_group_id",
+        "publications",
         "accessibility_group_id",
         "contact_people_id",
         "contact_form_id",

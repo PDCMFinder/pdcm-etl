@@ -69,7 +69,6 @@ def transform_specimen(
     specimen_df = set_fk_engraftment_sample_state(specimen_df, engraftment_sample_state_df)
     specimen_df = set_fk_model(specimen_df, model_df)
     specimen_df = set_fk_host_strain(specimen_df, host_strain_df)
-    specimen_df = get_columns_expected_order(specimen_df)
 
     return specimen_df
 
@@ -117,8 +116,15 @@ def set_fk_engraftment_sample_state(specimen_df: DataFrame, engraftment_sample_s
 
 
 def set_fk_host_strain(specimen_df: DataFrame, host_strain_df: DataFrame) -> DataFrame:
-    specimen_df = transform_to_fk(
-        specimen_df, host_strain_df, "host_strain_nomenclature", "nomenclature", "id", "host_strain_id")
+    # Using manual join because it's practical to keep both name and nomenclature after the join
+    host_strain_df = host_strain_df.withColumnRenamed("id", "host_strain_id")
+    host_strain_df = host_strain_df.withColumnRenamed("name", "host_strain_name")
+    host_strain_df = host_strain_df.withColumnRenamed("nomenclature", "host_strain_nomenclature")
+    specimen_df = specimen_df.join(
+        host_strain_df, specimen_df.host_strain_nomenclature == host_strain_df.host_strain_nomenclature, how='left')
+
+    specimen_df = specimen_df.drop(host_strain_df.host_strain_nomenclature)
+
     return specimen_df
 
 
@@ -129,18 +135,6 @@ def set_fk_model(specimen_df: DataFrame, model_df: DataFrame) -> DataFrame:
     specimen_df = specimen_df.withColumnRenamed("model_id", "external_model_id")
     specimen_df = specimen_df.join(model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='left')
     return specimen_df
-
-
-def get_columns_expected_order(specimen_df: DataFrame) -> DataFrame:
-    return specimen_df.select(
-        "id",
-        "passage_number",
-        "engraftment_site_id",
-        "engraftment_type_id",
-        "engraftment_sample_type_id",
-        "engraftment_sample_state_id",
-        "host_strain_id",
-        "model_id")
 
 
 if __name__ == "__main__":
