@@ -516,7 +516,8 @@ entities = {
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
             "treatment_list",
-            "model_treatment_list"
+            "model_treatment_list",
+            "score"
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {

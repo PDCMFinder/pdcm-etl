@@ -522,7 +522,8 @@ CREATE TABLE search_index (
     makers_with_cytogenetics_data TEXT[],
     breast_cancer_biomarkers TEXT[],
     treatment_list TEXT[],
-    model_treatment_list TEXT[]
+    model_treatment_list TEXT[],
+    score NUMERIC
 );
 
 DROP TABLE IF EXISTS search_facet CASCADE;
