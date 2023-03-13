@@ -34,9 +34,13 @@ def test_treatment_protocol_patient_treatment(spark_context, spark_session):
         response_df,
         response_classification_df)
 
+    result_to_compare_df = treatment_protocol_df.select(
+        "model_id", "patient_id", "treatment_name", "treatment_dose", "treatment_target",
+        "data_source_tmp", "response_id", "response_classification_id")
+
     expected_df = convert_to_dataframe(spark_session, expected_treatment_protocol_patient_treatment)
 
-    assert_df_are_equal_ignore_id(treatment_protocol_df, expected_df)
+    assert_df_are_equal_ignore_id(result_to_compare_df, expected_df)
 
 
 def test_treatment_protocol_drug_dosing(spark_context, spark_session):
@@ -56,8 +60,10 @@ def test_treatment_protocol_drug_dosing(spark_context, spark_session):
         patient_parquet_df,
         response_df,
         response_classification_df)
+    result_to_compare_df = treatment_protocol_df.select(
+        'model_id', 'patient_id', 'treatment_name', 'treatment_dose', 'treatment_target',
+        'data_source_tmp', 'response_id', 'response_classification_id')
 
     expected_df = convert_to_dataframe(spark_session, expected_treatment_protocol_drug_dosing)
 
-    assert_df_are_equal_ignore_id(treatment_protocol_df, expected_df)
-
+    assert_df_are_equal_ignore_id(result_to_compare_df, expected_df)
