@@ -1,12 +1,8 @@
 import json
 
-from pyspark.sql import Row, SparkSession
+from pyspark.sql import Row
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import lit
-from pyspark.sql.types import StructType, StructField, LongType, IntegerType
-
-from etl.jobs.util.dataframe_functions import flatten_array_columns
 
 column_weights = {
     "patient_sex": 1,
