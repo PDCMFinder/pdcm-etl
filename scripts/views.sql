@@ -345,6 +345,7 @@ CREATE VIEW pdcm_api.expression_data_table
 AS
   SELECT emd.molecular_characterization_id,
          emd.hgnc_symbol,
+         emd.non_harmonised_symbol,
          emd.rnaseq_coverage,
          emd.rnaseq_fpkm,
          emd.rnaseq_tpm,
