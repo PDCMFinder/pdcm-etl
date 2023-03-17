@@ -460,7 +460,6 @@ class TransformSearchIndex(TransformEntity):
         TransformPatient(),
         TransformXenograftSample(),
         TransformCellSample(),
-        TransformTumourType(),
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
