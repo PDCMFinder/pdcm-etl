@@ -65,17 +65,16 @@ def main(argv):
     patient_parquet_path = argv[6]
     xenograft_sample_parquet_path = argv[7]
     cell_sample_parquet_path = argv[8]
-    tumour_type_parquet_path = argv[9]
-    mutation_measurement_data_parquet_path = argv[10]
-    cna_data_parquet_path = argv[11]
-    expression_data_parquet_path = argv[12]
-    cytogenetics_data_parquet_path = argv[13]
-    sample_to_ontology_parquet_path = argv[14]
-    ontology_term_diagnosis_parquet_path = argv[15]
-    treatment_harmonisation_helper_parquet_path = argv[16]
-    quality_assurance_parquet_path = argv[17]
+    mutation_measurement_data_parquet_path = argv[9]
+    cna_data_parquet_path = argv[10]
+    expression_data_parquet_path = argv[11]
+    cytogenetics_data_parquet_path = argv[12]
+    sample_to_ontology_parquet_path = argv[13]
+    ontology_term_diagnosis_parquet_path = argv[14]
+    treatment_harmonisation_helper_parquet_path = argv[15]
+    quality_assurance_parquet_path = argv[16]
 
-    output_path = argv[18]
+    output_path = argv[17]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -90,7 +89,6 @@ def main(argv):
     patient_df = spark.read.parquet(patient_parquet_path)
     xenograft_sample_df = spark.read.parquet(xenograft_sample_parquet_path)
     cell_sample_df = spark.read.parquet(cell_sample_parquet_path)
-    tumour_type_df = spark.read.parquet(tumour_type_parquet_path)
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
@@ -110,7 +108,6 @@ def main(argv):
         patient_df,
         xenograft_sample_df,
         cell_sample_df,
-        tumour_type_df,
         molecular_characterization_df,
         molecular_characterization_type_df,
         mutation_measurement_data_df,
@@ -132,7 +129,6 @@ def transform_search_index(
         patient_df,
         xenograft_sample_df,
         cell_sample_df,
-        tumour_type_df,
         molecular_characterization_df,
         molecular_characterization_type_df,
         mutation_measurement_data_df,
@@ -160,7 +156,6 @@ def transform_search_index(
     patient_sample_ext_df = extend_patient_sample(
         patient_sample_df,
         patient_df,
-        tumour_type_df,
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
     )
@@ -422,7 +417,6 @@ def transform_search_index(
     search_index_df = add_quality_assurance_data(search_index_df, quality_assurance_df)
     search_index_df = add_xenograft_model_specimen_data(search_index_df, xenograft_model_specimen_df)
 
-    print("search_index_df before deleting null histology", search_index_df.count())
     search_index_df = (
         search_index_df.select(
             "pdcm_model_id",
@@ -472,9 +466,7 @@ def transform_search_index(
         .where(col("histology").isNotNull())
         .distinct()
     )
-    print("before_score:transform_search_index search_index_df ", search_index_df.count())
     search_index_df = add_score(search_index_df)
-    print("after_score:transform_search_index search_index_df ", search_index_df.count())
     return search_index_df
 
 
@@ -488,7 +480,6 @@ def add_gene_symbol(mol_char_data_df: DataFrame):
 def extend_patient_sample(
         patient_sample_df,
         patient_df,
-        tumour_type_df,
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
 ):
@@ -545,7 +536,6 @@ def extend_patient_sample(
     )
     patient_sample_ext_df = patient_sample_ext_df.drop("patient_internal_id")
 
-
     patient_sample_ext_df = patient_sample_ext_df.withColumnRenamed(
         "age_in_years_at_collection", "patient_age"
     )
@@ -564,15 +554,6 @@ def extend_patient_sample(
             lit("Not treatment naive"),
         )
         .otherwise(lit(NOT_SPECIFIED_VALUE)),
-    )
-
-    # Adding tumour_type name to patient_sample
-    tumour_type_df = tumour_type_df.withColumnRenamed("name", "tumour_type")
-    tumour_type_df = remove_rows(tumour_type_df, "tumour_type", ["Not Collected", "Not Provided"])
-    # Delete original value that patient sample already had because some values could have been just cleaned
-    patient_sample_ext_df = patient_sample_ext_df.drop("tumour_type")
-    patient_sample_ext_df = join_left_dfs(
-        patient_sample_ext_df, tumour_type_df, "tumour_type_id", "id"
     )
 
     return patient_sample_ext_df
@@ -597,18 +578,6 @@ def _bin_age(age_str: str):
         return NOT_SPECIFIED_VALUE
 
     return age_str
-
-
-def remove_rows(original_df: DataFrame, column_name: str, rows_values_to_delete):
-    """
-    Removes in dataframe original_df the rows in the column column_name that match values rows_values_to_delete
-    """
-    rows_values_to_delete = list(map(lambda x: x.lower(), rows_values_to_delete))
-    df = original_df.withColumn("filter_col", lower_and_trim_all(column_name))
-    df = df.filter(~col("filter_col").isin(rows_values_to_delete))
-    df = df.drop("filter_col")
-
-    return df
 
 
 def add_quality_assurance_data(search_index_df: DataFrame, quality_assurance_df: DataFrame) -> DataFrame:
