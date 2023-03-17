@@ -206,7 +206,10 @@ DROP VIEW IF EXISTS pdcm_api.mutation_data_table CASCADE;
 CREATE VIEW pdcm_api.mutation_data_table
 AS SELECT mmd.molecular_characterization_id,
           mmd.hgnc_symbol,
+          mmd.non_harmonised_symbol,
           mmd.amino_acid_change,
+          mmd.chromosome,
+          mmd.strand,
           mmd.consequence,
           mmd.read_depth,
           mmd.allele_frequency,
@@ -415,6 +418,7 @@ CREATE VIEW pdcm_api.cytogenetics_data_table
 AS
   SELECT cmd.molecular_characterization_id,
          cmd.hgnc_symbol,
+         cmd.non_harmonised_symbol,
          cmd.marker_status AS result,
          cmd.external_db_links,
          ( cmd.* ) :: text AS text
@@ -434,6 +438,7 @@ SELECT
 	mmm.source,
 	mmm.sample_id,
 	cmd.hgnc_symbol,
+	cmd.non_harmonised_symbol,
 	cmd.marker_status AS result,
 	cmd.external_db_links
 FROM   cytogenetics_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
@@ -459,10 +464,15 @@ DROP VIEW IF EXISTS pdcm_api.cna_data_table;
 
 CREATE VIEW pdcm_api.cna_data_table
 AS
-  SELECT cnamd.hgnc_symbol,
+  SELECT
          cnamd.id,
+         cnamd.hgnc_symbol,
+         cnamd.chromosome,
+         cnamd.strand,
          cnamd.log10r_cna,
          cnamd.log2r_cna,
+         cnamd.seq_start_position,
+         cnamd.seq_end_position,
          cnamd.copy_number_status,
          cnamd.gistic_value,
          cnamd.picnic_value,
@@ -486,8 +496,12 @@ SELECT
 	mmm.source,
 	mmm.sample_id,
 	cnamd.hgnc_symbol,
+	cnamd.chromosome,
+    cnamd.strand,
 	cnamd.log10r_cna,
 	cnamd.log2r_cna,
+	cnamd.seq_start_position,
+    cnamd.seq_end_position,
 	cnamd.copy_number_status,
 	cnamd.gistic_value,
 	cnamd.picnic_value,
