@@ -3,10 +3,7 @@ import json
 from pyspark.sql import Row, SparkSession
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import lit
-from pyspark.sql.types import StructType, StructField, LongType, IntegerType
-
-from etl.jobs.util.dataframe_functions import flatten_array_columns
+from pyspark.sql.types import LongType
 
 column_weights = {
     "patient_sex": 1,
@@ -33,21 +30,21 @@ column_weights = {
     "patient_treatment_status": 1,
     "patient_sample_treated_at_collection": 0.5,
     "patient_sample_treated_prior_to_collection": 0.5,
-    "pdx_model_host_strain_name": 1,
-    "pdx_model_host_strain_nomenclature": 1,
-    "pdx_model_engraftment_site": 1,
-    "pdx_model_engraftment_type": 1,
-    "pdx_model_sample_type": 1,
-    "pdx_model_sample_state": 0.5,
-    "pdx_model_passage_number": 1,
     "pdx_model_publications": 1,
     "quality_assurance.validation_technique": 1,
     "quality_assurance.description": 1,
     "quality_assurance.passages_tested": 1,
     "quality_assurance.validation_host_strain_nomenclature": 1,
+    "xenograft_model_specimens.host_strain_name": 1,
+    "xenograft_model_specimens.host_strain_nomenclature": 1,
+    "xenograft_model_specimens.engraftment_site": 1,
+    "xenograft_model_specimens.engraftment_type": 1,
+    "xenograft_model_specimens.engraftment_sample_type": 1,
+    "xenograft_model_specimens.engraftment_sample_state": 0.5,
+    "xenograft_model_specimens.passage_number": 1
 }
 
-columns_with_multiple_values = ['quality_assurance']
+columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
 
 
 def get_max_score():
@@ -77,7 +74,7 @@ def calculate_score_single_value_column(column_name: str, column_value: str) -> 
 
 
 def calculate_score_multiple_value_column(column_name: str, column_value: str) -> float:
-    print("calculate_score_multiple_value_column", column_name, column_value)
+    # print("calculate_score_multiple_value_column", column_name, column_value)
     score = 0
     if column_value == '[]' or column_value is None:
         return score
@@ -131,13 +128,19 @@ def add_score_to_row(row):
 
 
 def add_score(search_index_df: DataFrame) -> DataFrame:
+    spark = SparkSession.builder.getOrCreate()
     input_data_df = select_needed_columns(search_index_df)
+    input_data_df = input_data_df.drop_duplicates()
 
     rdd_with_score = input_data_df.rdd.map(lambda x: add_score_to_row(x))
 
-    score_df = rdd_with_score.toDF()
+    score_df_schema = input_data_df.schema
+    score_df_schema.add('score', LongType(), False)
+
+    score_df = spark.createDataFrame(rdd_with_score, score_df_schema)
     score_df = score_df.select("pdcm_model_id", "score")
     score_df = score_df.withColumnRenamed("pdcm_model_id", "score_model_id")
+    score_df = score_df.drop_duplicates()
 
     search_index_df = search_index_df.join(
         score_df, search_index_df.pdcm_model_id == score_df.score_model_id, how='inner')
