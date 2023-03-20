@@ -19,6 +19,7 @@ entities = {
     Constants.PROVIDER_GROUP_ENTITY: TransformProviderGroup(),
     Constants.PUBLICATION_GROUP_ENTITY: TransformPublicationGroup(),
     Constants.MODEL_INFORMATION_ENTITY: TransformModel(),
+    Constants.LICENSE_ENTITY: TransformLicense(),
     Constants.CELL_MODEL_ENTITY: TransformCellModel(),
     Constants.CELL_SAMPLE_ENTITY: TransformCellSample(),
     Constants.CONTACT_PEOPLE_ENTITY: TransformContactPeople(),

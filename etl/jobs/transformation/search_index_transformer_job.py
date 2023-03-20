@@ -18,7 +18,6 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import ArrayType, StringType
 
 from etl.jobs.transformation.scoring.model_score_calculator import add_score
-from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 
 cancer_systems = [
@@ -462,6 +461,8 @@ def transform_search_index(
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",
+            "license_name",
+            "license_url"
         )
         .where(col("histology").isNotNull())
         .distinct()

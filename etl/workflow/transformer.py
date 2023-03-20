@@ -126,6 +126,11 @@ class TransformAccessibilityGroup(TransformEntity):
     entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
 
 
+class TransformLicense(TransformEntity):
+    requiredTasks = []
+    entity_name = Constants.LICENSE_ENTITY
+
+
 class TransformModel(TransformEntity):
     requiredTasks = [
         ExtractModel(),
@@ -135,7 +140,8 @@ class TransformModel(TransformEntity):
         TransformAccessibilityGroup(),
         TransformContactPeople(),
         TransformContactForm(),
-        TransformSourceDatabase()
+        TransformSourceDatabase(),
+        TransformLicense()
     ]
     entity_name = Constants.MODEL_INFORMATION_ENTITY
 

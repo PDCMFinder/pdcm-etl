@@ -2,6 +2,7 @@ import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
+import etl.jobs.transformation.license_transformer_job
 import etl.jobs.transformation.cell_model_transformer_job
 import etl.jobs.transformation.cell_sample_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
@@ -122,7 +123,16 @@ entities = {
             "accessibility_group_id",
             "contact_people_id",
             "contact_form_id",
-            "source_database_id"
+            "source_database_id",
+            "license_id"
+        ]
+    },
+    Constants.LICENSE_ENTITY: {
+        "spark_job": etl.jobs.transformation.license_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "name",
+            "url"
         ]
     },
     Constants.CELL_MODEL_ENTITY: {
@@ -478,6 +488,8 @@ entities = {
             "search_terms",
             "cancer_system",
             "dataset_available",
+            "license_name",
+            "license_url",
             "primary_site",
             "collection_site",
             "tumour_type",

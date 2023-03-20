@@ -43,6 +43,11 @@ ALTER TABLE model_information
     FOREIGN KEY (source_database_id)
     REFERENCES source_database (id);
 
+ALTER TABLE model_information
+    ADD CONSTRAINT fk_model_license
+    FOREIGN KEY (license_id)
+    REFERENCES license (id);
+
 ALTER TABLE cell_model
     ADD CONSTRAINT fk_cell_model_model
     FOREIGN KEY (model_id)
