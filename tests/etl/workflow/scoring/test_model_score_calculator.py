@@ -37,15 +37,9 @@ def build_search_index_df_schema():
         StructField('patient_treatment_status', StringType(), False),
         StructField('patient_sample_treated_at_collection', StringType(), False),
         StructField('patient_sample_treated_prior_to_collection', StringType(), False),
-        StructField('pdx_model_host_strain_name', StringType(), False),
-        StructField('pdx_model_host_strain_nomenclature', StringType(), False),
-        StructField('pdx_model_engraftment_site', StringType(), False),
-        StructField('pdx_model_engraftment_type', StringType(), False),
-        StructField('pdx_model_sample_type', StringType(), False),
-        StructField('pdx_model_sample_state', StringType(), False),
-        StructField('pdx_model_passage_number', StringType(), False),
         StructField('pdx_model_publications', StringType(), False),
         StructField('quality_assurance', StringType(), False),
+        StructField('xenograft_model_specimens', StringType(), False),
     ])
     return schema
 
@@ -65,6 +59,18 @@ def create_search_index_max_score_df():
             "description": "description_valid_value",
             "passages_tested": "passages_tested_valid_value",
             "validation_host_strain_nomenclature": "validation_host_strain_nomenclature_valid_value"
+        }
+    ]
+
+    xenograft_valid_data = [
+        {
+            "host_strain_name": "host_strain_name_valid_value",
+            "host_strain_nomenclature": "host_strain_nomenclature_valid_value",
+            "engraftment_site": "engraftment_site_valid_value",
+            "engraftment_type": "engraftment_type_valid_value",
+            "engraftment_sample_type": "engraftment_sample_type_valid_value",
+            "engraftment_sample_state": "engraftment_sample_state_valid_value",
+            "passage_number": "passage_number_valid_value"
         }
     ]
 
@@ -97,15 +103,9 @@ def create_search_index_max_score_df():
         "patient_treatment_status_valid_value",
         "patient_sample_treated_at_collection_valid_value",
         "patient_sample_treated_prior_to_collection_valid_value",
-        "pdx_model_host_strain_name_valid_value",
-        "pdx_model_host_strain_nomenclature_valid_value",
-        "pdx_model_engraftment_site_valid_value",
-        "pdx_model_engraftment_type_valid_value",
-        "pdx_model_sample_type_valid_value",
-        "pdx_model_sample_state_valid_value",
-        "pdx_model_passage_number_valid_value",
         "pdx_model_publications_valid_value",
-        json.dumps(quality_assurance_data_valid_data)
+        json.dumps(quality_assurance_data_valid_data),
+        json.dumps(xenograft_valid_data)
     )]
     search_index_max_score_df = spark.createDataFrame(data=data, schema=schema)
 
@@ -127,6 +127,18 @@ def create_search_index_some_invalid_data_df():
             "description": "description_valid_value",
             "passages_tested": "passages_tested_valid_value",
             "validation_host_strain_nomenclature": "validation_host_strain_nomenclature_valid_value"
+        }
+    ]
+
+    xenograft_valid_data = [
+        {
+            "host_strain_name": "host_strain_name_valid_value",
+            "host_strain_nomenclature": "host_strain_nomenclature_valid_value",
+            "engraftment_site": "engraftment_site_valid_value",
+            "engraftment_type": "engraftment_type_valid_value",
+            "engraftment_sample_type": "engraftment_sample_type_valid_value",
+            "engraftment_sample_state": "engraftment_sample_state_valid_value",
+            "passage_number": "passage_number_valid_value"
         }
     ]
 
@@ -159,15 +171,9 @@ def create_search_index_some_invalid_data_df():
         "patient_treatment_status_valid_value",
         "patient_sample_treated_at_collection_valid_value",
         "patient_sample_treated_prior_to_collection_valid_value",
-        "pdx_model_host_strain_name_valid_value",
-        "pdx_model_host_strain_nomenclature_valid_value",
-        "pdx_model_engraftment_site_valid_value",
-        "pdx_model_engraftment_type_valid_value",
-        "pdx_model_sample_type_valid_value",
-        "pdx_model_sample_state_valid_value",
-        "pdx_model_passage_number_valid_value",
         "pdx_model_publications_valid_value",
-        json.dumps(quality_assurance_data_valid_data)
+        json.dumps(quality_assurance_data_valid_data),
+        json.dumps(xenograft_valid_data)
     )]
     search_index_max_score_df = spark.createDataFrame(data=data, schema=schema)
 
