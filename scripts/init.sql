@@ -89,7 +89,16 @@ CREATE TABLE model_information (
     accessibility_group_id BIGINT,
     contact_people_id BIGINT,
     contact_form_id BIGINT,
-    source_database_id BIGINT
+    source_database_id BIGINT,
+    license_id BIGINT
+);
+
+DROP TABLE IF EXISTS license CASCADE;
+
+CREATE TABLE license (
+    id BIGINT NOT NULL,
+    name TEXT,
+    url TEXT
 );
 
 DROP TABLE IF EXISTS cell_model CASCADE;
@@ -484,6 +493,8 @@ CREATE TABLE search_index (
     search_terms TEXT[],
     cancer_system TEXT,
     dataset_available TEXT[],
+    license_name TEXT,
+    license_url TEXT,
     primary_site TEXT,
     collection_site TEXT,
     tumour_type TEXT,

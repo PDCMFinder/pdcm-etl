@@ -28,6 +28,9 @@ ALTER TABLE source_database ADD CONSTRAINT pk_source_database PRIMARY KEY (id);
 ALTER TABLE model_information DROP CONSTRAINT IF EXISTS pk_model_information CASCADE;
 ALTER TABLE model_information ADD CONSTRAINT pk_model_information PRIMARY KEY (id);
 
+ALTER TABLE license DROP CONSTRAINT IF EXISTS pk_license CASCADE;
+ALTER TABLE license ADD CONSTRAINT pk_license PRIMARY KEY (id);
+
 ALTER TABLE cell_model DROP CONSTRAINT IF EXISTS pk_cell_model CASCADE;
 ALTER TABLE cell_model ADD CONSTRAINT pk_cell_model PRIMARY KEY (id);
 
