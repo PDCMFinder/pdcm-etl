@@ -34,6 +34,7 @@ class Constants:
     # Entities names
     ETHNICITY_ENTITY = "ethnicity"
     MODEL_INFORMATION_ENTITY = "model_information"
+    LICENSE_ENTITY = "license"
     CELL_MODEL_ENTITY = "cell_model"
     CELL_SAMPLE_ENTITY = "cell_sample"
     CONTACT_PEOPLE_ENTITY = "contact_people"

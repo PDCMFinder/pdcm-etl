@@ -4,7 +4,6 @@ from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
-from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -52,11 +51,17 @@ def clean_data_before_join(raw_patient_df: DataFrame) -> DataFrame:
 
 
 def set_fk_ethnicity(patient_df: DataFrame, ethnicity_df: DataFrame) -> DataFrame:
-    patient_df = transform_to_fk(patient_df, ethnicity_df, "ethnicity", "name", "id", "ethnicity_id")
+    ethnicity_df = ethnicity_df.withColumnRenamed("id", "ethnicity_id")
+    ethnicity_df = ethnicity_df.withColumnRenamed("name", "name")
+    patient_df = patient_df.withColumnRenamed("ethnicity", "patient_ethnicity")
+    patient_df = patient_df.join(ethnicity_df, patient_df.patient_ethnicity == ethnicity_df.name, how='left')
+    patient_df = patient_df.drop("name")
     return patient_df
 
 
 def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -> DataFrame:
+    provider_group_df = provider_group_df.withColumnRenamed("name", "provider_name")
+    provider_group_df = provider_group_df.withColumnRenamed("abbreviation", "provider_abbreviation")
     provider_group_df = provider_group_df.withColumnRenamed("id", "provider_group_id")
     patient_df = patient_df.join(provider_group_df, on=[Constants.DATA_SOURCE_COLUMN], how='left')
     return patient_df
@@ -73,10 +78,14 @@ def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
         "sex",
         "history",
         "ethnicity_id",
+        "patient_ethnicity",
         "ethnicity_assessment_method",
         "initial_diagnosis",
         "age_at_initial_diagnosis",
         "provider_group_id",
+        "provider_name",
+        "provider_abbreviation",
+        "project_group_name",
         Constants.DATA_SOURCE_COLUMN)
 
 

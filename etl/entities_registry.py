@@ -2,6 +2,7 @@ import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
 import etl.jobs.transformation.model_transformer_job
+import etl.jobs.transformation.license_transformer_job
 import etl.jobs.transformation.cell_model_transformer_job
 import etl.jobs.transformation.cell_sample_transformer_job
 import etl.jobs.transformation.publication_group_transformer_job
@@ -122,7 +123,16 @@ entities = {
             "accessibility_group_id",
             "contact_people_id",
             "contact_form_id",
-            "source_database_id"
+            "source_database_id",
+            "license_id"
+        ]
+    },
+    Constants.LICENSE_ENTITY: {
+        "spark_job": etl.jobs.transformation.license_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "name",
+            "url"
         ]
     },
     Constants.CELL_MODEL_ENTITY: {
@@ -478,6 +488,8 @@ entities = {
             "search_terms",
             "cancer_system",
             "dataset_available",
+            "license_name",
+            "license_url",
             "primary_site",
             "collection_site",
             "tumour_type",
@@ -501,22 +513,17 @@ entities = {
             "patient_sample_sharable",
             "patient_sample_treated_at_collection",
             "patient_sample_treated_prior_to_collection",
-            "pdx_model_host_strain_name",
-            "pdx_model_host_strain_nomenclature",
-            "pdx_model_engraftment_site",
-            "pdx_model_engraftment_type",
-            "pdx_model_sample_type",
-            "pdx_model_sample_state",
-            "pdx_model_passage_number",
             "pdx_model_publications",
             "quality_assurance",
+            "xenograft_model_specimens",
             "makers_with_cna_data",
             "makers_with_mutation_data",
             "makers_with_expression_data",
             "makers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
             "treatment_list",
-            "model_treatment_list"
+            "model_treatment_list",
+            "score"
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {

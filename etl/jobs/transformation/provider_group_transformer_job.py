@@ -89,6 +89,7 @@ def get_columns_expected_order(provider_group_df: DataFrame) -> DataFrame:
         col("provider_description").alias("description"),
         "provider_type_id",
         "project_group_id",
+        "project_group_name",
         Constants.DATA_SOURCE_COLUMN
     )
 

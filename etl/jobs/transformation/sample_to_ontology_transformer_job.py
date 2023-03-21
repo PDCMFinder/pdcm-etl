@@ -131,6 +131,8 @@ def link_samples_to_ontology(
         ontology_term_diagnosis_df: DataFrame,
         diagnosis_mappings_df: DataFrame) -> DataFrame:
 
+    diagnosis_mappings_df = diagnosis_mappings_df.select(
+        "datasource", "diagnosis", "primary_tissue", "tumor_type", "mapped_term_url").drop_duplicates()
     diagnosis_mappings_df = diagnosis_mappings_df.withColumnRenamed("mapped_term_url", "term_url")
     ontology_term_diagnosis_df = ontology_term_diagnosis_df.withColumnRenamed("id", "ontology_term_id")
     diagnosis_mappings_df = diagnosis_mappings_df.join(

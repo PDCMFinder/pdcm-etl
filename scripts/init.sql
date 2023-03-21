@@ -89,7 +89,16 @@ CREATE TABLE model_information (
     accessibility_group_id BIGINT,
     contact_people_id BIGINT,
     contact_form_id BIGINT,
-    source_database_id BIGINT
+    source_database_id BIGINT,
+    license_id BIGINT
+);
+
+DROP TABLE IF EXISTS license CASCADE;
+
+CREATE TABLE license (
+    id BIGINT NOT NULL,
+    name TEXT,
+    url TEXT
 );
 
 DROP TABLE IF EXISTS cell_model CASCADE;
@@ -484,6 +493,8 @@ CREATE TABLE search_index (
     search_terms TEXT[],
     cancer_system TEXT,
     dataset_available TEXT[],
+    license_name TEXT,
+    license_url TEXT,
     primary_site TEXT,
     collection_site TEXT,
     tumour_type TEXT,
@@ -507,22 +518,17 @@ CREATE TABLE search_index (
     patient_sample_sharable TEXT,
     patient_sample_treated_at_collection TEXT,
     patient_sample_treated_prior_to_collection TEXT,
-    pdx_model_host_strain_name TEXT,
-    pdx_model_host_strain_nomenclature TEXT,
-    pdx_model_engraftment_site TEXT,
-    pdx_model_engraftment_type TEXT,
-    pdx_model_sample_type TEXT,
-    pdx_model_sample_state TEXT,
-    pdx_model_passage_number TEXT,
     pdx_model_publications TEXT,
     quality_assurance JSON,
+    xenograft_model_specimens JSON,
     makers_with_cna_data TEXT[],
     makers_with_mutation_data TEXT[],
     makers_with_expression_data TEXT[],
     makers_with_cytogenetics_data TEXT[],
     breast_cancer_biomarkers TEXT[],
     treatment_list TEXT[],
-    model_treatment_list TEXT[]
+    model_treatment_list TEXT[],
+    score NUMERIC
 );
 
 DROP TABLE IF EXISTS search_facet CASCADE;

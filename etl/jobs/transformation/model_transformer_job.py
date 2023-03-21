@@ -25,7 +25,8 @@ def main(argv):
     contact_people_parquet_path = argv[6]
     contact_form_parquet_path = argv[7]
     source_database_parquet_path = argv[8]
-    output_path = argv[9]
+    license_parquet_path = argv[9]
+    output_path = argv[10]
 
     spark = SparkSession.builder.getOrCreate()
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
@@ -36,6 +37,8 @@ def main(argv):
     contact_people_df = spark.read.parquet(contact_people_parquet_path)
     contact_form_df = spark.read.parquet(contact_form_parquet_path)
     source_database_df = spark.read.parquet(source_database_parquet_path)
+    license_df = spark.read.parquet(license_parquet_path)
+
     model_df = transform_model(
         raw_model_df,
         raw_cell_model_df,
@@ -44,7 +47,9 @@ def main(argv):
         accessibility_group_df,
         contact_people_df,
         contact_form_df,
-        source_database_df)
+        source_database_df,
+        license_df)
+
     model_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -56,8 +61,8 @@ def transform_model(
         accessibility_group_df: DataFrame,
         contact_people_df: DataFrame,
         contact_form_df: DataFrame,
-        source_database_df: DataFrame) -> DataFrame:
-    
+        source_database_df: DataFrame,
+        license_df: DataFrame) -> DataFrame:
     model_df = get_data_from_model_modules(raw_model_df, raw_cell_model_df)
     model_df = join_model_with_sharing(model_df, raw_sharing_df)
     model_df = add_id(model_df, "id")
@@ -66,13 +71,13 @@ def transform_model(
     model_df = set_fk_contact_people(model_df, contact_people_df)
     model_df = set_fk_contact_form(model_df, contact_form_df)
     model_df = set_fk_source_database(model_df, source_database_df)
+    model_df = set_fk_license(model_df, license_df)
     model_df = get_columns_expected_order(model_df)
 
     return model_df
 
 
 def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
-
     model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumn("type", lit("xenograft"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
@@ -144,6 +149,15 @@ def set_fk_source_database(model_df: DataFrame, source_database_df: DataFrame) -
     return model_df
 
 
+def set_fk_license(model_df: DataFrame, license_df: DataFrame) -> DataFrame:
+    license_df = license_df.withColumnRenamed("id", "license_id")
+    license_df = license_df.withColumnRenamed("name", "license_name")
+    license_df = license_df.withColumnRenamed("url", "license_url")
+
+    model_df = model_df.join(license_df, model_df.license == license_df.license_name, how='left')
+    return model_df
+
+
 def get_provider_type_from_sharing(raw_sharing_df: DataFrame) -> DataFrame:
     provider_type_df = raw_sharing_df.select(format_name_column("provider_type").alias("name"))
     provider_type_df = provider_type_df.select("name").where("name is not null")
@@ -166,7 +180,10 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "contact_people_id",
         "contact_form_id",
         "source_database_id",
-        "type")
+        "type",
+        "license_id",
+        "license_name",
+        "license_url")
 
 
 if __name__ == "__main__":
