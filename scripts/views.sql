@@ -540,8 +540,14 @@ DROP VIEW IF EXISTS pdcm_api.search_index;
 
 CREATE VIEW pdcm_api.search_index
 AS
- SELECT search_index.*, cardinality(dataset_available) as model_dataset_type_count
-   FROM search_index;
+ SELECT search_index.*,
+        CASE
+            WHEN 'publication' = ANY(dataset_available)
+                THEN cardinality(dataset_available) - 1
+            ELSE
+                cardinality(dataset_available)
+            END as model_dataset_type_count
+ FROM search_index;
 
 
 -- search_facet materialized view: Facets information
