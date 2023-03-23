@@ -79,7 +79,7 @@ def transform_model(
 
 def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
     model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
-    model_df = model_df.withColumn("type", lit("xenograft"))
+    model_df = model_df.withColumn("type", lit("PDX"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
 
     cell_model_df = raw_cell_model_df.select("model_id", "publications", "type", Constants.DATA_SOURCE_COLUMN)
