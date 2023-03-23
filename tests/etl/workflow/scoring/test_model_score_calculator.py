@@ -1,7 +1,7 @@
 import json
 
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, LongType
+from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType
 
 from etl.jobs.transformation.scoring.model_score_calculator import add_score
 from tests.util import assert_df_are_equal_ignore_id
@@ -38,6 +38,7 @@ def build_search_index_df_schema():
         StructField('patient_sample_treated_at_collection', StringType(), False),
         StructField('patient_sample_treated_prior_to_collection', StringType(), False),
         StructField('pdx_model_publications', StringType(), False),
+        StructField('dataset_available', ArrayType(StringType()), True),
         StructField('quality_assurance', StringType(), False),
         StructField('xenograft_model_specimens', StringType(), False),
     ])
@@ -52,6 +53,15 @@ def create_search_index_max_score_df():
     schema = build_search_index_df_schema()
 
     spark = SparkSession.builder.getOrCreate()
+
+    data_availability_all = [
+        'mutation',
+        'copy number alteration',
+        'expression',
+        'cytogenetics',
+        'patient treatment',
+        'dosing studies',
+        'publication']
 
     quality_assurance_data_valid_data = [
         {
@@ -104,6 +114,7 @@ def create_search_index_max_score_df():
         "patient_sample_treated_at_collection_valid_value",
         "patient_sample_treated_prior_to_collection_valid_value",
         "pdx_model_publications_valid_value",
+        data_availability_all,
         json.dumps(quality_assurance_data_valid_data),
         json.dumps(xenograft_valid_data)
     )]
@@ -142,6 +153,15 @@ def create_search_index_some_invalid_data_df():
         }
     ]
 
+    data_availability_all = [
+        'mutation',
+        'copy number alteration',
+        'expression',
+        'cytogenetics',
+        'patient treatment',
+        'dosing studies',
+        'publication']
+
     data = [(
         1,
         "external_model_id_valid_value",
@@ -172,6 +192,7 @@ def create_search_index_some_invalid_data_df():
         "patient_sample_treated_at_collection_valid_value",
         "patient_sample_treated_prior_to_collection_valid_value",
         "pdx_model_publications_valid_value",
+        data_availability_all,
         json.dumps(quality_assurance_data_valid_data),
         json.dumps(xenograft_valid_data)
     )]
@@ -204,7 +225,7 @@ def test_add_score_some_invalid_data():
     search_index_max_score_df.show()
     output_df = add_score(search_index_max_score_df)
     expected_data = [
-        (1, 90)
+        (1, 92)
     ]
     expected_df = spark.createDataFrame(expected_data, ["pdcm_model_id", "score"])
 
