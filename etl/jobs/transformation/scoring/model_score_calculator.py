@@ -41,10 +41,19 @@ column_weights = {
     "xenograft_model_specimens.engraftment_type": 1,
     "xenograft_model_specimens.engraftment_sample_type": 1,
     "xenograft_model_specimens.engraftment_sample_state": 0.5,
-    "xenograft_model_specimens.passage_number": 1
+    "xenograft_model_specimens.passage_number": 1,
+    "dataset_available.mutation": 1,
+    "dataset_available.copy number alteration": 1,
+    "dataset_available.expression": 1,
+    "dataset_available.cytogenetics": 1,
+    "dataset_available.patient treatment": 1,
+    "dataset_available.dosing studies": 1,
+    "dataset_available.publication": 0
 }
 
 columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
+
+data_availability_column = "dataset_available"
 
 
 def get_max_score():
@@ -104,6 +113,15 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str) -
     return score
 
 
+def calculate_data_score(data_availability_column_value):
+    data_score = 0
+    if data_availability_column_value is not None:
+        for value in data_availability_column_value:
+            column_weight = column_weights.get(data_availability_column + "." + value)
+            data_score += column_weight
+    return data_score
+
+
 def calculate_score_by_column(column_name: str, column_value: str) -> float:
     score = 0
     if column_name in column_weights.keys():
@@ -111,6 +129,8 @@ def calculate_score_by_column(column_name: str, column_value: str) -> float:
             score += calculate_score_single_value_column(column_name, column_value)
     elif column_name in columns_with_multiple_values:
         score += calculate_score_multiple_value_column(column_name, column_value)
+    elif column_name == data_availability_column:
+        score += calculate_data_score(column_value)
     return score
 
 
