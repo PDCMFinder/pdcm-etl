@@ -7,30 +7,30 @@ from pyspark.sql.types import LongType
 
 column_weights = {
     "patient_sex": 1,
-    "patient_history": 0.5,
+    "patient_history": 0,
     "patient_ethnicity": 0.5,
-    "patient_ethnicity_assessment_method": 0.5,
-    "patient_initial_diagnosis": 0.5,
-    "patient_age_at_initial_diagnosis": 0.5,
+    "patient_ethnicity_assessment_method": 0,
+    "patient_initial_diagnosis": 0,
+    "patient_age_at_initial_diagnosis": 0,
     "patient_sample_id": 1,
-    "patient_sample_collection_date": 0.5,
-    "patient_sample_collection_event": 0.5,
-    "patient_sample_months_since_collection_1": 0.5,
+    "patient_sample_collection_date": 0,
+    "patient_sample_collection_event": 0,
+    "patient_sample_months_since_collection_1": 0,
     "patient_age": 1,
     "histology": 1,
     "tumour_type": 1,
     "primary_site": 1,
     "collection_site": 0.5,
     "cancer_stage": 0.5,
-    "cancer_staging_system": 0.5,
+    "cancer_staging_system": 0,
     "cancer_grade": 0.5,
-    "cancer_grading_system": 0.5,
-    "patient_sample_virology_status": 0.5,
-    "patient_sample_sharable": 1,
+    "cancer_grading_system": 0,
+    "patient_sample_virology_status": 0,
+    "patient_sample_sharable": 0,
     "patient_treatment_status": 1,
     "patient_sample_treated_at_collection": 0.5,
     "patient_sample_treated_prior_to_collection": 0.5,
-    "pdx_model_publications": 1,
+    "pdx_model_publications": 0,
     "quality_assurance.validation_technique": 1,
     "quality_assurance.description": 1,
     "quality_assurance.passages_tested": 1,
@@ -41,10 +41,19 @@ column_weights = {
     "xenograft_model_specimens.engraftment_type": 1,
     "xenograft_model_specimens.engraftment_sample_type": 1,
     "xenograft_model_specimens.engraftment_sample_state": 0.5,
-    "xenograft_model_specimens.passage_number": 1
+    "xenograft_model_specimens.passage_number": 1,
+    "dataset_available.mutation": 0,
+    "dataset_available.copy number alteration": 0,
+    "dataset_available.expression": 0,
+    "dataset_available.cytogenetics": 0,
+    "dataset_available.patient treatment": 0,
+    "dataset_available.dosing studies": 0,
+    "dataset_available.publication": 0
 }
 
 columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
+
+data_availability_column = "dataset_available"
 
 
 def get_max_score():
@@ -104,6 +113,15 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str) -
     return score
 
 
+def calculate_data_score(data_availability_column_value):
+    data_score = 0
+    if data_availability_column_value is not None:
+        for value in data_availability_column_value:
+            column_weight = column_weights.get(data_availability_column + "." + value)
+            data_score += column_weight
+    return data_score
+
+
 def calculate_score_by_column(column_name: str, column_value: str) -> float:
     score = 0
     if column_name in column_weights.keys():
@@ -111,13 +129,15 @@ def calculate_score_by_column(column_name: str, column_value: str) -> float:
             score += calculate_score_single_value_column(column_name, column_value)
     elif column_name in columns_with_multiple_values:
         score += calculate_score_multiple_value_column(column_name, column_value)
+    elif column_name == data_availability_column:
+        score += calculate_data_score(column_value)
     return score
 
 
 def add_score_to_row(row):
     score = 0
     row_as_dict = row.asDict()
-    if row_as_dict['model_type'] == 'xenograft':
+    if row_as_dict['model_type'] == 'PDX':
         for column_name in row_as_dict:
             score += calculate_score_by_column(column_name, row_as_dict[column_name])
 
