@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, lit, concat, concat_ws, collect_list
 from pyspark.sql.types import StructType, StringType, StructField
 
 
-def create_external_db_links_column(links_df: DataFrame):
+def create_external_db_links_column(links_df: DataFrame) -> DataFrame:
     links_json_entry_column_df = links_df.withColumn(
         "json_entry",
         concat(lit("{"),
