@@ -39,9 +39,11 @@ def add_links_in_molecular_data_table(
     molecular_data_df.show()
     print("Before join. external_db_links_column_df")
     external_db_links_column_df.show(truncate=False)
+    external_db_links_column_df=external_db_links_column_df.withColumn("links_id", col("molecular_data_id"))
 
     # Join back to the `molecular_data_df` data frame to add the new column to it
     molecular_data_df = molecular_data_df.join(external_db_links_column_df, on=["molecular_data_id"], how="left")
+    molecular_data_df.select("id", "external_db_links", "links_id").show(1000, truncate=False)
     return molecular_data_df
 
 
