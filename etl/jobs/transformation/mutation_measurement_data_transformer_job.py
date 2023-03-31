@@ -39,7 +39,8 @@ def main(argv):
         raw_resources_df,
         raw_resources_data_df,
         molecular_characterization_df,
-        gene_markers_parquet_path)
+        gene_markers_parquet_path,
+        output_path)
     mutation_measurement_data_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -48,7 +49,9 @@ def transform_mutation_measurement_data(
         raw_resources_df: DataFrame,
         raw_resources_data_df: DataFrame,
         molecular_characterization_df: DataFrame,
-        gene_markers_parquet_path) -> DataFrame:
+        gene_markers_parquet_path,
+        output_path) -> DataFrame:
+
     mutation_measurement_data_df = get_mutation_measurement_data_df(raw_mutation_df)
     mutation_measurement_data_df = set_fk_molecular_characterization(
         mutation_measurement_data_df, 'mutation', molecular_characterization_df)
@@ -59,7 +62,7 @@ def transform_mutation_measurement_data(
 
     mutation_measurement_data_df = add_id(mutation_measurement_data_df, "id")
     mutation_measurement_data_df = add_links_in_molecular_data_table(
-        mutation_measurement_data_df, raw_resources_df, raw_resources_data_df)
+        mutation_measurement_data_df, raw_resources_df, raw_resources_data_df, output_path)
 
     return mutation_measurement_data_df
 

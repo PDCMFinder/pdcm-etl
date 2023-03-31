@@ -1,12 +1,15 @@
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, lit, expr, regexp_extract, when, concat
+from pyspark.sql.functions import col, lit, expr, regexp_extract, when
 
 from etl.jobs.transformation.links_generation.link_builder_utils import create_external_db_links_column, \
     create_empty_df_for_data_reference_processing
 
 
 def add_links_in_molecular_data_table(
-        molecular_data_df: DataFrame, resources_df: DataFrame, resources_data_df: DataFrame):
+        molecular_data_df: DataFrame,
+        resources_df: DataFrame,
+        resources_data_df: DataFrame,
+        output_path):
     """
     Takes a dataframe with molecular data and adds an `external_db_links` column with links to external
     resources.
@@ -21,23 +24,26 @@ def add_links_in_molecular_data_table(
     if "amino_acid_change" in molecular_data_df.columns:
         link_build_confs.append(get_amino_acid_change_link_build_conf())
 
-    molecular_data_df = molecular_data_df.withColumn("molecular_data_id", concat(lit("molecular_data_id_"), col("id")))
+    # To avoid some random behaviour with the ids when doing the join, we write temporary the
+    # df with the molecular data and read it again
+    tmp_path = output_path + "_tmp"
+    molecular_data_df.write.mode("overwrite").parquet(tmp_path)
+    data_df = spark.read.parquet(tmp_path)
 
     # Find links for resources for which we have downloaded data
-    ref_links_df = find_links_for_ref_lookup_data(molecular_data_df, link_build_confs, resources_data_df)
+    ref_links_df = find_links_for_ref_lookup_data(data_df, link_build_confs, resources_data_df)
 
     # Find links that are created based on values of columns in the molecular data table
     inline_links_df = find_inline_links_molecular_data(spark, molecular_data_df, link_build_confs, resources_df)
 
     links_df = ref_links_df.union(inline_links_df)
 
-    links_df = links_df.withColumnRenamed("molecular_data_id", "id")
     external_db_links_column_df = create_external_db_links_column(links_df)
-    external_db_links_column_df = external_db_links_column_df.withColumnRenamed("id", "molecular_data_id")
 
-    # Join back to the `molecular_data_df` data frame to add the new column to it
-    molecular_data_df = molecular_data_df.join(external_db_links_column_df, on=["molecular_data_id"], how="left")
-    return molecular_data_df
+    # Join back to the original data frame to add the new column to it
+    data_df = data_df.join(external_db_links_column_df, on=["id"], how="left")
+
+    return data_df
 
 
 def find_links_for_ref_lookup_data(
@@ -45,7 +51,7 @@ def find_links_for_ref_lookup_data(
     spark = SparkSession.builder.getOrCreate()
 
     # Get the relevant columns from the original df. ID is always mandatory.
-    columns_to_process = {"molecular_data_id"}
+    columns_to_process = {"id"}
     for x in link_build_confs:
         for source in x["ref_source_columns"]:
             columns_to_process.add(source)
@@ -54,7 +60,6 @@ def find_links_for_ref_lookup_data(
     input_df = molecular_data_df.select(columns_to_process)
 
     data_with_references_df = create_empty_df_for_data_reference_processing(spark)
-    data_with_references_df = data_with_references_df.withColumnRenamed("id", "molecular_data_id")
 
     # Check each one of the columns where we want to put a link
     for column_conf in link_build_confs:
@@ -77,7 +82,6 @@ def find_inline_links_molecular_data(spark, molecular_data_df: DataFrame, link_b
     inline_resources_df = inline_resources_df.join(link_build_confs_df, on=["type"], how='inner')
 
     data_with_references_df = create_empty_df_for_data_reference_processing(spark)
-    data_with_references_df = data_with_references_df.withColumnRenamed("id", "molecular_data_id")
 
     #  Iterate through the different inline resources to find the respective links, then join all
     inline_resources_list = [row.asDict() for row in inline_resources_df.collect()]
@@ -116,7 +120,7 @@ def get_amino_acid_change_link_build_conf():
 
 def find_dbSNP_links(molecular_data_df: DataFrame, resource_definition):
     print("Processing molecular_data_df fo find dbSNP links")
-    data_df = molecular_data_df.select("molecular_data_id", "variation_id")
+    data_df = molecular_data_df.select("id", "variation_id")
     data_df = data_df.withColumn("resource", lit(resource_definition["label"]))
     data_df = data_df.withColumn("column", lit(resource_definition["target_column"]))
     data_df = data_df.where("variation_id is not null and variation_id != ''")
@@ -126,12 +130,12 @@ def find_dbSNP_links(molecular_data_df: DataFrame, resource_definition):
                                              when(col('rs_id') == '', None)
                                              .otherwise(expr("regexp_replace(link, 'RS_ID', rs_id)")))
 
-    return data_links_df.select("molecular_data_id", "resource", "column", "link")
+    return data_links_df.select("id", "resource", "column", "link")
 
 
 def find_cosmic_links(molecular_data_df: DataFrame, resource_definition):
     print("Processing molecular_data_df fo find cosmic links")
-    data_df = molecular_data_df.select("molecular_data_id", "variation_id")
+    data_df = molecular_data_df.select("id", "variation_id")
     data_df = data_df.withColumn("resource", lit(resource_definition["label"]))
     data_df = data_df.withColumn("column", lit(resource_definition["target_column"]))
     data_df = data_df.where("variation_id is not null and variation_id != ''")
@@ -142,7 +146,7 @@ def find_cosmic_links(molecular_data_df: DataFrame, resource_definition):
                                              when(col('cosmic_id') == '', None)
                                              .otherwise(expr("regexp_replace(link, 'COSMIC_ID', cosmic_id)")))
 
-    return data_links_df.select("molecular_data_id", "resource", "column", "link")
+    return data_links_df.select("id", "resource", "column", "link")
 
 
 def find_open_cravat_links(molecular_data_df: DataFrame, resource_definition):
@@ -166,4 +170,4 @@ def find_open_cravat_links(molecular_data_df: DataFrame, resource_definition):
     data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'POSITION', seq_start_position)"))
     data_links_df = data_links_df.withColumn("link", expr("regexp_replace(link, 'REF_BASE', ref_allele)"))
 
-    return data_links_df.select("molecular_data_id", "resource", "column", "link")
+    return data_links_df.select("id", "resource", "column", "link")

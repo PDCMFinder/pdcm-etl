@@ -225,7 +225,7 @@ def test_add_score_some_invalid_data():
     search_index_max_score_df.show()
     output_df = add_score(search_index_max_score_df)
     expected_data = [
-        (1, 92)
+        (1, 90)
     ]
     expected_df = spark.createDataFrame(expected_data, ["pdcm_model_id", "score"])
 

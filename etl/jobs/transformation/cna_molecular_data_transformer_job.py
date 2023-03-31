@@ -36,7 +36,12 @@ def main(argv):
     raw_resources_data_df = spark.read.parquet(raw_external_resources_data_parquet_path)
 
     cna_molecular_data_df = transform_cna_molecular_data(
-        molecular_characterization_df, raw_cna_df, raw_resources_df, raw_resources_data_df, gene_markers_parquet_path)
+        molecular_characterization_df,
+        raw_cna_df,
+        raw_resources_df,
+        raw_resources_data_df,
+        gene_markers_parquet_path,
+        output_path)
     cna_molecular_data_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -44,13 +49,14 @@ def transform_cna_molecular_data(
         molecular_characterization_df: DataFrame, raw_cna_df: DataFrame,
         raw_resources_df: DataFrame,
         raw_resources_data_df: DataFrame,
-        gene_markers_parquet_path: DataFrame) -> DataFrame:
+        gene_markers_parquet_path: DataFrame,
+        output_path) -> DataFrame:
     cna_df = get_cna_df(raw_cna_df)
     cna_df = set_fk_molecular_characterization(cna_df, 'copy number alteration', molecular_characterization_df)
     cna_df = harmonise_mutation_marker_symbols(cna_df, gene_markers_parquet_path)
     cna_df = cna_df.withColumnRenamed(Constants.DATA_SOURCE_COLUMN, "data_source")
     cna_df = add_id(cna_df, "id")
-    cna_df = add_links_in_molecular_data_table(cna_df, raw_resources_df, raw_resources_data_df)
+    cna_df = add_links_in_molecular_data_table(cna_df, raw_resources_df, raw_resources_data_df, output_path)
     return cna_df
 
 
