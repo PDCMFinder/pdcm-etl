@@ -6,13 +6,17 @@ from etl.jobs.transformation.links_generation.link_builder_utils import create_e
 
 
 def add_links_in_molecular_data_table(
-        molecular_data_df: DataFrame, resources_df: DataFrame, resources_data_df: DataFrame):
+        molecular_data_df: DataFrame,
+        resources_df: DataFrame,
+        resources_data_df: DataFrame,
+        output_path):
     """
     Takes a dataframe with molecular data and adds an `external_db_links` column with links to external
     resources.
     Molecular data tables can potentially have links in 2 columns: hgnc_symbol and amino_acid_change (amino_acid_change
     only applies for mutation data).
     """
+    spark = SparkSession.builder.getOrCreate()
     # Get additional information about how to get links per column
     link_build_confs = []
     if "hgnc_symbol" in molecular_data_df.columns:
@@ -20,24 +24,32 @@ def add_links_in_molecular_data_table(
     if "amino_acid_change" in molecular_data_df.columns:
         link_build_confs.append(get_amino_acid_change_link_build_conf())
 
+    # To avoid some random behaviour with the ids when doing the join, we write temporary the
+    # df with the molecular data and read it again
+    tmp_path = output_path + "_tmp"
+    molecular_data_df.write.mode("overwrite").parquet(tmp_path)
+    data_df = spark.read.parquet(tmp_path)
+
     # Find links for resources for which we have downloaded data
-    ref_links_df = find_links_for_ref_lookup_data(molecular_data_df, link_build_confs, resources_data_df)
+    ref_links_df = find_links_for_ref_lookup_data(data_df, link_build_confs, resources_data_df)
 
     # Find links that are created based on values of columns in the molecular data table
-    inline_links_df = find_inline_links_molecular_data(molecular_data_df, link_build_confs, resources_df)
+    inline_links_df = find_inline_links_molecular_data(spark, molecular_data_df, link_build_confs, resources_df)
 
     links_df = ref_links_df.union(inline_links_df)
 
     external_db_links_column_df = create_external_db_links_column(links_df)
 
-    # Join back to the `molecular_data_df` data frame to add the new column to it
-    molecular_data_df = molecular_data_df.join(external_db_links_column_df, on=["id"], how="left")
-    return molecular_data_df
+    # Join back to the original data frame to add the new column to it
+    data_df = data_df.join(external_db_links_column_df, on=["id"], how="left")
+
+    return data_df
 
 
 def find_links_for_ref_lookup_data(
         molecular_data_df: DataFrame, link_build_confs, external_resources_data_df: DataFrame):
     spark = SparkSession.builder.getOrCreate()
+
     # Get the relevant columns from the original df. ID is always mandatory.
     columns_to_process = {"id"}
     for x in link_build_confs:
@@ -45,8 +57,7 @@ def find_links_for_ref_lookup_data(
             columns_to_process.add(source)
     columns_to_process = list(columns_to_process)
 
-    # input_df = molecular_data_df.select(columns_to_process)
-    input_df = molecular_data_df
+    input_df = molecular_data_df.select(columns_to_process)
 
     data_with_references_df = create_empty_df_for_data_reference_processing(spark)
 
@@ -61,13 +72,12 @@ def find_links_for_ref_lookup_data(
         tmp_df = tmp_df.withColumn("column", lit(column_conf["target_column"]))
         tmp_df = tmp_df.select(data_with_references_df.columns)
         data_with_references_df = data_with_references_df.union(tmp_df)
-
     return data_with_references_df
 
 
-def find_inline_links_molecular_data(molecular_data_df: DataFrame, link_build_confs, resources_df: DataFrame):
+def find_inline_links_molecular_data(spark, molecular_data_df: DataFrame, link_build_confs, resources_df: DataFrame):
     inline_resources_df = resources_df.where("link_building_method != 'referenceLookup'")
-    spark = SparkSession.builder.getOrCreate()
+
     link_build_confs_df = spark.createDataFrame(data=link_build_confs)
     inline_resources_df = inline_resources_df.join(link_build_confs_df, on=["type"], how='inner')
 
@@ -106,9 +116,6 @@ def get_amino_acid_change_link_build_conf():
         "ref_source_columns": ["hgnc_symbol", "amino_acid_change"],
         "type": "Variant"}
     return link_build_conf
-
-
-
 
 
 def find_dbSNP_links(molecular_data_df: DataFrame, resource_definition):

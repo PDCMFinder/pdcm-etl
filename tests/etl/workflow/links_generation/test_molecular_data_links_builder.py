@@ -1,4 +1,6 @@
 import json
+import shutil
+
 from pyspark.sql import SparkSession
 
 from etl.jobs.transformation.links_generation.molecular_data_links_builder import \
@@ -47,7 +49,7 @@ def test_add_links_in_molecular_data_table_hgnc_symbol_only():
     resources_df = create_resources_df()
     resources_data_df = create_resources_reference_data_df()
 
-    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df)
+    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df, "molecular_data_output")
 
     links_row_1 = [
         {
@@ -99,7 +101,7 @@ def test_add_links_in_molecular_data_table_with_aac():
 
     resources_data_df = create_resources_reference_data_df()
 
-    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df)
+    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df, "molecular_data_output")
 
     # Assert links where generated
     links_row_1 = [
@@ -162,4 +164,4 @@ def test_add_links_in_molecular_data_table_with_aac():
     data_df_to_assert = data_df.select("id", "external_db_links")
 
     assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
-
+    shutil.rmtree("molecular_data_output_tmp", ignore_errors=True, onerror=None)
