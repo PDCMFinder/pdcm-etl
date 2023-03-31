@@ -40,7 +40,8 @@ def main(argv):
         raw_expression_df,
         raw_resources_df,
         raw_resources_data_df,
-        gene_markers_parquet_path)
+        gene_markers_parquet_path,
+        output_path)
     expression_molecular_data_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -49,7 +50,8 @@ def transform_expression_molecular_data(
         raw_expression_df: DataFrame,
         raw_resources_df: DataFrame,
         raw_resources_data_df: DataFrame,
-        gene_markers_parquet_path: DataFrame) -> DataFrame:
+        gene_markers_parquet_path: DataFrame,
+        output_path) -> DataFrame:
     expression_df = get_expression_df(raw_expression_df)
 
     expression_df = set_fk_molecular_characterization(expression_df, 'expression', molecular_characterization_df)
@@ -58,7 +60,8 @@ def transform_expression_molecular_data(
         Constants.DATA_SOURCE_COLUMN, "data_source")
 
     expression_df = add_id(expression_df, "id")
-    expression_df = add_links_in_molecular_data_table(expression_df, raw_resources_df, raw_resources_data_df)
+    expression_df = add_links_in_molecular_data_table(
+        expression_df, raw_resources_df, raw_resources_data_df, output_path)
     return expression_df
 
 

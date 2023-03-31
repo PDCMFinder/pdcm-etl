@@ -41,7 +41,8 @@ def main(argv):
         raw_cytogenetics_df,
         raw_resources_df,
         raw_resources_data_df,
-        gene_markers_parquet_path)
+        gene_markers_parquet_path,
+        output_path)
 
     cytogenetics_molecular_data_df.write.mode("overwrite").parquet(output_path)
 
@@ -51,7 +52,8 @@ def transform_cytogenetics_molecular_data(
         raw_cytogenetics_df: DataFrame,
         raw_resources_df: DataFrame,
         raw_resources_data_df: DataFrame,
-        gene_markers_parquet_path) -> DataFrame:
+        gene_markers_parquet_path,
+        output_path) -> DataFrame:
     cytogenetics_df = get_cytogenetics_df(raw_cytogenetics_df)
 
     # Adding columns that don't exist in the dataset but are convenient to have for the harmonisation process
@@ -63,7 +65,8 @@ def transform_cytogenetics_molecular_data(
     cytogenetics_df = cytogenetics_df.withColumnRenamed(
         Constants.DATA_SOURCE_COLUMN, "data_source")
     cytogenetics_df = add_id(cytogenetics_df, "id")
-    cytogenetics_df = add_links_in_molecular_data_table(cytogenetics_df, raw_resources_df, raw_resources_data_df)
+    cytogenetics_df = add_links_in_molecular_data_table(
+        cytogenetics_df, raw_resources_df, raw_resources_data_df, output_path)
     return cytogenetics_df
 
 
