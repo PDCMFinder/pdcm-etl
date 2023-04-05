@@ -46,7 +46,7 @@ exclude_top_level_terms = [
     "Cancer by Site"
 ]
 
-NOT_SPECIFIED_VALUE = "Not specified"
+NOT_PROVIDED_VALUE = "Not Provided"
 
 
 def main(argv):
@@ -523,7 +523,7 @@ def extend_patient_sample(
     patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
     patient_df = patient_df.withColumn(
         "patient_sex",
-        when(lower(col("patient_sex")).contains("not"), NOT_SPECIFIED_VALUE).otherwise(
+        when(lower(col("patient_sex")).contains("not"), NOT_PROVIDED_VALUE).otherwise(
             lower(col("patient_sex"))
         ),
     )
@@ -554,7 +554,7 @@ def extend_patient_sample(
             lower(col("treatment_naive_at_collection")) == "no",
             lit("Not treatment naive"),
         )
-        .otherwise(lit(NOT_SPECIFIED_VALUE)),
+        .otherwise(lit(NOT_PROVIDED_VALUE)),
     )
 
     return patient_sample_ext_df
@@ -562,7 +562,7 @@ def extend_patient_sample(
 
 def _bin_age(age_str: str):
     if age_str is None or "not" in age_str.lower():
-        return NOT_SPECIFIED_VALUE
+        return NOT_PROVIDED_VALUE
 
     if "months" in age_str:
         return "0 - 23 months"
@@ -576,7 +576,7 @@ def _bin_age(age_str: str):
             if bin_range[0] <= age <= bin_range[1]:
                 return f"{bin_range[0]} - {bin_range[1] - 1}"
     except ValueError:
-        return NOT_SPECIFIED_VALUE
+        return NOT_PROVIDED_VALUE
 
     return age_str
 
