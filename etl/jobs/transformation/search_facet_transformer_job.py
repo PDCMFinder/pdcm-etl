@@ -115,6 +115,12 @@ facet_definitions = [
     },
     {
         "facet_section": "patient_tumour",
+        "facet_name": "Patient Ethnicity",
+        "facet_column": "patient_ethnicity",
+        "facet_example": '""'
+    },
+    {
+        "facet_section": "patient_tumour",
         "facet_name": "Patient age",
         "facet_column": "patient_age",
         "facet_example": '""'
@@ -123,6 +129,18 @@ facet_definitions = [
         "facet_section": "patient_tumour",
         "facet_name": "Cancer system",
         "facet_column": "cancer_system",
+        "facet_example": '""'
+    },
+    {
+        "facet_section": "patient_tumour",
+        "facet_name": "Collection Site",
+        "facet_column": "collection_site",
+        "facet_example": '""'
+    },
+    {
+        "facet_section": "patient_tumour",
+        "facet_name": "Primary Site",
+        "facet_column": "primary_site",
         "facet_example": '""'
     }
 ]
