@@ -568,6 +568,17 @@ AS
  SELECT release_info.*
    FROM release_info;
 
+
+-- provider_group view: Providers information
+
+DROP VIEW IF EXISTS pdcm_api.provider_group;
+
+CREATE VIEW pdcm_api.provider_group
+AS
+ SELECT provider_group.*
+   FROM provider_group;
+
+
 --------------------------------- Materialized Views -------------------------------------------------------------------
 
 -- Available columns by provider and molecular characterization type
