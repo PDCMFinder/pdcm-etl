@@ -181,7 +181,7 @@ CREATE TABLE cell_model (
     external_ids TEXT
 );
 
-COMMENT ON TABLE cell_model IS 'License of a model';
+COMMENT ON TABLE cell_model IS 'Cell model';
 COMMENT ON COLUMN cell_model.id IS 'Internal identifier';
 COMMENT ON COLUMN cell_model.name IS 'Unique identifier for all the cancer models derived from the same tissue sample';
 COMMENT ON COLUMN cell_model.type IS 'Type of organoid or cell model';
