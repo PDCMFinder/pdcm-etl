@@ -48,7 +48,7 @@ def read_files(session, path_patterns, schema):
     start = time.time()
 
     df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(
-        ['file:///' + p.replace("'", "") for p in path_patterns])
+        [p.replace("'", "") for p in path_patterns])
     df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
     datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
