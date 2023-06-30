@@ -473,7 +473,8 @@ class TransformSearchIndex(TransformEntity):
         TransformSampleToOntology(),
         TransformOntologyTermDiagnosis(),
         TransformTreatmentHarmonisationHelper(),
-        TransformQualityAssurance()
+        TransformQualityAssurance(),
+        ExtractExternalResources()
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 
