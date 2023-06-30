@@ -863,6 +863,7 @@ CREATE TABLE search_index (
     breast_cancer_biomarkers TEXT[],
     treatment_list TEXT[],
     model_treatment_list TEXT[],
+    resources TEXT[],
     score NUMERIC
 );
 
@@ -913,6 +914,7 @@ COMMENT ON COLUMN search_index.makers_with_cytogenetics_data IS 'Marker list in 
 COMMENT ON COLUMN search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
 COMMENT ON COLUMN search_index.treatment_list IS 'Patient treatment data';
 COMMENT ON COLUMN search_index.model_treatment_list IS 'Drug dosing data';
+COMMENT ON COLUMN search_index.resources IS 'List of resources the model links to';
 COMMENT ON COLUMN search_index.score IS 'PDX model richness score';
 
 DROP TABLE IF EXISTS search_facet CASCADE;

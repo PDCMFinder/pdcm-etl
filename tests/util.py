@@ -32,7 +32,7 @@ def convert_to_dataframe(spark: SparkSession, dict_list: List[Dict]) -> DataFram
         for x in element.keys():
             value = str(element[x])
             if value.startswith("[") and value.endswith("]"):
-                content = value[1:len(value)-1]
+                content = value[1:len(value) - 1]
                 element[x] = convert_comma_separated_string_to_array(content)
 
         data.append(element)
@@ -43,4 +43,8 @@ def convert_to_dataframe(spark: SparkSession, dict_list: List[Dict]) -> DataFram
 def assert_df_are_equal_ignore_id(df_a: DataFrame, df_b: DataFrame):
     df_a = df_a.drop("id")
     df_b = df_b.drop("id")
+    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True)
+
+
+def assert_df_are_equal(df_a: DataFrame, df_b: DataFrame):
     assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True)

@@ -523,6 +523,7 @@ entities = {
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",
+            "resources",
             "score"
         ]
     },
