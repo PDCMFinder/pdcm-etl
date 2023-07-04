@@ -3,6 +3,7 @@ import luigi
 from etl.constants import Constants
 from etl.workflow.readers.external_resources_reader import ReadResources, \
     ReadDownloadedExternalResourcesFromCsv
+from etl.workflow.readers.model_characterizations_conf_reader import ReadModelCharacterizationsConf
 from etl.workflow.readers.mapping_rules_reader import ReadDiagnosisMappingsFromJson, ReadTreatmentMappingsFromJson
 from etl.workflow.readers.markers_reader import ReadMarkerFromTsv
 from etl.workflow.readers.ncit_reader import ReadOntologyFromObo
@@ -138,6 +139,10 @@ class ExtractDownloadedResourcesData(ReadDownloadedExternalResourcesFromCsv):
 
     def requires(self):
         return ExtractExternalResources()
+
+
+class ExtractModelCharacterizationConf(ReadModelCharacterizationsConf):
+    module_name = Constants.MODEL_CHARACTERIZATIONS_CONF_MODULE
 
 
 if __name__ == "__main__":

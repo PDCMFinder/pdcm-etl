@@ -1,0 +1,31 @@
+# Model characterizations.
+
+# A model characterization is a set of criteria used to assess the richness of a model in a particular context
+# (metadata, data, connectivity to other resources, etc).
+# Fields:
+# - id: Numeric identifier of the entry.
+# - name: Unique name for the model characterization.
+# - description: Text explaining the purpose of the characterization and how it is calculated. For documentation purposes.
+# - applies_on: A description of the models that are taken into account in the calculation. It’s free text.
+# - score_name: Name of the score as it will be available in thew scores JSON column (search_index table).
+# - calculation_method: Identifier used to apply the right calculation function for the score.
+
+model_characterizations:
+  - id: 1
+    name: "PDX Metadata Characterization"
+    description: "PDX Metadata Characterization score is calculated taking into account two criteria. First, it checks
+    the values of the fields in the models and assigns a score of 1 or 0.5 depending on the field being essential 
+    or desirable, and if the value is valid or not. Second, it assigns a score of 1 per external resource the model is 
+    linked to."
+    applies_on: "PDX models"
+    score_name: "pdx_metadata_score"
+    calculation_method: "calculate_pdx_metadata_score"
+
+  - id: 2
+    name: "Data Characterization"
+    description: "Data Characterization score is calculated by taking into account the number of datasets the model
+    has. The datasets evaluated are: Publications, Expression data, Cytogenetics data, Mutation data, Patient treatment 
+    data, and Drug dosing data."
+    applies_on: "All models"
+    score_name: "data_score"
+    calculation_method: "calculate_data_score"

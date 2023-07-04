@@ -28,6 +28,7 @@ class Constants:
     EXTERNAL_RESOURCES_DATA_MODULE = "external_resources_data"
     MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
     MAPPING_TREATMENTS_MODULE = "mapping_treatments"
+    MODEL_CHARACTERIZATIONS_CONF_MODULE = "model_characterizations_conf"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
