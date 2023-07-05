@@ -1,10 +1,16 @@
 import luigi
+from luigi.contrib.hdfs import HdfsTarget
 
 
 class PdcmConfig(luigi.Config):
+    etl_deploy_mode = luigi.Parameter(default="client")
 
     def get_target(self, path):
-        return (luigi.LocalTarget(path))
+        return (
+            luigi.LocalTarget(path)
+            if self.etl_deploy_mode in ["local", "client"]
+            else HdfsTarget(path)
+        )
 
 
 class TimeTaskMixin(object):
