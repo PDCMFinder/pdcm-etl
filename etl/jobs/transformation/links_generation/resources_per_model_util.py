@@ -77,8 +77,6 @@ def build_molchar_resource_df(
     molecular characterization - resource in the data. It can be used later to create a list of resources per
     molecular characterization.
     """
-    print("mutation_measurement_data_df")
-    mutation_measurement_data_df.show()
     resources = get_list_resources_available_molecular_data(resources_df)
     # First get the resources linked to molecular characterizations in the molecular characterization data (links
     # generated from raw_data_url)
