@@ -1,11 +1,15 @@
 import json
-import sys
 
 from pyspark import Row
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import LongType, StructField, StructType
 
 from etl.conf_file_readers.yaml_config_file_reader import read_yaml_config_file
+
+# Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
+# resources connectedness. A weight is assigned manually to each one:
+metadata_score_weight = 0.9
+raw_data_score_weight = 0.07
+cancer_annotation_score_weight = 0.03
 
 column_weights = {
     "patient_sex": 1,
@@ -43,32 +47,31 @@ column_weights = {
     "xenograft_model_specimens.engraftment_type": 1,
     "xenograft_model_specimens.engraftment_sample_type": 1,
     "xenograft_model_specimens.engraftment_sample_state": 0.5,
-    "xenograft_model_specimens.passage_number": 1,
-    "dataset_available.mutation": 0,
-    "dataset_available.copy number alteration": 0,
-    "dataset_available.expression": 0,
-    "dataset_available.cytogenetics": 0,
-    "dataset_available.patient treatment": 0,
-    "dataset_available.dosing studies": 0,
-    "dataset_available.publication": 0
+    "xenograft_model_specimens.passage_number": 1
 }
 
 columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
 
-total_resources = len({resource["label"] for resource in read_yaml_config_file("external_resources.yaml")['resources']})
+
+def count_resources(resource_types):
+    all_resources = read_yaml_config_file("external_resources.yaml")['resources']
+    resources_by_type = {resource["label"] for resource in all_resources if resource["type"] in resource_types}
+    return len(resources_by_type)
 
 
-def get_max_score():
+total_raw_data_resources = count_resources(["Study"])
+total_cancer_annotation_resources = count_resources(["Gene", "Variant"])
+
+
+def get_metadata_max_score():
     total_score = 0
-    # First part of max score is the total possible score coming from `column_weights`
+    # Max score is the total possible score coming from `column_weights`
     for element in column_weights:
         total_score += column_weights[element]
-    # Second part of max score is the total number of resources
-    total_score += total_resources
     return total_score
 
 
-max_score = get_max_score()
+metadata_max_score = get_metadata_max_score()
 
 
 def is_valid_value(attribute_value: str) -> bool:
@@ -119,7 +122,9 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str) -
 
 def calculate_score_external_resources(resources_list) -> float:
     # Assign 1 score point per external resource
-    return len(resources_list)
+    if resources_list:
+        return len(resources_list)
+    return 0
 
 
 def calculate_score_by_column(column_name: str, column_value: str) -> float:
@@ -152,15 +157,46 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame) -> DataFrame:
     return score_df
 
 
-def calculate_score_for_row(row):
+def calculate_metadata_score(row):
     score = 0
     row_as_dict = row.asDict()
-    columns = {"pdcm_model_id": row["pdcm_model_id"]}
-
     for column_name in row_as_dict:
         score += calculate_score_by_column(column_name, row_as_dict[column_name])
+    return score / metadata_max_score * 100
 
-    score_as_percentage = int(score / max_score * 100)
-    columns["score"] = score_as_percentage
+
+def calculate_raw_data_score(row):
+    score = 0
+    raw_data_resources_list = row["raw_data_resources"]
+
+    # In this score, it's not important the number of resources but rather if there is at least one
+    # associated resource or not
+    if raw_data_resources_list:
+        if len(raw_data_resources_list) > 0:
+            score = 1
+
+    return score * 100
+
+
+def calculate_cancer_annotation_score(row):
+    score = 0
+    raw_data_resources_list = row["cancer_annotation_resources"]
+
+    if raw_data_resources_list:
+        score = len(raw_data_resources_list)
+
+    return score / total_cancer_annotation_resources * 100
+
+
+def calculate_score_for_row(row):
+    columns = {"pdcm_model_id": row["pdcm_model_id"]}
+
+    metadata_score = calculate_metadata_score(row) * metadata_score_weight
+    raw_data_score = calculate_raw_data_score(row) * raw_data_score_weight
+    cancer_annotation_score = calculate_cancer_annotation_score(row) * cancer_annotation_score_weight
+
+    score = int(metadata_score + raw_data_score + cancer_annotation_score)
+
+    columns["score"] = score
     output = Row(**columns)
     return output
