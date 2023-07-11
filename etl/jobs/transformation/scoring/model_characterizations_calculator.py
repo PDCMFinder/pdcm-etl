@@ -14,8 +14,6 @@ model characterization definition, which are configured in the model_characteriz
 
 def add_scores_column(search_index_df: DataFrame, model_characterizations_conf_df: DataFrame) -> DataFrame:
     spark = SparkSession.builder.getOrCreate()
-    # Init the column `scores` as an empty string, which will be populated later with scores in JSON format
-    # search_index_df = search_index_df.withColumn("scores", lit(""))
     schema = StructType([
         StructField('pdcm_model_id', LongType(), False),
         StructField('score_entry', StringType(), False)])

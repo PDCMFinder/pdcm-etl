@@ -16,7 +16,7 @@ def create_search_index_df():
 
 def create_model_molecular_characterization_df():
     spark = SparkSession.builder.getOrCreate()
-    columns = ["model_id", "mol_char_id", "external_db_link"]
+    columns = ["model_id", "mol_char_id", "external_db_links"]
     data = [
         (1, 10, """[{"resource": "ENA"}, {"resource": "EGA"}]"""),
         (1, 11, """[{"resource": "ENA"}]"""),
@@ -32,7 +32,7 @@ def create_model_molecular_characterization_df():
 
 def create_mutation_measurement_data_df():
     spark = SparkSession.builder.getOrCreate()
-    columns = ["id", "molecular_characterization_id", "external_db_link"]
+    columns = ["id", "molecular_characterization_id", "external_db_links"]
     data = [
         (1, 10, """[{"resource": "Civic"}]"""),
         (2, 10, """[{"resource": "Civic"}]"""),
@@ -48,7 +48,7 @@ def create_mutation_measurement_data_df():
 
 def create_cna_data_df():
     spark = SparkSession.builder.getOrCreate()
-    columns = ["id", "molecular_characterization_id", "external_db_link"]
+    columns = ["id", "molecular_characterization_id", "external_db_links"]
     data = [
         (1, 12, """[{"resource": "Civic"}]"""),
         (2, 12, """[{"resource": "Civic"}, {"resource": "OncoMx"}, {"resource": "OpenCravat"}]"""),
@@ -60,7 +60,7 @@ def create_cna_data_df():
 
 def create_expression_data_df():
     spark = SparkSession.builder.getOrCreate()
-    columns = ["id", "molecular_characterization_id", "external_db_link"]
+    columns = ["id", "molecular_characterization_id", "external_db_links"]
     data = [
         (1, 13, """[]"""),
         (2, 13, """[{"resource": "dbSNP"}, {"resource": "COSMIC"}, {"resource": "Civic"}]"""),
@@ -72,7 +72,7 @@ def create_expression_data_df():
 
 def create_cytogenetics_data_df():
     spark = SparkSession.builder.getOrCreate()
-    columns = ["id", "molecular_characterization_id", "external_db_link"]
+    columns = ["id", "molecular_characterization_id", "external_db_links"]
     data = [
         (1, 14, """[]"""),
     ]
@@ -100,12 +100,13 @@ def test_add_resources_list():
         resources_df)
 
     expected_data = [
-        (1, "model_a", ["Civic", "ENA", "EGA"]),
-        (2, "model_b", ["GEO", "OncoMx", "OpenCravat", "EGA", "Civic", "dbSNP", "COSMIC"]),
-        (3, "model_c", []),
-        (4, "model_d", ["GEO", "ENA"]),
+        (1, "model_a", ["EGA", "ENA"], ["Civic"]),
+        (2, "model_b", ["EGA", "GEO"], ["COSMIC", "Civic", "OncoMx", "OpenCravat", "dbSNP"]),
+        (3, "model_c", [], []),
+        (4, "model_d", ["ENA", "GEO"], []),
     ]
     spark = SparkSession.builder.getOrCreate()
-    expected_df = spark.createDataFrame(expected_data, ["pdcm_model_id", "external_model_id", "resources"])
+    expected_df = spark.createDataFrame(
+        expected_data, ["pdcm_model_id", "external_model_id", "raw_data_resources", "cancer_annotation_resources"])
     assert_df_are_equal_ignore_id(df, expected_df)
 

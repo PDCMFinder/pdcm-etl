@@ -18,6 +18,7 @@ from pyspark.sql.functions import (
 from pyspark.sql.types import ArrayType, StringType
 
 from etl.jobs.transformation.links_generation.resources_per_model_util import add_resources_list
+from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
 from etl.jobs.transformation.scoring.model_score_calculator import add_score
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 
@@ -74,8 +75,9 @@ def main(argv):
     treatment_harmonisation_helper_parquet_path = argv[15]
     quality_assurance_parquet_path = argv[16]
     raw_external_resources_parquet_path = argv[17]
+    raw_model_characterization_conf_parquet_path = argv[18]
 
-    output_path = argv[18]
+    output_path = argv[19]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -99,6 +101,7 @@ def main(argv):
     treatment_harmonisation_helper_df = spark.read.parquet(treatment_harmonisation_helper_parquet_path)
     quality_assurance_df = spark.read.parquet(quality_assurance_parquet_path)
     raw_external_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
+    raw_model_characterization_conf_df = spark.read.parquet(raw_model_characterization_conf_parquet_path)
 
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
@@ -120,7 +123,8 @@ def main(argv):
         ontology_term_diagnosis_df,
         treatment_harmonisation_helper_df,
         quality_assurance_df,
-        raw_external_resources_df
+        raw_external_resources_df,
+        raw_model_characterization_conf_df
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
@@ -142,7 +146,8 @@ def transform_search_index(
         ontology_term_diagnosis_df,
         treatment_harmonisation_helper_df,
         quality_assurance_df,
-        raw_external_resources_df
+        raw_external_resources_df,
+        raw_model_characterization_conf_df
 ) -> DataFrame:
     model_df = model_df.withColumnRenamed("type", "model_type")
     model_df = model_df.withColumnRenamed("id", "pdcm_model_id")
@@ -478,12 +483,14 @@ def transform_search_index(
             "model_treatment_list",
             "license_name",
             "license_url",
-            "resources"
+            "raw_data_resources",
+            "cancer_annotation_resources"
         )
         .where(col("histology").isNotNull())
         .distinct()
     )
     search_index_df = add_score(search_index_df)
+    search_index_df = add_scores_column(search_index_df, raw_model_characterization_conf_df)
     return search_index_df
 
 

@@ -1,10 +1,10 @@
 import json
 
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType, IntegerType
 
 from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
-from etl.jobs.transformation.scoring.model_score_calculator import add_score
 from tests.util import assert_df_are_equal_ignore_id
 
 
@@ -27,7 +27,8 @@ def create_model_characterizations_conf_df():
 
     data = [(1, "PDX Metadata Characterization", "PDX Metadata Characterization description", "PDX models",
              "pdx_metadata_score", "calculate_pdx_metadata_score"),
-            (2, "Data Characterization", "Data Characterization description", "All models", "data_score", "calculate_data_score")]
+            (2, "Data Characterization", "Data Characterization description", "All models", "data_score",
+             "calculate_data_score")]
     resources_df = spark.createDataFrame(data=data, schema=schema)
 
     return resources_df
@@ -67,7 +68,8 @@ def build_search_index_df_schema():
         StructField('dataset_available', ArrayType(StringType()), True),
         StructField('quality_assurance', StringType(), False),
         StructField('xenograft_model_specimens', StringType(), False),
-        StructField('resources', ArrayType(StringType()), True),
+        StructField('raw_data_resources', ArrayType(StringType()), True),
+        StructField('cancer_annotation_resources', ArrayType(StringType()), True),
     ])
     return schema
 
@@ -90,15 +92,17 @@ def create_search_index_max_score_df():
         'dosing studies',
         'publication']
 
-    resources_all = [
+    raw_data_resources_all = [
+        'ENA',
+        'EGA',
+        'GEO']
+
+    cancer_annotation_resources_all = [
         'Civic',
         'OncoMx',
         'dbSNP',
         'COSMIC',
-        'OpenCravat',
-        'ENA',
-        'EGA',
-        'GEO']
+        'OpenCravat']
 
     quality_assurance_data_valid_data = [
         {
@@ -154,7 +158,8 @@ def create_search_index_max_score_df():
         data_availability_all,
         json.dumps(quality_assurance_data_valid_data),
         json.dumps(xenograft_valid_data),
-        resources_all
+        raw_data_resources_all,
+        cancer_annotation_resources_all
     )]
     search_index_max_score_df = spark.createDataFrame(data=data, schema=schema)
 
@@ -166,7 +171,7 @@ def create_search_index_some_invalid_data_df():
        Creates a dataframe with ....
    """
 
-    schema = build_search_index_df_schema();
+    schema = build_search_index_df_schema()
 
     spark = SparkSession.builder.getOrCreate()
 
@@ -239,13 +244,12 @@ def create_search_index_some_invalid_data_df():
     return search_index_max_score_df
 
 
-def test_add_score_max_score():
+def test_add_scores_column_max_score():
     spark = SparkSession.builder.getOrCreate()
 
     search_index_max_score_df = create_search_index_max_score_df()
     model_characterizations_conf_df = create_model_characterizations_conf_df()
     output_df = add_scores_column(search_index_max_score_df, model_characterizations_conf_df)
-    output_df.show()
 
     scores = {"pdx_metadata_score": 100, "data_score": 100}
     expected_data = [
@@ -255,3 +259,39 @@ def test_add_score_max_score():
     data_df_to_assert = output_df.select("pdcm_model_id", "scores")
     assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
 
+
+def test_add_scores_column_no_resources():
+    spark = SparkSession.builder.getOrCreate()
+
+    search_index_no_resources_df = create_search_index_max_score_df()
+    search_index_no_resources_df = search_index_no_resources_df.withColumn("raw_data_resources", lit(None))
+    search_index_no_resources_df = search_index_no_resources_df.withColumn("cancer_annotation_resources", lit(None))
+    model_characterizations_conf_df = create_model_characterizations_conf_df()
+    output_df = add_scores_column(search_index_no_resources_df, model_characterizations_conf_df)
+
+    scores = {"pdx_metadata_score": 90, "data_score": 100}
+    expected_data = [
+        (1, json.dumps(scores))
+    ]
+    expected_df = spark.createDataFrame(expected_data, ["pdcm_model_id", "scores"])
+    data_df_to_assert = output_df.select("pdcm_model_id", "scores")
+    assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
+
+
+def test_add_scores_column_no_data_set():
+    spark = SparkSession.builder.getOrCreate()
+
+    search_index_no_dataset_available_df = create_search_index_max_score_df()
+    search_index_no_dataset_available_df = search_index_no_dataset_available_df.withColumn(
+        "dataset_available", lit(None))
+
+    model_characterizations_conf_df = create_model_characterizations_conf_df()
+    output_df = add_scores_column(search_index_no_dataset_available_df, model_characterizations_conf_df)
+
+    scores = {"pdx_metadata_score": 100, "data_score": 0}
+    expected_data = [
+        (1, json.dumps(scores))
+    ]
+    expected_df = spark.createDataFrame(expected_data, ["pdcm_model_id", "scores"])
+    data_df_to_assert = output_df.select("pdcm_model_id", "scores")
+    assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)

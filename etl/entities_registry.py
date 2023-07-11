@@ -523,8 +523,10 @@ entities = {
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",
-            "resources",
-            "score"
+            "raw_data_resources",
+            "cancer_annotation_resources",
+            "score",
+            "scores"
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {
