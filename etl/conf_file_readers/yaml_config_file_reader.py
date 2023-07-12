@@ -18,8 +18,10 @@ def read_yaml_config_file(file_name):
     file_path = file_name
     file_path_with_root_folder = "etl/" + file_path
     if Path(file_path_with_root_folder).is_file():
+        print("Added root")
         file_path = file_path_with_root_folder
     # Directory containing configuration files
+    print("Final file_path", file_path)
     with open(file_path, "r") as ymlFile:
         conf = yaml.safe_load(ymlFile)
     return conf
