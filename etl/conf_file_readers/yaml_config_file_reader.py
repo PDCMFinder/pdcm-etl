@@ -9,6 +9,8 @@ import yaml
 def read_yaml_config_file(file_name):
     print("Debug info for read_yaml_config_file [", file_name, "]")
     cwd = os.getcwd()
+    print("ListDir", os.listdir())
+
     print("cwd", cwd)
     op1 = "etl/" + file_name
     op2 = "../etl/" + file_name
@@ -22,6 +24,6 @@ def read_yaml_config_file(file_name):
         file_path = file_path_with_root_folder
     # Directory containing configuration files
     print("Final file_path", file_path)
-    with open(file_path, "r") as ymlFile:
+    with open("etl/" + file_name, "r") as ymlFile:
         conf = yaml.safe_load(ymlFile)
     return conf
