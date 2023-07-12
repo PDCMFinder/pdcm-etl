@@ -490,7 +490,7 @@ def transform_search_index(
         .distinct()
     )
     search_index_df = add_score(search_index_df)
-    search_index_df = add_scores_column(search_index_df, raw_model_characterization_conf_df)
+    search_index_df = add_scores_column(search_index_df, raw_model_characterization_conf_df, raw_external_resources_df)
     return search_index_df
 
 

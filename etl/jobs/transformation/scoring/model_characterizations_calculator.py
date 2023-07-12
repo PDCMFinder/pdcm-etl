@@ -12,7 +12,10 @@ model characterization definition, which are configured in the model_characteriz
 """
 
 
-def add_scores_column(search_index_df: DataFrame, model_characterizations_conf_df: DataFrame) -> DataFrame:
+def add_scores_column(
+        search_index_df: DataFrame,
+        model_characterizations_conf_df: DataFrame,
+        raw_external_resources_df: DataFrame) -> DataFrame:
     spark = SparkSession.builder.getOrCreate()
     schema = StructType([
         StructField('pdcm_model_id', LongType(), False),
@@ -28,7 +31,7 @@ def add_scores_column(search_index_df: DataFrame, model_characterizations_conf_d
         score_name = model_characterization['score_name']
 
         if calculation_method == "calculate_pdx_metadata_score":
-            molecular_char_score_df = calculate_pdx_metadata_score(search_index_df)
+            molecular_char_score_df = calculate_pdx_metadata_score(search_index_df, raw_external_resources_df)
         elif calculation_method == "calculate_data_score":
             molecular_char_score_df = calculate_data_score(search_index_df)
         else:
