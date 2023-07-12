@@ -7,7 +7,8 @@ from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel,
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
-    ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources, ExtractDownloadedResourcesData
+    ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources, ExtractDownloadedResourcesData, \
+    ExtractModelCharacterizationConf
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -473,7 +474,10 @@ class TransformSearchIndex(TransformEntity):
         TransformSampleToOntology(),
         TransformOntologyTermDiagnosis(),
         TransformTreatmentHarmonisationHelper(),
-        TransformQualityAssurance()
+        TransformQualityAssurance(),
+        ExtractExternalResources(),
+        ExtractModelCharacterizationConf()
+
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 

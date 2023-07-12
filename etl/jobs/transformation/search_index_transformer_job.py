@@ -17,6 +17,8 @@ from pyspark.sql.functions import (
 )
 from pyspark.sql.types import ArrayType, StringType
 
+from etl.jobs.transformation.links_generation.resources_per_model_util import add_resources_list
+from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
 from etl.jobs.transformation.scoring.model_score_calculator import add_score
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 
@@ -72,8 +74,10 @@ def main(argv):
     ontology_term_diagnosis_parquet_path = argv[14]
     treatment_harmonisation_helper_parquet_path = argv[15]
     quality_assurance_parquet_path = argv[16]
+    raw_external_resources_parquet_path = argv[17]
+    raw_model_characterization_conf_parquet_path = argv[18]
 
-    output_path = argv[17]
+    output_path = argv[19]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
@@ -96,6 +100,8 @@ def main(argv):
     ontology_term_diagnosis_df = spark.read.parquet(ontology_term_diagnosis_parquet_path)
     treatment_harmonisation_helper_df = spark.read.parquet(treatment_harmonisation_helper_parquet_path)
     quality_assurance_df = spark.read.parquet(quality_assurance_parquet_path)
+    raw_external_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
+    raw_model_characterization_conf_df = spark.read.parquet(raw_model_characterization_conf_parquet_path)
 
     # TODO Add Brest Cancer Biomarkers column
     # TODO Add Cancer System column
@@ -116,7 +122,9 @@ def main(argv):
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
         treatment_harmonisation_helper_df,
-        quality_assurance_df
+        quality_assurance_df,
+        raw_external_resources_df,
+        raw_model_characterization_conf_df
     )
     search_index_df.write.mode("overwrite").parquet(output_path)
 
@@ -137,7 +145,9 @@ def transform_search_index(
         sample_to_ontology_df,
         ontology_term_diagnosis_df,
         treatment_harmonisation_helper_df,
-        quality_assurance_df
+        quality_assurance_df,
+        raw_external_resources_df,
+        raw_model_characterization_conf_df
 ) -> DataFrame:
     model_df = model_df.withColumnRenamed("type", "model_type")
     model_df = model_df.withColumnRenamed("id", "pdcm_model_id")
@@ -190,7 +200,7 @@ def transform_search_index(
         "inner",
     )
     patient_sample_mol_char_df = patient_sample_mol_char_df.select(
-        "model_id", "mol_char_id", "molecular_characterization_type_name"
+        "model_id", "mol_char_id", "molecular_characterization_type_name", "external_db_links"
     ).distinct()
 
     xenograft_sample_mol_char_df = join_dfs(
@@ -201,7 +211,7 @@ def transform_search_index(
         "inner",
     )
     xenograft_sample_mol_char_df = xenograft_sample_mol_char_df.select(
-        "model_id", "mol_char_id", "molecular_characterization_type_name"
+        "model_id", "mol_char_id", "molecular_characterization_type_name", "external_db_links"
     ).distinct()
 
     cell_sample_mol_char_df = join_dfs(
@@ -212,11 +222,21 @@ def transform_search_index(
         "inner",
     )
     cell_sample_mol_char_df = cell_sample_mol_char_df.select(
-        "model_id", "mol_char_id", "molecular_characterization_type_name"
+        "model_id", "mol_char_id", "molecular_characterization_type_name", "external_db_links"
     ).distinct()
 
     model_mol_char_type_df = \
         patient_sample_mol_char_df.union(xenograft_sample_mol_char_df).union(cell_sample_mol_char_df)
+
+    search_index_df = add_resources_list(
+        search_index_df,
+        model_mol_char_type_df,
+        mutation_measurement_data_df,
+        cna_data_df,
+        expression_data_df,
+        cytogenetics_data_df,
+        raw_external_resources_df
+    )
 
     model_mol_char_availability_df = model_mol_char_type_df.groupby("model_id").agg(
         collect_set("molecular_characterization_type_name").alias("dataset_available")
@@ -462,12 +482,15 @@ def transform_search_index(
             "treatment_list",
             "model_treatment_list",
             "license_name",
-            "license_url"
+            "license_url",
+            "raw_data_resources",
+            "cancer_annotation_resources"
         )
         .where(col("histology").isNotNull())
         .distinct()
     )
     search_index_df = add_score(search_index_df)
+    search_index_df = add_scores_column(search_index_df, raw_model_characterization_conf_df)
     return search_index_df
 
 

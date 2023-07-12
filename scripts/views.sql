@@ -69,7 +69,7 @@ COMMENT ON COLUMN pdcm_api.model_metadata.type IS 'Model type (xenograft, cell_l
 COMMENT ON COLUMN pdcm_api.model_metadata.host_strain_name IS 'Host mouse strain name (e.g. NOD-SCID, NSG, etc)';
 COMMENT ON COLUMN pdcm_api.model_metadata.host_strain_nomenclature IS 'The full nomenclature form of the host mouse strain name';
 COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_site IS 'Organ or anatomical site used for the tumour engraftment (e.g. mammary fat pad, Right flank)';
-COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_type IS 'Orthotopic: if the tumour was engrafted at a corresponding anatomical site. Hererotopic: If grafted subcuteanously';
+COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_type IS 'Orthotopic: if the tumour was engrafted at a corresponding anatomical site. Heterotopic: If grafted subcuteanously';
 COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_sample_type IS 'Description of the type of material grafted into the mouse. (e.g. tissue fragments, cell suspension)';
 COMMENT ON COLUMN pdcm_api.model_metadata.engraftment_sample_state IS 'PDX Engraftment material state (e.g. fresh or frozen)';
 COMMENT ON COLUMN pdcm_api.model_metadata.passage_number IS 'Passage number';
