@@ -269,7 +269,9 @@ def test_add_scores_column_no_resources():
     search_index_no_resources_df = search_index_no_resources_df.withColumn("raw_data_resources", lit(None))
     search_index_no_resources_df = search_index_no_resources_df.withColumn("cancer_annotation_resources", lit(None))
     model_characterizations_conf_df = create_model_characterizations_conf_df()
-    output_df = add_scores_column(search_index_no_resources_df, model_characterizations_conf_df)
+    raw_external_resources_df = create_resources_df()
+    output_df = add_scores_column(
+        search_index_no_resources_df, model_characterizations_conf_df, raw_external_resources_df)
 
     scores = {"pdx_metadata_score": 90, "data_score": 100}
     expected_data = [
@@ -288,7 +290,9 @@ def test_add_scores_column_no_data_set():
         "dataset_available", lit(None))
 
     model_characterizations_conf_df = create_model_characterizations_conf_df()
-    output_df = add_scores_column(search_index_no_dataset_available_df, model_characterizations_conf_df)
+    raw_external_resources_df = create_resources_df()
+    output_df = add_scores_column(
+        search_index_no_dataset_available_df, model_characterizations_conf_df, raw_external_resources_df)
 
     scores = {"pdx_metadata_score": 100, "data_score": 0}
     expected_data = [
