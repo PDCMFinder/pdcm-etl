@@ -2,7 +2,7 @@ import json
 
 from pyspark import Row
 from pyspark.sql import DataFrame, SparkSession
-
+from pyspark.sql.functions import lit
 
 # Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
 # resources connectedness. A weight is assigned manually to each one:
@@ -156,6 +156,11 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resour
     rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources))
 
     score_df = spark.createDataFrame(rdd_with_score)
+
+    # For models which are not PDX, this score is set to zero
+    non_pdx_df = search_index_df.where("model_type != 'PDX'").select("pdcm_model_id", lit(0).alias("score"))
+
+    score_df = score_df.union(non_pdx_df)
 
     return score_df
 
