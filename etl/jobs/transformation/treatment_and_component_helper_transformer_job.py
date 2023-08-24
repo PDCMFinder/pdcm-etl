@@ -26,7 +26,7 @@ def main(argv):
 
 def transform_treatment_and_component_helper(treatment_protocol_df) -> DataFrame:
     treatment_protocol_df = treatment_protocol_df.withColumnRenamed("id", "treatment_protocol_id")
-    # Add split values for the columns treatment_name and treatment_dose
+    # Add split values for treatment_name and treatment_dose
     df = add_split_values(treatment_protocol_df)
     df = df.withColumn("treatment_name_split_counter", size(col("treatment_name_split")))
     df = df.withColumn("treatment_dose_split_counter", size(col("treatment_dose_split")))
@@ -60,8 +60,12 @@ def transform_treatment_and_component_helper(treatment_protocol_df) -> DataFrame
         Constants.DATA_SOURCE_COLUMN)
     unmatched_df = unmatched_df.withColumnRenamed("single_treatment_name", "treatment_name")
 
+    df = matched_df.union(unmatched_df)
+
+    # Check if there are treatments that after the split
+
     # We might want to report the unmatched_df but for now we just use it as part of the results
-    return matched_df.union(unmatched_df)
+    return df
 
 
 def get_exploded_df_by_treatment_name(df: DataFrame) -> DataFrame:
@@ -72,6 +76,9 @@ def get_exploded_df_by_treatment_name(df: DataFrame) -> DataFrame:
     df_exploded_by_treatment_name = df_exploded_by_treatment_name.drop("col")
     df_exploded_by_treatment_name = df_exploded_by_treatment_name.withColumnRenamed(
         "treatment_name_split_counter", "count")
+    # If here is an empty value after a "+" it would be processed as an emtpy treatment, so such rows need to
+    # be removed
+    df_exploded_by_treatment_name = df_exploded_by_treatment_name.where("single_treatment_name != null")
     return df_exploded_by_treatment_name
 
 
