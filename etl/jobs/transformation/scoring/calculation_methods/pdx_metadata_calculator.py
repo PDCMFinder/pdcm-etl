@@ -2,8 +2,7 @@ import json
 
 from pyspark import Row
 from pyspark.sql import DataFrame, SparkSession
-
-from etl.conf_file_readers.yaml_config_file_reader import read_yaml_config_file
+from pyspark.sql.functions import lit
 
 # Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
 # resources connectedness. A weight is assigned manually to each one:
@@ -53,14 +52,16 @@ column_weights = {
 columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
 
 
-def count_resources(resource_types):
-    all_resources = read_yaml_config_file("external_resources.yaml")['resources']
-    resources_by_type = {resource["label"] for resource in all_resources if resource["type"] in resource_types}
-    return len(resources_by_type)
+def get_list_resources_available_molecular_data(resources_df: DataFrame):
+    # Resources that can appear in molecular data are the ones of type Gene or Variant
+    df = resources_df.where("type in ('Gene', 'Variant')")
+    df = df.select("label").drop_duplicates()
+    resources = df.rdd.map(lambda x: x[0]).collect()
+    return resources
 
 
-total_raw_data_resources = count_resources(["Study"])
-total_cancer_annotation_resources = count_resources(["Gene", "Variant"])
+def count_cancer_annotation_resources(resources_df):
+    return len(get_list_resources_available_molecular_data(resources_df))
 
 
 def get_metadata_max_score():
@@ -139,20 +140,31 @@ def calculate_score_by_column(column_name: str, column_value: str) -> float:
     return score
 
 
-def calculate_pdx_metadata_score(search_index_df: DataFrame) -> DataFrame:
+def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resources_df: DataFrame) -> DataFrame:
     """
     Calculates PDX metadata score. It works based on 2 criteria
     1) Given a set of model fields, give a score or 1 or 0.5 depending on the field being essential or desirable.
     2) Give a score of 1 per external resource the model is linked to.
     """
+    # If for some reason search_index_df is empty, return immediately. This can happen if diagnoses could not be mapped.
+    if search_index_df.count() == 0:
+        return search_index_df.withColumn("score", lit(""))
+
     spark = SparkSession.builder.getOrCreate()
     # Process only PDX models
     input_df = search_index_df.where("model_type = 'PDX'")
     input_df = input_df.drop_duplicates()
 
-    rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x))
+    total_cancer_annotation_resources = count_cancer_annotation_resources(raw_external_resources_df)
+
+    rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources))
 
     score_df = spark.createDataFrame(rdd_with_score)
+
+    # For models which are not PDX, this score is set to zero
+    non_pdx_df = search_index_df.where("model_type != 'PDX'").select("pdcm_model_id", lit(0).alias("score"))
+
+    score_df = score_df.union(non_pdx_df)
 
     return score_df
 
@@ -178,7 +190,7 @@ def calculate_raw_data_score(row):
     return score * 100
 
 
-def calculate_cancer_annotation_score(row):
+def calculate_cancer_annotation_score(row, total_cancer_annotation_resources):
     score = 0
     raw_data_resources_list = row["cancer_annotation_resources"]
 
@@ -188,12 +200,13 @@ def calculate_cancer_annotation_score(row):
     return score / total_cancer_annotation_resources * 100
 
 
-def calculate_score_for_row(row):
+def calculate_score_for_row(row, total_cancer_annotation_resources):
     columns = {"pdcm_model_id": row["pdcm_model_id"]}
 
     metadata_score = calculate_metadata_score(row) * metadata_score_weight
     raw_data_score = calculate_raw_data_score(row) * raw_data_score_weight
-    cancer_annotation_score = calculate_cancer_annotation_score(row) * cancer_annotation_score_weight
+    cancer_annotation_score = calculate_cancer_annotation_score(
+        row, total_cancer_annotation_resources) * cancer_annotation_score_weight
 
     score = int(metadata_score + raw_data_score + cancer_annotation_score)
 

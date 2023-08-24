@@ -5,6 +5,7 @@ from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType, IntegerType
 
 from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
+from tests.etl.workflow.links_generation.links_generation_tests_utils import create_resources_df
 from tests.util import assert_df_are_equal_ignore_id
 
 
@@ -249,7 +250,8 @@ def test_add_scores_column_max_score():
 
     search_index_max_score_df = create_search_index_max_score_df()
     model_characterizations_conf_df = create_model_characterizations_conf_df()
-    output_df = add_scores_column(search_index_max_score_df, model_characterizations_conf_df)
+    raw_external_resources_df = create_resources_df()
+    output_df = add_scores_column(search_index_max_score_df, model_characterizations_conf_df, raw_external_resources_df)
 
     scores = {"pdx_metadata_score": 100, "data_score": 100}
     expected_data = [
@@ -267,7 +269,9 @@ def test_add_scores_column_no_resources():
     search_index_no_resources_df = search_index_no_resources_df.withColumn("raw_data_resources", lit(None))
     search_index_no_resources_df = search_index_no_resources_df.withColumn("cancer_annotation_resources", lit(None))
     model_characterizations_conf_df = create_model_characterizations_conf_df()
-    output_df = add_scores_column(search_index_no_resources_df, model_characterizations_conf_df)
+    raw_external_resources_df = create_resources_df()
+    output_df = add_scores_column(
+        search_index_no_resources_df, model_characterizations_conf_df, raw_external_resources_df)
 
     scores = {"pdx_metadata_score": 90, "data_score": 100}
     expected_data = [
@@ -286,7 +290,9 @@ def test_add_scores_column_no_data_set():
         "dataset_available", lit(None))
 
     model_characterizations_conf_df = create_model_characterizations_conf_df()
-    output_df = add_scores_column(search_index_no_dataset_available_df, model_characterizations_conf_df)
+    raw_external_resources_df = create_resources_df()
+    output_df = add_scores_column(
+        search_index_no_dataset_available_df, model_characterizations_conf_df, raw_external_resources_df)
 
     scores = {"pdx_metadata_score": 100, "data_score": 0}
     expected_data = [
