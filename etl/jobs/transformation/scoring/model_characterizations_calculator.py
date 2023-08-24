@@ -16,13 +16,13 @@ def add_scores_column(
         search_index_df: DataFrame,
         model_characterizations_conf_df: DataFrame,
         raw_external_resources_df: DataFrame) -> DataFrame:
+
     spark = SparkSession.builder.getOrCreate()
     schema = StructType([
         StructField('pdcm_model_id', LongType(), False),
         StructField('score_entry', StringType(), False)])
 
-    score_per_model_df = spark.createDataFrame(
-        spark.sparkContext.emptyRDD(), schema=schema)
+    score_per_model_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema=schema)
 
     #  Iterate through the different model characterizations to calculate the respective score
     model_characterization_conf_list = [row.asDict() for row in model_characterizations_conf_df.collect()]
