@@ -146,6 +146,10 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resour
     1) Given a set of model fields, give a score or 1 or 0.5 depending on the field being essential or desirable.
     2) Give a score of 1 per external resource the model is linked to.
     """
+    # If for some reason search_index_df is empty, return immediately. This can happen if diagnoses could not be mapped.
+    if search_index_df.count() == 0:
+        return search_index_df.withColumn("score", lit(""))
+
     spark = SparkSession.builder.getOrCreate()
     # Process only PDX models
     input_df = search_index_df.where("model_type = 'PDX'")
