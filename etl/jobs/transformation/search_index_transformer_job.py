@@ -19,7 +19,6 @@ from pyspark.sql.types import ArrayType, StringType
 
 from etl.jobs.transformation.links_generation.resources_per_model_util import add_resources_list
 from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
-from etl.jobs.transformation.scoring.model_score_calculator import add_score
 from etl.jobs.util.dataframe_functions import join_left_dfs, join_dfs
 
 cancer_systems = [
@@ -489,7 +488,6 @@ def transform_search_index(
         .where(col("histology").isNotNull())
         .distinct()
     )
-    search_index_df = add_score(search_index_df)
     search_index_df = add_scores_column(search_index_df, raw_model_characterization_conf_df, raw_external_resources_df)
     return search_index_df
 

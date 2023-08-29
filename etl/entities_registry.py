@@ -525,7 +525,6 @@ entities = {
             "model_treatment_list",
             "raw_data_resources",
             "cancer_annotation_resources",
-            "score",
             "scores"
         ]
     },
