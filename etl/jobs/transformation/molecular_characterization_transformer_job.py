@@ -7,7 +7,6 @@ from etl.jobs.transformation.links_generation.molecular_characterization_links_b
 from etl.jobs.util.cleaner import lower_and_trim_all, trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
-from etl.jobs.transformation.links_generation.raw_data_url_builder import build_raw_data_url
 
 
 def main(argv):
@@ -40,7 +39,8 @@ def main(argv):
         xenograft_sample_df,
         cell_sample_df,
         mol_char_type_df,
-        raw_resources_df)
+        raw_resources_df,
+        output_path)
     molecular_characterization_df.write.mode("overwrite").parquet(output_path)
 
 
@@ -51,7 +51,8 @@ def transform_molecular_characterization(
         xenograft_sample_df: DataFrame,
         cell_sample_df: DataFrame,
         mol_char_type_df: DataFrame,
-        raw_resources_df: DataFrame) -> DataFrame:
+        raw_resources_df: DataFrame,
+        output_path: str) -> DataFrame:
     molchar_sample_df = get_molchar_sample(raw_molchar_metadata_sample_df)
 
     molchar_sample_df = molchar_sample_df.withColumn(
@@ -75,12 +76,9 @@ def transform_molecular_characterization(
     molecular_characterization_df = molchar_patient.union(molchar_xenograft).union(molchar_cell)
     molecular_characterization_df = set_fk_mol_char_type(molecular_characterization_df, mol_char_type_df)
     molecular_characterization_df = molecular_characterization_df.withColumn("raw_data_url", trim_all("raw_data_url"))
-    molecular_characterization_df = build_raw_data_url(molecular_characterization_df, "raw_data_url")
     molecular_characterization_df = add_id(molecular_characterization_df, "id")
     molecular_characterization_df = add_links_in_molecular_characterization_table(
-        molecular_characterization_df, raw_resources_df)
-    print("molecular_characterization_df")
-    molecular_characterization_df.show(truncate=False)
+        molecular_characterization_df, raw_resources_df, output_path)
     return molecular_characterization_df
 
 
@@ -94,38 +92,6 @@ def get_molchar_sample(raw_molchar_metadata_sample_df: DataFrame) -> DataFrame:
         "raw_data_url",
         Constants.DATA_SOURCE_COLUMN
     ).drop_duplicates()
-
-
-def get_cna_df(raw_cna_df: DataFrame) -> DataFrame:
-    return raw_cna_df.select(
-        "sample_id",
-        lit("cna").alias("molchar_type"),
-        "platform",
-        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
-
-
-def get_cytogenetics_df(raw_cytogenetics_df: DataFrame) -> DataFrame:
-    return raw_cytogenetics_df.select(
-        "sample_id",
-        lit("cytogenetics").alias("molchar_type"),
-        "platform",
-        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
-
-
-def get_expression_df(raw_expression_df: DataFrame) -> DataFrame:
-    return raw_expression_df.select(
-        "sample_id",
-        lit("expression").alias("molchar_type"),
-        "platform",
-        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
-
-
-def get_mutation_df(raw_mutation_df: DataFrame) -> DataFrame:
-    return raw_mutation_df.select(
-        "sample_id",
-        lit("mutation").alias("molchar_type"),
-        "platform",
-        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
 
 
 def set_fk_platform(molecular_characterization_df: DataFrame, platform_df: DataFrame) -> DataFrame:
