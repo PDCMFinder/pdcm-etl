@@ -865,7 +865,6 @@ CREATE TABLE search_index (
     model_treatment_list TEXT[],
     raw_data_resources TEXT[],
     cancer_annotation_resources TEXT[],
-    score NUMERIC,
     scores JSON
 );
 
@@ -919,7 +918,7 @@ COMMENT ON COLUMN search_index.model_treatment_list IS 'Drug dosing data';
 COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
 
-COMMENT ON COLUMN search_index.score IS 'PDX model richness score';
+COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 
 DROP TABLE IF EXISTS search_facet CASCADE;
 
