@@ -6,24 +6,31 @@ from etl.jobs.transformation.links_generation.link_builder_utils import create_e
 
 
 def add_links_in_molecular_characterization_table(
-        molecular_characterization_df: DataFrame, resources_df: DataFrame):
+        molecular_characterization_df: DataFrame, resources_df: DataFrame, output_path: str):
     """
         Takes a molecular characterization data dataframe and adds an `external_db_links` column with links to external
         resources based on the raw_url.
         Molecular data tables can potentially have links in 2 columns: hgnc_symbol and amino_acid_change (amino_acid_change
         only applies for mutation data).
         """
+    spark = SparkSession.builder.getOrCreate()
     # Get additional information about how to get links per column
     link_build_confs = []
     link_build_confs.append(get_raw_data_url_link_build_conf())
 
+    # To avoid some random behaviour with the ids when doing the join, we write temporary the
+    # df with the molecular characterization data and read it again
+    tmp_path = output_path + "_tmp"
+    molecular_characterization_df.write.mode("overwrite").parquet(tmp_path)
+    data_df = spark.read.parquet(tmp_path)
+
     # Find links
-    links_df = find_links_for_molecular_characterization(molecular_characterization_df, link_build_confs, resources_df)
+    links_df = find_links_for_molecular_characterization(data_df, link_build_confs, resources_df)
 
     external_db_links_column_df = create_external_db_links_column(links_df)
 
     # Join back to the `molecular_data_df` data frame to add the new column to it
-    molecular_data_df = molecular_characterization_df.join(external_db_links_column_df, on=["id"], how="left")
+    molecular_data_df = data_df.join(external_db_links_column_df, on=["id"], how="left")
     return molecular_data_df
 
 
