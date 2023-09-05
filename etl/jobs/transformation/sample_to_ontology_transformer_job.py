@@ -63,15 +63,14 @@ def transform_sample_to_ontology(
     return sample_to_ontology_df
 
 
-# Make tumour_type be '*' as a way to unify values that represent a value that does not exist
-def format_tumour_type(tumour_type_df: DataFrame) -> DataFrame:
-    tumour_type_df = tumour_type_df.withColumn("name", lower_and_trim_all('name'))
-    return tumour_type_df.withColumn(
+# Make column 'name' in a df to be 'unknown' as a way to unify values that represent a value that does not exist
+def format_name_column(data_df: DataFrame) -> DataFrame:
+    data_df = data_df.withColumn("name", lower_and_trim_all('name'))
+    return data_df.withColumn(
         "name",
         when(
             (col("name") == 'not provided') |
-            (col("name") == 'not specified') |
-            (col("name") == 'not collected'), '*')
+            (col("name") == 'not collected'), 'unknown')
         .otherwise(lower_and_trim_all('name')))
 
 
@@ -80,15 +79,6 @@ def lower_mapping_column_values(diagnosis_mappings_df: DataFrame) -> DataFrame:
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('diagnosis', lower_and_trim_all('diagnosis'))
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('primary_tissue', lower_and_trim_all('primary_tissue'))
     diagnosis_mappings_df = diagnosis_mappings_df.withColumn('tumor_type', lower_and_trim_all('tumor_type'))
-
-    # Just a way to unify several terms that at the end kind o represent a null
-    diagnosis_mappings_df = diagnosis_mappings_df.withColumn(
-        "tumor_type",
-        when(
-            (col("tumor_type") == 'not provided') |
-            (col("tumor_type") == 'not specified') |
-            (col("tumor_type") == 'not collected'), '*')
-        .otherwise(col("tumor_type")))
 
     return diagnosis_mappings_df
 
@@ -108,11 +98,12 @@ def join_sample_with_linked_data(
         patient_sample_df,
         on=['model_id'], how='left')
 
+    tissue_df = format_name_column(tissue_df)
     tissue_df = tissue_df.withColumnRenamed("id", "primary_site_id")
     tissue_df = tissue_df.withColumnRenamed("name", "primary_tissue")
     sample_data_df = sample_data_df.join(tissue_df, on=['primary_site_id'], how='left')
 
-    tumor_type_df = format_tumour_type(tumor_type_df)
+    tumor_type_df = format_name_column(tumor_type_df)
     tumor_type_df = tumor_type_df.withColumnRenamed("id", "tumour_type_id")
     tumor_type_df = tumor_type_df.withColumnRenamed("name", "tumor_type")
     sample_data_df = sample_data_df.join(tumor_type_df, on=['tumour_type_id'], how='left')
