@@ -44,6 +44,23 @@ def add_resources_column(molchar_resource_df, model_molecular_characterization_d
     return search_index_df
 
 
+def add_raw_data_resources(model_df: DataFrame, model_molchar_df: DataFrame) -> DataFrame:
+
+    model_resource_df = extract_model_resource_pair_df(model_molchar_df)
+
+    # Now we have all the associations between models and resources. Next step is to convert that to a
+    # `model - list of resources` representation
+    resources_by_model_df = model_resource_df.groupBy("model_id").agg(
+        array_sort(collect_list(model_resource_df.resource)).alias("raw_data_resources"))
+
+    # With the list of resources per model, this can now be joined back to the search_index table
+    model_df = model_df.join(
+        resources_by_model_df, model_df.pdcm_model_id == resources_by_model_df.model_id, 'left')
+    model_df = model_df.drop(resources_by_model_df.model_id)
+
+    return model_df
+
+
 def add_resources_list(
         search_index_df: DataFrame,
         model_molecular_characterization_df: DataFrame,
@@ -53,7 +70,6 @@ def add_resources_list(
         cytogenetics_data_df: DataFrame,
         resources_df: DataFrame
 ) -> DataFrame:
-
     # Get the pairs [molecular_characterization_id, resource] from raw data links
     molchar_raw_data_resource_df = extract_molchar_resource_from_molchar_df(model_molecular_characterization_df)
     search_index_df = add_resources_column(
@@ -149,10 +165,32 @@ def extract_molchar_resource_from_molchar_df(model_molecular_characterization_df
     Gets a dataframe with columns `molecular_characterization_id` and `resource` by extracting the resource
     from the `external_db_links` column.
     """
+    print("---> extract_molchar_resource_from_molchar_df")
+    model_molecular_characterization_df.show()
     df = model_molecular_characterization_df.withColumn(
         "resources", F.expr("from_json(external_db_links, 'array<struct<resource:string>>')"))
+    print("inter")
+    df.show()
+    df.select(F.col("mol_char_id").alias("molecular_characterization_id"), F.explode(
+        "resources.resource").alias("resource")).show()
     return df.select(F.col("mol_char_id").alias("molecular_characterization_id"), F.explode(
         "resources.resource").alias("resource"))
+
+
+def extract_model_resource_pair_df(model_molecular_characterization_df: DataFrame) -> DataFrame:
+    """
+    Gets a dataframe with columns `model_id` and `resource` by extracting the resource
+    from the `external_db_links` column.
+    """
+
+    model_molecular_characterization_df.show()
+    df = model_molecular_characterization_df.withColumn(
+        "resources", F.expr("from_json(external_db_links, 'array<struct<resource:string>>')"))
+
+    df = df.select(F.col("model_id").alias("model_id"), F.explode("resources.resource").alias("resource"))
+    df = df.drop_duplicates()
+
+    return df
 
 
 def extract_molchar_resource_from_molecular_data_df(molecular_data_df: DataFrame, possible_resources) -> DataFrame:

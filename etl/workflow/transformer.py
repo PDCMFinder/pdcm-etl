@@ -457,6 +457,53 @@ class TransformTreatmentHarmonisationHelper(TransformEntity):
     entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
 
 
+class TransformSearchIndexPatientSample(TransformEntity):
+    requiredTasks = [
+        TransformPatientSample(),
+        TransformPatient(),
+        TransformSampleToOntology(),
+        TransformOntologyTermDiagnosis(),
+    ]
+    entity_name = Constants.SEARCH_INDEX_PATIENT_SAMPLE_ENTITY
+
+
+class TransformSearchIndexMolecularCharacterization(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        TransformPatientSample(),
+        TransformXenograftSample(),
+        TransformCellSample()
+    ]
+    entity_name = Constants.SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY
+
+
+class TransformModelMetadata(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformSearchIndexPatientSample(),
+        TransformXenograftModelSpecimen(),
+        TransformQualityAssurance(),
+        TransformTreatmentHarmonisationHelper(),
+        TransformSearchIndexMolecularCharacterization()
+    ]
+    entity_name = Constants.MODEL_METADATA
+
+
+
+
+
+class TransformPreSearchIndex(TransformEntity):
+    requiredTasks = [
+        TransformModelMetadata(),
+        TransformSearchIndexMolecularCharacterization(),
+        TransformMutationMeasurementData(),
+        TransformCnaMolecularData(),
+        TransformExpressionMolecularData(),
+        TransformCytogeneticsMolecularData(),
+    ]
+    entity_name = Constants.PRE_SEARCH_INDEX_ENTITY
+
+
 class TransformSearchIndex(TransformEntity):
     requiredTasks = [
         TransformModel(),
