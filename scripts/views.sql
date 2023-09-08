@@ -1010,3 +1010,7 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_ethnicity IS
   $$Models by patient ethnicity
 
   Count of models by patient ethnicity$$;
+
+CREATE MATERIALIZED VIEW pdcm_api.info AS
+ SELECT 'total_models' AS key, (SELECT COUNT(1) from search_index) AS value;
+
