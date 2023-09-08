@@ -1,4 +1,6 @@
 import json
+import shutil
+
 from pyspark.sql import SparkSession
 
 from etl.jobs.transformation.links_generation.molecular_characterization_links_builder import \
@@ -17,7 +19,8 @@ def test_add_links_in_molecular_characterization_table_ena_id():
 
     resources_df = create_resources_df()
 
-    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df)
+    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df, "test_output")
+
 
     # Assert links where generated
     links_row_1 = [
@@ -44,6 +47,7 @@ def test_add_links_in_molecular_characterization_table_ena_id():
     data_df_to_assert = data_df.select("id", "external_db_links")
 
     assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
+    shutil.rmtree("test_output" + "_tmp")
 
 
 def test_add_links_in_molecular_characterization_table_ega_id():
@@ -56,7 +60,7 @@ def test_add_links_in_molecular_characterization_table_ega_id():
 
     resources_df = create_resources_df()
 
-    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df)
+    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df, "test_output")
     data_df.show(truncate=False)
 
     # Assert links where generated
@@ -76,6 +80,7 @@ def test_add_links_in_molecular_characterization_table_ega_id():
     data_df_to_assert = data_df.select("id", "external_db_links")
 
     assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
+    shutil.rmtree("test_output" + "_tmp")
 
 
 def test_add_links_in_molecular_characterization_table_geo_id():
@@ -88,7 +93,7 @@ def test_add_links_in_molecular_characterization_table_geo_id():
 
     resources_df = create_resources_df()
 
-    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df)
+    data_df = add_links_in_molecular_characterization_table(molecular_characterization_df, resources_df, "test_output")
     data_df.show(truncate=False)
 
     # Assert links where generated
@@ -108,3 +113,4 @@ def test_add_links_in_molecular_characterization_table_geo_id():
     data_df_to_assert = data_df.select("id", "external_db_links")
 
     assert_df_are_equal_ignore_id(data_df_to_assert, expected_df)
+    shutil.rmtree("test_output" + "_tmp")
