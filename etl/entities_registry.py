@@ -44,6 +44,10 @@ import etl.jobs.transformation.treatment_component_transformer_job
 import etl.jobs.transformation.treatment_to_ontology_transformer_job
 import etl.jobs.transformation.regimen_to_ontology_transformer_job
 import etl.jobs.transformation.search_facet_transformer_job
+import etl.jobs.transformation.model_metadata_transformer_job
+import etl.jobs.transformation.search_index_patient_sample_transformer_job
+import etl.jobs.transformation.search_index_molecular_characterization_transformer_job
+import etl.jobs.transformation.search_index_molecular_data_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.regimen_to_treatment_transformer_job
 import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
@@ -475,6 +479,26 @@ entities = {
         "expected_database_columns": []
     },
 
+    Constants.MODEL_METADATA: {
+        "spark_job": etl.jobs.transformation.model_metadata_transformer_job.main,
+        "expected_database_columns": []
+    },
+
+    Constants.SEARCH_INDEX_PATIENT_SAMPLE_ENTITY: {
+        "spark_job": etl.jobs.transformation.search_index_patient_sample_transformer_job.main,
+        "expected_database_columns": []
+    },
+
+    Constants.SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY: {
+        "spark_job": etl.jobs.transformation.search_index_molecular_characterization_transformer_job.main,
+        "expected_database_columns": []
+    },
+
+    Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.search_index_molecular_data_transformer_job.main,
+        "expected_database_columns": []
+    },
+
     Constants.SEARCH_INDEX_ENTITY: {
         "spark_job": etl.jobs.transformation.search_index_transformer_job.main,
         "expected_database_columns": [
@@ -516,10 +540,10 @@ entities = {
             "pdx_model_publications",
             "quality_assurance",
             "xenograft_model_specimens",
-            "makers_with_cna_data",
-            "makers_with_mutation_data",
-            "makers_with_expression_data",
-            "makers_with_cytogenetics_data",
+            "markers_with_cna_data",
+            "markers_with_mutation_data",
+            "markers_with_expression_data",
+            "markers_with_cytogenetics_data",
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",

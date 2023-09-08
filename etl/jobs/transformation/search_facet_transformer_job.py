@@ -55,19 +55,19 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Gene mutation",
-        "facet_column": "makers_with_mutation_data",
+        "facet_column": "markers_with_mutation_data",
         "facet_example": "RTP3"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Copy Number Alteration",
-        "facet_column": "makers_with_cna_data",
+        "facet_column": "markers_with_cna_data",
         "facet_example": "RTP3"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Gene Expression",
-        "facet_column": "makers_with_expression_data",
+        "facet_column": "markers_with_expression_data",
         "facet_example": "BEST1"
     },
     {
@@ -79,7 +79,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Cytogenetics",
-        "facet_column": "makers_with_cytogenetics_data",
+        "facet_column": "markers_with_cytogenetics_data",
         "facet_example": "ESR1"
     },
     {

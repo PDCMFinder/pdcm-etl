@@ -457,24 +457,54 @@ class TransformTreatmentHarmonisationHelper(TransformEntity):
     entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
 
 
-class TransformSearchIndex(TransformEntity):
+class TransformSearchIndexPatientSample(TransformEntity):
     requiredTasks = [
-        TransformModel(),
-        TransformMolecularCharacterization(),
-        TransformMolecularCharacterizationType(),
-        TransformXenograftModelSpecimen(),
         TransformPatientSample(),
         TransformPatient(),
+        TransformSampleToOntology(),
+        TransformOntologyTermDiagnosis(),
+    ]
+    entity_name = Constants.SEARCH_INDEX_PATIENT_SAMPLE_ENTITY
+
+
+class TransformSearchIndexMolecularCharacterization(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        TransformPatientSample(),
         TransformXenograftSample(),
-        TransformCellSample(),
+        TransformCellSample()
+    ]
+    entity_name = Constants.SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY
+
+
+class TransformModelMetadata(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformSearchIndexPatientSample(),
+        TransformXenograftModelSpecimen(),
+        TransformQualityAssurance(),
+        TransformTreatmentHarmonisationHelper(),
+        TransformSearchIndexMolecularCharacterization()
+    ]
+    entity_name = Constants.MODEL_METADATA
+
+
+class TransformSearchIndexMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformModelMetadata(),
+        TransformSearchIndexMolecularCharacterization(),
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
         TransformCytogeneticsMolecularData(),
-        TransformSampleToOntology(),
-        TransformOntologyTermDiagnosis(),
-        TransformTreatmentHarmonisationHelper(),
-        TransformQualityAssurance(),
+        ExtractExternalResources(),
+    ]
+    entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY
+
+
+class TransformSearchIndex(TransformEntity):
+    requiredTasks = [
+        TransformSearchIndexMolecularData(),
         ExtractExternalResources(),
         ExtractModelCharacterizationConf()
 
