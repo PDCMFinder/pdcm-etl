@@ -48,15 +48,47 @@ def add_raw_data_resources(model_df: DataFrame, model_molchar_df: DataFrame) -> 
 
     model_resource_df = extract_model_resource_pair_df(model_molchar_df)
 
-    # Now we have all the associations between models and resources. Next step is to convert that to a
-    # `model - list of resources` representation
-    resources_by_model_df = model_resource_df.groupBy("model_id").agg(
-        array_sort(collect_list(model_resource_df.resource)).alias("raw_data_resources"))
+    model_df = add_resource_list_column(model_df, model_resource_df, "raw_data_resources")
 
-    # With the list of resources per model, this can now be joined back to the search_index table
-    model_df = model_df.join(
-        resources_by_model_df, model_df.pdcm_model_id == resources_by_model_df.model_id, 'left')
-    model_df = model_df.drop(resources_by_model_df.model_id)
+    # # Now we have all the associations between models and resources. Next step is to convert that to a
+    # # `model - list of resources` representation
+    # resources_by_model_df = model_resource_df.groupBy("model_id").agg(
+    #     array_sort(collect_list(model_resource_df.resource)).alias("raw_data_resources"))
+    #
+    # # With the list of resources per model, this can now be joined back to the search_index table
+    # model_df = model_df.join(
+    #     resources_by_model_df, model_df.pdcm_model_id == resources_by_model_df.model_id, 'left')
+    # model_df = model_df.drop(resources_by_model_df.model_id)
+
+    return model_df
+
+
+def add_cancer_annotation_resources(
+        model_df: DataFrame,
+        model_molecular_characterization_df: DataFrame,
+        mutation_measurement_data_df: DataFrame,
+        cna_data_df: DataFrame,
+        expression_data_df: DataFrame,
+        cytogenetics_data_df: DataFrame,
+        resources_df: DataFrame
+) -> DataFrame:
+    # Get the pairs [molecular_characterization_id, resource] from links in molecular data tables
+    mol_char_resource_df = build_molchar_molecular_data_resource_df(
+        mutation_measurement_data_df,
+        cna_data_df,
+        expression_data_df,
+        cytogenetics_data_df,
+        resources_df
+    )
+
+    model_resource_df = model_molecular_characterization_df.join(
+        mol_char_resource_df,
+        on=[model_molecular_characterization_df.mol_char_id == mol_char_resource_df.molecular_characterization_id],
+        how='left')
+
+    model_resource_df = model_resource_df.select("model_id", "resource")
+
+    model_df = add_resource_list_column(model_df, model_resource_df, "cancer_annotation_resources")
 
     return model_df
 
@@ -223,3 +255,22 @@ def create_empty_molchar_resource_df():
     data_with_references_df = spark.createDataFrame(
         spark.sparkContext.emptyRDD(), schema=data_with_references_df_schema)
     return data_with_references_df
+
+
+# Add a column to the models df with a resources list column
+def add_resource_list_column(
+        model_df: DataFrame, model_resource_df: DataFrame, resources_column_name: str) -> DataFrame:
+
+    # Delete duplicate values
+    model_resource_df = model_resource_df.drop_duplicates()
+
+    # Convert the (model_id -> resource) df into a  (`model_id -> list of resources`) representation
+    resources_by_model_df = model_resource_df.groupBy("model_id").agg(
+        array_sort(collect_list(model_resource_df.resource)).alias(resources_column_name))
+
+    # With the list of resources per model, this can now be joined back to the search_index table
+    model_df = model_df.join(
+        resources_by_model_df, model_df.pdcm_model_id == resources_by_model_df.model_id, 'left')
+    model_df = model_df.drop(resources_by_model_df.model_id)
+
+    return model_df

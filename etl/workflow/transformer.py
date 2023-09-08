@@ -489,10 +489,7 @@ class TransformModelMetadata(TransformEntity):
     entity_name = Constants.MODEL_METADATA
 
 
-
-
-
-class TransformPreSearchIndex(TransformEntity):
+class TransformSearchIndexMolecularData(TransformEntity):
     requiredTasks = [
         TransformModelMetadata(),
         TransformSearchIndexMolecularCharacterization(),
@@ -500,28 +497,14 @@ class TransformPreSearchIndex(TransformEntity):
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
         TransformCytogeneticsMolecularData(),
+        ExtractExternalResources(),
     ]
-    entity_name = Constants.PRE_SEARCH_INDEX_ENTITY
+    entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY
 
 
 class TransformSearchIndex(TransformEntity):
     requiredTasks = [
-        TransformModel(),
-        TransformMolecularCharacterization(),
-        TransformMolecularCharacterizationType(),
-        TransformXenograftModelSpecimen(),
-        TransformPatientSample(),
-        TransformPatient(),
-        TransformXenograftSample(),
-        TransformCellSample(),
-        TransformMutationMeasurementData(),
-        TransformCnaMolecularData(),
-        TransformExpressionMolecularData(),
-        TransformCytogeneticsMolecularData(),
-        TransformSampleToOntology(),
-        TransformOntologyTermDiagnosis(),
-        TransformTreatmentHarmonisationHelper(),
-        TransformQualityAssurance(),
+        TransformSearchIndexMolecularData(),
         ExtractExternalResources(),
         ExtractModelCharacterizationConf()
 

@@ -62,8 +62,6 @@ def main(argv):
         sample_to_ontology_df,
         ontology_term_diagnosis_df
     )
-    print("------ TRANSFORMATION RESULT search_index_patient_sample_df ------")
-    search_index_patient_sample_df.show()
 
     search_index_patient_sample_df.write.mode("overwrite").parquet(output_path)
 
@@ -158,6 +156,7 @@ def extend_sample_with_ontology_data(
         "cancer_system",
         when(col("cancer_system").isNull(), lit("Unclassified")).otherwise(col("cancer_system"))
     )
+
     sample_to_ontology_term_df = sample_to_ontology_term_df.withColumn("histology", col("term_name"))
 
     return sample_to_ontology_term_df
@@ -199,6 +198,7 @@ def get_expected_columns(patient_sample_ext_df: DataFrame) -> DataFrame:
         "prior_treatment",
         "tumour_type",
         "patient_age",
+        "patient_sex",
         "histology",
         "history",
         "initial_diagnosis",
@@ -219,6 +219,7 @@ def get_expected_columns(patient_sample_ext_df: DataFrame) -> DataFrame:
         "term_id",
         "ancestors",
         "search_terms",
+        "cancer_system",
         Constants.DATA_SOURCE_COLUMN
     )
 
