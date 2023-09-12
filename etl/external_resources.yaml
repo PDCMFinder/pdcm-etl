@@ -74,6 +74,13 @@ resources:
     link_building_method: "GEOInlineLink"
     link_template: "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GEO_ID"
 
+  - id: 10
+    name: "ClinGen (Genes)"
+    label: "ClinGen"
+    type: "Gene"
+    link_building_method: "referenceLookup"
+    link_template: "https://search.clinicalgenome.org/kb/genes/ENTRY_ID"
+
 # Resources that require downloading data. These resources should be marked with link_building_method: "referenceLookup"
 # in the previous section
 
@@ -118,3 +125,13 @@ resources_download_conf:
     root_data:
     entry_value_source: "gene_symbol"
     entry_id_source: "gene_symbol"
+
+  - resource_id: 10
+    download_url: "https://search.clinicalgenome.org/api/curations?queryParams"
+    download_file_name: "clingen_genes.json"
+    file_type: "json"
+    processed_file: "clingen_genes_processed.csv"
+    root_data: "rows"
+    entry_value_source: "symbol"
+    entry_id_source: "hgnc_id"
+

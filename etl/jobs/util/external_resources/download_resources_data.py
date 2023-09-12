@@ -45,7 +45,7 @@ def download_csv_from_url(url, download_name):
 
 
 # Read local JSON and extract only the wanted property, keeping only unique entries
-def get_unique_entries_local_json(local_json_name, json_node_with_data,  entry_value_property, entry_id_property):
+def get_unique_entries_local_json(local_json_name, json_node_with_data, entry_value_property, entry_id_property):
     f = open(os.path.join(tmp_folder, local_json_name))
 
     # returns JSON object as a dictionary
@@ -116,11 +116,21 @@ def download_oncomx_genes_data(download_path):
     download_csv_resource(url, file_name, entry_column, entry_id_column, download_path)
 
 
+def download_clingen_genes_data(download_path):
+    url = "https://search.clinicalgenome.org/api/curations?queryParams"
+    file_name = "clingen_genes.json"
+    json_node_with_data = "rows"
+    entry_value_property = "symbol"
+    entry_id_property = "hgnc_id"
+
+    download_json_resource(url, file_name, json_node_with_data, entry_value_property, entry_id_property, download_path)
+
+
 def download_json_resource(
         url, file_name, json_node_with_data, entry_value_property, entry_id_property, download_path):
     # Download the original JSON to process it later
     download_json_from_url(url, file_name)
-    entries = get_unique_entries_local_json(file_name, json_node_with_data,  entry_value_property, entry_id_property)
+    entries = get_unique_entries_local_json(file_name, json_node_with_data, entry_value_property, entry_id_property)
     write_entries_to_csv(entries, download_path, file_name)
 
 
@@ -135,6 +145,7 @@ def download_external_resources(download_path):
     download_civic_genes_data(download_path)
     download_civic_variants_data(download_path)
     download_oncomx_genes_data(download_path)
+    download_clingen_genes_data(download_path)
 
 
 if __name__ == "__main__":
