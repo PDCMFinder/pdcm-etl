@@ -329,13 +329,24 @@ class TransformGeneMarker(TransformEntity):
     entity_name = Constants.GENE_MARKER_ENTITY
 
 
+class TransformGeneHelper(TransformEntity):
+    requiredTasks = [
+        ExtractCna(),
+        ExtractCytogenetics(),
+        ExtractExpression(),
+        ExtractMutation(),
+        TransformGeneMarker()
+    ]
+    entity_name = Constants.GENE_HELPER_ENTITY
+
+
 class TransformCnaMolecularData(TransformEntity):
     requiredTasks = [
         ExtractCna(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
         TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
@@ -346,7 +357,7 @@ class TransformCytogeneticsMolecularData(TransformEntity):
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
         TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
 
@@ -357,7 +368,7 @@ class TransformExpressionMolecularData(TransformEntity):
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
         TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
 
@@ -368,7 +379,7 @@ class TransformMutationMeasurementData(TransformEntity):
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
         TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
 
