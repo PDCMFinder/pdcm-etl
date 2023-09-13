@@ -3,7 +3,6 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
-from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
 from etl.jobs.transformation.links_generation.molecular_data_links_builder import \
     add_links_in_molecular_data_table
 from etl.jobs.util.id_assigner import add_id
@@ -25,7 +24,7 @@ def main(argv):
     raw_external_resources_parquet_path = argv[2]
     raw_external_resources_data_parquet_path = argv[3]
     molecular_characterization_path = argv[4]
-    gene_markers_parquet_path = argv[5]
+    gene_helper_parquet_path = argv[5]
 
     output_path = argv[6]
 
@@ -34,13 +33,14 @@ def main(argv):
     raw_expression_df = spark.read.parquet(raw_expression_parquet_path)
     raw_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
     raw_resources_data_df = spark.read.parquet(raw_external_resources_data_parquet_path)
+    gene_helper_df = spark.read.parquet(gene_helper_parquet_path)
 
     expression_molecular_data_df = transform_expression_molecular_data(
         molecular_characterization_df,
         raw_expression_df,
         raw_resources_df,
         raw_resources_data_df,
-        gene_markers_parquet_path,
+        gene_helper_df,
         output_path)
     expression_molecular_data_df.write.mode("overwrite").parquet(output_path)
 
@@ -50,12 +50,14 @@ def transform_expression_molecular_data(
         raw_expression_df: DataFrame,
         raw_resources_df: DataFrame,
         raw_resources_data_df: DataFrame,
-        gene_markers_parquet_path: DataFrame,
+        gene_helper_df: DataFrame,
         output_path) -> DataFrame:
     expression_df = get_expression_df(raw_expression_df)
 
     expression_df = set_fk_molecular_characterization(expression_df, 'expression', molecular_characterization_df)
-    expression_df = harmonise_mutation_marker_symbols(expression_df, gene_markers_parquet_path)
+    expression_df = expression_df.join(
+        gene_helper_df, on=[expression_df.symbol == gene_helper_df.non_harmonised_symbol], how='left')
+    # expression_df = harmonise_mutation_marker_symbols(expression_df, gene_markers_parquet_path)
     expression_df = expression_df.withColumnRenamed(
         Constants.DATA_SOURCE_COLUMN, "data_source")
 

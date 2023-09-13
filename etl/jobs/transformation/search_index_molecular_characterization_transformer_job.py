@@ -30,8 +30,6 @@ def main(argv):
         xenograft_sample_df,
         cell_sample_df
     )
-    print("------ TRANSFORMATION search_index_molecular_characterization ------")
-    search_index_molecular_characterization_df.show()
     search_index_molecular_characterization_df.write.mode("overwrite").parquet(output_path)
 
 

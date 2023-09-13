@@ -28,6 +28,7 @@ import etl.jobs.transformation.response_classification_transformer_job
 import etl.jobs.transformation.molecular_characterization_type_transformer_job
 import etl.jobs.transformation.platform_transformer_job
 import etl.jobs.transformation.molecular_characterization_transformer_job
+import etl.jobs.transformation.gene_helper_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
@@ -300,6 +301,10 @@ entities = {
             "library_selection"
         ]
     },
+    Constants.GENE_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.gene_helper_transformer_job.main,
+        "expected_database_columns": []
+    },
     Constants.CNA_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.cna_molecular_data_transformer_job.main,
         "expected_database_columns": [
@@ -314,6 +319,8 @@ entities = {
             "copy_number_status",
             "gistic_value",
             "picnic_value",
+            "ensembl_gene_id",
+            "ncbi_gene_id",
             "non_harmonised_symbol",
             "harmonisation_result",
             "molecular_characterization_id",
@@ -349,6 +356,8 @@ entities = {
             "affy_hgea_expression_value",
             "illumina_hgea_probe_id",
             "illumina_hgea_expression_value",
+            "ensembl_gene_id",
+            "ncbi_gene_id",
             "non_harmonised_symbol",
             "harmonisation_result",
             "molecular_characterization_id",
@@ -378,6 +387,8 @@ entities = {
             "ncbi_transcript_id",
             "ensembl_transcript_id",
             "variation_id",
+            "ensembl_gene_id",
+            "ncbi_gene_id",
             "molecular_characterization_id",
             "non_harmonised_symbol",
             "harmonisation_result",

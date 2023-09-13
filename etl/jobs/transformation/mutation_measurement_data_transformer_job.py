@@ -3,7 +3,6 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
-from etl.jobs.transformation.harmonisation.markers_harmonisation import harmonise_mutation_marker_symbols
 from etl.jobs.transformation.links_generation.molecular_data_links_builder import  \
     add_links_in_molecular_data_table
 from etl.jobs.util.id_assigner import add_id
@@ -25,7 +24,7 @@ def main(argv):
     raw_external_resources_parquet_path = argv[2]
     raw_external_resources_data_parquet_path = argv[3]
     molecular_characterization_parquet_path = argv[4]
-    gene_markers_parquet_path = argv[5]
+    gene_helper_parquet_path = argv[5]
     output_path = argv[6]
 
     spark = SparkSession.builder.getOrCreate()
@@ -33,13 +32,14 @@ def main(argv):
     raw_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
     raw_resources_data_df = spark.read.parquet(raw_external_resources_data_parquet_path)
     molecular_characterization_df = spark.read.parquet(molecular_characterization_parquet_path)
+    gene_helper_df = spark.read.parquet(gene_helper_parquet_path)
 
     mutation_measurement_data_df = transform_mutation_measurement_data(
         raw_mutation_df,
         raw_resources_df,
         raw_resources_data_df,
         molecular_characterization_df,
-        gene_markers_parquet_path,
+        gene_helper_df,
         output_path)
     mutation_measurement_data_df.write.mode("overwrite").parquet(output_path)
 
@@ -49,14 +49,16 @@ def transform_mutation_measurement_data(
         raw_resources_df: DataFrame,
         raw_resources_data_df: DataFrame,
         molecular_characterization_df: DataFrame,
-        gene_markers_parquet_path,
+        gene_helper_df: DataFrame,
         output_path) -> DataFrame:
 
     mutation_measurement_data_df = get_mutation_measurement_data_df(raw_mutation_df)
     mutation_measurement_data_df = set_fk_molecular_characterization(
         mutation_measurement_data_df, 'mutation', molecular_characterization_df)
-    mutation_measurement_data_df = harmonise_mutation_marker_symbols(
-        mutation_measurement_data_df, gene_markers_parquet_path)
+    mutation_measurement_data_df = mutation_measurement_data_df.join(
+        gene_helper_df,
+        on=[mutation_measurement_data_df.symbol == gene_helper_df.non_harmonised_symbol],
+        how='left')
     mutation_measurement_data_df = mutation_measurement_data_df.withColumnRenamed(
         Constants.DATA_SOURCE_COLUMN, "data_source")
 
