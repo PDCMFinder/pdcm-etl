@@ -1,4 +1,5 @@
 from pyspark.sql.dataframe import DataFrame
+from pyspark.sql.functions import when, col, lit
 
 from etl.constants import Constants
 
@@ -7,27 +8,28 @@ from etl.constants import Constants
 # cytogenetics.
 def set_fk_molecular_characterization(
         molecular_data_df: DataFrame, molchar_type: str, molecular_characterization_df: DataFrame) -> DataFrame:
+
+    # Extract sample_id to a single column, depending on the column that has a value
+    molecular_characterization_df = molecular_characterization_df.withColumn(
+        "sample_id",
+        when((col("external_patient_sample_id").isNotNull()), col("external_patient_sample_id"))
+        .when((col("external_xenograft_sample_id").isNotNull()), col("external_xenograft_sample_id"))
+        .when((col("external_cell_sample_id").isNotNull()), col("external_cell_sample_id"))
+        .otherwise(lit("")))
+    molecular_characterization_df = molecular_characterization_df.select(
+        "id", "sample_id", "platform_external_id", "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
+
     molecular_data_df = molecular_data_df.withColumnRenamed("platform_id", "platform_external_id")
 
     molecular_characterization_df = molecular_characterization_df.withColumnRenamed(
         "id", "molecular_characterization_id").where("molecular_characterisation_type = '" + molchar_type + "'")
 
-    molecular_characterization_df = molecular_characterization_df.select(
-        "molecular_characterization_id", "sample_origin", "external_patient_sample_id",
-        "external_xenograft_sample_id", "external_cell_sample_id", "platform_external_id", Constants.DATA_SOURCE_COLUMN)
+    molecular_data_df = molecular_data_df.join(
+        molecular_characterization_df,
+        on=["sample_id", "platform_external_id", Constants.DATA_SOURCE_COLUMN],
+        how='inner')
 
-    molecular_data_with_patient_sample_fk_df = get_mol_char_by_sample_origin(
-        molecular_characterization_df, 'patient', molecular_data_df, 'external_patient_sample_id')
-
-    molecular_data_with_xenograft_sample_fk_df = get_mol_char_by_sample_origin(
-        molecular_characterization_df, 'xenograft', molecular_data_df, 'external_xenograft_sample_id')
-
-    molecular_data_with_cell_sample_fk_df = get_mol_char_by_sample_origin(
-        molecular_characterization_df, 'cell', molecular_data_df, 'external_cell_sample_id')
-
-    molecular_data_df = molecular_data_with_patient_sample_fk_df \
-        .union(molecular_data_with_xenograft_sample_fk_df) \
-        .union(molecular_data_with_cell_sample_fk_df)
+    molecular_data_df = molecular_data_df.drop(molecular_characterization_df.molecular_characterisation_type)
     return molecular_data_df
 
 

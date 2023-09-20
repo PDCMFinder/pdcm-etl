@@ -1,8 +1,9 @@
 import json
 
 from pyspark import Row
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit
+from pyspark.sql.types import StructType, StructField, LongType, IntegerType
 
 # Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
 # resources connectedness. A weight is assigned manually to each one:
@@ -146,20 +147,24 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resour
     1) Given a set of model fields, give a score or 1 or 0.5 depending on the field being essential or desirable.
     2) Give a score of 1 per external resource the model is linked to.
     """
-    # If for some reason search_index_df is empty, return immediately. This can happen if diagnoses could not be mapped.
-    if search_index_df.count() == 0:
-        return search_index_df.withColumn("score", lit(""))
-
-    spark = SparkSession.builder.getOrCreate()
     # Process only PDX models
     input_df = search_index_df.where("model_type = 'PDX'")
     input_df = input_df.drop_duplicates()
+
+    # If there is no data to process, return
+    if input_df.count() == 0:
+        return input_df.withColumn("score", lit(""))
 
     total_cancer_annotation_resources = count_cancer_annotation_resources(raw_external_resources_df)
 
     rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources))
 
-    score_df = spark.createDataFrame(rdd_with_score)
+    score_schema = StructType([
+        StructField('pdcm_model_id', LongType(), True),
+        StructField('score', IntegerType(), True)
+    ])
+
+    score_df = rdd_with_score.toDF(score_schema)
 
     # For models which are not PDX, this score is set to zero
     non_pdx_df = search_index_df.where("model_type != 'PDX'").select("pdcm_model_id", lit(0).alias("score"))

@@ -88,4 +88,19 @@ class Constants:
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
     TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
     EXTERNAL_RESOURCES_REFERENCES = "external_resources_references_helper"
+    GENE_HELPER_ENTITY = "gene_helper"
+
+    # Search index related transformations
+    MODEL_METADATA = "model_metadata"
+    SEARCH_INDEX_PATIENT_SAMPLE_ENTITY = "search_index_patient_sample"
+    SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY = "search_index_molecular_characterization"
+    SEARCH_INDEX_MOLECULAR_DATA_ENTITY = "search_index_molecular_data"
+
+    INITIAL_CNA_MOLECULAR_DATA_ENTITY = "initial_cna_molecular_data"
+    INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY = "initial_cytogenetics_molecular_data"
+    INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY = "initial_expression_molecular_data"
+    INITIAL_MUTATION_MOLECULAR_DATA_ENTITY = "initial_mutation_molecular_data"
+
+    # Others
+    NOT_PROVIDED_VALUE = "Not Provided"
 

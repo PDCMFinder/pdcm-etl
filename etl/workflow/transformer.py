@@ -329,46 +329,85 @@ class TransformGeneMarker(TransformEntity):
     entity_name = Constants.GENE_MARKER_ENTITY
 
 
-class TransformCnaMolecularData(TransformEntity):
+class TransformGeneHelper(TransformEntity):
     requiredTasks = [
         ExtractCna(),
+        ExtractCytogenetics(),
+        ExtractExpression(),
+        ExtractMutation(),
+        TransformGeneMarker()
+    ]
+    entity_name = Constants.GENE_HELPER_ENTITY
+
+
+class TransformInitialCnaMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractCna(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_CNA_MOLECULAR_DATA_ENTITY
+
+
+class TransformInitialCytogeneticsMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractCytogenetics(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY
+
+
+class TransformInitialExpressionMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractExpression(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY
+
+
+class TransformInitialMutationMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractMutation(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_MUTATION_MOLECULAR_DATA_ENTITY
+
+
+class TransformCnaMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformInitialCnaMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
 
 class TransformCytogeneticsMolecularData(TransformEntity):
     requiredTasks = [
-        ExtractCytogenetics(),
+        TransformInitialCytogeneticsMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
 
 
 class TransformExpressionMolecularData(TransformEntity):
     requiredTasks = [
-        ExtractExpression(),
+        TransformInitialExpressionMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
 
 
 class TransformMutationMeasurementData(TransformEntity):
     requiredTasks = [
-        ExtractMutation(),
+        TransformInitialMutationMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
-        TransformGeneMarker()
+        TransformGeneHelper()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
 
@@ -457,24 +496,54 @@ class TransformTreatmentHarmonisationHelper(TransformEntity):
     entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
 
 
-class TransformSearchIndex(TransformEntity):
+class TransformSearchIndexPatientSample(TransformEntity):
     requiredTasks = [
-        TransformModel(),
-        TransformMolecularCharacterization(),
-        TransformMolecularCharacterizationType(),
-        TransformXenograftModelSpecimen(),
         TransformPatientSample(),
         TransformPatient(),
+        TransformSampleToOntology(),
+        TransformOntologyTermDiagnosis(),
+    ]
+    entity_name = Constants.SEARCH_INDEX_PATIENT_SAMPLE_ENTITY
+
+
+class TransformSearchIndexMolecularCharacterization(TransformEntity):
+    requiredTasks = [
+        TransformMolecularCharacterization(),
+        TransformPatientSample(),
         TransformXenograftSample(),
-        TransformCellSample(),
+        TransformCellSample()
+    ]
+    entity_name = Constants.SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY
+
+
+class TransformModelMetadata(TransformEntity):
+    requiredTasks = [
+        TransformModel(),
+        TransformSearchIndexPatientSample(),
+        TransformXenograftModelSpecimen(),
+        TransformQualityAssurance(),
+        TransformTreatmentHarmonisationHelper(),
+        TransformSearchIndexMolecularCharacterization()
+    ]
+    entity_name = Constants.MODEL_METADATA
+
+
+class TransformSearchIndexMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformModelMetadata(),
+        TransformSearchIndexMolecularCharacterization(),
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
         TransformCytogeneticsMolecularData(),
-        TransformSampleToOntology(),
-        TransformOntologyTermDiagnosis(),
-        TransformTreatmentHarmonisationHelper(),
-        TransformQualityAssurance(),
+        ExtractExternalResources(),
+    ]
+    entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY
+
+
+class TransformSearchIndex(TransformEntity):
+    requiredTasks = [
+        TransformSearchIndexMolecularData(),
         ExtractExternalResources(),
         ExtractModelCharacterizationConf()
 
