@@ -8,8 +8,7 @@ from etl.jobs.transformation.links_generation.link_builder_utils import create_e
 def add_links_in_molecular_data_table(
         molecular_data_df: DataFrame,
         resources_df: DataFrame,
-        resources_data_df: DataFrame,
-        output_path):
+        resources_data_df: DataFrame):
     """
     Takes a dataframe with molecular data and adds an `external_db_links` column with links to external
     resources.
@@ -24,14 +23,8 @@ def add_links_in_molecular_data_table(
     if "amino_acid_change" in molecular_data_df.columns:
         link_build_confs.append(get_amino_acid_change_link_build_conf())
 
-    # To avoid some random behaviour with the ids when doing the join, we write temporary the
-    # df with the molecular data and read it again
-    tmp_path = output_path + "_tmp"
-    molecular_data_df.write.mode("overwrite").parquet(tmp_path)
-    data_df = spark.read.parquet(tmp_path)
-
     # Find links for resources for which we have downloaded data
-    ref_links_df = find_links_for_ref_lookup_data(data_df, link_build_confs, resources_data_df)
+    ref_links_df = find_links_for_ref_lookup_data(molecular_data_df, link_build_confs, resources_data_df)
 
     # Find links that are created based on values of columns in the molecular data table
     inline_links_df = find_inline_links_molecular_data(spark, molecular_data_df, link_build_confs, resources_df)
@@ -41,9 +34,9 @@ def add_links_in_molecular_data_table(
     external_db_links_column_df = create_external_db_links_column(links_df)
 
     # Join back to the original data frame to add the new column to it
-    data_df = data_df.join(external_db_links_column_df, on=["id"], how="left")
+    molecular_data_df = molecular_data_df.join(external_db_links_column_df, on=["id"], how="left")
 
-    return data_df
+    return molecular_data_df
 
 
 def find_links_for_ref_lookup_data(

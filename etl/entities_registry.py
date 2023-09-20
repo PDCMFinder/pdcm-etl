@@ -29,6 +29,10 @@ import etl.jobs.transformation.molecular_characterization_type_transformer_job
 import etl.jobs.transformation.platform_transformer_job
 import etl.jobs.transformation.molecular_characterization_transformer_job
 import etl.jobs.transformation.gene_helper_transformer_job
+import etl.jobs.transformation.initial_cna_molecular_data_transformer_job
+import etl.jobs.transformation.initial_cytogenetics_molecular_data_transformer_job
+import etl.jobs.transformation.initial_expression_molecular_data_transformer_job
+import etl.jobs.transformation.initial_mutation_molecular_data_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
@@ -303,6 +307,22 @@ entities = {
     },
     Constants.GENE_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.gene_helper_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.INITIAL_CNA_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_cna_molecular_data_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_cytogenetics_molecular_data_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_expression_molecular_data_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.INITIAL_MUTATION_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_mutation_molecular_data_transformer_job.main,
         "expected_database_columns": []
     },
     Constants.CNA_MOLECULAR_DATA_ENTITY: {

@@ -340,12 +340,43 @@ class TransformGeneHelper(TransformEntity):
     entity_name = Constants.GENE_HELPER_ENTITY
 
 
-class TransformCnaMolecularData(TransformEntity):
+class TransformInitialCnaMolecularData(TransformEntity):
     requiredTasks = [
         ExtractCna(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_CNA_MOLECULAR_DATA_ENTITY
+
+
+class TransformInitialCytogeneticsMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractCytogenetics(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY
+
+
+class TransformInitialExpressionMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractExpression(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY
+
+
+class TransformInitialMutationMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractMutation(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.INITIAL_MUTATION_MOLECULAR_DATA_ENTITY
+
+
+class TransformCnaMolecularData(TransformEntity):
+    requiredTasks = [
+        TransformInitialCnaMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
         TransformGeneHelper()
     ]
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
@@ -353,10 +384,9 @@ class TransformCnaMolecularData(TransformEntity):
 
 class TransformCytogeneticsMolecularData(TransformEntity):
     requiredTasks = [
-        ExtractCytogenetics(),
+        TransformInitialCytogeneticsMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
         TransformGeneHelper()
     ]
     entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
@@ -364,10 +394,9 @@ class TransformCytogeneticsMolecularData(TransformEntity):
 
 class TransformExpressionMolecularData(TransformEntity):
     requiredTasks = [
-        ExtractExpression(),
+        TransformInitialExpressionMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
         TransformGeneHelper()
     ]
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
@@ -375,10 +404,9 @@ class TransformExpressionMolecularData(TransformEntity):
 
 class TransformMutationMeasurementData(TransformEntity):
     requiredTasks = [
-        ExtractMutation(),
+        TransformInitialMutationMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformMolecularCharacterization(),
         TransformGeneHelper()
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
