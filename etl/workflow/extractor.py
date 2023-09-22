@@ -114,6 +114,14 @@ class ExtractGeneMarker(ReadMarkerFromTsv):
     module_name = Constants.GENE_MARKER_MODULE
 
 
+class ExtractImageStudio(ExtractModuleFromTsv):
+    module_name = Constants.IMAGE_STUDY_MODULE
+
+
+class ExtractModelImage(ExtractModuleFromTsv):
+    module_name = Constants.MODEL_IMAGE_MODULE
+
+
 class ExtractOntology(ReadOntologyFromObo):
     module_name = Constants.ONTOLOGY_MODULE
 

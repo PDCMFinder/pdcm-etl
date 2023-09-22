@@ -132,6 +132,34 @@ groups:
           - "response_classification"
           - "model_id"
 
+      - name: "image_study"
+        type: "tsv"
+        name_patterns: [ "$provider_metadata-image_study.tsv" ]
+        columns:
+          - "study_id"
+          - "title"
+          - "description"
+          - "licence"
+          - "contact"
+          - "sample_organism"
+          - "sample_description"
+          - "sample_preparation_protocol"
+          - "imaging_instrument"
+          - "image_acquisition_parameters"
+          - "imaging_method"
+
+      - name: "model_image"
+        type: "tsv"
+        name_patterns: [ "$provider_metadata-model_image.tsv" ]
+        columns:
+          - "model_id"
+          - "url"
+          - "description"
+          - "sample_type"
+          - "passage"
+          - "magnification"
+          - "staining"
+
   - group: "molecular-metadata"
     modules:
       - name: "molchar_sample"
@@ -167,7 +195,6 @@ groups:
           - "platform_id"
           - "molecular_methods_description"
           - "analysis_description"
-
 
   - group: "molecular-data"
     modules:

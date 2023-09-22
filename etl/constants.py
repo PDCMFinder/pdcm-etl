@@ -29,6 +29,8 @@ class Constants:
     MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
     MAPPING_TREATMENTS_MODULE = "mapping_treatments"
     MODEL_CHARACTERIZATIONS_CONF_MODULE = "model_characterizations_conf"
+    IMAGE_STUDY_MODULE = "image_study"
+    MODEL_IMAGE_MODULE = "model_image"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
