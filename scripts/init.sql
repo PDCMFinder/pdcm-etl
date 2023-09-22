@@ -977,3 +977,55 @@ COMMENT ON TABLE release_info IS 'Table that shows columns with data per data so
 COMMENT ON COLUMN release_info.name IS 'Name of the release';
 COMMENT ON COLUMN release_info.date IS 'Date of the release';
 COMMENT ON COLUMN release_info.providers IS 'List of processed providers';
+
+DROP TABLE IF EXISTS model_study CASCADE;
+CREATE TABLE model_study (
+    id BIGINT NOT NULL,
+    study_id TEXT,
+    title TEXT,
+    description TEXT,
+    license TEXT,
+    contact TEXT,
+    sample_organism TEXT,
+    sample_description TEXT,
+    sample_preparation_protocol TEXT,
+    imaging_instrument TEXT,
+    image_acquisition_parameters TEXT,
+    imaging_method TEXT
+);
+
+COMMENT ON TABLE model_study IS 'Information about an image study';
+COMMENT ON COLUMN model_study.id IS 'Internal identifier';
+COMMENT ON COLUMN model_study.study_id IS 'Accession number for BioImage Archive study';
+COMMENT ON COLUMN model_study.title IS 'The title for your dataset';
+COMMENT ON COLUMN model_study.description IS 'Field to describe your dataset. This can be the abstract to an accompanying publication';
+COMMENT ON COLUMN model_study.license IS 'The licence under which the data are available';
+COMMENT ON COLUMN model_study.contact IS 'Contact details for the authors involved in the study';
+COMMENT ON COLUMN model_study.sample_organism IS 'What is being imaged';
+COMMENT ON COLUMN model_study.sample_description IS 'High level description of sample';
+COMMENT ON COLUMN model_study.sample_preparation_protocol IS 'How the sample was prepared for imaging';
+COMMENT ON COLUMN model_study.imaging_instrument IS 'Description of the instrument used to capture the images';
+COMMENT ON COLUMN model_study.image_acquisition_parameters IS 'How the images were acquired, including instrument settings/parameters';
+COMMENT ON COLUMN model_study.imaging_method IS 'What method was used to capture images';
+
+DROP TABLE IF EXISTS model_image CASCADE;
+CREATE TABLE model_image (
+    id BIGINT NOT NULL,
+    model_id BIGINT NOT NULL,
+    url TEXT,
+    description TEXT,
+    sample_type TEXT,
+    passage TEXT,
+    magnification TEXT,
+    staining TEXT
+);
+
+COMMENT ON TABLE model_image IS 'Information about an image study';
+COMMENT ON COLUMN model_image.id IS 'Internal identifier';
+COMMENT ON COLUMN model_image.model_id IS 'Unique identifier for all the PDXs derived from the same tissue sample';
+COMMENT ON COLUMN model_image.url IS 'Link to the model image';
+COMMENT ON COLUMN model_image.description IS 'Description of the image on what was being imaged';
+COMMENT ON COLUMN model_image.sample_type IS 'Type of sample being imaged (pdx, patient, organoid, cell line)';
+COMMENT ON COLUMN model_image.passage IS 'Passage number imaging was performed. Passage 0 correspond to first engraftment';
+COMMENT ON COLUMN model_image.magnification IS 'Magnification of the mode image';
+COMMENT ON COLUMN model_image.staining IS 'Staining used for imaging the sample';
