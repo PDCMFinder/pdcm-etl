@@ -978,8 +978,8 @@ COMMENT ON COLUMN release_info.name IS 'Name of the release';
 COMMENT ON COLUMN release_info.date IS 'Date of the release';
 COMMENT ON COLUMN release_info.providers IS 'List of processed providers';
 
-DROP TABLE IF EXISTS model_study CASCADE;
-CREATE TABLE model_study (
+DROP TABLE IF EXISTS image_study CASCADE;
+CREATE TABLE image_study (
     id BIGINT NOT NULL,
     study_id TEXT,
     title TEXT,
@@ -994,19 +994,19 @@ CREATE TABLE model_study (
     imaging_method TEXT
 );
 
-COMMENT ON TABLE model_study IS 'Information about an image study';
-COMMENT ON COLUMN model_study.id IS 'Internal identifier';
-COMMENT ON COLUMN model_study.study_id IS 'Accession number for BioImage Archive study';
-COMMENT ON COLUMN model_study.title IS 'The title for your dataset';
-COMMENT ON COLUMN model_study.description IS 'Field to describe your dataset. This can be the abstract to an accompanying publication';
-COMMENT ON COLUMN model_study.license IS 'The licence under which the data are available';
-COMMENT ON COLUMN model_study.contact IS 'Contact details for the authors involved in the study';
-COMMENT ON COLUMN model_study.sample_organism IS 'What is being imaged';
-COMMENT ON COLUMN model_study.sample_description IS 'High level description of sample';
-COMMENT ON COLUMN model_study.sample_preparation_protocol IS 'How the sample was prepared for imaging';
-COMMENT ON COLUMN model_study.imaging_instrument IS 'Description of the instrument used to capture the images';
-COMMENT ON COLUMN model_study.image_acquisition_parameters IS 'How the images were acquired, including instrument settings/parameters';
-COMMENT ON COLUMN model_study.imaging_method IS 'What method was used to capture images';
+COMMENT ON TABLE image_study IS 'Information about an image study';
+COMMENT ON COLUMN image_study.id IS 'Internal identifier';
+COMMENT ON COLUMN image_study.study_id IS 'Accession number for BioImage Archive study';
+COMMENT ON COLUMN image_study.title IS 'The title for your dataset';
+COMMENT ON COLUMN image_study.description IS 'Field to describe your dataset. This can be the abstract to an accompanying publication';
+COMMENT ON COLUMN image_study.license IS 'The licence under which the data are available';
+COMMENT ON COLUMN image_study.contact IS 'Contact details for the authors involved in the study';
+COMMENT ON COLUMN image_study.sample_organism IS 'What is being imaged';
+COMMENT ON COLUMN image_study.sample_description IS 'High level description of sample';
+COMMENT ON COLUMN image_study.sample_preparation_protocol IS 'How the sample was prepared for imaging';
+COMMENT ON COLUMN image_study.imaging_instrument IS 'Description of the instrument used to capture the images';
+COMMENT ON COLUMN image_study.image_acquisition_parameters IS 'How the images were acquired, including instrument settings/parameters';
+COMMENT ON COLUMN image_study.imaging_method IS 'What method was used to capture images';
 
 DROP TABLE IF EXISTS model_image CASCADE;
 CREATE TABLE model_image (

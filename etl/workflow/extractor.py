@@ -114,7 +114,7 @@ class ExtractGeneMarker(ReadMarkerFromTsv):
     module_name = Constants.GENE_MARKER_MODULE
 
 
-class ExtractImageStudio(ExtractModuleFromTsv):
+class ExtractImageStudy(ExtractModuleFromTsv):
     module_name = Constants.IMAGE_STUDY_MODULE
 
 
