@@ -258,3 +258,8 @@ ALTER TABLE search_index
     FOREIGN KEY (pdcm_model_id)
     REFERENCES model_information (id);
 
+ALTER TABLE model_image
+    ADD CONSTRAINT fk_model_image_model
+    FOREIGN KEY (model_id)
+    REFERENCES model_information (id);
+

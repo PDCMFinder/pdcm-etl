@@ -77,6 +77,7 @@ def transform_search_index(
             col("publications").alias("pdx_model_publications"),
             "quality_assurance",
             "xenograft_model_specimens",
+            "model_images",
             "markers_with_cna_data",
             "markers_with_mutation_data",
             "markers_with_expression_data",

@@ -48,6 +48,8 @@ entities = {
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: TransformExpressionMolecularData(),
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: TransformMutationMeasurementData(),
     Constants.GENE_MARKER_ENTITY: TransformGeneMarker(),
+    Constants.IMAGE_STUDY_ENTITY: TransformImageStudy(),
+    Constants.MODEL_IMAGE_ENTITY: TransformModelImage(),
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: TransformOntologyTermDiagnosis(),
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: TransformOntologyTermTreatment(),
     Constants.ONTOLOGY_TERM_REGIMEN_ENTITY: TransformOntologyTermRegimen(),

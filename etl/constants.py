@@ -29,6 +29,8 @@ class Constants:
     MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
     MAPPING_TREATMENTS_MODULE = "mapping_treatments"
     MODEL_CHARACTERIZATIONS_CONF_MODULE = "model_characterizations_conf"
+    IMAGE_STUDY_MODULE = "image_study"
+    MODEL_IMAGE_MODULE = "model_image"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -69,6 +71,8 @@ class Constants:
     EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
     GENE_MARKER_ENTITY = "gene_marker"
+    IMAGE_STUDY_ENTITY = "image_study"
+    MODEL_IMAGE_ENTITY = "model_image"
     ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
     ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
     ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"

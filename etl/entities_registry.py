@@ -35,9 +35,12 @@ import etl.jobs.transformation.initial_expression_molecular_data_transformer_job
 import etl.jobs.transformation.initial_mutation_molecular_data_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
+import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
+import etl.jobs.transformation.image_study_transformer_job
+import etl.jobs.transformation.model_image_transformer_job
 import etl.jobs.transformation.xenograft_model_specimen_transformer_job
 import etl.jobs.transformation.ontology_term_diagnosis_transformer_job
 import etl.jobs.transformation.ontology_term_treatment_transformer_job
@@ -432,6 +435,36 @@ entities = {
             "ncbi_gene_id"
         ]
     },
+    Constants.IMAGE_STUDY_ENTITY: {
+        "spark_job": etl.jobs.transformation.image_study_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "study_id",
+            "title",
+            "description",
+            "licence",
+            "contact",
+            "sample_organism",
+            "sample_description",
+            "sample_preparation_protocol",
+            "imaging_instrument",
+            "image_acquisition_parameters",
+            "imaging_method"
+        ]
+    },
+    Constants.MODEL_IMAGE_MODULE: {
+        "spark_job": etl.jobs.transformation.model_image_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "model_id",
+            "url",
+            "description",
+            "sample_type",
+            "passage",
+            "magnification",
+            "staining"
+        ]
+    },
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_diagnosis_transformer_job.main,
         "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a", "ancestors"]
@@ -571,6 +604,7 @@ entities = {
             "pdx_model_publications",
             "quality_assurance",
             "xenograft_model_specimens",
+            "model_images",
             "markers_with_cna_data",
             "markers_with_mutation_data",
             "markers_with_expression_data",

@@ -132,3 +132,9 @@ ALTER TABLE treatment_protocol ADD CONSTRAINT pk_treatment_protocol PRIMARY KEY 
 
 ALTER TABLE treatment_component DROP CONSTRAINT IF EXISTS pk_treatment_component CASCADE;
 ALTER TABLE treatment_component ADD CONSTRAINT pk_treatment_component PRIMARY KEY (id);
+
+ALTER TABLE image_study DROP CONSTRAINT IF EXISTS pk_image_study CASCADE;
+ALTER TABLE image_study ADD CONSTRAINT pk_image_study PRIMARY KEY (id);
+
+ALTER TABLE model_image DROP CONSTRAINT IF EXISTS pk_model_image CASCADE;
+ALTER TABLE model_image ADD CONSTRAINT pk_model_image PRIMARY KEY (id);

@@ -8,7 +8,7 @@ from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel,
     ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
     ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources, ExtractDownloadedResourcesData, \
-    ExtractModelCharacterizationConf
+    ExtractModelCharacterizationConf, ExtractImageStudy, ExtractModelImage
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -340,6 +340,21 @@ class TransformGeneHelper(TransformEntity):
     entity_name = Constants.GENE_HELPER_ENTITY
 
 
+class TransformImageStudy(TransformEntity):
+    requiredTasks = [
+        ExtractImageStudy()
+    ]
+    entity_name = Constants.IMAGE_STUDY_ENTITY
+
+
+class TransformModelImage(TransformEntity):
+    requiredTasks = [
+        ExtractModelImage(),
+        TransformModel()
+    ]
+    entity_name = Constants.MODEL_IMAGE_ENTITY
+
+
 class TransformInitialCnaMolecularData(TransformEntity):
     requiredTasks = [
         ExtractCna(),
@@ -522,6 +537,7 @@ class TransformModelMetadata(TransformEntity):
         TransformSearchIndexPatientSample(),
         TransformXenograftModelSpecimen(),
         TransformQualityAssurance(),
+        TransformModelImage(),
         TransformTreatmentHarmonisationHelper(),
         TransformSearchIndexMolecularCharacterization()
     ]
