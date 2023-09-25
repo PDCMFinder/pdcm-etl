@@ -35,6 +35,7 @@ import etl.jobs.transformation.initial_expression_molecular_data_transformer_job
 import etl.jobs.transformation.initial_mutation_molecular_data_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
+import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
@@ -441,7 +442,7 @@ entities = {
             "study_id",
             "title",
             "description",
-            "license",
+            "licence",
             "contact",
             "sample_organism",
             "sample_description",
@@ -460,6 +461,7 @@ entities = {
             "description",
             "sample_type",
             "passage",
+            "magnification",
             "staining"
         ]
     },

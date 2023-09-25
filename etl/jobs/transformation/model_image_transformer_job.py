@@ -40,6 +40,7 @@ def set_fk_model(model_image_df: DataFrame, model_df: DataFrame) -> DataFrame:
     model_df = model_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
     model_image_df = model_image_df.withColumnRenamed("model_id", "external_model_id")
     model_image_df = model_image_df.join(model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='inner')
+    model_image_df = model_image_df.withColumnRenamed("id", "model_id")
     return model_image_df
 
 

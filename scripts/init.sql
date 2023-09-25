@@ -984,7 +984,7 @@ CREATE TABLE image_study (
     study_id TEXT,
     title TEXT,
     description TEXT,
-    license TEXT,
+    licence TEXT,
     contact TEXT,
     sample_organism TEXT,
     sample_description TEXT,
@@ -999,7 +999,7 @@ COMMENT ON COLUMN image_study.id IS 'Internal identifier';
 COMMENT ON COLUMN image_study.study_id IS 'Accession number for BioImage Archive study';
 COMMENT ON COLUMN image_study.title IS 'The title for your dataset';
 COMMENT ON COLUMN image_study.description IS 'Field to describe your dataset. This can be the abstract to an accompanying publication';
-COMMENT ON COLUMN image_study.license IS 'The licence under which the data are available';
+COMMENT ON COLUMN image_study.licence IS 'The licence under which the data are available';
 COMMENT ON COLUMN image_study.contact IS 'Contact details for the authors involved in the study';
 COMMENT ON COLUMN image_study.sample_organism IS 'What is being imaged';
 COMMENT ON COLUMN image_study.sample_description IS 'High level description of sample';
