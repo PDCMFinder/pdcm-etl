@@ -537,6 +537,7 @@ class TransformModelMetadata(TransformEntity):
         TransformSearchIndexPatientSample(),
         TransformXenograftModelSpecimen(),
         TransformQualityAssurance(),
+        TransformModelImage(),
         TransformTreatmentHarmonisationHelper(),
         TransformSearchIndexMolecularCharacterization()
     ]

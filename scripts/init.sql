@@ -862,6 +862,7 @@ CREATE TABLE search_index (
     pdx_model_publications TEXT,
     quality_assurance JSON,
     xenograft_model_specimens JSON,
+    model_images JSON,
     markers_with_cna_data TEXT[],
     markers_with_mutation_data TEXT[],
     markers_with_expression_data TEXT[],
@@ -914,6 +915,7 @@ COMMENT ON COLUMN search_index.patient_sample_treated_prior_to_collection IS 'In
 COMMENT ON COLUMN search_index.pdx_model_publications IS 'Publications that are associated to one or more models (PubMed IDs separated by commas)';
 COMMENT ON COLUMN search_index.quality_assurance IS 'Quality assurance data';
 COMMENT ON COLUMN search_index.xenograft_model_specimens IS 'Represents a xenografted mouse that has participated in the line creation and characterisation in some meaningful way. E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data';
+COMMENT ON COLUMN search_index.model_images IS 'Images associated with the model';
 COMMENT ON COLUMN search_index.markers_with_cna_data IS 'Marker list in associate CNA data';
 COMMENT ON COLUMN search_index.markers_with_mutation_data IS 'Marker list in associate mutation data';
 COMMENT ON COLUMN search_index.markers_with_expression_data IS 'Marker list in associate expression data';
