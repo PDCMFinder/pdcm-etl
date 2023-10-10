@@ -98,8 +98,8 @@ class ExtractCna(ExtractModuleFromTsv):
     module_name = Constants.CNA_MODULE
 
 
-class ExtractCytogenetics(ExtractModuleFromTsv):
-    module_name = Constants.CYTOGENETICS_MODULE
+class ExtractBiomarker(ExtractModuleFromTsv):
+    module_name = Constants.BIOMARKER_MODULE
 
 
 class ExtractExpression(ExtractModuleFromTsv):

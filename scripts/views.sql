@@ -239,14 +239,14 @@ SELECT
 		WHEN mol_char.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
 		WHEN mol_char.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
 		WHEN mol_char.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'cytogenetics'::text AND EXISTS (SELECT 1 FROM cytogenetics_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'biomarker'::text AND EXISTS (SELECT 1 FROM biomarker_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
 	END AS data_exists,
 	CASE
 		WHEN mol_char.data_type = 'mutation'::text AND (mi.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		WHEN mol_char.data_type = 'expression'::text AND (mi.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		WHEN mol_char.data_type = 'copy number alteration'::text AND (mi.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'cytogenetics'::text AND (mi.data_source, 'cytogenetics_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mol_char.data_type = 'biomarker'::text AND (mi.data_source, 'biomarker_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
 	END AS data_restricted,
 	mol_char.id AS molecular_characterization_id,
@@ -410,53 +410,53 @@ COMMENT ON COLUMN pdcm_api.expression_data_extended.illumina_hgea_expression_val
 COMMENT ON COLUMN pdcm_api.expression_data_extended.z_score IS 'Z-score representing the gene expression level';
 COMMENT ON COLUMN pdcm_api.expression_data_extended.external_db_links IS 'Links to external resources';
 
--- cytogenetics_data_table view
+-- biomarker_data_table view
 
-DROP VIEW IF EXISTS pdcm_api.cytogenetics_data_table CASCADE;
+DROP VIEW IF EXISTS pdcm_api.biomarker_data_table CASCADE;
 
-CREATE VIEW pdcm_api.cytogenetics_data_table
+CREATE VIEW pdcm_api.biomarker_data_table
 AS
   SELECT cmd.molecular_characterization_id,
-         cmd.hgnc_symbol,
+         cmd.biomarker,
          cmd.non_harmonised_symbol,
-         cmd.marker_status AS result,
+         cmd.biomarker_status AS result,
          cmd.external_db_links,
          ( cmd.* ) :: text AS text
-  FROM   cytogenetics_molecular_data cmd
-  WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
+  FROM   biomarker_molecular_data cmd
+  WHERE (cmd.data_source, 'biomarker_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
 
--- cytogenetics_data_extended view
+-- biomarker_data_extended view
 
-DROP VIEW IF EXISTS pdcm_api.cytogenetics_data_extended;
+DROP VIEW IF EXISTS pdcm_api.biomarker_data_extended;
 
-CREATE VIEW pdcm_api.cytogenetics_data_extended
+CREATE VIEW pdcm_api.biomarker_data_extended
 AS
 SELECT
 	mmm.model_id,
 	mmm.data_source,
 	mmm.source,
 	mmm.sample_id,
-	cmd.hgnc_symbol,
+	cmd.biomarker,
 	cmd.non_harmonised_symbol,
-	cmd.marker_status AS result,
+	cmd.biomarker_status AS result,
 	cmd.external_db_links
-FROM   cytogenetics_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
-WHERE (cmd.data_source, 'cytogenetics_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
+FROM   biomarker_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
+WHERE (cmd.data_source, 'biomarker_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cmd.molecular_characterization_id = mmm.molecular_characterization_id;
 
-COMMENT ON VIEW pdcm_api.cytogenetics_data_extended IS
-  $$Cytogenetics molecular data
+COMMENT ON VIEW pdcm_api.biomarker_data_extended IS
+  $$Biomarker molecular data
 
-  Cytogenetics data with the model and sample it comes from.$$;
+  Biomarker data with the model and sample it comes from.$$;
 
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.model_id IS 'Full name of the model used by provider';
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.source IS '(patient, xenograft, cell)';
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.sample_id IS 'Sample identifier given by the provider';
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.hgnc_symbol IS 'Gene symbol';
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.result IS 'Presence or absence of the cytogenetic marker';
-COMMENT ON COLUMN pdcm_api.cytogenetics_data_extended.external_db_links IS 'Links to external resources';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.biomarker IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.result IS 'Presence or absence of the biomarker';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.external_db_links IS 'Links to external resources';
 
 -- cna_data_table view
 
@@ -613,8 +613,8 @@ CREATE MATERIALIZED VIEW pdcm_api.details_molecular_data AS
                FROM pdcm_api.expression_data_table)) THEN 'TRUE'::text
             WHEN data_type.name = 'copy number alteration'::text AND (molecular_characterization.id IN ( SELECT DISTINCT cna_data_table.molecular_characterization_id
                FROM pdcm_api.cna_data_table)) THEN 'TRUE'::text
-            WHEN data_type.name = 'cytogenetics'::text AND (molecular_characterization.id IN ( SELECT DISTINCT cytogenetics_data_table.molecular_characterization_id
-               FROM pdcm_api.cytogenetics_data_table)) THEN 'TRUE'::text
+            WHEN data_type.name = 'biomarker'::text AND (molecular_characterization.id IN ( SELECT DISTINCT biomarker_data_table.molecular_characterization_id
+               FROM pdcm_api.biomarker_data_table)) THEN 'TRUE'::text
             ELSE 'FALSE'::text
         END AS data_availability,
     external_db_links

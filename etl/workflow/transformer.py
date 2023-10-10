@@ -5,7 +5,7 @@ from etl.constants import Constants
 from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
-    ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
+    ExtractCna, ExtractBiomarker, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
     ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources, ExtractDownloadedResourcesData, \
     ExtractModelCharacterizationConf, ExtractImageStudy, ExtractModelImage
@@ -332,7 +332,7 @@ class TransformGeneMarker(TransformEntity):
 class TransformGeneHelper(TransformEntity):
     requiredTasks = [
         ExtractCna(),
-        ExtractCytogenetics(),
+        ExtractBiomarker(),
         ExtractExpression(),
         ExtractMutation(),
         TransformGeneMarker()
@@ -363,12 +363,12 @@ class TransformInitialCnaMolecularData(TransformEntity):
     entity_name = Constants.INITIAL_CNA_MOLECULAR_DATA_ENTITY
 
 
-class TransformInitialCytogeneticsMolecularData(TransformEntity):
+class TransformInitialBiomarkerMolecularData(TransformEntity):
     requiredTasks = [
-        ExtractCytogenetics(),
+        ExtractBiomarker(),
         TransformMolecularCharacterization(),
     ]
-    entity_name = Constants.INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY
+    entity_name = Constants.INITIAL_BIOMARKER_MOLECULAR_DATA_ENTITY
 
 
 class TransformInitialExpressionMolecularData(TransformEntity):
@@ -397,14 +397,14 @@ class TransformCnaMolecularData(TransformEntity):
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
 
-class TransformCytogeneticsMolecularData(TransformEntity):
+class TransformBiomarkerMolecularData(TransformEntity):
     requiredTasks = [
-        TransformInitialCytogeneticsMolecularData(),
+        TransformInitialBiomarkerMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
         TransformGeneHelper()
     ]
-    entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
+    entity_name = Constants.BIOMARKER_MOLECULAR_DATA_ENTITY
 
 
 class TransformExpressionMolecularData(TransformEntity):
@@ -551,7 +551,7 @@ class TransformSearchIndexMolecularData(TransformEntity):
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
-        TransformCytogeneticsMolecularData(),
+        TransformBiomarkerMolecularData(),
         ExtractExternalResources(),
     ]
     entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY
@@ -582,7 +582,7 @@ class TransformAvailableMolecularDataColumns(TransformEntity):
     requiredTasks = [
         TransformExpressionMolecularData(),
         TransformCnaMolecularData(),
-        TransformCytogeneticsMolecularData(),
+        TransformBiomarkerMolecularData(),
         TransformMutationMeasurementData()]
     entity_name = Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY
 

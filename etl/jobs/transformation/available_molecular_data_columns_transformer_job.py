@@ -12,27 +12,27 @@ def main(argv):
     :param list argv: the list elements should be:
                     [1]: Parquet file path with transformed expression data
                     [2]: Parquet file path with transformed cna data
-                    [3]: Parquet file path with transformed cytogenetics data
+                    [3]: Parquet file path with transformed biomarkers data
                     [4]: Parquet file path with transformed mutation measurement data
                     [5]: Output file
     """
     expression_molecular_data_parquet_path = argv[1]
     cna_molecular_data_parquet_path = argv[2]
-    cytogenetics_molecular_data_parquet_path = argv[3]
+    biomarkers_molecular_data_parquet_path = argv[3]
     mutation_measurement_data_parquet_path = argv[4]
     output_path = argv[5]
 
     spark = SparkSession.builder.getOrCreate()
     expression_molecular_data_df = spark.read.parquet(expression_molecular_data_parquet_path)
     cna_molecular_data_df = spark.read.parquet(cna_molecular_data_parquet_path)
-    cytogenetics_molecular_data_df = spark.read.parquet(cytogenetics_molecular_data_parquet_path)
+    biomarkers_molecular_data_df = spark.read.parquet(biomarkers_molecular_data_parquet_path)
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
 
     available_molecular_data_columns_df = transform_available_molecular_data_columns_df(
         spark,
         expression_molecular_data_df,
         cna_molecular_data_df,
-        cytogenetics_molecular_data_df,
+        biomarkers_molecular_data_df,
         mutation_measurement_data_df)
     available_molecular_data_columns_df.write.mode("overwrite").parquet(output_path)
 
@@ -41,7 +41,7 @@ def transform_available_molecular_data_columns_df(
         spark,
         expression_molecular_data_df: DataFrame,
         cna_molecular_data_df: DataFrame,
-        cytogenetics_molecular_data_df: DataFrame,
+        biomarkers_molecular_data_df: DataFrame,
         mutation_measurement_data_df: DataFrame) -> DataFrame:
     schema = StructType([
         StructField('data_source', StringType(), True),
@@ -62,10 +62,10 @@ def transform_available_molecular_data_columns_df(
     available_columns_cna_molecular_data_records_df = \
         spark.createDataFrame(data=available_columns_cna_molecular_data_records, schema=schema)
 
-    available_columns_cytogenetics_molecular_data_records = \
-        get_cytogenetics_molecular_data_count_rows_by_data_source(cytogenetics_molecular_data_df)
-    available_columns_cytogenetics_molecular_data_records_df = \
-        spark.createDataFrame(data=available_columns_cytogenetics_molecular_data_records, schema=schema)
+    available_columns_biomarkers_molecular_data_records = \
+        get_biomarkers_molecular_data_count_rows_by_data_source(biomarkers_molecular_data_df)
+    available_columns_biomarkers_molecular_data_records_df = \
+        spark.createDataFrame(data=available_columns_biomarkers_molecular_data_records, schema=schema)
 
     available_columns_mutation_measurement_data_records = \
         get_mutation_measurement_data_count_rows_by_data_source(mutation_measurement_data_df)
@@ -75,7 +75,7 @@ def transform_available_molecular_data_columns_df(
     df = df\
         .union(available_columns_expression_molecular_data_records_df)\
         .union(available_columns_cna_molecular_data_records_df)\
-        .union(available_columns_cytogenetics_molecular_data_records_df)\
+        .union(available_columns_biomarkers_molecular_data_records_df)\
         .union(available_columns_mutation_measurement_data_records_df)
 
     return df
@@ -118,16 +118,16 @@ def get_cna_molecular_data_count_rows_by_data_source(cna_molecular_data_df: Data
     return get_data_by_data_source_and_mol_char_type(cna_molecular_data_count_df, 'cna')
 
 
-def get_cytogenetics_molecular_data_count_rows_by_data_source(cytogenetics_molecular_data_df: DataFrame):
-    df = cytogenetics_molecular_data_df.select(
+def get_biomarkers_molecular_data_count_rows_by_data_source(biomarkers_molecular_data_df: DataFrame):
+    df = biomarkers_molecular_data_df.select(
         "molecular_characterization_id",
-        "hgnc_symbol",
-        col("marker_status").alias("result"),
+        "biomarker",
+        col("biomarker_status").alias("result"),
         "data_source")
     # Get for all the columns the counts of records that are not null
 
-    cytogenetics_molecular_data_count_df = get_not_null_by_column_counter_df(df)
-    return get_data_by_data_source_and_mol_char_type(cytogenetics_molecular_data_count_df, 'cytogenetics')
+    biomarkers_molecular_data_count_df = get_not_null_by_column_counter_df(df)
+    return get_data_by_data_source_and_mol_char_type(biomarkers_molecular_data_count_df, 'biomarkers')
 
 
 def get_mutation_measurement_data_count_rows_by_data_source(mutation_measurement_data_df: DataFrame):

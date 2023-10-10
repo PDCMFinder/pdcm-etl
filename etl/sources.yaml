@@ -123,6 +123,7 @@ groups:
         columns:
           - "patient_id"
           - "treatment_name"
+          - "treatment_type"
           - "treatment_dose"
           - "treatment_starting_date"
           - "treatment_duration"
@@ -218,13 +219,13 @@ groups:
           - "picnic_value"
           - "platform_id"
 
-      - name: "cyto"
+      - name: "biomarker"
         type: "tsv"
-        name_patterns: ["cyto/$provider_cyto*.tsv"]
+        name_patterns: ["biomarker/$provider_biomarker*.tsv"]
         columns:
           - "sample_id"
-          - "symbol"
-          - "marker_status"
+          - "biomarker"
+          - "biomarker_status"
           - "essential_or_additional_marker"
           - "platform_id"
 
