@@ -1,6 +1,7 @@
 patient_treatment_columns = [
     "patient_id",
     "treatment_name",
+    "treatment_type",
     "treatment_dose",
     "treatment_starting_date",
     "treatment_duration",

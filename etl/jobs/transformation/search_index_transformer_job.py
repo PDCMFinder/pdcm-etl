@@ -81,7 +81,7 @@ def transform_search_index(
             "markers_with_cna_data",
             "markers_with_mutation_data",
             "markers_with_expression_data",
-            "markers_with_cytogenetics_data",
+            "markers_with_biomarker_data",
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",

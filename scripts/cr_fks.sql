@@ -138,8 +138,8 @@ ALTER TABLE cna_molecular_data
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
-ALTER TABLE cytogenetics_molecular_data
-    ADD CONSTRAINT fk_cytogenetics_molecular_data_mol_char
+ALTER TABLE biomarker_molecular_data
+    ADD CONSTRAINT fk_biomarker_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 

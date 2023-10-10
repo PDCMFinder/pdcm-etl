@@ -5,7 +5,7 @@ from pyspark.sql.types import IntegerType
 
 def calculate_data_score(search_index_df: DataFrame) -> DataFrame:
     # Possible datasets
-    all_datasets = ['mutation', 'cytogenetics', 'copy number alteration', 'expression', 'patient treatment',
+    all_datasets = ['mutation', 'biomarkers', 'copy number alteration', 'expression', 'patient treatment',
                     'dosing studies', 'publication']
     max_number_datasets = len(all_datasets)
     # Data score will be calculated as the percentage of datasets available for each model:

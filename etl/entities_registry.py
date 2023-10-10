@@ -30,12 +30,12 @@ import etl.jobs.transformation.platform_transformer_job
 import etl.jobs.transformation.molecular_characterization_transformer_job
 import etl.jobs.transformation.gene_helper_transformer_job
 import etl.jobs.transformation.initial_cna_molecular_data_transformer_job
-import etl.jobs.transformation.initial_cytogenetics_molecular_data_transformer_job
+import etl.jobs.transformation.initial_biomarker_molecular_data_transformer_job
 import etl.jobs.transformation.initial_expression_molecular_data_transformer_job
 import etl.jobs.transformation.initial_mutation_molecular_data_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
-import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
-import etl.jobs.transformation.cytogenetics_molecular_data_transformer_job
+import etl.jobs.transformation.biomarker_molecular_data_transformer_job
+import etl.jobs.transformation.biomarker_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
@@ -271,7 +271,7 @@ entities = {
     },
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
-        "expected_database_columns": ["id", "name", "data_source"]
+        "expected_database_columns": ["id", "name", "type", "data_source"]
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
@@ -316,8 +316,8 @@ entities = {
         "spark_job": etl.jobs.transformation.initial_cna_molecular_data_transformer_job.main,
         "expected_database_columns": []
     },
-    Constants.INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
-        "spark_job": etl.jobs.transformation.initial_cytogenetics_molecular_data_transformer_job.main,
+    Constants.INITIAL_BIOMARKER_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_biomarker_molecular_data_transformer_job.main,
         "expected_database_columns": []
     },
     Constants.INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY: {
@@ -351,12 +351,12 @@ entities = {
             "external_db_links"
         ]
     },
-    Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY: {
-        "spark_job": etl.jobs.transformation.cytogenetics_molecular_data_transformer_job.main,
+    Constants.BIOMARKER_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.biomarker_molecular_data_transformer_job.main,
         "expected_database_columns": [
             "id",
-            "hgnc_symbol",
-            "marker_status",
+            "biomarker",
+            "biomarker_status",
             "essential_or_additional_marker",
             "non_harmonised_symbol",
             "harmonisation_result",
@@ -608,7 +608,7 @@ entities = {
             "markers_with_cna_data",
             "markers_with_mutation_data",
             "markers_with_expression_data",
-            "markers_with_cytogenetics_data",
+            "markers_with_biomarker_data",
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",

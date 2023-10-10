@@ -88,7 +88,7 @@ def create_search_index_max_score_df():
         'mutation',
         'copy number alteration',
         'expression',
-        'cytogenetics',
+        'biomarker',
         'patient treatment',
         'dosing studies',
         'publication']
@@ -201,7 +201,7 @@ def create_search_index_some_invalid_data_df():
         'mutation',
         'copy number alteration',
         'expression',
-        'cytogenetics',
+        'biomarker',
         'patient treatment',
         'dosing studies',
         'publication']

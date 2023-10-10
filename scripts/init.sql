@@ -387,6 +387,7 @@ DROP TABLE IF EXISTS treatment CASCADE;
 CREATE TABLE treatment (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,
+    type TEXT NOT NULL,
     data_source TEXT NOT NULL
 );
 
@@ -509,12 +510,12 @@ COMMENT ON COLUMN cna_molecular_data.molecular_characterization_id IS 'Reference
 COMMENT ON COLUMN cna_molecular_data.data_source IS 'Data source (abbreviation of the provider)';
 COMMENT ON COLUMN cna_molecular_data.external_db_links IS 'JSON column with links to external resources';
 
-DROP TABLE IF EXISTS cytogenetics_molecular_data CASCADE;
+DROP TABLE IF EXISTS biomarker_molecular_data CASCADE;
 
-CREATE TABLE cytogenetics_molecular_data (
+CREATE TABLE biomarker_molecular_data (
     id BIGINT NOT NULL,
-    hgnc_symbol TEXT,
-    marker_status TEXT,
+    biomarker TEXT,
+    biomarker_status TEXT,
     essential_or_additional_marker TEXT,
     non_harmonised_symbol TEXT,
     harmonisation_result TEXT,
@@ -523,16 +524,16 @@ CREATE TABLE cytogenetics_molecular_data (
     external_db_links JSON
 );
 
-COMMENT ON TABLE cytogenetics_molecular_data IS 'Cytogenetics molecular data';
-COMMENT ON COLUMN cytogenetics_molecular_data.id IS 'Internal identifier';
-COMMENT ON COLUMN cytogenetics_molecular_data.hgnc_symbol IS 'Gene symbol';
-COMMENT ON COLUMN cytogenetics_molecular_data.marker_status IS 'Marker status';
-COMMENT ON COLUMN cytogenetics_molecular_data.essential_or_additional_marker IS 'Essential or additional marker';
-COMMENT ON COLUMN cytogenetics_molecular_data.non_harmonised_symbol IS 'Original symbol as reported by the provider';
-COMMENT ON COLUMN cytogenetics_molecular_data.harmonisation_result IS 'Result of the symbol harmonisation process';
-COMMENT ON COLUMN cytogenetics_molecular_data.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
-COMMENT ON COLUMN cytogenetics_molecular_data.data_source IS 'Data source (abbreviation of the provider)';
-COMMENT ON COLUMN cytogenetics_molecular_data.external_db_links IS 'JSON column with links to external resources';
+COMMENT ON TABLE biomarker_molecular_data IS 'Biomarker molecular data';
+COMMENT ON COLUMN biomarker_molecular_data.id IS 'Internal identifier';
+COMMENT ON COLUMN biomarker_molecular_data.biomarker IS 'Gene symbol';
+COMMENT ON COLUMN biomarker_molecular_data.biomarker_status IS 'Marker status';
+COMMENT ON COLUMN biomarker_molecular_data.essential_or_additional_marker IS 'Essential or additional marker';
+COMMENT ON COLUMN biomarker_molecular_data.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN biomarker_molecular_data.harmonisation_result IS 'Result of the symbol harmonisation process';
+COMMENT ON COLUMN biomarker_molecular_data.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN biomarker_molecular_data.data_source IS 'Data source (abbreviation of the provider)';
+COMMENT ON COLUMN biomarker_molecular_data.external_db_links IS 'JSON column with links to external resources';
 
 DROP TABLE IF EXISTS expression_molecular_data CASCADE;
 
@@ -557,7 +558,7 @@ CREATE TABLE expression_molecular_data (
     external_db_links JSON
 );
 
-COMMENT ON TABLE expression_molecular_data IS 'Cytogenetics molecular data';
+COMMENT ON TABLE expression_molecular_data IS 'Expression molecular data';
 COMMENT ON COLUMN expression_molecular_data.id IS 'Internal identifier';
 COMMENT ON COLUMN expression_molecular_data.hgnc_symbol IS 'Gene symbol';
 COMMENT ON COLUMN expression_molecular_data.z_score IS 'Z-score representing the gene expression level';
@@ -866,7 +867,7 @@ CREATE TABLE search_index (
     markers_with_cna_data TEXT[],
     markers_with_mutation_data TEXT[],
     markers_with_expression_data TEXT[],
-    markers_with_cytogenetics_data TEXT[],
+    markers_with_biomarker_data TEXT[],
     breast_cancer_biomarkers TEXT[],
     treatment_list TEXT[],
     model_treatment_list TEXT[],
@@ -919,7 +920,7 @@ COMMENT ON COLUMN search_index.model_images IS 'Images associated with the model
 COMMENT ON COLUMN search_index.markers_with_cna_data IS 'Marker list in associate CNA data';
 COMMENT ON COLUMN search_index.markers_with_mutation_data IS 'Marker list in associate mutation data';
 COMMENT ON COLUMN search_index.markers_with_expression_data IS 'Marker list in associate expression data';
-COMMENT ON COLUMN search_index.markers_with_cytogenetics_data IS 'Marker list in associate cytogenetics data';
+COMMENT ON COLUMN search_index.markers_with_biomarker_data IS 'Marker list in associate biomarker data';
 COMMENT ON COLUMN search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
 COMMENT ON COLUMN search_index.treatment_list IS 'Patient treatment data';
 COMMENT ON COLUMN search_index.model_treatment_list IS 'Drug dosing data';

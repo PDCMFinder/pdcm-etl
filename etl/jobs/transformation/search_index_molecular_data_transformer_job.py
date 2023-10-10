@@ -18,7 +18,7 @@ def main(argv):
                     [3]: Parquet file path with the mutation transformed data.
                     [4]: Parquet file path with the cna transformed data.
                     [5]: Parquet file path with the expression transformed data.
-                    [6]: Parquet file path with the cytogenetics transformed data.
+                    [6]: Parquet file path with the biomarkers transformed data.
                     [7]: Parquet file path with the raw_external_resources data.
                     [8]: Output file
     """
@@ -27,7 +27,7 @@ def main(argv):
     mutation_measurement_data_parquet_path = argv[3]
     cna_data_parquet_path = argv[4]
     expression_data_parquet_path = argv[5]
-    cytogenetics_data_parquet_path = argv[6]
+    biomarkers_data_parquet_path = argv[6]
     raw_external_resources_parquet_path = argv[7]
     output_path = argv[8]
 
@@ -37,7 +37,7 @@ def main(argv):
     mutation_measurement_data_df = spark.read.parquet(mutation_measurement_data_parquet_path)
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
-    cytogenetics_data_df = spark.read.parquet(cytogenetics_data_parquet_path)
+    biomarkers_data_df = spark.read.parquet(biomarkers_data_parquet_path)
     raw_external_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
 
     search_index_molecular_data_df = transform_search_index_molecular_data(
@@ -46,7 +46,7 @@ def main(argv):
         mutation_measurement_data_df,
         cna_data_df,
         expression_data_df,
-        cytogenetics_data_df,
+        biomarkers_data_df,
         raw_external_resources_df
     )
     search_index_molecular_data_df.write.mode("overwrite").parquet(output_path)
@@ -58,20 +58,20 @@ def transform_search_index_molecular_data(
         mutation_measurement_data_df: DataFrame,
         cna_data_df: DataFrame,
         expression_data_df: DataFrame,
-        cytogenetics_data_df: DataFrame,
+        biomarkers_data_df: DataFrame,
         raw_external_resources_df: DataFrame
 ) -> DataFrame:
 
     # Add columns with markers per model (one per molecular data type):
     # markers_with_mutation_data, markers_with_expression_data, markers_with_cna_data,
-    # and markers_with_cytogenetics_data
+    # and markers_with_biomarker_data
     df = add_markers_per_datatype_columns(
         model_metadata_df,
         search_index_molecular_char_df,
         mutation_measurement_data_df,
         cna_data_df,
         expression_data_df,
-        cytogenetics_data_df
+        biomarkers_data_df
     )
 
     # Add cancer_annotation_resources, which is a list of resources that are linked from the molecular data
@@ -82,12 +82,12 @@ def transform_search_index_molecular_data(
         mutation_measurement_data_df,
         cna_data_df,
         expression_data_df,
-        cytogenetics_data_df,
+        biomarkers_data_df,
         raw_external_resources_df
     )
 
     # Add breast cancer biomarkers data
-    df = add_breast_cancer_markers(df, search_index_molecular_char_df, cytogenetics_data_df)
+    df = add_breast_cancer_markers(df, search_index_molecular_char_df, biomarkers_data_df)
 
     return df
 
@@ -98,7 +98,7 @@ def add_markers_per_datatype_columns(
         mutation_measurement_data_df: DataFrame,
         cna_data_df: DataFrame,
         expression_data_df: DataFrame,
-        cytogenetics_data_df: DataFrame
+        biomarkers_data_df: DataFrame
 ) -> DataFrame:
 
     df = model_metadata_df
@@ -138,11 +138,11 @@ def add_markers_per_datatype_columns(
     model_symbols_list_cna_df = get_list_genes_per_model(
         cna_mol_char_symbol_df, search_index_molecular_char_df, "markers_with_cna_data")
 
-    #  Cytogenetics markers
-    cytogenetics_mol_char_symbol_df = cytogenetics_data_df.select("molecular_characterization_id", "hgnc_symbol")
-    cytogenetics_mol_char_symbol_df = cytogenetics_mol_char_symbol_df.withColumnRenamed("hgnc_symbol", "symbol")
-    model_symbols_list_cytogenetics_df = get_list_genes_per_model(
-        cytogenetics_mol_char_symbol_df, search_index_molecular_char_df, "markers_with_cytogenetics_data")
+    #  biomarkers markers
+    biomarkers_mol_char_symbol_df = biomarkers_data_df.select("molecular_characterization_id", "biomarker")
+    biomarkers_mol_char_symbol_df = biomarkers_mol_char_symbol_df.withColumnRenamed("biomarker", "symbol")
+    model_symbols_list_biomarkers_df = get_list_genes_per_model(
+        biomarkers_mol_char_symbol_df, search_index_molecular_char_df, "markers_with_biomarker_data")
 
     # Add the new columns to the models df
 
@@ -155,8 +155,8 @@ def add_markers_per_datatype_columns(
     # Add markers_with_cna_data
     df = join_symbols_list_to_model_df(df, model_symbols_list_cna_df)
 
-    # Add markers_with_cytogenetics_data
-    df = join_symbols_list_to_model_df(df, model_symbols_list_cytogenetics_df)
+    # Add markers_with_biomarker_data
+    df = join_symbols_list_to_model_df(df, model_symbols_list_biomarkers_df)
 
     return df
 
@@ -164,14 +164,15 @@ def add_markers_per_datatype_columns(
 def add_breast_cancer_markers(
         model_metadata_df: DataFrame,
         search_index_molecular_char_df: DataFrame,
-        cytogenetics_data_df: DataFrame) -> DataFrame:
+        biomarkers_data_df: DataFrame) -> DataFrame:
 
-    breast_cancer_biomarkers_df = cytogenetics_data_df.withColumnRenamed("hgnc_symbol", "breast_cancer_biomarker")
+    breast_cancer_biomarkers_df = biomarkers_data_df.withColumnRenamed("biomarker", "breast_cancer_biomarker")
 
     breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.where(
-        col("hgnc_symbol").isin(["ERBB2", "ESR1", "PGR"])
-        & lower("marker_status").isin(["positive", "negative"])
+        col("breast_cancer_biomarker").isin(["ERBB2", "ESR1", "PGR"])
+        & lower("biomarker_status").isin(["positive", "negative"])
     )
+
     gene_display_map = {"ERBB2": "HER2/ERBB2", "ESR1": "ER/ESR1", "PGR": "PR/PGR"}
 
     map_display_breast_cancer_gene = (
@@ -183,12 +184,12 @@ def add_breast_cancer_markers(
         map_display_breast_cancer_gene_udf("breast_cancer_biomarker").alias(
             "breast_cancer_biomarker"
         ),
-        "marker_status",
+        "biomarker_status",
     ).distinct()
 
     breast_cancer_biomarkers_df = breast_cancer_biomarkers_df.withColumn(
         "breast_cancer_biomarker",
-        concat_ws(" ", "breast_cancer_biomarker", lower("marker_status")),
+        concat_ws(" ", "breast_cancer_biomarker", lower("biomarker_status")),
     )
 
     model_breast_cancer_biomarkers_df = search_index_molecular_char_df.join(
@@ -210,6 +211,8 @@ def add_breast_cancer_markers(
         how='left')
 
     model_metadata_df = model_metadata_df.drop(model_breast_cancer_biomarkers_df.model_id)
+    print("model_metadata_df")
+    model_metadata_df.show()
 
     return model_metadata_df
 

@@ -25,51 +25,75 @@ def main(argv):
 
 
 def transform_treatment_and_component_helper(treatment_protocol_df) -> DataFrame:
+    treatment_protocol_df = treatment_protocol_df.select(
+        "id", "treatment_name", "treatment_type", "treatment_dose", Constants.DATA_SOURCE_COLUMN)
     treatment_protocol_df = treatment_protocol_df.withColumnRenamed("id", "treatment_protocol_id")
-    # Add split values for treatment_name and treatment_dose
+
+    # Add split values for treatment_name, treatment_dose, and treatment_type
     df = add_split_values(treatment_protocol_df)
-    df = df.withColumn("treatment_name_split_counter", size(col("treatment_name_split")))
-    df = df.withColumn("treatment_dose_split_counter", size(col("treatment_dose_split")))
+    # Add counts for the number of treatments, doses and types in each row
+    df = add_counter_split_values(df)
 
     df_exploded_by_treatment_name = get_exploded_df_by_treatment_name(df)
     df_exploded_by_treatment_dose = get_exploded_df_by_treatment_dose(df)
-
-    # Remove column in one of the dataframes to avoid ambiguity problems in the join
-    df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.drop(Constants.DATA_SOURCE_COLUMN)
-
-    # First case: the number of treatment names is the same as the number of treatment doses:
-    matched_df = df_exploded_by_treatment_name.alias("a").join(
-        df_exploded_by_treatment_dose.alias("b"), on=["treatment_protocol_id", "pos", "count"])
-    matched_df = matched_df.select(
-        "a.treatment_protocol_id", "a.model_id", "a.patient_id", "a.single_treatment_name",
-        "b.single_treatment_dose", Constants.DATA_SOURCE_COLUMN)
-    matched_df = matched_df.withColumnRenamed("single_treatment_name", "treatment_name")
-    matched_df = matched_df.withColumnRenamed("single_treatment_dose", "treatment_dose")
-
-    # For any treatment and dose which don't match in cardinality, take the treatment and put as dose whatever the
-    # original string for the dose was
-    df_exploded_by_treatment_name_unmatched = df_exploded_by_treatment_name.join(
-        matched_df, ["treatment_protocol_id"], "leftanti")
+    df_exploded_by_treatment_type = get_exploded_df_by_treatment_type(df)
 
     # Avoid ambiguity in the columns after the join
-    df = df.drop("model_id", "patient_id", Constants.DATA_SOURCE_COLUMN)
+    df = df.drop(Constants.DATA_SOURCE_COLUMN)
 
-    unmatched_df = df_exploded_by_treatment_name_unmatched.join(df, on=["treatment_protocol_id"])
-    unmatched_df = unmatched_df.select(
-        "treatment_protocol_id", "model_id", "patient_id", "single_treatment_name", "treatment_dose",
-        Constants.DATA_SOURCE_COLUMN)
-    unmatched_df = unmatched_df.withColumnRenamed("single_treatment_name", "treatment_name")
+    matching_name_dose_df = df_exploded_by_treatment_name.alias("a").join(
+        df_exploded_by_treatment_dose.alias("b"), on=["treatment_protocol_id", "pos", "count"])
 
-    df = matched_df.union(unmatched_df)
+    matching_name_dose_df = matching_name_dose_df.select(
+        "a.treatment_protocol_id", "a.single_treatment_name",
+        "b.single_treatment_dose", "a.pos", "a.count", "a.data_source_tmp")
+    matching_name_dose_df = matching_name_dose_df.withColumnRenamed("single_treatment_name", "treatment_name")
+    matching_name_dose_df = matching_name_dose_df.withColumnRenamed("single_treatment_dose", "treatment_dose")
 
-    # We might want to report the unmatched_df but for now we just use it as part of the results
+    # For any treatment and dose which don't match in cardinality, take the treatment and put as dose whatever the
+    # # original string for the dose was
+
+    df_exploded_by_treatment_name_unmatched = df_exploded_by_treatment_name.join(
+        matching_name_dose_df, ["treatment_protocol_id"], "leftanti")
+
+    df_tmp = df.select("treatment_protocol_id", "treatment_type", "treatment_dose")
+
+    unmatched_name_dose_df = df_exploded_by_treatment_name_unmatched.join(df_tmp, on=["treatment_protocol_id"])
+    unmatched_name_dose_df = unmatched_name_dose_df.withColumnRenamed("single_treatment_name", "treatment_name")
+    unmatched_name_dose_df = unmatched_name_dose_df.drop("pos", "count")
+
+    name_dose_df = matching_name_dose_df
+
+    matching_name_type_df = name_dose_df.alias("a").join(
+        df_exploded_by_treatment_type.alias("b"), on=["treatment_protocol_id", "pos", "count"])
+    matching_name_type_df = matching_name_type_df.select(
+        "a.treatment_protocol_id", "a.treatment_name",
+        "a.treatment_dose", "b.single_treatment_type", "a.data_source_tmp")
+
+    matching_name_type_df = matching_name_type_df.withColumnRenamed("single_treatment_type", "treatment_type")
+
+    df_exploded_by_treatment_type_unmatched = matching_name_dose_df.join(
+        matching_name_type_df, ["treatment_protocol_id"], "leftanti")
+
+    df_tmp = df.select("treatment_protocol_id", "treatment_type")
+
+    unmatched_name_type_df = df_exploded_by_treatment_type_unmatched.join(df_tmp, on=["treatment_protocol_id"])
+    unmatched_name_type_df = unmatched_name_type_df.drop("pos", "count")
+
+    df = matching_name_type_df.unionByName(unmatched_name_type_df).unionByName(unmatched_name_dose_df)
+    df = df.drop("pos", "count")
+
     return df
 
 
 def get_exploded_df_by_treatment_name(df: DataFrame) -> DataFrame:
     df_exploded_by_treatment_name = df.select(
-        "treatment_protocol_id", "model_id", "patient_id", "treatment_name", "treatment_name_split_counter",
-        posexplode("treatment_name_split"), "response_id", "response_classification_id", Constants.DATA_SOURCE_COLUMN)
+        "treatment_protocol_id",
+        # "treatment_name",
+        "treatment_name_split_counter",
+        posexplode("treatment_name_split"),
+        Constants.DATA_SOURCE_COLUMN)
+
     df_exploded_by_treatment_name = df_exploded_by_treatment_name.withColumn("single_treatment_name", trim_all("col"))
     df_exploded_by_treatment_name = df_exploded_by_treatment_name.drop("col")
     df_exploded_by_treatment_name = df_exploded_by_treatment_name.withColumnRenamed(
@@ -82,8 +106,12 @@ def get_exploded_df_by_treatment_name(df: DataFrame) -> DataFrame:
 
 def get_exploded_df_by_treatment_dose(df: DataFrame) -> DataFrame:
     df_exploded_by_treatment_dose = df.select(
-        "treatment_protocol_id", "model_id", "patient_id", "treatment_dose", "treatment_dose_split_counter",
-        posexplode("treatment_dose_split"), "response_id", "response_classification_id", Constants.DATA_SOURCE_COLUMN)
+        "treatment_protocol_id",
+        # "treatment_dose",
+        "treatment_dose_split_counter",
+        posexplode("treatment_dose_split"),
+        Constants.DATA_SOURCE_COLUMN)
+
     df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.withColumn("single_treatment_dose", trim_all("col"))
     df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.drop("col")
     df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.withColumnRenamed(
@@ -91,30 +119,32 @@ def get_exploded_df_by_treatment_dose(df: DataFrame) -> DataFrame:
     return df_exploded_by_treatment_dose
 
 
+def get_exploded_df_by_treatment_type(df: DataFrame) -> DataFrame:
+    df_exploded_by_treatment_dose = df.select(
+        "treatment_protocol_id",
+        # "treatment_type",
+        "treatment_type_split_counter",
+        posexplode("treatment_type_split"), Constants.DATA_SOURCE_COLUMN)
+    df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.withColumn("single_treatment_type", trim_all("col"))
+    df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.drop("col")
+    df_exploded_by_treatment_dose = df_exploded_by_treatment_dose.withColumnRenamed(
+        "treatment_type_split_counter", "count")
+    return df_exploded_by_treatment_dose
+
+
 def add_split_values(treatment_protocol_df: DataFrame) -> DataFrame:
     regexp_separator = "\\+"
     df = treatment_protocol_df.withColumn("treatment_name_split", split("treatment_name", regexp_separator))
     df = df.withColumn("treatment_dose_split", split("treatment_dose", regexp_separator))
+    df = df.withColumn("treatment_type_split", split("treatment_type", regexp_separator))
     return df
 
 
 def add_counter_split_values(df: DataFrame) -> DataFrame:
     df = df.withColumn("treatment_name_split_counter", size(col("treatment_name_split")))
     df = df.withColumn("treatment_dose_split_counter", size(col("treatment_dose_split")))
+    df = df.withColumn("treatment_type_split_counter", size(col("treatment_type_split")))
     return df
-
-
-def get_expected_columns(model_drug_dosing_df: DataFrame) -> DataFrame:
-    return model_drug_dosing_df.select(
-        "treatment_protocol_id",
-        "model_id",
-        "patient_id",
-        "treatment_target",
-        "response_id",
-        "response_classification_id",
-        "treatment_name",
-        "treatment_dose",
-        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ model_characterizations:
   - id: 2
     name: "Data Characterization"
     description: "Data Characterization score is calculated by taking into account the number of datasets the model
-    has. The datasets evaluated are: Publications, Expression data, Cytogenetics data, Mutation data, Patient treatment 
+    has. The datasets evaluated are: Publications, Expression data, Biomarker data, Mutation data, Patient treatment 
     data, and Drug dosing data."
     applies_on: "All models"
     score_name: "data_score"

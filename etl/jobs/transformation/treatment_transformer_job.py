@@ -1,7 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 
 from etl.constants import Constants
 from etl.jobs.util.cleaner import lower_and_trim_all
@@ -26,11 +26,14 @@ def main(argv):
 
 def transform_treatment(treatment_and_component_helper_df) -> DataFrame:
     treatment_df = treatment_and_component_helper_df.select(
-        col("treatment_name").alias("name"), Constants.DATA_SOURCE_COLUMN)
+        col("treatment_name").alias("name"), col("treatment_type").alias("type"), Constants.DATA_SOURCE_COLUMN)
+    # Temporary solution for null treatment type
+    treatment_df = treatment_df.withColumn("type", when(col("type").isNull(), "treatment").otherwise(col("type")))
+
     treatment_df = treatment_df.withColumn("name", lower_and_trim_all("name"))
     treatment_df = treatment_df.drop_duplicates()
     treatment_df = add_id(treatment_df, "id")
-    treatment_df = treatment_df.select("id", "name", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"))
+    treatment_df = treatment_df.select("id", "name", "type", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"))
     return treatment_df
 
 

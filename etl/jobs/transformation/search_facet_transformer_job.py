@@ -78,8 +78,8 @@ facet_definitions = [
     },
     {
         "facet_section": "molecular_data",
-        "facet_name": "Cytogenetics",
-        "facet_column": "markers_with_cytogenetics_data",
+        "facet_name": "Biomarkers",
+        "facet_column": "markers_with_biomarker_data",
         "facet_example": "ESR1"
     },
     {
