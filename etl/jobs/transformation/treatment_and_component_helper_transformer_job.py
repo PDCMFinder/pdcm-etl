@@ -49,39 +49,47 @@ def transform_treatment_and_component_helper(treatment_protocol_df) -> DataFrame
         "b.single_treatment_dose", "a.pos", "a.count", "a.data_source_tmp")
     matching_name_dose_df = matching_name_dose_df.withColumnRenamed("single_treatment_name", "treatment_name")
     matching_name_dose_df = matching_name_dose_df.withColumnRenamed("single_treatment_dose", "treatment_dose")
+    matching_name_dose_df = matching_name_dose_df.drop("pos", "count")
 
     # For any treatment and dose which don't match in cardinality, take the treatment and put as dose whatever the
-    # # original string for the dose was
+    # original string for the dose was
 
     df_exploded_by_treatment_name_unmatched = df_exploded_by_treatment_name.join(
         matching_name_dose_df, ["treatment_protocol_id"], "leftanti")
 
-    df_tmp = df.select("treatment_protocol_id", "treatment_type", "treatment_dose")
+    df_tmp = df.select("treatment_protocol_id", "treatment_dose")
 
     unmatched_name_dose_df = df_exploded_by_treatment_name_unmatched.join(df_tmp, on=["treatment_protocol_id"])
     unmatched_name_dose_df = unmatched_name_dose_df.withColumnRenamed("single_treatment_name", "treatment_name")
     unmatched_name_dose_df = unmatched_name_dose_df.drop("pos", "count")
 
-    name_dose_df = matching_name_dose_df
+    name_dose_df = matching_name_dose_df.unionByName(unmatched_name_dose_df)
 
-    matching_name_type_df = name_dose_df.alias("a").join(
+    matching_name_type_df = df_exploded_by_treatment_name.alias("a").join(
         df_exploded_by_treatment_type.alias("b"), on=["treatment_protocol_id", "pos", "count"])
     matching_name_type_df = matching_name_type_df.select(
-        "a.treatment_protocol_id", "a.treatment_name",
-        "a.treatment_dose", "b.single_treatment_type", "a.data_source_tmp")
+        "a.treatment_protocol_id", "a.single_treatment_name",
+        "b.single_treatment_type", "a.pos", "a.count", "a.data_source_tmp")
 
+    matching_name_type_df = matching_name_type_df.withColumnRenamed("single_treatment_name", "treatment_name")
     matching_name_type_df = matching_name_type_df.withColumnRenamed("single_treatment_type", "treatment_type")
+    matching_name_type_df = matching_name_type_df.drop("pos", "count")
 
-    df_exploded_by_treatment_type_unmatched = matching_name_dose_df.join(
+    # For any treatment and type which don't match in cardinality, take the treatment and put as type whatever the
+    # original string for the dose was
+    df_exploded_by_treatment_type_unmatched = df_exploded_by_treatment_name.join(
         matching_name_type_df, ["treatment_protocol_id"], "leftanti")
 
     df_tmp = df.select("treatment_protocol_id", "treatment_type")
 
     unmatched_name_type_df = df_exploded_by_treatment_type_unmatched.join(df_tmp, on=["treatment_protocol_id"])
+    unmatched_name_type_df = unmatched_name_type_df.withColumnRenamed("single_treatment_name", "treatment_name")
     unmatched_name_type_df = unmatched_name_type_df.drop("pos", "count")
 
-    df = matching_name_type_df.unionByName(unmatched_name_type_df).unionByName(unmatched_name_dose_df)
-    df = df.drop("pos", "count")
+    name_type_df = matching_name_type_df.unionByName(unmatched_name_type_df)
+
+    df = name_dose_df.join(name_type_df, on=["treatment_protocol_id", "treatment_name"], how='inner')
+    df = df.drop(name_type_df.data_source_tmp)
 
     return df
 
@@ -89,7 +97,6 @@ def transform_treatment_and_component_helper(treatment_protocol_df) -> DataFrame
 def get_exploded_df_by_treatment_name(df: DataFrame) -> DataFrame:
     df_exploded_by_treatment_name = df.select(
         "treatment_protocol_id",
-        # "treatment_name",
         "treatment_name_split_counter",
         posexplode("treatment_name_split"),
         Constants.DATA_SOURCE_COLUMN)
@@ -107,7 +114,6 @@ def get_exploded_df_by_treatment_name(df: DataFrame) -> DataFrame:
 def get_exploded_df_by_treatment_dose(df: DataFrame) -> DataFrame:
     df_exploded_by_treatment_dose = df.select(
         "treatment_protocol_id",
-        # "treatment_dose",
         "treatment_dose_split_counter",
         posexplode("treatment_dose_split"),
         Constants.DATA_SOURCE_COLUMN)
