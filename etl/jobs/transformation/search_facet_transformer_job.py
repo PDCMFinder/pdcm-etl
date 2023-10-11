@@ -84,8 +84,8 @@ facet_definitions = [
     },
     {
         "facet_section": "treatment_drug_dosing",
-        "facet_name": "Patient treatment status",
-        "facet_column": "patient_treatment_status",
+        "facet_name": "Treatment type",
+        "facet_column": "custom_treatment_type_list",
         "facet_example": '""'
     },
     {
