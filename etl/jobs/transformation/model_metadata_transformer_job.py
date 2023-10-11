@@ -2,7 +2,7 @@ import sys
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import lit, col, concat, concat_ws, collect_list, collect_set, when, array, size, \
-    regexp_replace
+    regexp_replace, split, lower
 
 from etl.constants import Constants
 from etl.jobs.transformation.links_generation.resources_per_model_util import add_raw_data_resources
@@ -74,9 +74,12 @@ def transform_model_metadata(
     # Add JSON column with all images associated to each model
     model_df = add_images_data(model_df, model_image_df)
 
-    # Adding treatment list (patient treatment) and model treatment list (model drug dosing) to search_index
+    # Adding treatment list (patient treatment) and model treatment list (model drug dosing), and treatment type list
+    # to search_index
     treatment_harmonisation_helper_df = treatment_harmonisation_helper_df.withColumnRenamed("model_id", "pdcm_model_id")
     model_df = model_df.join(treatment_harmonisation_helper_df, on=["pdcm_model_id"], how="left")
+
+    model_df = add_custom_treatment_type_column(model_df)
 
     # Add dataset_available column
     model_df = add_dataset_available(model_df, search_index_molecular_char_df)
@@ -163,7 +166,7 @@ def add_images_data(df: DataFrame, model_image_df: DataFrame) -> DataFrame:
     # Handle quotes in the description. In some cases there are double quites ("") so handling those cases with
     # a regexp
     model_image_df = model_image_df.withColumn("description", regexp_replace(col("description"), '"+', "'"))
-   
+
     model_image_df = model_image_df.withColumn(
         "json_entry",
         concat(lit("{"),
@@ -229,6 +232,25 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     df = df.drop("model_id")
 
     return df
+
+
+# Adds a custom column that is the combination of `treatment_type_list` + `patient_treatment_status` as that would be a
+# more complete filter in the UI
+def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
+    # Ignore treatment status that is Not Provided (because is not that meaningful) and `Not Treatment Naive`
+    # (because if it's Not Treatment Naive then it means there is a treatment)
+    model_df = model_df.withColumn(
+        "tmp_patient_treatment_status",
+        when(
+            lower(col("patient_treatment_status")).isin('not provided', 'not treatment naive'), None)
+        .otherwise(col("patient_treatment_status")))
+
+    # Make patient_treatment_status an array
+    model_df = model_df.withColumn("tmp_patient_treatment_status", split(col("tmp_patient_treatment_status"), ","))
+    model_df = model_df.withColumn(
+        "custom_treatment_type_list", concat(col("treatment_type_list"), col("tmp_patient_treatment_status")))
+
+    return model_df
 
 
 if __name__ == "__main__":

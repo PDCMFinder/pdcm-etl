@@ -85,6 +85,7 @@ def transform_search_index(
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",
+            "custom_treatment_type_list",
             "license_name",
             "license_url",
             "raw_data_resources",
