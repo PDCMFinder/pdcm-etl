@@ -5,10 +5,10 @@ from etl.constants import Constants
 from etl.workflow.config import PdcmConfig
 from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
-    ExtractCna, ExtractCytogenetics, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
+    ExtractCna, ExtractBiomarker, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
     ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources, ExtractDownloadedResourcesData, \
-    ExtractModelCharacterizationConf
+    ExtractModelCharacterizationConf, ExtractImageStudy, ExtractModelImage
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
@@ -332,12 +332,27 @@ class TransformGeneMarker(TransformEntity):
 class TransformGeneHelper(TransformEntity):
     requiredTasks = [
         ExtractCna(),
-        ExtractCytogenetics(),
+        ExtractBiomarker(),
         ExtractExpression(),
         ExtractMutation(),
         TransformGeneMarker()
     ]
     entity_name = Constants.GENE_HELPER_ENTITY
+
+
+class TransformImageStudy(TransformEntity):
+    requiredTasks = [
+        ExtractImageStudy()
+    ]
+    entity_name = Constants.IMAGE_STUDY_ENTITY
+
+
+class TransformModelImage(TransformEntity):
+    requiredTasks = [
+        ExtractModelImage(),
+        TransformModel()
+    ]
+    entity_name = Constants.MODEL_IMAGE_ENTITY
 
 
 class TransformInitialCnaMolecularData(TransformEntity):
@@ -348,12 +363,12 @@ class TransformInitialCnaMolecularData(TransformEntity):
     entity_name = Constants.INITIAL_CNA_MOLECULAR_DATA_ENTITY
 
 
-class TransformInitialCytogeneticsMolecularData(TransformEntity):
+class TransformInitialBiomarkerMolecularData(TransformEntity):
     requiredTasks = [
-        ExtractCytogenetics(),
+        ExtractBiomarker(),
         TransformMolecularCharacterization(),
     ]
-    entity_name = Constants.INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY
+    entity_name = Constants.INITIAL_BIOMARKER_MOLECULAR_DATA_ENTITY
 
 
 class TransformInitialExpressionMolecularData(TransformEntity):
@@ -382,14 +397,14 @@ class TransformCnaMolecularData(TransformEntity):
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
 
-class TransformCytogeneticsMolecularData(TransformEntity):
+class TransformBiomarkerMolecularData(TransformEntity):
     requiredTasks = [
-        TransformInitialCytogeneticsMolecularData(),
+        TransformInitialBiomarkerMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
         TransformGeneHelper()
     ]
-    entity_name = Constants.CYTOGENETICS_MOLECULAR_DATA_ENTITY
+    entity_name = Constants.BIOMARKER_MOLECULAR_DATA_ENTITY
 
 
 class TransformExpressionMolecularData(TransformEntity):
@@ -522,6 +537,7 @@ class TransformModelMetadata(TransformEntity):
         TransformSearchIndexPatientSample(),
         TransformXenograftModelSpecimen(),
         TransformQualityAssurance(),
+        TransformModelImage(),
         TransformTreatmentHarmonisationHelper(),
         TransformSearchIndexMolecularCharacterization()
     ]
@@ -535,7 +551,7 @@ class TransformSearchIndexMolecularData(TransformEntity):
         TransformMutationMeasurementData(),
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
-        TransformCytogeneticsMolecularData(),
+        TransformBiomarkerMolecularData(),
         ExtractExternalResources(),
     ]
     entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY
@@ -566,7 +582,7 @@ class TransformAvailableMolecularDataColumns(TransformEntity):
     requiredTasks = [
         TransformExpressionMolecularData(),
         TransformCnaMolecularData(),
-        TransformCytogeneticsMolecularData(),
+        TransformBiomarkerMolecularData(),
         TransformMutationMeasurementData()]
     entity_name = Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY
 

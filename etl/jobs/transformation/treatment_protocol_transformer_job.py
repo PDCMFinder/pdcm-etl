@@ -61,7 +61,12 @@ def transform_protocol(
 def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) -> DataFrame:
     model_df = model_df.select("id", "external_model_id")
     data_from_drug_dosing = drug_dosing_df.select(
-        "model_id", "treatment_name", "treatment_dose", "treatment_response", "response_classification",
+        "model_id",
+        "treatment_name",
+        "treatment_type",
+        "treatment_dose",
+        "treatment_response",
+        "response_classification",
         Constants.DATA_SOURCE_COLUMN)
     data_from_drug_dosing = data_from_drug_dosing.withColumn("patient_id", lit(None))
     data_from_drug_dosing = data_from_drug_dosing.withColumn("treatment_target", lit("drug dosing"))
@@ -70,15 +75,27 @@ def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) ->
     data_from_drug_dosing = transform_to_fk(
         data_from_drug_dosing, model_df, "external_model_id", "external_model_id", "id", "model_id")
     data_from_drug_dosing = data_from_drug_dosing.select(
-        "model_id", "patient_id", "treatment_name", "treatment_dose", "treatment_response", "response_classification",
-        "treatment_target", Constants.DATA_SOURCE_COLUMN)
+        "model_id",
+        "patient_id",
+        "treatment_name",
+        "treatment_type",
+        "treatment_dose",
+        "treatment_response",
+        "response_classification",
+        "treatment_target",
+        Constants.DATA_SOURCE_COLUMN)
     return data_from_drug_dosing
 
 
 def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df: DataFrame) -> DataFrame:
     patient_df = patient_df.select("id", "external_patient_id")
     data_from_patient_treatment = patient_treatment_df.select(
-        "patient_id", "treatment_name", "treatment_dose", "treatment_response", "response_classification",
+        "patient_id",
+        "treatment_name",
+        "treatment_type",
+        "treatment_dose",
+        "treatment_response",
+        "response_classification",
         Constants.DATA_SOURCE_COLUMN)
     data_from_patient_treatment = data_from_patient_treatment.withColumn("model_id", lit(None))
     data_from_patient_treatment = data_from_patient_treatment.withColumn("treatment_target", lit("patient"))
@@ -87,8 +104,15 @@ def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df:
     data_from_patient_treatment = transform_to_fk(
         data_from_patient_treatment, patient_df, "external_patient_id", "external_patient_id", "id", "patient_id")
     data_from_patient_treatment = data_from_patient_treatment.select(
-        "model_id", "patient_id", "treatment_name", "treatment_dose", "treatment_response", "response_classification",
-        "treatment_target", Constants.DATA_SOURCE_COLUMN)
+        "model_id",
+        "patient_id",
+        "treatment_name",
+        "treatment_type",
+        "treatment_dose",
+        "treatment_response",
+        "response_classification",
+        "treatment_target",
+        Constants.DATA_SOURCE_COLUMN)
     return data_from_patient_treatment
 
 
@@ -114,19 +138,6 @@ def set_fk_response_classification(treatment_protocol: DataFrame, response_class
         "id",
         "response_classification_id")
     return treatment_protocol
-
-
-def get_expected_columns(treatment_protocol_df: DataFrame) -> DataFrame:
-    return treatment_protocol_df.select(
-        "id",
-        "model_id",
-        "patient_id",
-        "treatment_target",
-        "response_id",
-        "response_classification_id",
-        "treatment_name",
-        "treatment_dose",
-        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

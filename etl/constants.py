@@ -16,7 +16,7 @@ class Constants:
     DRUG_DOSING_MODULE = "drug-dosing"
     PATIENT_TREATMENT_MODULE = "patient-treatment"
     CNA_MODULE = "cna"
-    CYTOGENETICS_MODULE = "cyto"
+    BIOMARKER_MODULE = "biomarker"
     EXPRESSION_MODULE = "expression"
     MUTATION_MODULE = "mutation"
     MOLECULAR_DATA_SAMPLE_MODULE = "molchar_sample"
@@ -29,6 +29,8 @@ class Constants:
     MAPPING_DIAGNOSIS_MODULE = "mapping_diagnosis"
     MAPPING_TREATMENTS_MODULE = "mapping_treatments"
     MODEL_CHARACTERIZATIONS_CONF_MODULE = "model_characterizations_conf"
+    IMAGE_STUDY_MODULE = "image_study"
+    MODEL_IMAGE_MODULE = "model_image"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
@@ -65,10 +67,12 @@ class Constants:
     PLATFORM_ENTITY = "platform"
     MOLECULAR_CHARACTERIZATION_ENTITY = "molecular_characterization"
     CNA_MOLECULAR_DATA_ENTITY = "cna_molecular_data"
-    CYTOGENETICS_MOLECULAR_DATA_ENTITY = "cytogenetics_molecular_data"
+    BIOMARKER_MOLECULAR_DATA_ENTITY = "biomarker_molecular_data"
     EXPRESSION_MOLECULAR_DATA_ENTITY = "expression_molecular_data"
     MUTATION_MEASUREMENT_DATA_ENTITY = "mutation_measurement_data"
     GENE_MARKER_ENTITY = "gene_marker"
+    IMAGE_STUDY_ENTITY = "image_study"
+    MODEL_IMAGE_ENTITY = "model_image"
     ONTOLOGY_TERM_DIAGNOSIS_ENTITY = "ontology_term_diagnosis"
     ONTOLOGY_TERM_TREATMENT_ENTITY = "ontology_term_treatment"
     ONTOLOGY_TERM_REGIMEN_ENTITY = "ontology_term_regimen"
@@ -97,7 +101,7 @@ class Constants:
     SEARCH_INDEX_MOLECULAR_DATA_ENTITY = "search_index_molecular_data"
 
     INITIAL_CNA_MOLECULAR_DATA_ENTITY = "initial_cna_molecular_data"
-    INITIAL_CYTOGENETICS_MOLECULAR_DATA_ENTITY = "initial_cytogenetics_molecular_data"
+    INITIAL_BIOMARKER_MOLECULAR_DATA_ENTITY = "initial_biomarker_molecular_data"
     INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY = "initial_expression_molecular_data"
     INITIAL_MUTATION_MOLECULAR_DATA_ENTITY = "initial_mutation_molecular_data"
 

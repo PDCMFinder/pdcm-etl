@@ -19,7 +19,7 @@ def add_cancer_annotation_resources(
         mutation_measurement_data_df: DataFrame,
         cna_data_df: DataFrame,
         expression_data_df: DataFrame,
-        cytogenetics_data_df: DataFrame,
+        biomarkers_data_df: DataFrame,
         resources_df: DataFrame
 ) -> DataFrame:
     # Get the pairs [molecular_characterization_id, resource] from links in molecular data tables
@@ -27,7 +27,7 @@ def add_cancer_annotation_resources(
         mutation_measurement_data_df,
         cna_data_df,
         expression_data_df,
-        cytogenetics_data_df,
+        biomarkers_data_df,
         resources_df
     )
 
@@ -47,7 +47,7 @@ def build_molchar_molecular_data_resource_df(
         mutation_measurement_data_df: DataFrame,
         cna_data_df: DataFrame,
         expression_data_df: DataFrame,
-        cytogenetics_data_df: DataFrame,
+        biomarkers_data_df: DataFrame,
         resources_df: DataFrame
 ) -> DataFrame:
     """
@@ -59,12 +59,12 @@ def build_molchar_molecular_data_resource_df(
     mutation_resources_df = extract_molchar_resource_from_molecular_data_df(mutation_measurement_data_df, resources)
     cna_resources_df = extract_molchar_resource_from_molecular_data_df(cna_data_df, resources)
     expression_resources_df = extract_molchar_resource_from_molecular_data_df(expression_data_df, resources)
-    cytogenetics_resources_df = extract_molchar_resource_from_molecular_data_df(cytogenetics_data_df, resources)
+    biomarkers_resources_df = extract_molchar_resource_from_molecular_data_df(biomarkers_data_df, resources)
 
     union_all_resources_df = mutation_resources_df \
         .union(cna_resources_df) \
         .union(expression_resources_df) \
-        .union(cytogenetics_resources_df)
+        .union(biomarkers_resources_df)
     return union_all_resources_df
 
 

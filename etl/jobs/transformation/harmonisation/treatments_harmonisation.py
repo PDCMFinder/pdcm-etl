@@ -1,6 +1,6 @@
 from pyspark.sql import DataFrame
 
-from pyspark.sql.functions import collect_list, col, lower, lit, concat_ws, when, concat
+from pyspark.sql.functions import collect_list, col, lower, concat_ws, when, concat
 from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 
@@ -75,6 +75,9 @@ def harmonise_treatments(
     direct_regimen_ontologies_by_protocol_df = get_direct_regimen_ontologies_by_protocol(
         formatted_protocol_df, treatment_component_df, treatment_df, regimen_to_ontology_df)
 
+    treatment_types_by_model_df = calculate_treatment_types_by_model(
+        direct_treatment_ontologies_by_protocol_df, direct_regimen_ontologies_by_protocol_df)
+
     all_treatment_ontologies_by_protocol_df = discover_additional_treatment_connections(
         direct_treatment_ontologies_by_protocol_df,
         direct_regimen_ontologies_by_protocol_df,
@@ -97,14 +100,18 @@ def harmonise_treatments(
     harmonised_terms_by_protocol_df = all_treatment_ontologies_names_by_protocol_df.union(
         all_regimen_ontologies_names_by_protocol_df)
 
-    formatted_data_df = format_output(harmonised_terms_by_protocol_df, formatted_protocol_df)
+    formatted_data_df = format_output(
+        harmonised_terms_by_protocol_df, formatted_protocol_df, treatment_types_by_model_df)
 
     return formatted_data_df
 
 
 # Receive a dataframe in the format [treatment_protocol_id|term_name] and creates a df with only model_id and
 # list of treatment names coming from model_drug_doses and patient_treatment.
-def format_output(harmonised_terms_by_protocol_df: DataFrame, formatted_protocol_df) -> DataFrame:
+def format_output(
+        harmonised_terms_by_protocol_df: DataFrame,
+        formatted_protocol_df: DataFrame,
+        treatment_types_by_model_df: DataFrame) -> DataFrame:
 
     harmonised_treatments_by_models_df = formatted_protocol_df.join(
         harmonised_terms_by_protocol_df, on=["treatment_protocol_id"], how='left')
@@ -148,6 +155,10 @@ def format_output(harmonised_terms_by_protocol_df: DataFrame, formatted_protocol
     patient_treatment_df = patient_treatment_df.select("protocol_model", "treatment_list")
 
     result_df = model_drug_dosing_df.join(patient_treatment_df, on=["protocol_model"], how="outer")
+
+    # Add list of treatment types to each model
+    result_df = result_df.join(treatment_types_by_model_df, on=["protocol_model"])
+
     result_df = result_df.withColumnRenamed("protocol_model", "model_id")
 
     return result_df
@@ -270,3 +281,19 @@ def discover_additional_regimen_connections(
         protocols_with_discovered_treatments_df)
 
     return total_regimens_by_protocol_df
+
+
+def calculate_treatment_types_by_model(
+        direct_treatment_ontologies_by_protocol_df,
+        direct_regimen_ontologies_by_protocol_df) -> DataFrame:
+
+    treatment_types_df = direct_treatment_ontologies_by_protocol_df.select("protocol_model", "type")
+    regimen_types_df = direct_regimen_ontologies_by_protocol_df.select("protocol_model", "type")
+    types_by_model_df = treatment_types_df.union(regimen_types_df)
+    types_by_model_df = types_by_model_df.drop_duplicates()
+
+    grouped_df = types_by_model_df. \
+        groupBy("protocol_model") \
+        .agg(collect_list("type").alias("treatment_type_list"))
+
+    return grouped_df

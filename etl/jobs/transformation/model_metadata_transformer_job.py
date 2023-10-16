@@ -1,7 +1,8 @@
 import sys
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import lit, col, concat, concat_ws, collect_list, collect_set, when, array, size
+from pyspark.sql.functions import lit, col, concat, concat_ws, collect_list, collect_set, when, array, size, \
+    regexp_replace, split, lower
 
 from etl.constants import Constants
 from etl.jobs.transformation.links_generation.resources_per_model_util import add_raw_data_resources
@@ -16,23 +17,26 @@ def main(argv):
                     [2]: Parquet file path with the search_index_patient_sample transformed data.
                     [3]: Parquet file path with the xenograft_model_specimen_parquet_path transformed data.
                     [4]: Parquet file path with the quality_assurance_parquet_path transformed data.
-                    [5]: Parquet file path with the treatment_harmonisation_helper_parquet_path transformed data.
-                    [6]: Parquet file path with the search_index_molecular_characterization_parquet_path transformed data.
-                    [2]: Output file
+                    [5]: Parquet file path with the model_image transformed data.
+                    [6]: Parquet file path with the treatment_harmonisation_helper_parquet_path transformed data.
+                    [7]: Parquet file path with the search_index_molecular_characterization_parquet_path transformed data.
+                    [8]: Output file
     """
     model_parquet_path = argv[1]
     search_index_patient_sample_parquet_path = argv[2]
     xenograft_model_specimen_parquet_path = argv[3]
     quality_assurance_parquet_path = argv[4]
-    treatment_harmonisation_helper_parquet_path = argv[5]
-    search_index_molecular_characterization_parquet_path = argv[6]
-    output_path = argv[7]
+    model_image_parquet_path = argv[5]
+    treatment_harmonisation_helper_parquet_path = argv[6]
+    search_index_molecular_characterization_parquet_path = argv[7]
+    output_path = argv[8]
 
     spark = SparkSession.builder.getOrCreate()
     model_df = spark.read.parquet(model_parquet_path)
     search_index_patient_sample_df = spark.read.parquet(search_index_patient_sample_parquet_path)
     xenograft_model_specimen_df = spark.read.parquet(xenograft_model_specimen_parquet_path)
     quality_assurance_df = spark.read.parquet(quality_assurance_parquet_path)
+    model_image_df = spark.read.parquet(model_image_parquet_path)
     treatment_harmonisation_helper_df = spark.read.parquet(treatment_harmonisation_helper_parquet_path)
     search_index_molecular_char_df = spark.read.parquet(search_index_molecular_characterization_parquet_path)
 
@@ -41,6 +45,7 @@ def main(argv):
         search_index_patient_sample_df,
         xenograft_model_specimen_df,
         quality_assurance_df,
+        model_image_df,
         treatment_harmonisation_helper_df,
         search_index_molecular_char_df
     )
@@ -53,6 +58,7 @@ def transform_model_metadata(
         search_index_patient_sample_df: DataFrame,
         xenograft_model_specimen_df: DataFrame,
         quality_assurance_df: DataFrame,
+        model_image_df: DataFrame,
         treatment_harmonisation_helper_df: DataFrame,
         search_index_molecular_char_df
 ) -> DataFrame:
@@ -65,10 +71,15 @@ def transform_model_metadata(
     model_df = add_quality_assurance_data(model_df, quality_assurance_df)
     # Add JSON column with all xenografts associated to each model
     model_df = add_xenograft_model_specimen_data(model_df, xenograft_model_specimen_df)
+    # Add JSON column with all images associated to each model
+    model_df = add_images_data(model_df, model_image_df)
 
-    # Adding treatment list (patient treatment) and model treatment list (model drug dosing) to search_index
+    # Adding treatment list (patient treatment) and model treatment list (model drug dosing), and treatment type list
+    # to search_index
     treatment_harmonisation_helper_df = treatment_harmonisation_helper_df.withColumnRenamed("model_id", "pdcm_model_id")
     model_df = model_df.join(treatment_harmonisation_helper_df, on=["pdcm_model_id"], how="left")
+
+    model_df = add_custom_treatment_type_column(model_df)
 
     # Add dataset_available column
     model_df = add_dataset_available(model_df, search_index_molecular_char_df)
@@ -83,7 +94,6 @@ def transform_model_metadata(
 def get_formatted_model(
         model_df: DataFrame
 ) -> DataFrame:
-    model_df.show()
     # Renaming columns
     model_df = model_df.withColumnRenamed("type", "model_type")
     model_df = model_df.withColumnRenamed("id", "pdcm_model_id")
@@ -152,6 +162,33 @@ def add_xenograft_model_specimen_data(df: DataFrame, xenograft_model_specimen_df
     return df
 
 
+def add_images_data(df: DataFrame, model_image_df: DataFrame) -> DataFrame:
+    # Handle quotes in the description. In some cases there are double quites ("") so handling those cases with
+    # a regexp
+    model_image_df = model_image_df.withColumn("description", regexp_replace(col("description"), '"+', "'"))
+
+    model_image_df = model_image_df.withColumn(
+        "json_entry",
+        concat(lit("{"),
+               lit("\"url\": "), lit("\""), col("url"), lit("\", "),
+               lit("\"description\": "), lit("\""), col("description"), lit("\", "),
+               lit("\"sample_type\": "), lit("\""), col("sample_type"), lit("\", "),
+               lit("\"passage\": "), lit("\""), col("passage"), lit("\", "),
+               lit("\"magnification\": "), lit("\""), col("magnification"), lit("\", "),
+               lit("\"staining\": "), lit("\""), col("staining"), lit("\""),
+               concat(lit("}"))))
+
+    images_per_model_df = model_image_df.groupby("model_id").agg(
+        concat_ws(", ", collect_list(model_image_df.json_entry)).alias("model_images"))
+    images_per_model_df = images_per_model_df.withColumn(
+        "model_images",
+        concat(lit("["), col("model_images"), concat(lit("]"))))
+    df = df.join(
+        images_per_model_df, df.pdcm_model_id == images_per_model_df.model_id, how='left')
+    df = df.drop("model_id")
+    return df
+
+
 def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFrame) -> DataFrame:
     model_mol_char_availability_df = search_index_molecular_char_df.groupby("model_id").agg(
         collect_set("molecular_characterisation_type").alias("dataset_available")
@@ -195,6 +232,25 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     df = df.drop("model_id")
 
     return df
+
+
+# Adds a custom column that is the combination of `treatment_type_list` + `patient_treatment_status` as that would be a
+# more complete filter in the UI
+def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
+    # Ignore treatment status that is Not Provided (because is not that meaningful) and `Not Treatment Naive`
+    # (because if it's Not Treatment Naive then it means there is a treatment)
+    model_df = model_df.withColumn(
+        "tmp_patient_treatment_status",
+        when(
+            lower(col("patient_treatment_status")).isin('not provided', 'not treatment naive'), None)
+        .otherwise(col("patient_treatment_status")))
+
+    # Make patient_treatment_status an array
+    model_df = model_df.withColumn("tmp_patient_treatment_status", split(col("tmp_patient_treatment_status"), ","))
+    model_df = model_df.withColumn(
+        "custom_treatment_type_list", concat(col("treatment_type_list"), col("tmp_patient_treatment_status")))
+
+    return model_df
 
 
 if __name__ == "__main__":

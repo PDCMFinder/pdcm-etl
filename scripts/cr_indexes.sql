@@ -91,12 +91,12 @@ ALTER TABLE molecular_characterization ADD CONSTRAINT pk_molecular_characterizat
 -- Not creating pks for molchar tables to improve performance under the assumption that the ETL is creating ids that
 -- make each record unique.
 --ALTER TABLE cna_molecular_data ADD CONSTRAINT pk_cna_molecular_data PRIMARY KEY (id);
---ALTER TABLE cytogenetics_molecular_data ADD CONSTRAINT pk_cytogenetics_molecular_data PRIMARY KEY (id);
+--ALTER TABLE biomarker_molecular_data ADD CONSTRAINT pk_biomarker_molecular_data PRIMARY KEY (id);
 --ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_data PRIMARY KEY (id);
 --ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
 
 CREATE INDEX idx_cna_mol_char ON cna_molecular_data(molecular_characterization_id);
-CREATE INDEX idx_cytogenetics_mol_char ON cytogenetics_molecular_data(molecular_characterization_id);
+CREATE INDEX idx_biomarker_mol_char ON biomarker_molecular_data(molecular_characterization_id);
 CREATE INDEX idx_expression_mol_char ON expression_molecular_data(molecular_characterization_id);
 CREATE INDEX idx_mutation_mol_char ON mutation_measurement_data(molecular_characterization_id);
 
@@ -132,3 +132,9 @@ ALTER TABLE treatment_protocol ADD CONSTRAINT pk_treatment_protocol PRIMARY KEY 
 
 ALTER TABLE treatment_component DROP CONSTRAINT IF EXISTS pk_treatment_component CASCADE;
 ALTER TABLE treatment_component ADD CONSTRAINT pk_treatment_component PRIMARY KEY (id);
+
+ALTER TABLE image_study DROP CONSTRAINT IF EXISTS pk_image_study CASCADE;
+ALTER TABLE image_study ADD CONSTRAINT pk_image_study PRIMARY KEY (id);
+
+ALTER TABLE model_image DROP CONSTRAINT IF EXISTS pk_model_image CASCADE;
+ALTER TABLE model_image ADD CONSTRAINT pk_model_image PRIMARY KEY (id);

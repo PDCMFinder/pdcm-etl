@@ -138,8 +138,8 @@ ALTER TABLE cna_molecular_data
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
-ALTER TABLE cytogenetics_molecular_data
-    ADD CONSTRAINT fk_cytogenetics_molecular_data_mol_char
+ALTER TABLE biomarker_molecular_data
+    ADD CONSTRAINT fk_biomarker_molecular_data_mol_char
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
@@ -256,5 +256,10 @@ ALTER TABLE treatment_component
 ALTER TABLE search_index
     ADD CONSTRAINT fk_search_index_model
     FOREIGN KEY (pdcm_model_id)
+    REFERENCES model_information (id);
+
+ALTER TABLE model_image
+    ADD CONSTRAINT fk_model_image_model
+    FOREIGN KEY (model_id)
     REFERENCES model_information (id);
 

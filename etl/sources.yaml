@@ -123,6 +123,7 @@ groups:
         columns:
           - "patient_id"
           - "treatment_name"
+          - "treatment_type"
           - "treatment_dose"
           - "treatment_starting_date"
           - "treatment_duration"
@@ -131,6 +132,34 @@ groups:
           - "treatment_response"
           - "response_classification"
           - "model_id"
+
+      - name: "image_study"
+        type: "tsv"
+        name_patterns: [ "$provider_metadata-image_study.tsv" ]
+        columns:
+          - "study_id"
+          - "title"
+          - "description"
+          - "licence"
+          - "contact"
+          - "sample_organism"
+          - "sample_description"
+          - "sample_preparation_protocol"
+          - "imaging_instrument"
+          - "image_acquisition_parameters"
+          - "imaging_method"
+
+      - name: "model_image"
+        type: "tsv"
+        name_patterns: [ "$provider_metadata-model_image.tsv" ]
+        columns:
+          - "model_id"
+          - "url"
+          - "description"
+          - "sample_type"
+          - "passage"
+          - "magnification"
+          - "staining"
 
   - group: "molecular-metadata"
     modules:
@@ -168,7 +197,6 @@ groups:
           - "molecular_methods_description"
           - "analysis_description"
 
-
   - group: "molecular-data"
     modules:
       - name: "cna"
@@ -191,13 +219,13 @@ groups:
           - "picnic_value"
           - "platform_id"
 
-      - name: "cyto"
+      - name: "biomarker"
         type: "tsv"
-        name_patterns: ["cyto/$provider_cyto*.tsv"]
+        name_patterns: ["biomarker/$provider_biomarker*.tsv"]
         columns:
           - "sample_id"
-          - "symbol"
-          - "marker_status"
+          - "biomarker"
+          - "biomarker_status"
           - "essential_or_additional_marker"
           - "platform_id"
 

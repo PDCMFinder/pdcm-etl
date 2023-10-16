@@ -98,8 +98,8 @@ class ExtractCna(ExtractModuleFromTsv):
     module_name = Constants.CNA_MODULE
 
 
-class ExtractCytogenetics(ExtractModuleFromTsv):
-    module_name = Constants.CYTOGENETICS_MODULE
+class ExtractBiomarker(ExtractModuleFromTsv):
+    module_name = Constants.BIOMARKER_MODULE
 
 
 class ExtractExpression(ExtractModuleFromTsv):
@@ -112,6 +112,14 @@ class ExtractMutation(ExtractModuleFromTsv):
 
 class ExtractGeneMarker(ReadMarkerFromTsv):
     module_name = Constants.GENE_MARKER_MODULE
+
+
+class ExtractImageStudy(ExtractModuleFromTsv):
+    module_name = Constants.IMAGE_STUDY_MODULE
+
+
+class ExtractModelImage(ExtractModuleFromTsv):
+    module_name = Constants.MODEL_IMAGE_MODULE
 
 
 class ExtractOntology(ReadOntologyFromObo):

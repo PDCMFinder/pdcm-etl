@@ -104,7 +104,7 @@ def filter_response_df(response_df: DataFrame) -> DataFrame:
     return response_df
 
 
-# Protocols that are related to patient_treatment don't have a explicit association with a model so this method
+# Protocols that are related to patient_treatment don't have an explicit association with a model so this method
 # makes sure every protocol is associated to a model
 def get_protocols_and_add_model(treatment_protocol_df: DataFrame, patient_sample_df: DataFrame) -> DataFrame:
     treatment_protocol_df = treatment_protocol_df.withColumnRenamed("id", "treatment_protocol_id")

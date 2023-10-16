@@ -5,7 +5,7 @@ from etl.constants import Constants
 
 
 # Assigns the corresponding fk to a molecular data dataframe. The molecular data can be: cna, mutation, expression or
-# cytogenetics.
+# biomarker.
 def set_fk_molecular_characterization(
         molecular_data_df: DataFrame, molchar_type: str, molecular_characterization_df: DataFrame) -> DataFrame:
 

@@ -78,14 +78,14 @@ facet_definitions = [
     },
     {
         "facet_section": "molecular_data",
-        "facet_name": "Cytogenetics",
-        "facet_column": "markers_with_cytogenetics_data",
+        "facet_name": "Biomarkers",
+        "facet_column": "markers_with_biomarker_data",
         "facet_example": "ESR1"
     },
     {
         "facet_section": "treatment_drug_dosing",
-        "facet_name": "Patient treatment status",
-        "facet_column": "patient_treatment_status",
+        "facet_name": "Treatment type",
+        "facet_column": "custom_treatment_type_list",
         "facet_example": '""'
     },
     {

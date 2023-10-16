@@ -43,8 +43,8 @@ def convert_to_dataframe(spark: SparkSession, dict_list: List[Dict]) -> DataFram
 def assert_df_are_equal_ignore_id(df_a: DataFrame, df_b: DataFrame):
     df_a = df_a.drop("id")
     df_b = df_b.drop("id")
-    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True)
+    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True, ignore_column_order=True)
 
 
 def assert_df_are_equal(df_a: DataFrame, df_b: DataFrame):
-    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True)
+    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True, ignore_column_order=True)

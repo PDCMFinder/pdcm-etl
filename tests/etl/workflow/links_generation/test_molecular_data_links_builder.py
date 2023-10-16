@@ -49,7 +49,7 @@ def test_add_links_in_molecular_data_table_hgnc_symbol_only():
     resources_df = create_resources_df()
     resources_data_df = create_resources_reference_data_df()
 
-    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df, "molecular_data_output")
+    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df)
 
     links_row_1 = [
         {
@@ -101,7 +101,7 @@ def test_add_links_in_molecular_data_table_with_aac():
 
     resources_data_df = create_resources_reference_data_df()
 
-    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df, "molecular_data_output")
+    data_df = add_links_in_molecular_data_table(data_df, resources_df, resources_data_df)
 
     # Assert links where generated
     links_row_1 = [
