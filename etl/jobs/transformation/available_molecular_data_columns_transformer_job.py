@@ -127,7 +127,7 @@ def get_biomarkers_molecular_data_count_rows_by_data_source(biomarkers_molecular
     # Get for all the columns the counts of records that are not null
 
     biomarkers_molecular_data_count_df = get_not_null_by_column_counter_df(df)
-    return get_data_by_data_source_and_mol_char_type(biomarkers_molecular_data_count_df, 'biomarkers')
+    return get_data_by_data_source_and_mol_char_type(biomarkers_molecular_data_count_df, 'biomarker')
 
 
 def get_mutation_measurement_data_count_rows_by_data_source(mutation_measurement_data_df: DataFrame):
