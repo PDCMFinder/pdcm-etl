@@ -420,7 +420,7 @@ AS
          cmd.biomarker,
          cmd.non_harmonised_symbol,
          cmd.biomarker_status AS result,
-         cmd.external_db_links,
+         REPLACE(cmd.external_db_links::text, 'hgnc_symbol', 'biomarker')::json AS external_db_links,
          ( cmd.* ) :: text AS text
   FROM   biomarker_molecular_data cmd
   WHERE (cmd.data_source, 'biomarker_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
