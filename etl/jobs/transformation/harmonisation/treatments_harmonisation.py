@@ -290,6 +290,7 @@ def calculate_treatment_types_by_model(
     treatment_types_df = direct_treatment_ontologies_by_protocol_df.select("protocol_model", "type")
     regimen_types_df = direct_regimen_ontologies_by_protocol_df.select("protocol_model", "type")
     types_by_model_df = treatment_types_df.union(regimen_types_df)
+    types_by_model_df = types_by_model_df.where("lower(type) != 'not provided'")
     types_by_model_df = types_by_model_df.drop_duplicates()
 
     grouped_df = types_by_model_df. \
