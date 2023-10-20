@@ -612,6 +612,7 @@ entities = {
             "breast_cancer_biomarkers",
             "treatment_list",
             "model_treatment_list",
+            "custom_treatment_type_list",
             "raw_data_resources",
             "cancer_annotation_resources",
             "scores"
