@@ -247,8 +247,12 @@ def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
 
     # Make patient_treatment_status an array
     model_df = model_df.withColumn("tmp_patient_treatment_status", split(col("tmp_patient_treatment_status"), ","))
+
     model_df = model_df.withColumn(
-        "custom_treatment_type_list", concat(col("treatment_type_list"), col("tmp_patient_treatment_status")))
+        "custom_treatment_type_list", 
+        when(
+            col("tmp_patient_treatment_status").isNull(), col("treatment_type_list"))
+            .otherwise(concat(col("treatment_type_list"), col("tmp_patient_treatment_status"))))
 
     return model_df
 
