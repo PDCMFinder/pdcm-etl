@@ -546,7 +546,15 @@ AS
                 THEN cardinality(dataset_available) - 1
             ELSE
                 cardinality(dataset_available)
-            END as model_dataset_type_count
+            END as model_dataset_type_count,
+        CASE 
+	          WHEN project_name = 'PIVOT'
+ 	              or lower(histology) like '%childhood%'
+	              or patient_age like '%19' or patient_age like '2 - 9'
+                or patient_age like '%months' 
+            THEN true 
+            ELSE false 
+        END as paediatric
  FROM search_index;
 
 
