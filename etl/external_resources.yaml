@@ -81,6 +81,13 @@ resources:
     link_building_method: "referenceLookup"
     link_template: "https://search.clinicalgenome.org/kb/genes/ENTRY_ID"
 
+  - id: 11
+    name: "dbGAP (Studies)"
+    label: "dbGAP"
+    type: "Study"
+    link_building_method: "dbGAPInlineLink"
+    link_template: "https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=dbGAP_ID"
+
 # Resources that require downloading data. These resources should be marked with link_building_method: "referenceLookup"
 # in the previous section
 
