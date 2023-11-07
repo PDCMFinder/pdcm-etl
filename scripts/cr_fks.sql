@@ -153,6 +153,11 @@ ALTER TABLE mutation_measurement_data
     FOREIGN KEY (molecular_characterization_id)
     REFERENCES molecular_characterization (id);
 
+ALTER TABLE immunemarker_molecular_data
+    ADD CONSTRAINT fk_immunemarker_molecular_data_mol_char
+    FOREIGN KEY (molecular_characterization_id)
+    REFERENCES molecular_characterization (id);
+
 ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_engraftment_site
     FOREIGN KEY (engraftment_site_id)

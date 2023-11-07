@@ -633,6 +633,25 @@ COMMENT ON COLUMN mutation_measurement_data.molecular_characterization_id IS 'Re
 COMMENT ON COLUMN mutation_measurement_data.data_source IS 'Data source (abbreviation of the provider)';
 COMMENT ON COLUMN mutation_measurement_data.external_db_links IS 'JSON column with links to external resources';
 
+DROP TABLE IF EXISTS immunemarker_molecular_data CASCADE;
+
+CREATE TABLE immunemarker_molecular_data (
+    id BIGINT NOT NULL,
+    marker_name TEXT,
+    marker_value TEXT,
+    essential_or_additional_details TEXT,
+    molecular_characterization_id BIGINT,
+    data_source TEXT
+);
+
+COMMENT ON TABLE immunemarker_molecular_data IS 'Immunemarker molecular data';
+COMMENT ON COLUMN immunemarker_molecular_data.id IS 'Internal identifier';
+COMMENT ON COLUMN immunemarker_molecular_data.marker_name IS 'Name of the immune marker';
+COMMENT ON COLUMN immunemarker_molecular_data.marker_value IS 'Value or measurement associated with the immune marker';
+COMMENT ON COLUMN immunemarker_molecular_data.essential_or_additional_details IS 'Additional details or notes about the immune marker';
+COMMENT ON COLUMN immunemarker_molecular_data.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN immunemarker_molecular_data.data_source IS 'Data source (abbreviation of the provider)';
+
 DROP TABLE IF EXISTS xenograft_model_specimen CASCADE;
 
 CREATE TABLE xenograft_model_specimen (
