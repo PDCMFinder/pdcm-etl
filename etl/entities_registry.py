@@ -35,7 +35,7 @@ import etl.jobs.transformation.initial_expression_molecular_data_transformer_job
 import etl.jobs.transformation.initial_mutation_molecular_data_transformer_job
 import etl.jobs.transformation.cna_molecular_data_transformer_job
 import etl.jobs.transformation.biomarker_molecular_data_transformer_job
-import etl.jobs.transformation.biomarker_molecular_data_transformer_job
+import etl.jobs.transformation.immunemarker_molecular_data_transformer_job
 import etl.jobs.transformation.expression_molecular_data_transformer_job
 import etl.jobs.transformation.mutation_measurement_data_transformer_job
 import etl.jobs.transformation.gene_marker_transformer_job
@@ -363,6 +363,17 @@ entities = {
             "molecular_characterization_id",
             "data_source",
             "external_db_links"
+        ]
+    },
+    Constants.IMMUNEMARKER_MOLECULAR_DATA_ENTITY: {
+        "spark_job": etl.jobs.transformation.immunemarker_molecular_data_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "marker_name",
+            "marker_value",
+            "essential_or_additional_details",
+            "molecular_characterization_id",
+            "data_source"
         ]
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
