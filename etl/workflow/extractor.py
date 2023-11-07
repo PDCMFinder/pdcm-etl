@@ -102,6 +102,9 @@ class ExtractBiomarker(ExtractModuleFromTsv):
     module_name = Constants.BIOMARKER_MODULE
 
 
+class ExtractImmunemarker(ExtractModuleFromTsv):
+    module_name = Constants.IMMUNEMARKER_MODULE
+
 class ExtractExpression(ExtractModuleFromTsv):
     module_name = Constants.EXPRESSION_MODULE
 
