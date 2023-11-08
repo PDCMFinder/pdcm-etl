@@ -560,6 +560,7 @@ class TransformSearchIndexMolecularData(TransformEntity):
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
         TransformBiomarkerMolecularData(),
+        TransformImmunemarkerMolecularData(),
         ExtractExternalResources(),
     ]
     entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY

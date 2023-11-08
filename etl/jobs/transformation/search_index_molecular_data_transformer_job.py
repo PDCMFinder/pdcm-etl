@@ -19,8 +19,9 @@ def main(argv):
                     [4]: Parquet file path with the cna transformed data.
                     [5]: Parquet file path with the expression transformed data.
                     [6]: Parquet file path with the biomarkers transformed data.
-                    [7]: Parquet file path with the raw_external_resources data.
-                    [8]: Output file
+                    [7]: Parquet file path with the immunemarkers transformed data.
+                    [8]: Parquet file path with the raw_external_resources data.
+                    [9]: Output file
     """
     model_metadata_parquet_path = argv[1]
     search_index_molecular_characterization_parquet_path = argv[2]
@@ -28,8 +29,9 @@ def main(argv):
     cna_data_parquet_path = argv[4]
     expression_data_parquet_path = argv[5]
     biomarkers_data_parquet_path = argv[6]
-    raw_external_resources_parquet_path = argv[7]
-    output_path = argv[8]
+    immunemarkers_data_parquet_path =  argv[7]
+    raw_external_resources_parquet_path = argv[8]
+    output_path = argv[9]
 
     spark = SparkSession.builder.getOrCreate()
     model_metadata_df = spark.read.parquet(model_metadata_parquet_path)
@@ -38,6 +40,7 @@ def main(argv):
     cna_data_df = spark.read.parquet(cna_data_parquet_path)
     expression_data_df = spark.read.parquet(expression_data_parquet_path)
     biomarkers_data_df = spark.read.parquet(biomarkers_data_parquet_path)
+    immunemarkers_data_df = spark.read.parquet(immunemarkers_data_parquet_path)
     raw_external_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
 
     search_index_molecular_data_df = transform_search_index_molecular_data(
@@ -47,6 +50,7 @@ def main(argv):
         cna_data_df,
         expression_data_df,
         biomarkers_data_df,
+        immunemarkers_data_df,
         raw_external_resources_df
     )
     search_index_molecular_data_df.write.mode("overwrite").parquet(output_path)
@@ -59,6 +63,7 @@ def transform_search_index_molecular_data(
         cna_data_df: DataFrame,
         expression_data_df: DataFrame,
         biomarkers_data_df: DataFrame,
+        immunemarkers_data_df,
         raw_external_resources_df: DataFrame
 ) -> DataFrame:
 
@@ -88,6 +93,9 @@ def transform_search_index_molecular_data(
 
     # Add breast cancer biomarkers data
     df = add_breast_cancer_markers(df, search_index_molecular_char_df, biomarkers_data_df)
+
+    # Add immunemarkers data
+    df = add_immunemarkers_names(df, search_index_molecular_char_df, immunemarkers_data_df)
 
     return df
 
@@ -211,8 +219,36 @@ def add_breast_cancer_markers(
         how='left')
 
     model_metadata_df = model_metadata_df.drop(model_breast_cancer_biomarkers_df.model_id)
-    print("model_metadata_df")
-    model_metadata_df.show()
+
+    return model_metadata_df
+
+
+def add_immunemarkers_names(
+        model_metadata_df: DataFrame,
+        search_index_molecular_char_df: DataFrame,
+        immunemarkers_data_df: DataFrame) -> DataFrame:
+
+    immunemarkers_df = immunemarkers_data_df.withColumnRenamed("marker_name", "immunemarker_name")
+
+    model_immunemarkers_df = search_index_molecular_char_df.join(
+        immunemarkers_df,
+        on=[search_index_molecular_char_df.mol_char_id == immunemarkers_df.molecular_characterization_id],
+        how='inner'
+    )
+
+    model_immunemarkers_df = model_immunemarkers_df.select(
+        "model_id", "immunemarker_name"
+    ).distinct()
+    model_immunemarkers_df = model_immunemarkers_df.groupby(
+        "model_id"
+    ).agg(collect_set("immunemarker_name").alias("immunemarkers_names"))
+
+    model_metadata_df = model_metadata_df.join(
+        model_immunemarkers_df,
+        on=[model_metadata_df.pdcm_model_id == model_immunemarkers_df.model_id],
+        how='left')
+
+    model_metadata_df = model_metadata_df.drop(model_immunemarkers_df.model_id)
 
     return model_metadata_df
 
