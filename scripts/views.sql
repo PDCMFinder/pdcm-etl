@@ -1,3 +1,45 @@
+-- molecular_characterization_vw view. In the default schema.
+CREATE OR REPLACE VIEW molecular_characterization_vw AS
+SELECT
+	mi.external_model_id AS model_id,
+	mi.data_source,
+	mol_char.source,
+	mol_char.sample_id,
+	xs.passage AS xenograft_passage,
+	mol_char.raw_data_url,
+	mol_char.data_type,
+ 	pf.instrument_model AS platform_name,
+	mol_char.id AS molecular_characterization_id,
+  external_db_links
+FROM
+(
+SELECT
+	mc.*, mct.name AS data_type,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN 'patient'
+		WHEN xenograft_sample_id IS NOT NULL THEN 'xenograft'
+		WHEN cell_sample_id IS NOT NULL THEN 'cell'
+		ELSE 'unknown'
+	END AS source,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN (SELECT model_id FROM patient_sample WHERE id = patient_sample_id)
+		WHEN xenograft_sample_id IS NOT NULL THEN (SELECT model_id FROM xenograft_sample WHERE id = xenograft_sample_id)
+		WHEN cell_sample_id IS NOT NULL THEN (SELECT model_id FROM cell_sample WHERE id = cell_sample_id)
+	END AS pdcm_model_id,
+	CASE
+		WHEN patient_sample_id IS NOT NULL THEN (SELECT external_patient_sample_id FROM patient_sample WHERE id = patient_sample_id)
+		WHEN xenograft_sample_id IS NOT NULL THEN  (SELECT external_xenograft_sample_id FROM xenograft_sample WHERE id = xenograft_sample_id)
+		WHEN cell_sample_id IS NOT NULL THEN (SELECT external_cell_sample_id FROM cell_sample WHERE id = cell_sample_id)
+		ELSE null
+	END AS sample_id
+FROM
+  molecular_characterization mc
+  JOIN molecular_characterization_type mct ON mc.molecular_characterization_type_id = mct.id
+) mol_char
+  JOIN model_information mi ON mol_char.pdcm_model_id = mi.id
+  JOIN platform pf ON pf.id = mol_char.platform_id
+  LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
+
 -- model_information view
 
 DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
@@ -226,59 +268,25 @@ AS SELECT mmd.molecular_characterization_id,
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.model_molecular_metadata CASCADE;
 
 CREATE MATERIALIZED VIEW pdcm_api.model_molecular_metadata AS
-SELECT
-	mi.external_model_id AS model_id,
-	mi.data_source,
-	mol_char.source,
-	mol_char.sample_id,
-	xs.passage AS xenograft_passage,
-	mol_char.raw_data_url,
-	mol_char.data_type,
- 	pf.instrument_model AS platform_name,
+ SELECT
+	mcv.*,
 	CASE
-		WHEN mol_char.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'biomarker'::text AND EXISTS (SELECT 1 FROM biomarker_molecular_data WHERE molecular_characterization_id=mol_char.id) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'biomarker'::text AND EXISTS (SELECT 1 FROM biomarker_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
 	END AS data_exists,
 	CASE
-		WHEN mol_char.data_type = 'mutation'::text AND (mi.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'expression'::text AND (mi.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'copy number alteration'::text AND (mi.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mol_char.data_type = 'biomarker'::text AND (mi.data_source, 'biomarker_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'mutation'::text AND (mcv.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'expression'::text AND (mcv.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'copy number alteration'::text AND (mcv.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'biomarker'::text AND (mcv.data_source, 'biomarker_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
-	END AS data_restricted,
-	mol_char.id AS molecular_characterization_id,
-    external_db_links
-FROM
-(
-SELECT
-	mc.*, mct.name AS data_type,
-	CASE
-		WHEN patient_sample_id IS NOT NULL THEN 'patient'
-		WHEN xenograft_sample_id IS NOT NULL THEN 'xenograft'
-		WHEN cell_sample_id IS NOT NULL THEN 'cell'
-		ELSE 'unknown'
-	END AS source,
-	CASE
-		WHEN patient_sample_id IS NOT NULL THEN (SELECT model_id FROM patient_sample WHERE id = patient_sample_id)
-		WHEN xenograft_sample_id IS NOT NULL THEN (SELECT model_id FROM xenograft_sample WHERE id = xenograft_sample_id)
-		WHEN cell_sample_id IS NOT NULL THEN (SELECT model_id FROM cell_sample WHERE id = cell_sample_id)
-	END AS pdcm_model_id,
-	CASE
-		WHEN patient_sample_id IS NOT NULL THEN (SELECT external_patient_sample_id FROM patient_sample WHERE id = patient_sample_id)
-		WHEN xenograft_sample_id IS NOT NULL THEN  (SELECT external_xenograft_sample_id FROM xenograft_sample WHERE id = xenograft_sample_id)
-		WHEN cell_sample_id IS NOT NULL THEN (SELECT external_cell_sample_id FROM cell_sample WHERE id = cell_sample_id)
-		ELSE null
-	END AS sample_id
-FROM
-  molecular_characterization mc
-  JOIN molecular_characterization_type mct ON mc.molecular_characterization_type_id = mct.id
-) mol_char
-  JOIN model_information mi ON mol_char.pdcm_model_id = mi.id
-  JOIN platform pf ON pf.id = mol_char.platform_id
-  LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
+	END AS data_restricted
+FROM molecular_characterization_vw mcv
+WHERE mcv.data_type != 'immunemarker'; -- immunemarker data goes in a separate section
+
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.model_molecular_metadata IS
   $$Model Molecular Metadata
@@ -457,6 +465,47 @@ COMMENT ON COLUMN pdcm_api.biomarker_data_extended.sample_id IS 'Sample identifi
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.biomarker IS 'Gene symbol';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.result IS 'Presence or absence of the biomarker';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.external_db_links IS 'Links to external resources';
+
+
+-- immunemarker_data_table view
+
+DROP VIEW IF EXISTS pdcm_api.immunemarker_data_table CASCADE;
+
+CREATE VIEW pdcm_api.immunemarker_data_table
+AS
+  SELECT imd.molecular_characterization_id,
+         imd.marker_name,
+         imd.marker_value,
+         imd.essential_or_additional_details
+  FROM   immunemarker_molecular_data imd;
+
+
+CREATE OR REPLACE VIEW pdcm_api.immunemarker_data_extended
+AS
+SELECT
+	mcv.model_id,
+	mcv.data_source,
+	mcv.source,
+	mcv.sample_id,
+	imd.marker_name,
+	imd.marker_value,
+	imd.essential_or_additional_details
+FROM   immunemarker_molecular_data imd, molecular_characterization_vw mcv
+WHERE imd.molecular_characterization_id = mcv.molecular_characterization_id;
+
+
+COMMENT ON VIEW pdcm_api.immunemarker_data_extended IS
+  $$Immunemarkers molecular data
+
+  Immunemarkers data with the model and sample it comes from.$$;
+
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.source IS '(patient, xenograft, cell)';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.marker_name IS 'Name of the immune marker';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended..marker_value IS 'Value or measurement associated with the immune marker';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.essential_or_additional_details IS 'Additional details or notes about the immune marker';
 
 -- cna_data_table view
 
