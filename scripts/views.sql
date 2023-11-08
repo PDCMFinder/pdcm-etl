@@ -504,7 +504,7 @@ COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.data_source IS 'Data sourc
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.source IS '(patient, xenograft, cell)';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.sample_id IS 'Sample identifier given by the provider';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.marker_name IS 'Name of the immune marker';
-COMMENT ON COLUMN pdcm_api.immunemarker_data_extended..marker_value IS 'Value or measurement associated with the immune marker';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.marker_value IS 'Value or measurement associated with the immune marker';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.essential_or_additional_details IS 'Additional details or notes about the immune marker';
 
 -- cna_data_table view
