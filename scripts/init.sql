@@ -888,6 +888,7 @@ CREATE TABLE search_index (
     markers_with_expression_data TEXT[],
     markers_with_biomarker_data TEXT[],
     breast_cancer_biomarkers TEXT[],
+    immunemarkers_names TEXT[],
     treatment_list TEXT[],
     model_treatment_list TEXT[],
     custom_treatment_type_list TEXT[],

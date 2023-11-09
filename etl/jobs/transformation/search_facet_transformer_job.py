@@ -83,6 +83,12 @@ facet_definitions = [
         "facet_example": "ESR1"
     },
     {
+        "facet_section": "molecular_data",
+        "facet_name": "Immunemarkers",
+        "facet_column": "immunemarkers_names",
+        "facet_example": "HLA-A"
+    },
+    {
         "facet_section": "treatment_drug_dosing",
         "facet_name": "Treatment type",
         "facet_column": "custom_treatment_type_list",

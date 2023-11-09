@@ -621,6 +621,7 @@ entities = {
             "markers_with_expression_data",
             "markers_with_biomarker_data",
             "breast_cancer_biomarkers",
+            "immunemarkers_names",
             "treatment_list",
             "model_treatment_list",
             "custom_treatment_type_list",
