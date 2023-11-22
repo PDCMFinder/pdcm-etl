@@ -47,6 +47,7 @@ def transform_immunemarkers_molecular_data(
 def get_immunemarkers_df(raw_immunemarkers_df: DataFrame) -> DataFrame:
     return raw_immunemarkers_df.select(
         "sample_id",
+        "marker_type",
         "marker_name",
         "marker_value",
         "essential_or_additional_details",

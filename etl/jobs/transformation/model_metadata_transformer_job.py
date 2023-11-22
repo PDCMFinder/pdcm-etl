@@ -190,6 +190,15 @@ def add_images_data(df: DataFrame, model_image_df: DataFrame) -> DataFrame:
 
 
 def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFrame) -> DataFrame:
+    # Changing names of the types here to avoid changing all the data
+    search_index_molecular_char_df = search_index_molecular_char_df.withColumn(
+        "molecular_characterisation_type",
+         when(
+            (col("molecular_characterisation_type") == 'biomarker'), 'bio markers')
+        .when(
+            (col("molecular_characterisation_type") == 'immunemarker'), 'immune markers')
+       .otherwise(col("molecular_characterisation_type")))
+
     model_mol_char_availability_df = search_index_molecular_char_df.groupby("model_id").agg(
         collect_set("molecular_characterisation_type").alias("dataset_available")
     )

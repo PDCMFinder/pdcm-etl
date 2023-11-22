@@ -82,7 +82,6 @@ def extract_model_resource_pair_df(model_molecular_characterization_df: DataFram
     from the `external_db_links` column.
     """
 
-    model_molecular_characterization_df.show()
     df = model_molecular_characterization_df.withColumn(
         "resources", F.expr("from_json(external_db_links, 'array<struct<resource:string>>')"))
 
