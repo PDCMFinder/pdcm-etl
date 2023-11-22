@@ -637,6 +637,7 @@ DROP TABLE IF EXISTS immunemarker_molecular_data CASCADE;
 
 CREATE TABLE immunemarker_molecular_data (
     id BIGINT NOT NULL,
+    marker_type TEXT,
     marker_name TEXT,
     marker_value TEXT,
     essential_or_additional_details TEXT,

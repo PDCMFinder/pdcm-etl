@@ -369,6 +369,7 @@ entities = {
         "spark_job": etl.jobs.transformation.immunemarker_molecular_data_transformer_job.main,
         "expected_database_columns": [
             "id",
+            "marker_type",
             "marker_name",
             "marker_value",
             "essential_or_additional_details",

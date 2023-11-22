@@ -474,6 +474,7 @@ DROP VIEW IF EXISTS pdcm_api.immunemarker_data_table CASCADE;
 CREATE VIEW pdcm_api.immunemarker_data_table
 AS
   SELECT imd.molecular_characterization_id,
+         imd.marker_type,
          imd.marker_name,
          imd.marker_value,
          imd.essential_or_additional_details
@@ -487,6 +488,7 @@ SELECT
 	mcv.data_source,
 	mcv.source,
 	mcv.sample_id,
+  imd.marker_type,
 	imd.marker_name,
 	imd.marker_value,
 	imd.essential_or_additional_details
@@ -503,6 +505,7 @@ COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.model_id IS 'Full name of 
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.data_source IS 'Data source of the model (provider abbreviation)';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.source IS '(patient, xenograft, cell)';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.sample_id IS 'Sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.marker_type IS 'Type of the immune marker';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.marker_name IS 'Name of the immune marker';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.marker_value IS 'Value or measurement associated with the immune marker';
 COMMENT ON COLUMN pdcm_api.immunemarker_data_extended.essential_or_additional_details IS 'Additional details or notes about the immune marker';
