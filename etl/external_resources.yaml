@@ -44,7 +44,7 @@ resources:
     label: "COSMIC"
     type: "Variant"
     link_building_method: "COSMICInlineLink"
-    link_template: "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=COSMIC_ID"
+    link_template: "https://cancer.sanger.ac.uk/cosmic/search?q=COSMIC_ID"
 
   - id: 6
     name: "OpenCravat (Variants)"
