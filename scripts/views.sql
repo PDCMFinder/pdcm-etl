@@ -7,7 +7,9 @@ SELECT
 	mol_char.sample_id,
 	xs.passage AS xenograft_passage,
 	mol_char.raw_data_url,
-	mol_char.data_type,
+  CASE
+    WHEN mol_char.data_type = 'biomarker' THEN 'bio markers' ELSE mol_char.data_type 
+  END AS data_type,
  	pf.instrument_model AS platform_name,
 	mol_char.id AS molecular_characterization_id,
   external_db_links
@@ -274,14 +276,14 @@ CREATE MATERIALIZED VIEW pdcm_api.model_molecular_metadata AS
 		WHEN mcv.data_type = 'mutation'::text AND EXISTS (SELECT 1 FROM mutation_measurement_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
 		WHEN mcv.data_type = 'expression'::text AND EXISTS (SELECT 1 FROM expression_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
 		WHEN mcv.data_type = 'copy number alteration'::text AND EXISTS (SELECT 1 FROM cna_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
-		WHEN mcv.data_type = 'biomarker'::text AND EXISTS (SELECT 1 FROM biomarker_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'bio markers'::text AND EXISTS (SELECT 1 FROM biomarker_molecular_data WHERE molecular_characterization_id=mcv.molecular_characterization_id) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
 	END AS data_exists,
 	CASE
 		WHEN mcv.data_type = 'mutation'::text AND (mcv.data_source, 'mutation_measurement_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		WHEN mcv.data_type = 'expression'::text AND (mcv.data_source, 'expression_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		WHEN mcv.data_type = 'copy number alteration'::text AND (mcv.data_source, 'cna_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
-		WHEN mcv.data_type = 'biomarker'::text AND (mcv.data_source, 'biomarker_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
+		WHEN mcv.data_type = 'bio markers'::text AND (mcv.data_source, 'biomarker_molecular_data') IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction) THEN 'TRUE'::text
 		ELSE 'FALSE'::text
 	END AS data_restricted
 FROM molecular_characterization_vw mcv
