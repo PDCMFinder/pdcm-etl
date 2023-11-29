@@ -26,7 +26,7 @@ def create_resources_df():
             (3, "OncoMx (Genes)", "OncoMx", "Gene", "referenceLookup", "https://oncomx.org/searchview/?gene=ENTRY_ID"),
             (4, "dbSNP (Variants)", "dbSNP", "Variant", "dbSNPInlineLink", "https://www.ncbi.nlm.nih.gov/snp/RS_ID"),
             (5, "COSMIC (Variants)", "COSMIC", "Variant", "COSMICInlineLink",
-             "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=COSMIC_ID"),
+             "https://cancer.sanger.ac.uk/cosmic/search?q=COSMIC_ID"),
             (6, "OpenCravat (Variants)", "OpenCravat", "Variant", "OpenCravatInlineLink",
              "https://run.opencravat.org/webapps/variantreport/index.html?alt_base=ALT_BASE" +
              "&chrom=chrCHROM&pos=POSITION&ref_base=REF_BASE"),

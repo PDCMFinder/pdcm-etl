@@ -2,51 +2,61 @@ treatment = [
     {
         "id": "1",
         "name": "t1",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "10",
         "name": "t1",
+        "type": "Immunotherapy",
         "data_source": "OTHER"
     },
     {
         "id": "2",
         "name": "t2",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "3",
         "name": "r1",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "4",
         "name": "r2",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "5",
         "name": "t3(r1)",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "6",
         "name": "t4(r1)",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "7",
         "name": "t5(r2)",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "8",
         "name": "t6(r2)",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     },
     {
         "id": "9",
         "name": "t7(protocol2)",
+        "type": "Immunotherapy",
         "data_source": "TRACE"
     }
 ]
