@@ -92,7 +92,7 @@ def test_add_links_in_molecular_data_table_with_aac():
 
     columns = ["id", "hgnc_symbol", "amino_acid_change", "variation_id",
                "chromosome", "seq_start_position", "alt_allele", "ref_allele"]
-    data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSM1304&COSM96871", "", "", "", ""),
+    data = [(1, "NUP58", "T315I", "rs121913512&CM002803&COSV1304&COSV96871", "", "", "", ""),
             (2, "NRAS", "Q61R", "rs123", "4", "54728055", "G", "A"),
             (3, "WEE1", "P504L", "-", "", "", "", ""),
             (4, "BRAF", "V600E", "", "", "", "", "")]
@@ -118,7 +118,7 @@ def test_add_links_in_molecular_data_table_with_aac():
         {
             "column": "amino_acid_change",
             "resource": "COSMIC",
-            "link": "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=1304"
+            "link": "https://cancer.sanger.ac.uk/cosmic/search?q=COSV1304"
         }
     ]
 
