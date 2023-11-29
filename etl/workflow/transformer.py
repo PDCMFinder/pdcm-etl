@@ -93,7 +93,8 @@ class TransformPatient(TransformEntity):
 
 class TransformPublicationGroup(TransformEntity):
     requiredTasks = [
-        ExtractModel()
+        ExtractModel(),
+        ExtractCellModel()
     ]
     entity_name = Constants.PUBLICATION_GROUP_ENTITY
 
