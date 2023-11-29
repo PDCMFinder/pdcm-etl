@@ -476,8 +476,8 @@ CREATE TABLE cna_molecular_data (
     hgnc_symbol TEXT,
     chromosome TEXT,
     strand TEXT,
-    log10r_cna TEXT,
-    log2r_cna TEXT,
+    log10r_cna NUMERIC,
+    log2r_cna NUMERIC,
     seq_start_position NUMERIC,
     seq_end_position NUMERIC,
     copy_number_status TEXT,
@@ -540,15 +540,15 @@ DROP TABLE IF EXISTS expression_molecular_data CASCADE;
 CREATE TABLE expression_molecular_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
-    z_score TEXT,
-    rnaseq_coverage TEXT,
-    rnaseq_fpkm TEXT,
-    rnaseq_tpm TEXT,
-    rnaseq_count TEXT,
+    z_score NUMERIC,
+    rnaseq_coverage NUMERIC,
+    rnaseq_fpkm NUMERIC,
+    rnaseq_tpm NUMERIC,
+    rnaseq_count NUMERIC,
     affy_hgea_probe_id TEXT,
-    affy_hgea_expression_value TEXT,
+    affy_hgea_expression_value NUMERIC,
     illumina_hgea_probe_id TEXT,
-    illumina_hgea_expression_value TEXT,
+    illumina_hgea_expression_value NUMERIC,
     ensembl_gene_id TEXT,
     ncbi_gene_id TEXT,
     non_harmonised_symbol TEXT,
@@ -632,6 +632,26 @@ COMMENT ON COLUMN mutation_measurement_data.harmonisation_result IS 'Result of t
 COMMENT ON COLUMN mutation_measurement_data.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
 COMMENT ON COLUMN mutation_measurement_data.data_source IS 'Data source (abbreviation of the provider)';
 COMMENT ON COLUMN mutation_measurement_data.external_db_links IS 'JSON column with links to external resources';
+
+DROP TABLE IF EXISTS immunemarker_molecular_data CASCADE;
+
+CREATE TABLE immunemarker_molecular_data (
+    id BIGINT NOT NULL,
+    marker_type TEXT,
+    marker_name TEXT,
+    marker_value TEXT,
+    essential_or_additional_details TEXT,
+    molecular_characterization_id BIGINT,
+    data_source TEXT
+);
+
+COMMENT ON TABLE immunemarker_molecular_data IS 'Immunemarker molecular data';
+COMMENT ON COLUMN immunemarker_molecular_data.id IS 'Internal identifier';
+COMMENT ON COLUMN immunemarker_molecular_data.marker_name IS 'Name of the immune marker';
+COMMENT ON COLUMN immunemarker_molecular_data.marker_value IS 'Value or measurement associated with the immune marker';
+COMMENT ON COLUMN immunemarker_molecular_data.essential_or_additional_details IS 'Additional details or notes about the immune marker';
+COMMENT ON COLUMN immunemarker_molecular_data.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN immunemarker_molecular_data.data_source IS 'Data source (abbreviation of the provider)';
 
 DROP TABLE IF EXISTS xenograft_model_specimen CASCADE;
 
@@ -869,6 +889,8 @@ CREATE TABLE search_index (
     markers_with_expression_data TEXT[],
     markers_with_biomarker_data TEXT[],
     breast_cancer_biomarkers TEXT[],
+    msi_status TEXT[],
+    hla_types TEXT[],
     treatment_list TEXT[],
     model_treatment_list TEXT[],
     custom_treatment_type_list TEXT[],

@@ -133,7 +133,8 @@ def find_cosmic_links(molecular_data_df: DataFrame, resource_definition):
     data_df = data_df.withColumn("column", lit(resource_definition["target_column"]))
     data_df = data_df.where("variation_id is not null and variation_id != ''")
 
-    data_links_df = data_df.withColumn("cosmic_id", regexp_extract(col('variation_id'), r'(COSM(\d+))', 2))
+    data_links_df = data_df.withColumn("cosmic_id", regexp_extract(col('variation_id'), r'(COSV\d+)', 0))
+    
     data_links_df = data_links_df.withColumn("link", lit(resource_definition["link_template"]))
     data_links_df = data_links_df.withColumn("link",
                                              when(col('cosmic_id') == '', None)

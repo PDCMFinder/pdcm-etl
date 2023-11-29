@@ -281,6 +281,16 @@ groups:
           - "variation_id"
           - "platform_id"
 
+      - name: "immunemarker"
+        type: "tsv"
+        name_patterns: [ "immunemarker/$provider_immunemarker*.tsv" ]
+        columns:
+          - "sample_id"
+          - "marker_type"
+          - "marker_name"
+          - "marker_value"
+          - "essential_or_additional_details"
+          - "platform_id"
 
 
 

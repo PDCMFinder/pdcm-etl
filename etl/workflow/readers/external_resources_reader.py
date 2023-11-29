@@ -94,7 +94,6 @@ class ReadDownloadedExternalResourcesFromCsv(PySparkTask):
             df = df.union(resource_df)
 
         df.write.mode("overwrite").parquet(output_path)
-        df.show(truncate=False)
 
     def output(self):
         return PdcmConfig().get_target(

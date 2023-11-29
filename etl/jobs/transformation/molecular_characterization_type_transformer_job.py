@@ -21,7 +21,7 @@ def main(argv):
 def create_dataframe() -> DataFrame:
     spark = SparkSession.builder.getOrCreate()
     schema = StructType([StructField("name", StringType(), False)])
-    data = [["biomarker"], ["copy number alteration"], ["mutation"], ["expression"]]
+    data = [["biomarker"], ["copy number alteration"], ["mutation"], ["expression"], ["immunemarker"]]
     return spark.createDataFrame(data=data, schema=schema)
 
 

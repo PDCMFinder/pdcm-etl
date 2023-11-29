@@ -3,7 +3,7 @@ from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
 from etl.workflow.config import PdcmConfig
-from etl.workflow.extractor import ExtractPatient, ExtractSharing, ExtractModel, \
+from etl.workflow.extractor import ExtractImmunemarker, ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractBiomarker, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
@@ -407,6 +407,14 @@ class TransformBiomarkerMolecularData(TransformEntity):
     entity_name = Constants.BIOMARKER_MOLECULAR_DATA_ENTITY
 
 
+class TransformImmunemarkerMolecularData(TransformEntity):
+    requiredTasks = [
+        ExtractImmunemarker(),
+        TransformMolecularCharacterization(),
+    ]
+    entity_name = Constants.IMMUNEMARKER_MOLECULAR_DATA_ENTITY
+
+
 class TransformExpressionMolecularData(TransformEntity):
     requiredTasks = [
         TransformInitialExpressionMolecularData(),
@@ -552,6 +560,7 @@ class TransformSearchIndexMolecularData(TransformEntity):
         TransformCnaMolecularData(),
         TransformExpressionMolecularData(),
         TransformBiomarkerMolecularData(),
+        TransformImmunemarkerMolecularData(),
         ExtractExternalResources(),
     ]
     entity_name = Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY

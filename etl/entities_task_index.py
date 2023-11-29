@@ -45,6 +45,7 @@ entities = {
     Constants.PLATFORM_ENTITY: TransformPlatform(),
     Constants.CNA_MOLECULAR_DATA_ENTITY: TransformCnaMolecularData(),
     Constants.BIOMARKER_MOLECULAR_DATA_ENTITY: TransformBiomarkerMolecularData(),
+    Constants.IMMUNEMARKER_MOLECULAR_DATA_ENTITY: TransformImmunemarkerMolecularData(),
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: TransformExpressionMolecularData(),
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: TransformMutationMeasurementData(),
     Constants.GENE_MARKER_ENTITY: TransformGeneMarker(),

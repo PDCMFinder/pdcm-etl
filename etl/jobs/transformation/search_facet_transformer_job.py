@@ -78,9 +78,21 @@ facet_definitions = [
     },
     {
         "facet_section": "molecular_data",
-        "facet_name": "Biomarkers",
+        "facet_name": "Bio markers",
         "facet_column": "markers_with_biomarker_data",
         "facet_example": "ESR1"
+    },
+    {
+        "facet_section": "molecular_data",
+        "facet_name": "MSI Status",
+        "facet_column": "msi_status",
+        "facet_example": "Stable"
+    },
+    {
+        "facet_section": "molecular_data",
+        "facet_name": "HLA types",
+        "facet_column": "hla_types",
+        "facet_example": "HLA-A"
     },
     {
         "facet_section": "treatment_drug_dosing",
