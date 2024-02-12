@@ -6,6 +6,7 @@ from pyspark.sql.functions import col
 from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
+from etl.constants import Constants
 
 
 def main(argv):
@@ -43,10 +44,17 @@ def set_fk_treatment(treatment_and_component_helper_df: DataFrame, treatment_df:
 
     treatment_and_component_helper_df = treatment_and_component_helper_df.withColumn(
         "treatment_name", lower_and_trim_all("treatment_name"))
+    treatment_and_component_helper_df = treatment_and_component_helper_df.withColumnRenamed(
+        Constants.DATA_SOURCE_COLUMN, "data_source")
     treatment_df = treatment_df.withColumn("treatment_name", lower_and_trim_all("name"))
+    treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
+  
+    cond = [treatment_and_component_helper_df.treatment_name == treatment_df.treatment_name,
+            treatment_and_component_helper_df.treatment_type == treatment_df.type,
+            treatment_and_component_helper_df.data_source == treatment_df.data_source]
+    treatment_and_component_helper_df = treatment_and_component_helper_df.join(
+        treatment_df, on=cond, how='left')
     
-    treatment_and_component_helper_df = transform_to_fk(
-        treatment_and_component_helper_df, treatment_df, "treatment_name", "treatment_name", "id", "treatment_id")
     return treatment_and_component_helper_df
 
 
