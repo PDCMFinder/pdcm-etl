@@ -42,12 +42,44 @@ FROM
   JOIN platform pf ON pf.id = mol_char.platform_id
   LEFT JOIN xenograft_sample xs ON xs.id = mol_char.xenograft_sample_id;
 
+COMMENT ON VIEW molecular_characterization_vw IS
+  $$Molecular characterization
+
+  Molecular characterization with model external ids.$$;
+
+COMMENT ON COLUMN molecular_characterization_vw.model_id IS 'Full name of the model used by provider';
+COMMENT ON COLUMN molecular_characterization_vw.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN molecular_characterization_vw.source IS 'Sample origin (patient, xenograft, cell, unknown)';
+COMMENT ON COLUMN molecular_characterization_vw.sample_id IS 'Sample external id';
+COMMENT ON COLUMN molecular_characterization_vw.xenograft_passage IS 'Unique identifier for the xenograft sample. Given by the provider';
+COMMENT ON COLUMN molecular_characterization_vw.raw_data_url IS 'Identifiers used to build links to external resources with raw data';
+COMMENT ON COLUMN molecular_characterization_vw.data_type IS 'Molecular data type';
+COMMENT ON COLUMN molecular_characterization_vw.platform_name IS 'Platform instrument_model';
+COMMENT ON COLUMN molecular_characterization_vw.molecular_characterization_id IS 'Reference to the molecular_characterization_type table';
+COMMENT ON COLUMN molecular_characterization_vw.external_db_links IS 'JSON column with links to external resources';
+
+
 -- model_information view
 
 DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
 
 CREATE VIEW pdcm_api.model_information AS
  SELECT * from model_information;
+
+COMMENT ON VIEW pdcm_api.model_information IS
+  $$Model information (without joins)
+
+  Model creation.$$;
+
+COMMENT ON COLUMN pdcm_api.model_information.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.model_information.external_model_id IS 'Unique identifier of the model. Given by the provider';
+COMMENT ON COLUMN pdcm_api.model_information.data_source IS 'Abbreviation of the provider. Added explicitly here to help with queries';
+COMMENT ON COLUMN pdcm_api.model_information.publication_group_id IS 'Reference to the publication_group table. Corresponds to the publications the model is part of';
+COMMENT ON COLUMN pdcm_api.model_information.accessibility_group_id IS 'Reference to the accessibility_group table';
+COMMENT ON COLUMN pdcm_api.model_information.contact_people_id IS 'Reference to the contact_people table';
+COMMENT ON COLUMN pdcm_api.model_information.contact_form_id IS 'Reference to the contact_form table';
+COMMENT ON COLUMN pdcm_api.model_information.source_database_id IS 'Reference to the source_database table';
+COMMENT ON COLUMN pdcm_api.model_information.license_id IS 'Reference to the license table';
 
 -- model_metadata view
 
@@ -102,7 +134,7 @@ FROM
 
 
 COMMENT ON VIEW pdcm_api.model_metadata IS
-  $$Model metadata
+  $$Model metadata (joined with other tables)
 
   Metadata associated to a model.$$;
 
@@ -173,12 +205,22 @@ DROP VIEW IF EXISTS pdcm_api.contact_people CASCADE;
 CREATE VIEW pdcm_api.contact_people AS
  SELECT * from contact_people;
 
+COMMENT ON VIEW pdcm_api.contact_people IS 'Contact information';
+COMMENT ON COLUMN pdcm_api.contact_people.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.contact_people.name_list IS 'Contact person (should match that included in email_list column)';
+COMMENT ON COLUMN pdcm_api.contact_people.email_list IS 'Contact email for any requests from users about models. If multiple, included as comma separated list';
+
+
 -- contact_form view
 
 DROP VIEW IF EXISTS pdcm_api.contact_form CASCADE;
 
 CREATE VIEW pdcm_api.contact_form AS
  SELECT * from contact_form;
+
+COMMENT ON VIEW pdcm_api.contact_form IS 'Contact form';
+COMMENT ON COLUMN pdcm_api.contact_form.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.contact_form.form_url IS 'Contact form link';
 
 -- source_database view
 
@@ -187,12 +229,20 @@ DROP VIEW IF EXISTS pdcm_api.source_database CASCADE;
 CREATE VIEW pdcm_api.source_database AS
  SELECT * from source_database;
 
+COMMENT ON VIEW pdcm_api.source_database IS 'Institution public database';
+COMMENT ON COLUMN pdcm_api.source_database.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.source_database.database_url IS 'Link of the institution public database';
+
 -- engraftment_site view
 
 DROP VIEW IF EXISTS pdcm_api.engraftment_site CASCADE;
 
 CREATE VIEW pdcm_api.engraftment_site AS
  SELECT * from engraftment_site;
+
+COMMENT ON VIEW pdcm_api.engraftment_site IS 'Organ or anatomical site used for the PDX tumour engraftment (e.g. mammary fat pad, Right flank)';
+COMMENT ON COLUMN pdcm_api.engraftment_site.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.engraftment_site.name IS 'Engraftment site';
 
 -- engraftment_type view
 
@@ -201,12 +251,20 @@ DROP VIEW IF EXISTS pdcm_api.engraftment_type CASCADE;
 CREATE VIEW pdcm_api.engraftment_type AS
  SELECT * from engraftment_type;
 
+COMMENT ON VIEW pdcm_api.engraftment_type IS 'PDX Engraftment Type: Orthotopic if the tumour was engrafted at a corresponding anatomical site (e.g. patient tumour of primary site breast was grafted in mouse mammary fat pad). If grafted subcuteanously hererotopic is used';
+COMMENT ON COLUMN pdcm_api.engraftment_type.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.engraftment_type.name IS 'Engraftment type';
+
 -- engraftment_sample_type view
 
 DROP VIEW IF EXISTS pdcm_api.engraftment_sample_type CASCADE;
 
 CREATE VIEW pdcm_api.engraftment_sample_type AS
  SELECT * from engraftment_sample_type;
+
+COMMENT ON VIEW pdcm_api.engraftment_sample_type IS 'Description of the type of  material grafted into the mouse. (e.g. tissue fragments, cell suspension)';
+COMMENT ON COLUMN pdcm_api.engraftment_sample_type.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.engraftment_sample_type.name IS 'Engraftment sample type';
 
 -- engraftment_sample_state view
 
@@ -215,12 +273,26 @@ DROP VIEW IF EXISTS pdcm_api.engraftment_sample_state CASCADE;
 CREATE VIEW pdcm_api.engraftment_sample_state AS
  SELECT * from engraftment_sample_state;
 
+COMMENT ON VIEW pdcm_api.engraftment_sample_state IS 'PDX Engraftment material state (e.g. fresh or frozen)';
+COMMENT ON COLUMN pdcm_api.engraftment_sample_state.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.engraftment_sample_state.name IS 'Engraftment sample state';
+
 -- xenograft_model_specimen view
 
 DROP VIEW IF EXISTS pdcm_api.xenograft_model_specimen CASCADE;
 
 CREATE VIEW pdcm_api.xenograft_model_specimen AS
  SELECT * from xenograft_model_specimen;
+
+COMMENT ON VIEW pdcm_api.xenograft_model_specimen IS 'Xenograft Model Specimen. Represents a Xenografted mouse that has participated in the line creation and characterisation in some meaningful way.  E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.passage_number IS 'Indicate the passage number of the sample where the PDX sample was harvested (where passage 0 corresponds to first engraftment)';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.engraftment_site_id IS 'Reference to the engraftment_site table';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.engraftment_type_id IS 'Reference to the engraftment_type table';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.engraftment_sample_type_id IS 'Reference to the engraftment_sample_type type';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.engraftment_sample_state_id IS 'Reference to the engraftment_sample_state table';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.host_strain_id IS 'Reference to the host_strain table';
+COMMENT ON COLUMN pdcm_api.xenograft_model_specimen.model_id IS 'Reference to the model_information table';
 
 -- host_strain view
 
@@ -229,6 +301,11 @@ DROP VIEW IF EXISTS pdcm_api.host_strain CASCADE;
 CREATE VIEW pdcm_api.host_strain AS
  SELECT * from host_strain;
 
+COMMENT ON VIEW pdcm_api.host_strain IS 'Host strain information';
+COMMENT ON COLUMN pdcm_api.host_strain.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.host_strain.name IS 'Host mouse strain name (e.g. NOD-SCID, NSG, etc)';
+COMMENT ON COLUMN pdcm_api.host_strain.nomenclature IS 'The full nomenclature form of the host mouse strain name';
+
 -- quality_assurance view
 
 DROP VIEW IF EXISTS pdcm_api.quality_assurance CASCADE;
@@ -236,12 +313,24 @@ DROP VIEW IF EXISTS pdcm_api.quality_assurance CASCADE;
 CREATE VIEW pdcm_api.quality_assurance AS
  SELECT * from quality_assurance;
 
+COMMENT ON VIEW pdcm_api.quality_assurance IS 'Cell Sample';
+COMMENT ON COLUMN pdcm_api.quality_assurance.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.quality_assurance.description IS 'Short description of what was compared and what was the result: (e.g. high, good, moderate concordance between xenograft, ''model validated against histological features of same diagnosis'' or ''not determined'') - It needs to be clear if the model is validated or not.';
+COMMENT ON COLUMN pdcm_api.quality_assurance.passages_tested IS 'Provide a list of all passages where validation was performed. Passage 0 correspond to first engraftment (if this is not the case please define how passages are numbered)';
+COMMENT ON COLUMN pdcm_api.quality_assurance.validation_technique IS 'Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry';
+COMMENT ON COLUMN pdcm_api.quality_assurance.validation_host_strain_nomenclature IS 'Validation host mouse strain, following mouse strain nomenclature from MGI JAX';
+COMMENT ON COLUMN pdcm_api.quality_assurance.model_id IS 'Reference to the model_information table';
+
 -- publication_group view
 
 DROP VIEW IF EXISTS pdcm_api.publication_group CASCADE;
 
 CREATE VIEW pdcm_api.publication_group AS
  SELECT * from publication_group;
+
+COMMENT ON VIEW pdcm_api.publication_group IS 'Groups of publications that are associated to one or more models';
+COMMENT ON COLUMN pdcm_api.publication_group.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.publication_group.pubmed_ids IS 'pubmed IDs separated by commas';
 
 -- mutation_data_table view
 
@@ -260,11 +349,30 @@ AS SELECT mmd.molecular_characterization_id,
           mmd.seq_start_position,
           mmd.ref_allele,
           mmd.alt_allele,
+          mmd.biotype,
           mmd.external_db_links,
+          mmd.data_source,
           ( mmd.* ) :: text AS text
    FROM   mutation_measurement_data mmd
    WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+COMMENT ON VIEW pdcm_api.mutation_data_table IS 'Mutation measurement data';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.amino_acid_change IS 'Changes in the amino acid due to the variant';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.chromosome IS 'Chromosome where the mutation occurs';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.strand IS 'Orientation of the DNA strand where a mutation is located';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.consequence IS 'Genomic consequence of this variant, for example: insertion of a codon caused frameshift variation will be considered frameshift variant ';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.read_depth IS 'Read depth, the number of times each individual base was sequenced';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.allele_frequency IS 'Allele frequency, the relative frequency of an allele in a population';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.seq_start_position IS 'Location on the genome at which the variant is found';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.ref_allele IS 'The base seen in the reference genome';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.alt_allele IS 'The base other than the reference allele seen at the locus';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.biotype IS 'Biotype of the transcript or regulatory feature eg. protein coding, non coding';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.external_db_links IS 'JSON column with links to external resources';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.data_source IS 'Data source (abbreviation of the provider)';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.text IS 'Text representation of the row';
 -- model_molecular_metadata materialized view: Model molecular metadata
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.model_molecular_metadata CASCADE;
@@ -431,10 +539,23 @@ AS
          cmd.non_harmonised_symbol,
          cmd.biomarker_status AS result,
          REPLACE(cmd.external_db_links::text, 'hgnc_symbol', 'biomarker')::json AS external_db_links,
-         ( cmd.* ) :: text AS text
+         ( cmd.* ) :: text AS text,
+         cmd.data_source
   FROM   biomarker_molecular_data cmd
   WHERE (cmd.data_source, 'biomarker_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+COMMENT ON VIEW pdcm_api.biomarker_data_table IS
+  $$Biomarker molecular data
+
+  Biomarker data with the model and sample it comes from.$$;
+
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.biomarker IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.result IS 'Presence or absence of the biomarker';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.external_db_links IS 'Links to external resources';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.text IS 'Text representation of the row';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.data_source IS 'Data source of the model (provider abbreviation)';
 
 -- biomarker_data_extended view
 
@@ -481,6 +602,13 @@ AS
          imd.marker_value,
          imd.essential_or_additional_details
   FROM   immunemarker_molecular_data imd;
+
+COMMENT ON VIEW pdcm_api.immunemarker_data_table IS 'Immunemarker molecular data';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_table.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_table.marker_type IS 'Marker type';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_table.marker_name IS 'Name of the immune marker';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_table.marker_value IS 'Value or measurement associated with the immune marker';
+COMMENT ON COLUMN pdcm_api.immunemarker_data_table.essential_or_additional_details IS 'Additional details or notes about the immune marker';
 
 
 CREATE OR REPLACE VIEW pdcm_api.immunemarker_data_extended
@@ -534,10 +662,32 @@ AS
          cnamd.harmonisation_result,
          cnamd.molecular_characterization_id,
          cnamd.external_db_links,
-         ( cnamd.* ) :: text AS text
+         ( cnamd.* ) :: text AS text,
+         cnamd.data_source
   FROM   cna_molecular_data cnamd
   WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
+COMMENT ON VIEW pdcm_api.cna_data_table IS
+  $$CNA molecular data
+
+  CNA molecular data without joins to other tables.$$;
+COMMENT ON COLUMN pdcm_api.cna_data_table.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.cna_data_table.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.cna_data_table.chromosome IS 'Chromosome where the DNA copy occurs';
+COMMENT ON COLUMN pdcm_api.cna_data_table.strand IS 'Orientation of the DNA strand associated with the observed copy number changes, whether it is the positive or negative strand';
+COMMENT ON COLUMN pdcm_api.cna_data_table.log10r_cna IS 'Log10 scaled copy number variation ratio';
+COMMENT ON COLUMN pdcm_api.cna_data_table.log2r_cna IS 'Log2 scaled copy number variation ratio';
+COMMENT ON COLUMN pdcm_api.cna_data_table.seq_start_position IS 'Starting position of a genomic sequence or region that is associated with a copy number alteration';
+COMMENT ON COLUMN pdcm_api.cna_data_table.seq_end_position IS 'Ending position of a genomic sequence or region that is associated with a copy number alteration';
+COMMENT ON COLUMN pdcm_api.cna_data_table.copy_number_status IS 'Details whether there was a gain or loss of function. Categorized into gain, loss';
+COMMENT ON COLUMN pdcm_api.cna_data_table.gistic_value IS 'Score predicted using GISTIC tool for the copy number variation';
+COMMENT ON COLUMN pdcm_api.cna_data_table.picnic_value IS 'Score predicted using PICNIC algorithm for the copy number variation';
+COMMENT ON COLUMN pdcm_api.cna_data_table.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN pdcm_api.cna_data_table.harmonisation_result IS 'Result of the symbol harmonisation process';
+COMMENT ON COLUMN pdcm_api.cna_data_table.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN pdcm_api.cna_data_table.data_source IS 'Data source (abbreviation of the provider)';
+COMMENT ON COLUMN pdcm_api.cna_data_table.external_db_links IS 'JSON column with links to external resources';
+  
 -- cna_data_extended view
 
 DROP VIEW IF EXISTS pdcm_api.cna_data_extended;
@@ -551,11 +701,11 @@ SELECT
 	mmm.sample_id,
 	cnamd.hgnc_symbol,
 	cnamd.chromosome,
-    cnamd.strand,
+  cnamd.strand,
 	cnamd.log10r_cna,
 	cnamd.log2r_cna,
 	cnamd.seq_start_position,
-    cnamd.seq_end_position,
+  cnamd.seq_end_position,
 	cnamd.copy_number_status,
 	cnamd.gistic_value,
 	cnamd.picnic_value,
@@ -574,8 +724,12 @@ COMMENT ON COLUMN pdcm_api.cna_data_extended.data_source IS 'Data source of the 
 COMMENT ON COLUMN pdcm_api.cna_data_extended.source IS '(patient, xenograft, cell)';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.sample_id IS 'Sample identifier given by the provider';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.chromosome IS 'Chromosome where the DNA copy occurs';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.strand IS 'Orientation of the DNA strand associated with the observed copy number changes, whether it is the positive or negative strand';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.log10r_cna IS 'Log10 scaled copy number variation ratio';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.log2r_cna IS 'Log2 scaled copy number variation ratio';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.seq_start_position IS 'Starting position of a genomic sequence or region that is associated with a copy number alteration';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.seq_end_position IS 'Ending position of a genomic sequence or region that is associated with a copy number alteration';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.copy_number_status IS 'Details whether there was a gain or loss of function. Categorized into gain, loss';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.gistic_value IS 'Score predicted using GISTIC tool for the copy number variation';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.picnic_value IS 'Score predicted using PICNIC algorithm for the copy number variation';
@@ -587,6 +741,10 @@ CREATE VIEW pdcm_api.molecular_data_restriction
 AS
   SELECT mdr.*
   FROM   molecular_data_restriction mdr;
+
+COMMENT ON VIEW pdcm_api.molecular_data_restriction IS 'Internal table to store molecular tables which data cannot be displayed to the user. Configured at provider level.';
+COMMENT ON COLUMN pdcm_api.molecular_data_restriction.data_source IS 'Provider with the restriction';
+COMMENT ON COLUMN pdcm_api.molecular_data_restriction.molecular_data_table IS 'Table whose data cannot be showed';
 
 -- search_index materialized view: Index to search for models
 
@@ -611,6 +769,59 @@ AS
         END as paediatric
  FROM search_index;
 
+COMMENT ON VIEW pdcm_api.search_index IS 'Helper table to show results in a search';
+COMMENT ON COLUMN pdcm_api.search_index.pdcm_model_id IS 'Internal id of the model';
+COMMENT ON COLUMN pdcm_api.search_index.external_model_id IS 'Internal of the model given by the provider';
+COMMENT ON COLUMN pdcm_api.search_index.data_source IS 'Datasource (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.search_index.project_name IS 'Project of the model';
+COMMENT ON COLUMN pdcm_api.search_index.provider_name IS 'Provider name';
+COMMENT ON COLUMN pdcm_api.search_index.model_type IS 'Type of model';
+COMMENT ON COLUMN pdcm_api.search_index.histology IS 'Harmonised patient sample diagnosis';
+COMMENT ON COLUMN pdcm_api.search_index.search_terms IS 'All diagnosis related (by ontology relations) to the model';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_system IS 'Cancer system of the model';
+COMMENT ON COLUMN pdcm_api.search_index.dataset_available IS 'List of datasets reported for the model (like cna, expression, publications, etc)';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_system IS 'Cancer system of the model';
+COMMENT ON COLUMN pdcm_api.search_index.license_name IS 'License name for the model';
+COMMENT ON COLUMN pdcm_api.search_index.license_url IS 'Url of the license';
+COMMENT ON COLUMN pdcm_api.search_index.primary_site IS 'Site of the primary tumor where primary cancer is originating from (may not correspond to the site of the current tissue sample)';
+COMMENT ON COLUMN pdcm_api.search_index.collection_site IS 'Site of collection of the tissue sample (can be different than the primary site if tumour type is metastatic).';
+COMMENT ON COLUMN pdcm_api.search_index.tumour_type IS 'Collected tumour type';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_grade IS 'The implanted tumour grade value';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_grading_system IS 'Grade classification corresponding used to describe the stage, add the version if available';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_stage IS 'Stage of the patient at the time of collection';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_staging_system IS 'Stage classification system used to describe the stage, add the version if available';
+COMMENT ON COLUMN pdcm_api.search_index.patient_age IS 'Patient age at collection';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sex IS 'Patient sex';
+COMMENT ON COLUMN pdcm_api.search_index.patient_history IS 'Cancer relevant comorbidity or environmental exposure';
+COMMENT ON COLUMN pdcm_api.search_index.patient_ethnicity IS 'Patient Ethnic group. Can be derived from self-assessment or genetic analysis';
+COMMENT ON COLUMN pdcm_api.search_index.patient_ethnicity_assessment_method IS 'Patient Ethnic group assessment method';
+COMMENT ON COLUMN pdcm_api.search_index.patient_initial_diagnosis IS 'Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section';
+COMMENT ON COLUMN pdcm_api.search_index.patient_treatment_status IS 'Patient treatment status';
+COMMENT ON COLUMN pdcm_api.search_index.patient_age_at_initial_diagnosis IS 'This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_id IS 'Patient sample identifier given by the provider';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_collection_date IS 'Date of collections. Important for understanding the time relationship between models generated for the same patient';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_collection_event IS 'Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_months_since_collection_1 IS 'The time difference between the 1st collection event and the current one (in months)';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_virology_status IS 'Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_sharable IS 'Indicates if patient treatment information is available and sharable';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_treated_at_collection IS 'Indicates if the patient was being treated for cancer (radiotherapy, chemotherapy, targeted therapy, hormono-therapy) at the time of collection';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_treated_prior_to_collection IS 'Indicates if the patient was previously treated prior to the collection (radiotherapy, chemotherapy, targeted therapy, hormono-therapy)';
+COMMENT ON COLUMN pdcm_api.search_index.pdx_model_publications IS 'Publications that are associated to one or more models (PubMed IDs separated by commas)';
+COMMENT ON COLUMN pdcm_api.search_index.quality_assurance IS 'Quality assurance data';
+COMMENT ON COLUMN pdcm_api.search_index.xenograft_model_specimens IS 'Represents a xenografted mouse that has participated in the line creation and characterisation in some meaningful way. E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data';
+COMMENT ON COLUMN pdcm_api.search_index.model_images IS 'Images associated with the model';
+COMMENT ON COLUMN pdcm_api.search_index.markers_with_cna_data IS 'Marker list in associate CNA data';
+COMMENT ON COLUMN pdcm_api.search_index.markers_with_mutation_data IS 'Marker list in associate mutation data';
+COMMENT ON COLUMN pdcm_api.search_index.markers_with_expression_data IS 'Marker list in associate expression data';
+COMMENT ON COLUMN pdcm_api.search_index.markers_with_biomarker_data IS 'Marker list in associate biomarker data';
+COMMENT ON COLUMN pdcm_api.search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
+COMMENT ON COLUMN pdcm_api.search_index.treatment_list IS 'Patient treatment data';
+COMMENT ON COLUMN pdcm_api.search_index.model_treatment_list IS 'Drug dosing data';
+COMMENT ON COLUMN pdcm_api.search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
+COMMENT ON COLUMN pdcm_api.search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
+COMMENT ON COLUMN pdcm_api.search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
+COMMENT ON COLUMN pdcm_api.search_index.scores IS 'Model characterizations scores';
+
 
 -- search_facet materialized view: Facets information
 
@@ -621,6 +832,13 @@ AS
  SELECT search_facet.*
    FROM search_facet;
 
+COMMENT ON VIEW pdcm_api.search_facet IS 'Helper table to show filter options';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_section IS 'Facet section';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_name IS 'Facet name';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_column IS 'Facet column';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_options IS 'List of possible options';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_example IS 'Facet example';
+
 -- release_info view: Name, date and list of processed providers
 
 DROP VIEW IF EXISTS pdcm_api.release_info;
@@ -629,6 +847,11 @@ CREATE VIEW pdcm_api.release_info
 AS
  SELECT release_info.*
    FROM release_info;
+
+COMMENT ON VIEW pdcm_api.release_info IS 'Table that shows columns with data per data source / molecular data table';
+COMMENT ON COLUMN pdcm_api.release_info.name IS 'Name of the release';
+COMMENT ON COLUMN pdcm_api.release_info.date IS 'Date of the release';
+COMMENT ON COLUMN pdcm_api.release_info.providers IS 'List of processed providers';
 
 
 -- provider_group view: Providers information
@@ -640,6 +863,14 @@ AS
  SELECT provider_group.*
    FROM provider_group;
 
+COMMENT ON VIEW pdcm_api.provider_group IS 'Information of data providers';
+COMMENT ON COLUMN pdcm_api.provider_group.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.provider_group.name IS 'Provider name';
+COMMENT ON COLUMN pdcm_api.provider_group.abbreviation IS 'Provider abbreviation';
+COMMENT ON COLUMN pdcm_api.provider_group.description IS 'A description of the provider';
+COMMENT ON COLUMN pdcm_api.provider_group.provider_type_id IS 'Reference to the provider type';
+COMMENT ON COLUMN pdcm_api.provider_group.project_group_id IS 'Reference to the project the provider belongs to';
+
 
 --------------------------------- Materialized Views -------------------------------------------------------------------
 
@@ -650,6 +881,11 @@ DROP MATERIALIZED VIEW IF EXISTS pdcm_api.available_molecular_data_columns;
 CREATE MATERIALIZED VIEW pdcm_api.available_molecular_data_columns
 AS SELECT available_molecular_data_columns.*
    FROM   available_molecular_data_columns;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.available_molecular_data_columns IS 'Table that shows columns with data per data source / molecular data table';
+COMMENT ON COLUMN pdcm_api.available_molecular_data_columns.data_source IS 'Data source';
+COMMENT ON COLUMN pdcm_api.available_molecular_data_columns.not_empty_cols IS 'List of columns that have data';
+COMMENT ON COLUMN pdcm_api.available_molecular_data_columns.molecular_characterization_type IS 'Type of molecular data table';
 
 -- details_molecular_data materialized view: Molecular data details and availability
 
@@ -687,6 +923,22 @@ CREATE MATERIALIZED VIEW pdcm_api.details_molecular_data AS
      LEFT JOIN xenograft_sample xs ON molecular_characterization.xenograft_sample_id = xs.id
 	 LEFT JOIN cell_sample cs ON molecular_characterization.cell_sample_id = cs.id;
 
+COMMENT ON MATERIALIZED VIEW pdcm_api.details_molecular_data IS 'Content for Molecular Data section';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.patient_sample_id IS 'Reference to the patient_sample table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.patient_model_id IS 'Model related to the patient sample. Reference to the model_information table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.xenograft_sample_id IS 'Reference to the xenograft_sample table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.xenograft_model_id IS 'Model related to the xenograft sample. Reference to the model_information table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.cell_sample_id IS 'Reference to the cell_sample table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.cell_model_id IS ' Model related to the xenograft sample. Reference to the model_information table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.raw_data_url IS 'Identifiers used to build links to external resources with raw data';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.data_type IS 'Molecular data type';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.platform_id IS 'Reference to the platform table';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.platform_name IS 'Platform instrument_model';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.data_availability IS 'Indicates if there is data for this molecular data type';
+COMMENT ON COLUMN pdcm_api.details_molecular_data.external_db_links IS 'JSON column with links to external resources';
+
+
 /*
   DATA OVERVIEW VIEWS
 */
@@ -702,6 +954,11 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_cancer AS
    FROM search_index
   GROUP BY search_index.cancer_system, search_index.histology;
 
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_cancer IS 'Count of models per diagnosis';
+COMMENT ON COLUMN pdcm_api.models_by_cancer.cancer_system IS 'Cancer system';
+COMMENT ON COLUMN pdcm_api.models_by_cancer.histology IS 'List of columns that have data';
+COMMENT ON COLUMN pdcm_api.models_by_cancer.count IS 'List of columns that have data';
+
 -- models_by_mutated_gene materialized view: Models by mutated gene
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_mutated_gene;
@@ -711,6 +968,11 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_mutated_gene AS
     count(DISTINCT search_index.pdcm_model_id) AS count
    FROM search_index
   GROUP BY mutated_gene ;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_mutated_gene IS 'Count of models per diagnosis';
+COMMENT ON COLUMN pdcm_api.models_by_cancer.cancer_system IS 'Cancer system';
+COMMENT ON COLUMN pdcm_api.models_by_cancer.histology IS 'Histology';
+COMMENT ON COLUMN pdcm_api.models_by_cancer.count IS 'Number of models';
 
 -- models_by_dataset_availability materialized view: Molecular data availability information by model
 
@@ -722,15 +984,20 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_dataset_availability AS
    FROM search_index
   GROUP BY (unnest(search_index.dataset_available));
 
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_dataset_availability IS 'Count of models per available datasets';
+COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.dataset_availability IS 'Cancer system';
+COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.count IS 'Number of models';
+
 -- dosing_studies materialized view: Treatment information linked to the model
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.dosing_studies;
 
 CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
  SELECT model_id,
-       String_agg(treatment, ' And ') treatment,
+       protocol_id,
+       string_agg(treatment, ' And ') treatment,
        response,
-       dose
+       string_agg(dose, ' + ') AS dose
 FROM   (SELECT model_id,
                protocol_id,
                ( CASE
@@ -762,8 +1029,15 @@ FROM   (SELECT model_id,
                        AND tc.treatment_id = t.id
                        AND t.data_source = m.data_source) a)b
 GROUP  BY model_id,
-          response,
-          dose;
+          protocol_id,
+          response;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.dosing_studies IS 'Dosing studies section data';
+COMMENT ON COLUMN pdcm_api.dosing_studies.model_id IS 'Reference to the model_information table';
+COMMENT ON COLUMN pdcm_api.dosing_studies.protocol_id IS 'Reference to the treatment_protocol table';
+COMMENT ON COLUMN pdcm_api.dosing_studies.treatment IS 'Treatment names';
+COMMENT ON COLUMN pdcm_api.dosing_studies.response IS 'Response to the treatment';
+COMMENT ON COLUMN pdcm_api.dosing_studies.dose IS 'Dose used';
 
 -- patient_treatment materialized view: Treatment information linked to the patient
 
@@ -771,9 +1045,10 @@ DROP MATERIALIZED VIEW IF EXISTS pdcm_api.patient_treatment;
 
 CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
  SELECT model_id,
-       String_agg(treatment, ' And ') treatment,
+       protocol_id,
+       string_agg(treatment, ' And ') treatment,
        response,
-       dose
+       string_agg(dose, ' + ') AS dose
  FROM   (SELECT model_id,
                protocol_id,
                ( CASE
@@ -808,8 +1083,15 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
                        AND tc.treatment_id = t.id
                        AND t.data_source = m.data_source) a)b
  GROUP  BY model_id,
-          response,
-          dose;
+          protocol_id,
+          response;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.patient_treatment IS 'Dosing studies section data';
+COMMENT ON COLUMN pdcm_api.patient_treatment.model_id IS 'Reference to the model_information table';
+COMMENT ON COLUMN pdcm_api.patient_treatment.protocol_id IS 'Reference to the treatment_protocol table';
+COMMENT ON COLUMN pdcm_api.patient_treatment.treatment IS 'Treatment names';
+COMMENT ON COLUMN pdcm_api.patient_treatment.response IS 'Response to the treatment';
+COMMENT ON COLUMN pdcm_api.patient_treatment.dose IS 'Dose used';
 
 -- models_by_treatment materialized view: Models by treatment
 
@@ -824,6 +1106,10 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_treatment AS
    WHERE  treatment_model.treatment NOT LIKE '% = %'
    GROUP  BY ( treatment );
 
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_treatment IS 'Dosing studies section data';
+COMMENT ON COLUMN pdcm_api.models_by_treatment.treatment IS 'Treatment name';
+COMMENT ON COLUMN pdcm_api.models_by_treatment.count IS 'Number of models';
+
 -- models_by_type materialized view: Models by type
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_type;
@@ -837,6 +1123,10 @@ FROM
 GROUP BY
   model_type;
 
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_type IS 'Dosing studies section data';
+COMMENT ON COLUMN pdcm_api.models_by_type.model_type IS 'Treatment name';
+COMMENT ON COLUMN pdcm_api.models_by_type.count IS 'Number of models';
+
 
 -- search_facet_options materialized view: Values for dropdowns/inputs in filters
 
@@ -848,6 +1138,10 @@ AS
     unnest(search_facet.facet_options) AS option
    FROM search_facet
 WITH DATA;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.search_facet_options IS 'Facet options (filters)';
+COMMENT ON COLUMN pdcm_api.search_facet_options.facet_column IS 'Facet column';
+COMMENT ON COLUMN pdcm_api.search_facet_options.option IS 'Facet value';
 
 -- patient_treatment_extended materialized view: patient treatment data + model information
 
@@ -982,6 +1276,9 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_primary_site IS
 
   Count of models by primary site$$;
 
+COMMENT ON COLUMN pdcm_api.models_by_primary_site.primary_site IS 'Primary site';
+COMMENT ON COLUMN pdcm_api.models_by_primary_site.count IS 'Number of models';
+
 -- models_by_anatomical_system_and_diagnosis materialized view: model count by anatomical system and diagnosis for Data Overview page
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_anatomical_system_and_diagnosis;
@@ -1001,6 +1298,10 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_anatomical_system_and_diagnosis 
 
   Count of models by anatomical system and diagnosis$$;
 
+COMMENT ON COLUMN pdcm_api.models_by_anatomical_system_and_diagnosis.cancer_system IS 'Cancer system';
+COMMENT ON COLUMN pdcm_api.models_by_anatomical_system_and_diagnosis.histology IS 'Histology';
+COMMENT ON COLUMN pdcm_api.models_by_anatomical_system_and_diagnosis.count IS 'Number of models';
+
 -- models_by_tumour_type materialized view: model count by tumour type for Data Overview page
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_tumour_type;
@@ -1018,6 +1319,9 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_tumour_type IS
   $$Models by tumour type
 
   Count of models by tumour type$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_tumour_type.tumour_type IS 'Tumour type';
+COMMENT ON COLUMN pdcm_api.models_by_tumour_type.count IS 'Number of models';
 
 -- models_by_patient_age materialized view: model count by patient age for Data Overview page
 
@@ -1037,6 +1341,9 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_age IS
 
   Count of models by patient age$$;
 
+COMMENT ON COLUMN pdcm_api.models_by_patient_age.patient_age IS 'Patient age';
+COMMENT ON COLUMN pdcm_api.models_by_patient_age.count IS 'Number of models';
+
 -- models_by_patient_sex materialized view: model count by patient sex for Data Overview page
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_patient_sex;
@@ -1054,6 +1361,9 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_sex IS
   $$Models by patient sex
 
   Count of models by patient sex$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_patient_sex.patient_sex IS 'Patient sex';
+COMMENT ON COLUMN pdcm_api.models_by_patient_sex.count IS 'Number of models';
 
 -- models_by_patient_ethnicity materialized view: model count by patient ethnicity for Data Overview page
 
@@ -1073,6 +1383,15 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_patient_ethnicity IS
 
   Count of models by patient ethnicity$$;
 
+COMMENT ON COLUMN pdcm_api.models_by_patient_ethnicity.patient_ethnicity IS 'Patient ethnicity';
+COMMENT ON COLUMN pdcm_api.models_by_patient_ethnicity.count IS 'Number of models';
+
+DROP MATERIALIZED VIEW IF exists pdcm_api.info;
+
 CREATE MATERIALIZED VIEW pdcm_api.info AS
  SELECT 'total_models' AS key, (SELECT COUNT(1) from search_index) AS value;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.info IS 'General metrics in key value formar';
+COMMENT ON COLUMN pdcm_api.info.key IS 'Key';
+COMMENT ON COLUMN pdcm_api.info.value IS 'Value';
 
