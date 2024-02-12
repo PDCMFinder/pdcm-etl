@@ -101,7 +101,7 @@ CREATE TABLE contact_people (
     email_list TEXT
 );
 
-COMMENT ON TABLE contact_people IS 'Groups of publications that are associated to one or more models';
+COMMENT ON TABLE contact_people IS 'Contact information';
 COMMENT ON COLUMN contact_people.id IS 'Internal identifier';
 COMMENT ON COLUMN contact_people.name_list IS 'Contact person (should match that included in email_list column)';
 COMMENT ON COLUMN contact_people.email_list IS 'Contact email for any requests from users about models. If multiple, included as comma separated list';
@@ -647,6 +647,7 @@ CREATE TABLE immunemarker_molecular_data (
 
 COMMENT ON TABLE immunemarker_molecular_data IS 'Immunemarker molecular data';
 COMMENT ON COLUMN immunemarker_molecular_data.id IS 'Internal identifier';
+COMMENT ON COLUMN immunemarker_molecular_data.marker_type IS 'Marker type';
 COMMENT ON COLUMN immunemarker_molecular_data.marker_name IS 'Name of the immune marker';
 COMMENT ON COLUMN immunemarker_molecular_data.marker_value IS 'Value or measurement associated with the immune marker';
 COMMENT ON COLUMN immunemarker_molecular_data.essential_or_additional_details IS 'Additional details or notes about the immune marker';
