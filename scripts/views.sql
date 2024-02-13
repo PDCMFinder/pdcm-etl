@@ -457,6 +457,7 @@ COMMENT ON COLUMN pdcm_api.mutation_data_extended.allele_frequency IS 'Allele fr
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.seq_start_position IS 'Location on the genome at which the variant is found';
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.ref_allele IS 'The base seen in the reference genome';
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.alt_allele IS 'The base other than the reference allele seen at the locus';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.external_db_links IS 'JSON column with links to external resources';
 
 -- expression_data_table view
 
@@ -480,6 +481,26 @@ AS
          ( emd.* ) :: text AS text
   FROM   expression_molecular_data emd
   WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
+
+COMMENT ON VIEW pdcm_api.expression_data_table IS
+  $$Expression molecular data (without joins)
+
+  Expression molecular data without joins to other tables.$$;
+
+COMMENT ON COLUMN pdcm_api.expression_data_table.molecular_characterization_id IS 'Reference to the molecular_characterization table';
+COMMENT ON COLUMN pdcm_api.expression_data_table.hgnc_symbol IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.expression_data_table.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN pdcm_api.expression_data_table.rnaseq_coverage IS 'The ratio between the number of bases of the mapped reads by the number of bases of a reference';
+COMMENT ON COLUMN pdcm_api.expression_data_table.rnaseq_fpkm IS 'Gene expression value represented in Fragments per kilo base of transcript per million mapped fragments (FPKM)';
+COMMENT ON COLUMN pdcm_api.expression_data_table.rnaseq_tpm IS 'Gene expression value represented in transcript per million (TPM)';
+COMMENT ON COLUMN pdcm_api.expression_data_table.rnaseq_count IS 'Read counts of the gene';
+COMMENT ON COLUMN pdcm_api.expression_data_table.affy_hgea_probe_id IS 'Affymetrix probe identifier';
+COMMENT ON COLUMN pdcm_api.expression_data_table.affy_hgea_expression_value IS 'Expresion value captured using Affymetrix arrays';
+COMMENT ON COLUMN pdcm_api.expression_data_table.illumina_hgea_probe_id IS 'Illumina probe identifier';
+COMMENT ON COLUMN pdcm_api.expression_data_table.illumina_hgea_expression_value IS 'Expresion value captured using Illumina arrays';
+COMMENT ON COLUMN pdcm_api.expression_data_table.z_score IS 'Z-score representing the gene expression level';
+COMMENT ON COLUMN pdcm_api.expression_data_table.external_db_links IS 'Links to external resources';
+COMMENT ON COLUMN pdcm_api.expression_data_table.text IS 'Text representation of the row';
 
 -- expression_data_extended view
 
@@ -586,6 +607,7 @@ COMMENT ON COLUMN pdcm_api.biomarker_data_extended.data_source IS 'Data source o
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.source IS '(patient, xenograft, cell)';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.sample_id IS 'Sample identifier given by the provider';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.biomarker IS 'Gene symbol';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.non_harmonised_symbol IS 'Original symbol as reported by the provider';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.result IS 'Presence or absence of the biomarker';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.external_db_links IS 'Links to external resources';
 
@@ -685,6 +707,7 @@ COMMENT ON COLUMN pdcm_api.cna_data_table.picnic_value IS 'Score predicted using
 COMMENT ON COLUMN pdcm_api.cna_data_table.non_harmonised_symbol IS 'Original symbol as reported by the provider';
 COMMENT ON COLUMN pdcm_api.cna_data_table.harmonisation_result IS 'Result of the symbol harmonisation process';
 COMMENT ON COLUMN pdcm_api.cna_data_table.molecular_characterization_id IS 'Reference to the molecular_characterization_ table';
+COMMENT ON COLUMN pdcm_api.cna_data_table.text IS 'Text representation of the row';
 COMMENT ON COLUMN pdcm_api.cna_data_table.data_source IS 'Data source (abbreviation of the provider)';
 COMMENT ON COLUMN pdcm_api.cna_data_table.external_db_links IS 'JSON column with links to external resources';
   
@@ -815,12 +838,16 @@ COMMENT ON COLUMN pdcm_api.search_index.markers_with_mutation_data IS 'Marker li
 COMMENT ON COLUMN pdcm_api.search_index.markers_with_expression_data IS 'Marker list in associate expression data';
 COMMENT ON COLUMN pdcm_api.search_index.markers_with_biomarker_data IS 'Marker list in associate biomarker data';
 COMMENT ON COLUMN pdcm_api.search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
+COMMENT ON COLUMN pdcm_api.search_index.msi_status IS 'MSI status';
+COMMENT ON COLUMN pdcm_api.search_index.hla_types IS 'HLA types';
 COMMENT ON COLUMN pdcm_api.search_index.treatment_list IS 'Patient treatment data';
 COMMENT ON COLUMN pdcm_api.search_index.model_treatment_list IS 'Drug dosing data';
 COMMENT ON COLUMN pdcm_api.search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
 COMMENT ON COLUMN pdcm_api.search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
 COMMENT ON COLUMN pdcm_api.search_index.scores IS 'Model characterizations scores';
+COMMENT ON COLUMN pdcm_api.search_index.model_dataset_type_count IS 'The number of datasets for which data exists';
+COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric';
 
 
 -- search_facet materialized view: Facets information
