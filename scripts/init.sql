@@ -946,13 +946,15 @@ COMMENT ON COLUMN search_index.markers_with_mutation_data IS 'Marker list in ass
 COMMENT ON COLUMN search_index.markers_with_expression_data IS 'Marker list in associate expression data';
 COMMENT ON COLUMN search_index.markers_with_biomarker_data IS 'Marker list in associate biomarker data';
 COMMENT ON COLUMN search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
+COMMENT ON COLUMN search_index.msi_status IS 'MSI status';
+COMMENT ON COLUMN search_index.hla_types IS 'HLA types';
 COMMENT ON COLUMN search_index.treatment_list IS 'Patient treatment data';
 COMMENT ON COLUMN search_index.model_treatment_list IS 'Drug dosing data';
 COMMENT ON COLUMN search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
 COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
-
 COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
+
 
 DROP TABLE IF EXISTS search_facet CASCADE;
 
