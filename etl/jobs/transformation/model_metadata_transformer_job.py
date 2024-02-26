@@ -107,6 +107,12 @@ def get_formatted_model(
         "publications",
         "license_name",
         "license_url",
+        "related_models",
+        "external_ids",
+        "supplier_type",
+        "catalog_number",
+        "vendor_link",
+        "rrid",
         Constants.DATA_SOURCE_COLUMN
     )
     return model_df
@@ -120,7 +126,13 @@ def add_quality_assurance_data(df: DataFrame, quality_assurance_df: DataFrame) -
                lit("\"description\": "), lit("\""), col("description"), lit("\", "),
                lit("\"passages_tested\": "), lit("\""), col("passages_tested"), lit("\", "),
                lit("\"validation_host_strain_nomenclature\": "),
-               lit("\""), col("validation_host_strain_nomenclature"), lit("\""),
+               lit("\""), col("validation_host_strain_nomenclature"), lit("\", "),
+               lit("\"morphological_features\": "), lit("\""), col("morphological_features"), lit("\", "),
+               lit("\"histological_validation\": "), lit("\""), col("histological_validation"), lit("\", "),
+               lit("\"SNP_analysis\": "), lit("\""), col("SNP_analysis"), lit("\", "),
+               lit("\"STR_analysis\": "), lit("\""), col("STR_analysis"), lit("\", "),
+               lit("\"tumour_status\": "), lit("\""), col("tumour_status"), lit("\", "),
+               lit("\"tumour_status\": "), lit("\""), col("tumour_status"), lit("\""),
                concat(lit("}"))))
 
     quality_data_per_model_df = quality_assurance_df.groupby("model_id").agg(
@@ -251,8 +263,8 @@ def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
     model_df = model_df.withColumn(
         "tmp_patient_treatment_status",
         when(
-            lower(col("patient_treatment_status")).isin('not provided', 'not treatment naive'), None)
-        .otherwise(col("patient_treatment_status")))
+            lower(col("treatment_naive_at_collection")).isin('not provided', 'no'), None)
+        .otherwise(col("treatment_naive_at_collection")))
 
     # Make patient_treatment_status an array
     model_df = model_df.withColumn("tmp_patient_treatment_status", split(col("tmp_patient_treatment_status"), ","))

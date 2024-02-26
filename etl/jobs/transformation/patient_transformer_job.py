@@ -41,7 +41,6 @@ def transform_patient(
     patient_df = set_fk_provider_group(patient_df, provider_group_df)
     patient_df = set_external_id(patient_df)
     patient_df = add_id(patient_df, "id")
-    patient_df = get_columns_expected_order(patient_df)
     return patient_df
 
 
@@ -69,24 +68,6 @@ def set_fk_provider_group(patient_df: DataFrame, provider_group_df: DataFrame) -
 
 def set_external_id(patient_df: DataFrame) -> DataFrame:
     return patient_df.withColumnRenamed("patient_id", "external_patient_id")
-
-
-def get_columns_expected_order(patient_df: DataFrame) -> DataFrame:
-    return patient_df.select(
-        "id",
-        "external_patient_id",
-        "sex",
-        "history",
-        "ethnicity_id",
-        "patient_ethnicity",
-        "ethnicity_assessment_method",
-        "initial_diagnosis",
-        "age_at_initial_diagnosis",
-        "provider_group_id",
-        "provider_name",
-        "provider_abbreviation",
-        "project_group_name",
-        Constants.DATA_SOURCE_COLUMN)
 
 
 if __name__ == "__main__":

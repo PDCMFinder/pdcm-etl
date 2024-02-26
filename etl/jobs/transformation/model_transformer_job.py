@@ -78,15 +78,16 @@ def transform_model(
 
 
 def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
-    model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+    model_df = raw_model_df.select(
+        "model_id", "publications", "related_models", "external_ids", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumn("type", lit("PDX"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
 
-    cell_model_df = raw_cell_model_df.select("model_id", "publications", "type", Constants.DATA_SOURCE_COLUMN)
+    cell_model_df = raw_cell_model_df.select(
+        "model_id", "publications", "related_models", "external_ids", "type", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     cell_model_df = cell_model_df.withColumn("type", lower_and_trim_all("type"))
-    cell_model_df = cell_model_df.select(
-        "model_id", "publications", Constants.DATA_SOURCE_COLUMN, "type").drop_duplicates()
     cell_model_df = cell_model_df.withColumnRenamed("model_id", "external_model_id")
+    
     # Standardise some of the model type values
     cell_model_df = cell_model_df.withColumn(
         "type",
@@ -96,6 +97,13 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
     )
 
     union_df = model_df.union(cell_model_df)
+
+    # TODO: Remove these artificially added columns once they are available in the pdx model sheet
+    union_df = union_df.withColumn("supplier_type", lit(""))
+    union_df = union_df.withColumn("catalog_number", lit(""))
+    union_df = union_df.withColumn("vendor_link", lit(""))
+    union_df = union_df.withColumn("rrid", lit(""))
+
     return union_df
 
 
@@ -183,7 +191,14 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "type",
         "license_id",
         "license_name",
-        "license_url")
+        "license_url",
+        "related_models",
+        "external_ids",
+        "supplier_type",
+        "catalog_number",
+        "vendor_link",
+        "rrid"
+        )
 
 
 if __name__ == "__main__":

@@ -55,7 +55,12 @@ CREATE TABLE patient (
     ethnicity_assessment_method TEXT,
     initial_diagnosis TEXT,
     age_at_initial_diagnosis TEXT,
-    provider_group_id BIGINT
+    provider_group_id BIGINT,
+    age_category TEXT,
+    smoking_status TEXT,
+    alcohol_status TEXT,
+    alcohol_frequency TEXT,
+    family_history_of_cancer TEXT
 );
 
 COMMENT ON TABLE patient IS 'Information about a patient';
@@ -68,6 +73,12 @@ COMMENT ON COLUMN patient.ethnicity_assessment_method IS 'Patient Ethnic group a
 COMMENT ON COLUMN patient.initial_diagnosis IS 'Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section';
 COMMENT ON COLUMN patient.age_at_initial_diagnosis IS 'This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant';
 COMMENT ON COLUMN patient.provider_group_id IS 'Reference to the provider group the patient is related to';
+COMMENT ON COLUMN patient.age_category IS 'Age category at time of sampling';
+COMMENT ON COLUMN patient.smoking_status IS 'Patient smoking history';
+COMMENT ON COLUMN patient.alcohol_status IS 'Alcohol intake of the patient, self-reported';
+COMMENT ON COLUMN patient.alcohol_frequency IS 'The average number of days per week on which the patient consumes alcohol, self-reported';
+COMMENT ON COLUMN patient.family_history_of_cancer IS 'If a first-degree relative of the patient has been diagnosed with a cancer of the same or different type';
+
 
 DROP TABLE IF EXISTS publication_group CASCADE;
 
@@ -139,7 +150,13 @@ CREATE TABLE model_information (
     contact_people_id BIGINT,
     contact_form_id BIGINT,
     source_database_id BIGINT,
-    license_id BIGINT
+    license_id BIGINT,
+    related_models TEXT,
+    external_ids TEXT,
+    supplier_type TEXT,
+    catalog_number TEXT,
+    vendor_link TEXT,
+    rrid TEXT
 );
 
 COMMENT ON TABLE model_information IS 'Model creation information';
@@ -152,6 +169,13 @@ COMMENT ON COLUMN model_information.contact_people_id IS 'Reference to the conta
 COMMENT ON COLUMN model_information.contact_form_id IS 'Reference to the contact_form table';
 COMMENT ON COLUMN model_information.source_database_id IS 'Reference to the source_database table';
 COMMENT ON COLUMN model_information.license_id IS 'Reference to the license table';
+
+COMMENT ON COLUMN model_information.related_models IS 'Model_ids of any related models linked to the same patient.';
+COMMENT ON COLUMN model_information.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
+COMMENT ON COLUMN model_information.supplier_type IS 'Model supplier type - commercial, academic, other';
+COMMENT ON COLUMN model_information.catalog_number IS 'Catalogue number of cell model, if commercial';
+COMMENT ON COLUMN model_information.vendor_link IS 'Link to purchasable cell model, if commercial';
+COMMENT ON COLUMN model_information.rrid IS 'Cellosaurus ID';
 
 DROP TABLE IF EXISTS license CASCADE;
 
@@ -170,28 +194,44 @@ DROP TABLE IF EXISTS cell_model CASCADE;
 
 CREATE TABLE cell_model (
     id BIGINT NOT NULL,
-    name TEXT,
+    model_name TEXT,
+    model_name_aliases TEXT,
     type TEXT,
     growth_properties TEXT,
+    growth_media TEXT,
+    media_id TEXT,
     parent_id TEXT,
     origin_patient_sample_id TEXT,
-    comments TEXT,
     model_id BIGINT,
-    supplier TEXT,
-    external_ids TEXT
+    plate_coating TEXT,
+    other_plate_coating TEXT,
+    passage_number TEXT,
+    contaminated TEXT,
+    contamination_details TEXT,
+    supplements TEXT,
+    drug TEXT,
+    drug_concentration TEXT
 );
 
 COMMENT ON TABLE cell_model IS 'Cell model';
 COMMENT ON COLUMN cell_model.id IS 'Internal identifier';
-COMMENT ON COLUMN cell_model.name IS 'Unique identifier for all the cancer models derived from the same tissue sample';
+COMMENT ON COLUMN cell_model.model_name IS 'Most common name associate with model. Please use the CCLE name if available';
+COMMENT ON COLUMN cell_model.model_name_aliases IS 'model_name_aliases';
 COMMENT ON COLUMN cell_model.type IS 'Type of organoid or cell model';
 COMMENT ON COLUMN cell_model.growth_properties IS 'Observed growth properties of the related model';
+COMMENT ON COLUMN cell_model.growth_media IS 'Base media formulation the model was grown in';
+COMMENT ON COLUMN cell_model.media_id IS 'Unique identifier for each media formulation (Catalogue number)';
 COMMENT ON COLUMN cell_model.parent_id IS 'model Id of the model used to generate the model';
 COMMENT ON COLUMN cell_model.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
-COMMENT ON COLUMN cell_model.comments IS 'Comments about the model that cannot be expressed by other fields';
 COMMENT ON COLUMN cell_model.model_id IS 'Reference to model_information_table';
-COMMENT ON COLUMN cell_model.supplier IS 'Supplier brief acronym or name followed by a colon and the number or name use to reference the model';
-COMMENT ON COLUMN cell_model.external_ids IS 'DepMap accession, Cellusaurus accession or other id. Comma separated list';
+COMMENT ON COLUMN cell_model.plate_coating IS 'Coating on plate model was grown in';
+COMMENT ON COLUMN cell_model.other_plate_coating IS 'Other coating on plate model was grown in (not mentioned above)';
+COMMENT ON COLUMN cell_model.passage_number IS 'Passage number at time of sequencing/screening';
+COMMENT ON COLUMN cell_model.contaminated IS 'Is there contamination present in the model';
+COMMENT ON COLUMN cell_model.contamination_details IS 'What are the details of the contamination';
+COMMENT ON COLUMN cell_model.supplements IS 'Additional supplements the model was grown with';
+COMMENT ON COLUMN cell_model.drug IS 'Additional drug/compounds the model was grown with';
+COMMENT ON COLUMN cell_model.drug_concentration IS 'Concentration of Additional drug/compounds the model was grown with';
 
 DROP TABLE IF EXISTS cell_sample CASCADE;
 
@@ -216,7 +256,14 @@ CREATE TABLE quality_assurance (
     passages_tested TEXT,
     validation_technique TEXT,
     validation_host_strain_nomenclature TEXT,
-    model_id BIGINT NOT NULL
+    model_id BIGINT NOT NULL,
+    morphological_features TEXT,
+    histological_validation TEXT,
+    SNP_analysis TEXT,
+    STR_analysis TEXT,
+    tumour_status TEXT,
+    model_purity TEXT,
+    comments TEXT
 );
 
 COMMENT ON TABLE quality_assurance IS 'Cell Sample';
@@ -226,6 +273,13 @@ COMMENT ON COLUMN quality_assurance.passages_tested IS 'Provide a list of all pa
 COMMENT ON COLUMN quality_assurance.validation_technique IS 'Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry';
 COMMENT ON COLUMN quality_assurance.validation_host_strain_nomenclature IS 'Validation host mouse strain, following mouse strain nomenclature from MGI JAX';
 COMMENT ON COLUMN quality_assurance.model_id IS 'Reference to the model_information table';
+COMMENT ON COLUMN quality_assurance.morphological_features IS 'Morphological features of the model';
+COMMENT ON COLUMN quality_assurance.histological_validation IS 'Immunofluorescent or immunohistochemical validation of the model';
+COMMENT ON COLUMN quality_assurance.SNP_analysis IS 'Was SNP analysis done on the model?';
+COMMENT ON COLUMN quality_assurance.STR_analysis IS 'Was STR analysis done on the model?';
+COMMENT ON COLUMN quality_assurance.tumour_status IS 'Gene expression validation of established model';
+COMMENT ON COLUMN quality_assurance.model_purity IS 'Presence of tumour vs stroma or normal cells';
+COMMENT ON COLUMN quality_assurance.comments IS 'Comments about the model that cannot be expressed by other fields';
 
 DROP TABLE IF EXISTS tissue CASCADE;
 
@@ -267,9 +321,15 @@ CREATE TABLE patient_sample (
     age_in_years_at_collection TEXT,
     collection_event TEXT,
     collection_date TEXT,
+    collection_method TEXT,
     months_since_collection_1 TEXT,
+    gene_mutation_status TEXT,
     treatment_naive_at_collection TEXT,
+    treated_at_collection TEXT,
+    treated_prior_to_collection TEXT,
+    response_to_treatment TEXT,
     virology_status TEXT,
+    sharable TEXT,
     model_id BIGINT
 );
 
@@ -289,8 +349,13 @@ COMMENT ON COLUMN patient_sample.tumour_type_id IS 'Reference to the tumour_type
 COMMENT ON COLUMN patient_sample.age_in_years_at_collection IS 'Patient age at collection';
 COMMENT ON COLUMN patient_sample.collection_event IS 'Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1';
 COMMENT ON COLUMN patient_sample.collection_date IS 'Date of collections. Important for understanding the time relationship between models generated for the same patient';
+COMMENT ON COLUMN patient_sample.collection_method IS 'Method of collection of the tissue sample';
 COMMENT ON COLUMN patient_sample.months_since_collection_1 IS 'The time difference between the 1st collection event and the current one (in months)';
+COMMENT ON COLUMN patient_sample.gene_mutation_status IS 'Outcome of mutational status tests for the following genes: BRAF, PIK3CA, PTEN, KRAS';
 COMMENT ON COLUMN patient_sample.treatment_naive_at_collection IS 'Was the patient treatment naive at the time of collection? This includes the patient being treated at the time of tumour sample collection and if the patient was treated prior to the tumour sample collection.\nThe value will be ''yes'' if either treated_at_collection or treated_prior_to_collection are ''yes''';
+COMMENT ON COLUMN patient_sample.treated_at_collection IS 'Was the patient being treated for cancer at the time of tumour sample collection.';
+COMMENT ON COLUMN patient_sample.treated_prior_to_collection IS 'Was the patient treated prior to the tumour sample collection.';
+COMMENT ON COLUMN patient_sample.response_to_treatment IS 'Patient’s response to treatment.';
 COMMENT ON COLUMN patient_sample.virology_status IS 'Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status';
 COMMENT ON COLUMN patient_sample.model_id IS 'Reference to the model_information table';
 
@@ -852,6 +917,12 @@ CREATE TABLE search_index (
     project_name TEXT,
     provider_name TEXT,
     model_type TEXT,
+    supplier_type TEXT,
+    catalog_number TEXT,
+    vendor_link TEXT,
+    rrid TEXT,
+    related_models TEXT,
+    external_ids TEXT,
     histology TEXT,
     search_terms TEXT[],
     cancer_system TEXT,
@@ -866,21 +937,25 @@ CREATE TABLE search_index (
     cancer_stage TEXT,
     cancer_staging_system TEXT,
     patient_age TEXT,
+    patient_age_category TEXT,
     patient_sex TEXT,
     patient_history TEXT,
     patient_ethnicity TEXT,
     patient_ethnicity_assessment_method TEXT,
     patient_initial_diagnosis TEXT,
-    patient_treatment_status TEXT,
     patient_age_at_initial_diagnosis TEXT,
     patient_sample_id TEXT,
     patient_sample_collection_date TEXT,
     patient_sample_collection_event TEXT,
+    patient_sample_collection_method TEXT,
     patient_sample_months_since_collection_1 TEXT,
+    patient_sample_gene_mutation_status TEXT,
     patient_sample_virology_status TEXT,
     patient_sample_sharable TEXT,
+    patient_sample_treatment_naive_at_collection TEXT,
     patient_sample_treated_at_collection TEXT,
     patient_sample_treated_prior_to_collection TEXT,
+    patient_sample_response_to_treatment TEXT,
     pdx_model_publications TEXT,
     quality_assurance JSON,
     xenograft_model_specimens JSON,
@@ -907,6 +982,12 @@ COMMENT ON COLUMN search_index.data_source IS 'Datasource (provider abbreviation
 COMMENT ON COLUMN search_index.project_name IS 'Project of the model';
 COMMENT ON COLUMN search_index.provider_name IS 'Provider name';
 COMMENT ON COLUMN search_index.model_type IS 'Type of model';
+COMMENT ON COLUMN search_index.supplier_type IS 'Model supplier type - commercial, academic, other';
+COMMENT ON COLUMN search_index.catalog_number IS 'Catalogue number of cell model, if commercial';
+COMMENT ON COLUMN search_index.vendor_link IS 'Link to purchasable cell model, if commercial';
+COMMENT ON COLUMN search_index.rrid IS 'Cellosaurus ID';
+COMMENT ON COLUMN search_index.related_models IS 'Model_ids of any related models linked to the same patient.';
+COMMENT ON COLUMN search_index.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
 COMMENT ON COLUMN search_index.histology IS 'Harmonised patient sample diagnosis';
 COMMENT ON COLUMN search_index.search_terms IS 'All diagnosis related (by ontology relations) to the model';
 COMMENT ON COLUMN search_index.cancer_system IS 'Cancer system of the model';
@@ -922,21 +1003,24 @@ COMMENT ON COLUMN search_index.cancer_grading_system IS 'Grade classification co
 COMMENT ON COLUMN search_index.cancer_stage IS 'Stage of the patient at the time of collection';
 COMMENT ON COLUMN search_index.cancer_staging_system IS 'Stage classification system used to describe the stage, add the version if available';
 COMMENT ON COLUMN search_index.patient_age IS 'Patient age at collection';
+COMMENT ON COLUMN search_index.patient_age_category IS 'Age category at the time of sampling';
 COMMENT ON COLUMN search_index.patient_sex IS 'Patient sex';
 COMMENT ON COLUMN search_index.patient_history IS 'Cancer relevant comorbidity or environmental exposure';
 COMMENT ON COLUMN search_index.patient_ethnicity IS 'Patient Ethnic group. Can be derived from self-assessment or genetic analysis';
 COMMENT ON COLUMN search_index.patient_ethnicity_assessment_method IS 'Patient Ethnic group assessment method';
 COMMENT ON COLUMN search_index.patient_initial_diagnosis IS 'Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section';
-COMMENT ON COLUMN search_index.patient_treatment_status IS 'Patient treatment status';
 COMMENT ON COLUMN search_index.patient_age_at_initial_diagnosis IS 'This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant';
 COMMENT ON COLUMN search_index.patient_sample_id IS 'Patient sample identifier given by the provider';
 COMMENT ON COLUMN search_index.patient_sample_collection_date IS 'Date of collections. Important for understanding the time relationship between models generated for the same patient';
 COMMENT ON COLUMN search_index.patient_sample_collection_event IS 'Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1';
+COMMENT ON COLUMN search_index.patient_sample_collection_method IS 'Method of collection of the tissue sample';
 COMMENT ON COLUMN search_index.patient_sample_months_since_collection_1 IS 'The time difference between the 1st collection event and the current one (in months)';
+COMMENT ON COLUMN search_index.patient_sample_gene_mutation_status IS 'Outcome of mutational status tests for the following genes: BRAF, PIK3CA, PTEN, KRAS';
 COMMENT ON COLUMN search_index.patient_sample_virology_status IS 'Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status';
 COMMENT ON COLUMN search_index.patient_sample_sharable IS 'Indicates if patient treatment information is available and sharable';
 COMMENT ON COLUMN search_index.patient_sample_treated_at_collection IS 'Indicates if the patient was being treated for cancer (radiotherapy, chemotherapy, targeted therapy, hormono-therapy) at the time of collection';
 COMMENT ON COLUMN search_index.patient_sample_treated_prior_to_collection IS 'Indicates if the patient was previously treated prior to the collection (radiotherapy, chemotherapy, targeted therapy, hormono-therapy)';
+COMMENT ON COLUMN search_index.patient_sample_response_to_treatment IS 'Patient’s response to treatment.';
 COMMENT ON COLUMN search_index.pdx_model_publications IS 'Publications that are associated to one or more models (PubMed IDs separated by commas)';
 COMMENT ON COLUMN search_index.quality_assurance IS 'Quality assurance data';
 COMMENT ON COLUMN search_index.xenograft_model_specimens IS 'Represents a xenografted mouse that has participated in the line creation and characterisation in some meaningful way. E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data';
