@@ -33,7 +33,6 @@ column_weights = {
     "cancer_grading_system": 0,
     "patient_sample_virology_status": 0,
     "patient_sample_sharable": 0,
-    "patient_treatment_status": 1,
     "patient_sample_treated_at_collection": 0.5,
     "patient_sample_treated_prior_to_collection": 0.5,
     "pdx_model_publications": 0,

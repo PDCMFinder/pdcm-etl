@@ -86,19 +86,6 @@ def transform_search_index_patient_sample(
 
     bin_age_udf = udf(_bin_age, StringType())
     patient_sample_ext_df = patient_sample_ext_df.withColumn("patient_age", bin_age_udf("patient_age"))
-
-    patient_sample_ext_df = patient_sample_ext_df.withColumn(
-        "patient_treatment_status",
-        when(
-            lower(col("treatment_naive_at_collection")) == "yes",
-            lit("Treatment naive"),
-        )
-        .when(
-            lower(col("treatment_naive_at_collection")) == "no",
-            lit("Not treatment naive"),
-        )
-        .otherwise(lit(Constants.NOT_PROVIDED_VALUE)),
-    )
     patient_sample_ext_df = patient_sample_ext_df.withColumnRenamed("model_id", "pdcm_model_id")
     patient_sample_ext_df = get_expected_columns(patient_sample_ext_df)
 
@@ -113,6 +100,7 @@ def get_formatted_patient_sample(patient_sample_df: DataFrame) -> DataFrame:
     patient_sample_df = patient_sample_df.withColumnRenamed("stage", "cancer_stage")
     patient_sample_df = patient_sample_df.withColumnRenamed("staging_system", "cancer_staging_system")
     patient_sample_df = patient_sample_df.withColumnRenamed("age_in_years_at_collection", "patient_age")
+    
     return patient_sample_df
 
 
@@ -120,6 +108,7 @@ def get_formatted_patient_sample(patient_sample_df: DataFrame) -> DataFrame:
 def get_formatted_patient(patient_df: DataFrame) -> DataFrame:
     # Renaming columns
     patient_df = patient_df.withColumnRenamed("sex", "patient_sex")
+    patient_df = patient_df.withColumnRenamed("age_category", "patient_age_category")
     patient_df = patient_df.withColumn(
         "patient_sex",
         when(lower(col("patient_sex")).contains("not"), Constants.NOT_PROVIDED_VALUE).otherwise(
@@ -128,7 +117,7 @@ def get_formatted_patient(patient_df: DataFrame) -> DataFrame:
     )
 
     patient_df = patient_df.select(
-        "id", "patient_sex", "history", "initial_diagnosis", "age_at_initial_diagnosis", "provider_name",
+        "id", "patient_sex", "history", "initial_diagnosis", "age_at_initial_diagnosis", "patient_age_category", "provider_name",
         "patient_ethnicity", "ethnicity_assessment_method", "project_group_name")
     patient_df = patient_df.withColumnRenamed("id", "patient_internal_id")
     return patient_df
@@ -198,6 +187,7 @@ def get_expected_columns(patient_sample_ext_df: DataFrame) -> DataFrame:
         "prior_treatment",
         "tumour_type",
         "patient_age",
+        "patient_age_category",
         "patient_sex",
         "histology",
         "history",
@@ -207,12 +197,15 @@ def get_expected_columns(patient_sample_ext_df: DataFrame) -> DataFrame:
         "patient_ethnicity",
         "ethnicity_assessment_method",
         "project_group_name",
-        "patient_treatment_status",
         "collection_event",
         "collection_date",
+        "collection_method",
         "months_since_collection_1",
+        "gene_mutation_status",
         "treatment_naive_at_collection",
         "treated_at_collection",
+        "treated_prior_to_collection",
+        "response_to_treatment",
         "virology_status",
         "sharable",
         "term_name",
