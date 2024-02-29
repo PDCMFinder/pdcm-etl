@@ -63,6 +63,7 @@ def transform_model(
         contact_form_df: DataFrame,
         source_database_df: DataFrame,
         license_df: DataFrame) -> DataFrame:
+
     model_df = get_data_from_model_modules(raw_model_df, raw_cell_model_df)
     model_df = join_model_with_sharing(model_df, raw_sharing_df)
     model_df = add_id(model_df, "id")
@@ -96,7 +97,7 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
         .otherwise(lit("other"))
     )
 
-    union_df = model_df.union(cell_model_df)
+    union_df = model_df.unionByName(cell_model_df)
 
     # TODO: Remove these artificially added columns once they are available in the pdx model sheet
     union_df = union_df.withColumn("supplier_type", lit(""))
