@@ -31,16 +31,6 @@ def main(argv):
 def transform_quality_assurance(raw_model_validation_df: DataFrame, model_df: DataFrame) -> DataFrame:
     quality_assurance_df = extract_model_validation(raw_model_validation_df)
     quality_assurance_df = set_fk_model(quality_assurance_df, model_df)
-    
-    # TODO: Remove these artificially added columns once they are available in the model_validation sheet
-    quality_assurance_df = quality_assurance_df.withColumn("morphological_features", lit(""))
-    quality_assurance_df = quality_assurance_df.withColumn("histological_validation", lit(""))
-    quality_assurance_df = quality_assurance_df.withColumn("SNP_analysis", lit(""))
-    quality_assurance_df = quality_assurance_df.withColumn("STR_analysis", lit(""))
-    quality_assurance_df = quality_assurance_df.withColumn("tumour_status", lit(""))
-    quality_assurance_df = quality_assurance_df.withColumn("model_purity", lit(""))
-    quality_assurance_df = quality_assurance_df.withColumn("comments", lit(""))
-    
     quality_assurance_df = add_id(quality_assurance_df, "id")
     return quality_assurance_df
 

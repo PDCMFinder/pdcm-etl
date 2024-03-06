@@ -181,7 +181,6 @@ SELECT
   qa.validation_technique,
   qa.validation_host_strain_nomenclature,
   qa.morphological_features,
-  qa.histological_validation,
   qa.SNP_analysis,
   qa.STR_analysis,
   qa.tumour_status,
@@ -203,7 +202,6 @@ COMMENT ON COLUMN pdcm_api.model_quality_assurance.passages_tested IS 'List of a
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_technique IS 'Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_host_strain_nomenclature IS 'Validation host mouse strain, following mouse strain nomenclature from MGI JAX';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.morphological_features IS 'Morphological features of the model';
-COMMENT ON COLUMN pdcm_api.model_quality_assurance.histological_validation IS 'Immunofluorescent or immunohistochemical validation of the model';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.SNP_analysis IS 'Was SNP analysis done on the model?';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.STR_analysis IS 'Was STR analysis done on the model?';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.tumour_status IS 'Gene expression validation of established model';

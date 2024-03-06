@@ -128,11 +128,10 @@ def add_quality_assurance_data(df: DataFrame, quality_assurance_df: DataFrame) -
                lit("\"validation_host_strain_nomenclature\": "),
                lit("\""), col("validation_host_strain_nomenclature"), lit("\", "),
                lit("\"morphological_features\": "), lit("\""), col("morphological_features"), lit("\", "),
-               lit("\"histological_validation\": "), lit("\""), col("histological_validation"), lit("\", "),
                lit("\"SNP_analysis\": "), lit("\""), col("SNP_analysis"), lit("\", "),
                lit("\"STR_analysis\": "), lit("\""), col("STR_analysis"), lit("\", "),
                lit("\"tumour_status\": "), lit("\""), col("tumour_status"), lit("\", "),
-               lit("\"tumour_status\": "), lit("\""), col("tumour_status"), lit("\""),
+               lit("\"model_purity\": "), lit("\""), col("model_purity"), lit("\""),
                concat(lit("}"))))
 
     quality_data_per_model_df = quality_assurance_df.groupby("model_id").agg(
