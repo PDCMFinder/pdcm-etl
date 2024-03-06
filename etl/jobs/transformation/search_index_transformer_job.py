@@ -1,7 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, lit
 
 from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
 
@@ -51,7 +51,7 @@ def transform_search_index(
             "catalog_number",
             "vendor_link",
             "rrid",
-            "related_models",
+            lit("").alias("related_models"),
             "external_ids",
             "histology",
             "search_terms",

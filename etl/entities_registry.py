@@ -212,7 +212,6 @@ entities = {
             "validation_host_strain_nomenclature",
             "model_id",
             "morphological_features",
-            "histological_validation",
             "SNP_analysis",
             "STR_analysis",
             "tumour_status",
