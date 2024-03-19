@@ -64,7 +64,17 @@ COMMENT ON COLUMN molecular_characterization_vw.external_db_links IS 'JSON colum
 DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
 
 CREATE VIEW pdcm_api.model_information AS
- SELECT * from model_information;
+SELECT 
+  mi.*,
+  (
+		select to_jsonb(r) from 
+			(
+			select 
+				to_jsonb(get_parents_tree(mi.external_model_id)) as parents,
+        to_jsonb(get_children_tree(mi.external_model_id)) as children
+			)r
+	) as model_relationships
+from model_information mi;
 
 COMMENT ON VIEW pdcm_api.model_information IS
   $$Model information (without joins)
@@ -73,6 +83,7 @@ COMMENT ON VIEW pdcm_api.model_information IS
 
 COMMENT ON COLUMN pdcm_api.model_information.id IS 'Internal identifier';
 COMMENT ON COLUMN pdcm_api.model_information.external_model_id IS 'Unique identifier of the model. Given by the provider';
+COMMENT ON COLUMN pdcm_api.model_information.type IS 'Model Type';
 COMMENT ON COLUMN pdcm_api.model_information.data_source IS 'Abbreviation of the provider. Added explicitly here to help with queries';
 COMMENT ON COLUMN pdcm_api.model_information.publication_group_id IS 'Reference to the publication_group table. Corresponds to the publications the model is part of';
 COMMENT ON COLUMN pdcm_api.model_information.accessibility_group_id IS 'Reference to the accessibility_group table';
@@ -80,6 +91,14 @@ COMMENT ON COLUMN pdcm_api.model_information.contact_people_id IS 'Reference to 
 COMMENT ON COLUMN pdcm_api.model_information.contact_form_id IS 'Reference to the contact_form table';
 COMMENT ON COLUMN pdcm_api.model_information.source_database_id IS 'Reference to the source_database table';
 COMMENT ON COLUMN pdcm_api.model_information.license_id IS 'Reference to the license table';
+COMMENT ON COLUMN pdcm_api.model_information.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
+COMMENT ON COLUMN pdcm_api.model_information.supplier_type IS 'Model supplier type - commercial, academic, other';
+COMMENT ON COLUMN pdcm_api.model_information.catalog_number IS 'Catalogue number of cell model, if commercial';
+COMMENT ON COLUMN pdcm_api.model_information.vendor_link IS 'Link to purchasable cell model, if commercial';
+COMMENT ON COLUMN pdcm_api.model_information.rrid IS 'Cellosaurus ID';
+COMMENT ON COLUMN pdcm_api.model_information.parent_id IS 'model Id of the model used to generate the model';
+COMMENT ON COLUMN pdcm_api.model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
+
 
 -- model_metadata view
 
@@ -799,7 +818,11 @@ AS
                 or patient_age like '%months' 
             THEN true 
             ELSE false 
-        END as paediatric
+        END as paediatric,
+        (
+          SELECT mi.model_relationships FROM pdcm_api.model_information mi where mi.id = search_index.pdcm_model_id
+          and mi.data_source = search_index.data_source
+        ) as model_relationships
  FROM search_index;
 
 COMMENT ON VIEW pdcm_api.search_index IS 'Helper table to show results in a search';
@@ -813,7 +836,6 @@ COMMENT ON COLUMN pdcm_api.search_index.supplier_type IS 'Model supplier type - 
 COMMENT ON COLUMN pdcm_api.search_index.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN pdcm_api.search_index.vendor_link IS 'Link to purchasable cell model, if commercial';
 COMMENT ON COLUMN pdcm_api.search_index.rrid IS 'Cellosaurus ID';
-COMMENT ON COLUMN pdcm_api.search_index.related_models IS 'Model_ids of any related models linked to the same patient.';
 COMMENT ON COLUMN pdcm_api.search_index.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
 COMMENT ON COLUMN pdcm_api.search_index.histology IS 'Harmonised patient sample diagnosis';
 COMMENT ON COLUMN pdcm_api.search_index.search_terms IS 'All diagnosis related (by ontology relations) to the model';

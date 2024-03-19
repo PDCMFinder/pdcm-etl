@@ -30,6 +30,8 @@ groups:
           - "supplier_type"
           - "catalog_number"
           - "vendor_link"
+          - "parent_id"
+          - "origin_patient_sample_id"
 
       - name: "cell-model"
         type: "tsv"
