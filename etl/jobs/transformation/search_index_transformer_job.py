@@ -51,7 +51,6 @@ def transform_search_index(
             "catalog_number",
             "vendor_link",
             "rrid",
-            lit("").alias("related_models"),
             "external_ids",
             "histology",
             "search_terms",

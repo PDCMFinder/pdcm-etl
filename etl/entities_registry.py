@@ -135,6 +135,7 @@ entities = {
         "expected_database_columns": [
             "id",
             "external_model_id",
+            "type",
             "data_source",
             "publication_group_id",
             "accessibility_group_id",
@@ -142,12 +143,13 @@ entities = {
             "contact_form_id",
             "source_database_id",
             "license_id",
-            "related_models",
             "external_ids",
             "supplier_type",
             "catalog_number",
             "vendor_link",
-            "rrid"
+            "rrid",
+            "parent_id",
+            "origin_patient_sample_id"
         ]
     },
     Constants.LICENSE_ENTITY: {
@@ -619,7 +621,6 @@ entities = {
             "catalog_number",
             "vendor_link",
             "rrid",
-            "related_models",
             "external_ids",
             "histology",
             "search_terms",

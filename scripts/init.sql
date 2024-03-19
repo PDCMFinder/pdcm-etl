@@ -144,6 +144,7 @@ DROP TABLE IF EXISTS model_information CASCADE;
 CREATE TABLE model_information (
     id BIGINT NOT NULL,
     external_model_id TEXT,
+    type TEXT,
     data_source varchar,
     publication_group_id BIGINT,
     accessibility_group_id BIGINT,
@@ -151,17 +152,19 @@ CREATE TABLE model_information (
     contact_form_id BIGINT,
     source_database_id BIGINT,
     license_id BIGINT,
-    related_models TEXT,
     external_ids TEXT,
     supplier_type TEXT,
     catalog_number TEXT,
     vendor_link TEXT,
-    rrid TEXT
+    rrid TEXT,
+    parent_id TEXT,
+    origin_patient_sample_id TEXT
 );
 
 COMMENT ON TABLE model_information IS 'Model creation information';
 COMMENT ON COLUMN model_information.id IS 'Internal identifier';
 COMMENT ON COLUMN model_information.external_model_id IS 'Unique identifier of the model. Given by the provider';
+COMMENT ON COLUMN model_information.type IS 'Model type';
 COMMENT ON COLUMN model_information.data_source IS 'Abbreviation of the provider. Added explicitly here to help with queries';
 COMMENT ON COLUMN model_information.publication_group_id IS 'Reference to the publication_group table. Corresponds to the publications the model is part of';
 COMMENT ON COLUMN model_information.accessibility_group_id IS 'Reference to the accessibility_group table';
@@ -169,13 +172,13 @@ COMMENT ON COLUMN model_information.contact_people_id IS 'Reference to the conta
 COMMENT ON COLUMN model_information.contact_form_id IS 'Reference to the contact_form table';
 COMMENT ON COLUMN model_information.source_database_id IS 'Reference to the source_database table';
 COMMENT ON COLUMN model_information.license_id IS 'Reference to the license table';
-
-COMMENT ON COLUMN model_information.related_models IS 'Model_ids of any related models linked to the same patient.';
 COMMENT ON COLUMN model_information.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
 COMMENT ON COLUMN model_information.supplier_type IS 'Model supplier type - commercial, academic, other';
 COMMENT ON COLUMN model_information.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN model_information.vendor_link IS 'Link to purchasable cell model, if commercial';
 COMMENT ON COLUMN model_information.rrid IS 'Cellosaurus ID';
+COMMENT ON COLUMN model_information.parent_id IS 'model Id of the model used to generate the model';
+COMMENT ON COLUMN model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
 
 DROP TABLE IF EXISTS license CASCADE;
 
@@ -919,7 +922,6 @@ CREATE TABLE search_index (
     catalog_number TEXT,
     vendor_link TEXT,
     rrid TEXT,
-    related_models TEXT,
     external_ids TEXT,
     histology TEXT,
     search_terms TEXT[],
@@ -984,7 +986,6 @@ COMMENT ON COLUMN search_index.supplier_type IS 'Model supplier type - commercia
 COMMENT ON COLUMN search_index.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN search_index.vendor_link IS 'Link to purchasable cell model, if commercial';
 COMMENT ON COLUMN search_index.rrid IS 'Cellosaurus ID';
-COMMENT ON COLUMN search_index.related_models IS 'Model_ids of any related models linked to the same patient.';
 COMMENT ON COLUMN search_index.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
 COMMENT ON COLUMN search_index.histology IS 'Harmonised patient sample diagnosis';
 COMMENT ON COLUMN search_index.search_terms IS 'All diagnosis related (by ontology relations) to the model';
@@ -1141,3 +1142,41 @@ COMMENT ON COLUMN model_image.sample_type IS 'Type of sample being imaged (pdx, 
 COMMENT ON COLUMN model_image.passage IS 'Passage number imaging was performed. Passage 0 correspond to first engraftment';
 COMMENT ON COLUMN model_image.magnification IS 'Magnification of the mode image';
 COMMENT ON COLUMN model_image.staining IS 'Staining used for imaging the sample';
+
+--- PostgreSQL functions
+
+-- Returns a JSON object with all the model parents connected to _model
+CREATE OR REPLACE FUNCTION get_parents_tree(_model varchar)
+  RETURNS jsonb
+  LANGUAGE sql STABLE PARALLEL SAFE AS
+$func$
+SELECT jsonb_agg(sub)
+FROM  
+(
+	SELECT 
+		r2.external_model_id,
+		r2.type,
+		get_parents_tree(r1.parent_id) AS parent
+ 	FROM model_information r1, model_information r2
+ 	WHERE _model = r1.external_model_id
+ 	AND r1.parent_id = r2.external_model_id
+   ) sub
+$func$;
+
+-- Returns a JSON object with all the models derived from _model
+CREATE OR REPLACE FUNCTION get_children_tree(_model varchar)
+  RETURNS jsonb
+  LANGUAGE sql STABLE PARALLEL SAFE AS
+$func$
+SELECT jsonb_agg(sub)
+FROM  
+(
+	SELECT 
+		r1.external_model_id,
+		r1.type,
+		get_children_tree(r1.external_model_id) AS child
+ 	FROM model_information r1, model_information r2
+ 	WHERE _model = r1.parent_id
+ 	AND r1.parent_id = r2.external_model_id
+   ) sub
+$func$;

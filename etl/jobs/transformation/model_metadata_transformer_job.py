@@ -107,7 +107,6 @@ def get_formatted_model(
         "publications",
         "license_name",
         "license_url",
-        "related_models",
         "external_ids",
         "supplier_type",
         "catalog_number",

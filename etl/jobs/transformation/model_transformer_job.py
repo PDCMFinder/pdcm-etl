@@ -87,6 +87,8 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
         "catalog_number",
         "vendor_link",
         lit("").alias("rrid"),
+        "parent_id",
+        "origin_patient_sample_id",
         Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumn("type", lit("PDX"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
@@ -99,6 +101,8 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
         "catalog_number",
         "vendor_link",
         "rrid",
+        "parent_id",
+        "origin_patient_sample_id",
         "type", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     cell_model_df = cell_model_df.withColumn("type", lower_and_trim_all("type"))
     cell_model_df = cell_model_df.withColumnRenamed("model_id", "external_model_id")
@@ -112,12 +116,6 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
     )
 
     union_df = model_df.unionByName(cell_model_df)
-
-    # TODO: Remove these artificially added columns once they are available in the pdx model sheet
-    # union_df = union_df.withColumn("supplier_type", lit(""))
-    # union_df = union_df.withColumn("catalog_number", lit(""))
-    # union_df = union_df.withColumn("vendor_link", lit(""))
-    # union_df = union_df.withColumn("rrid", lit(""))
 
     return union_df
 
@@ -196,6 +194,7 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
     return model_df.select(
         "id",
         "external_model_id",
+        "type",
         col(Constants.DATA_SOURCE_COLUMN).alias("data_source"),
         "publication_group_id",
         "publications",
@@ -203,16 +202,16 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "contact_people_id",
         "contact_form_id",
         "source_database_id",
-        "type",
         "license_id",
         "license_name",
         "license_url",
-        lit("").alias("related_models"),
         "external_ids",
         "supplier_type",
         "catalog_number",
         "vendor_link",
-        "rrid"
+        "rrid",
+        "parent_id",
+        "origin_patient_sample_id"
         )
 
 
