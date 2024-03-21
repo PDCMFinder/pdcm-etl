@@ -1,6 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import lit
 from etl.constants import Constants
 from etl.jobs.util.cleaner import init_cap_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
@@ -31,7 +32,6 @@ def transform_quality_assurance(raw_model_validation_df: DataFrame, model_df: Da
     quality_assurance_df = extract_model_validation(raw_model_validation_df)
     quality_assurance_df = set_fk_model(quality_assurance_df, model_df)
     quality_assurance_df = add_id(quality_assurance_df, "id")
-    quality_assurance_df = get_columns_expected_order(quality_assurance_df)
     return quality_assurance_df
 
 
@@ -52,17 +52,6 @@ def set_fk_model(quality_assurance_df, model_df):
         model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='inner')
 
     return quality_assurance_df
-
-
-def get_columns_expected_order(quality_assurance_df: DataFrame) -> DataFrame:
-    return quality_assurance_df.select(
-        "id",
-        "description",
-        "passages_tested",
-        "validation_technique",
-        "validation_host_strain_nomenclature",
-        "model_id"
-    )
 
 
 if __name__ == "__main__":

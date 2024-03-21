@@ -63,6 +63,7 @@ def transform_model(
         contact_form_df: DataFrame,
         source_database_df: DataFrame,
         license_df: DataFrame) -> DataFrame:
+
     model_df = get_data_from_model_modules(raw_model_df, raw_cell_model_df)
     model_df = join_model_with_sharing(model_df, raw_sharing_df)
     model_df = add_id(model_df, "id")
@@ -78,15 +79,34 @@ def transform_model(
 
 
 def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
-    model_df = raw_model_df.select("model_id", "publications", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+    model_df = raw_model_df.select(
+        "model_id", 
+        "publications", 
+        "external_ids",
+        "supplier_type",
+        "catalog_number",
+        "vendor_link",
+        lit("").alias("rrid"),
+        "parent_id",
+        "origin_patient_sample_id",
+        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumn("type", lit("PDX"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
 
-    cell_model_df = raw_cell_model_df.select("model_id", "publications", "type", Constants.DATA_SOURCE_COLUMN)
+    cell_model_df = raw_cell_model_df.select(
+        "model_id",
+        "publications",
+        "external_ids",
+        "supplier_type",
+        "catalog_number",
+        "vendor_link",
+        "rrid",
+        "parent_id",
+        "origin_patient_sample_id",
+        "type", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     cell_model_df = cell_model_df.withColumn("type", lower_and_trim_all("type"))
-    cell_model_df = cell_model_df.select(
-        "model_id", "publications", Constants.DATA_SOURCE_COLUMN, "type").drop_duplicates()
     cell_model_df = cell_model_df.withColumnRenamed("model_id", "external_model_id")
+    
     # Standardise some of the model type values
     cell_model_df = cell_model_df.withColumn(
         "type",
@@ -95,7 +115,8 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
         .otherwise(lit("other"))
     )
 
-    union_df = model_df.union(cell_model_df)
+    union_df = model_df.unionByName(cell_model_df)
+
     return union_df
 
 
@@ -173,6 +194,7 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
     return model_df.select(
         "id",
         "external_model_id",
+        "type",
         col(Constants.DATA_SOURCE_COLUMN).alias("data_source"),
         "publication_group_id",
         "publications",
@@ -180,10 +202,17 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "contact_people_id",
         "contact_form_id",
         "source_database_id",
-        "type",
         "license_id",
         "license_name",
-        "license_url")
+        "license_url",
+        "external_ids",
+        "supplier_type",
+        "catalog_number",
+        "vendor_link",
+        "rrid",
+        "parent_id",
+        "origin_patient_sample_id"
+        )
 
 
 if __name__ == "__main__":

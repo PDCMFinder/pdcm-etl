@@ -103,7 +103,12 @@ entities = {
             "ethnicity_assessment_method",
             "initial_diagnosis",
             "age_at_initial_diagnosis",
-            "provider_group_id"
+            "provider_group_id",
+            "age_category",
+            "smoking_status",
+            "alcohol_status",
+            "alcohol_frequency",
+            "family_history_of_cancer"
         ]
     },
     Constants.PROVIDER_TYPE_ENTITY: {
@@ -130,13 +135,21 @@ entities = {
         "expected_database_columns": [
             "id",
             "external_model_id",
+            "type",
             "data_source",
             "publication_group_id",
             "accessibility_group_id",
             "contact_people_id",
             "contact_form_id",
             "source_database_id",
-            "license_id"
+            "license_id",
+            "external_ids",
+            "supplier_type",
+            "catalog_number",
+            "vendor_link",
+            "rrid",
+            "parent_id",
+            "origin_patient_sample_id"
         ]
     },
     Constants.LICENSE_ENTITY: {
@@ -151,15 +164,23 @@ entities = {
         "spark_job": etl.jobs.transformation.cell_model_transformer_job.main,
         "expected_database_columns": [
             "id",
-            "name",
+            "model_name",
+            "model_name_aliases",
             "type",
             "growth_properties",
+            "growth_media",
+            "media_id",
             "parent_id",
             "origin_patient_sample_id",
-            "comments",
             "model_id",
-            "supplier",
-            "external_ids"
+            "plate_coating",
+            "other_plate_coating",
+            "passage_number",
+            "contaminated",
+            "contamination_details",
+            "supplements",
+            "drug",
+            "drug_concentration"
         ]
     },
     Constants.CELL_SAMPLE_ENTITY: {
@@ -191,7 +212,13 @@ entities = {
             "passages_tested",
             "validation_technique",
             "validation_host_strain_nomenclature",
-            "model_id"
+            "model_id",
+            "morphological_features",
+            "SNP_analysis",
+            "STR_analysis",
+            "tumour_status",
+            "model_purity",
+            "comments"
         ]
     },
     Constants.TISSUE_ENTITY: {
@@ -219,10 +246,16 @@ entities = {
             "tumour_type_id",
             "age_in_years_at_collection",
             "collection_event",
+            "collection_method",
             "collection_date",
             "months_since_collection_1",
+            "gene_mutation_status",
             "treatment_naive_at_collection",
+            "treated_at_collection",
+            "treated_prior_to_collection",
+            "response_to_treatment",
             "virology_status",
+            "sharable",
             "model_id"
         ]
     },
@@ -584,6 +617,11 @@ entities = {
             "project_name",
             "provider_name",
             "model_type",
+            "supplier_type",
+            "catalog_number",
+            "vendor_link",
+            "rrid",
+            "external_ids",
             "histology",
             "search_terms",
             "cancer_system",
@@ -598,21 +636,25 @@ entities = {
             "cancer_stage",
             "cancer_staging_system",
             "patient_age",
+            "patient_age_category",
             "patient_sex",
             "patient_history",
             "patient_ethnicity",
             "patient_ethnicity_assessment_method",
             "patient_initial_diagnosis",
-            "patient_treatment_status",
             "patient_age_at_initial_diagnosis",
             "patient_sample_id",
             "patient_sample_collection_date",
             "patient_sample_collection_event",
+            "patient_sample_collection_method",
             "patient_sample_months_since_collection_1",
+            "patient_sample_gene_mutation_status",
             "patient_sample_virology_status",
             "patient_sample_sharable",
+            "patient_sample_treatment_naive_at_collection",
             "patient_sample_treated_at_collection",
             "patient_sample_treated_prior_to_collection",
+            "patient_sample_response_to_treatment",
             "pdx_model_publications",
             "quality_assurance",
             "xenograft_model_specimens",

@@ -46,6 +46,7 @@ def extract_data_source(raw_source_df: DataFrame) -> DataFrame:
         trim_all("provider_abbreviation").alias("provider_abbreviation"),
         trim_all("provider_description").alias("provider_description"),
         trim_all("provider_type").alias("provider_type"),
+        trim_all("project").alias("project"),
         Constants.DATA_SOURCE_COLUMN
     ).drop_duplicates()
     return provider_group_df
@@ -77,7 +78,8 @@ def set_fk_provider_type(provider_group_df, provider_type_df):
 def set_fk_project_group(provider_group_df, project_group_df):
     project_group_df = project_group_df.withColumnRenamed("name", "project_group_name")
     project_group_df = project_group_df.withColumnRenamed("id", "project_group_id")
-    provider_group_df = provider_group_df.join(project_group_df, on=[Constants.DATA_SOURCE_COLUMN], how='left')
+    cond = project_group_df.project_group_name == provider_group_df.project
+    provider_group_df = provider_group_df.join(project_group_df, on=[cond], how='left')
     return provider_group_df
 
 
