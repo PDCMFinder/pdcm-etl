@@ -31,10 +31,7 @@ def transform_project_group(raw_source_df: DataFrame) -> DataFrame:
 
 
 def get_project_group_from_source(raw_sharing_df: DataFrame) -> DataFrame:
-    return raw_sharing_df.select(
-        col("project").alias("name"),
-        Constants.DATA_SOURCE_COLUMN
-    ).where("project is not null")
+    return raw_sharing_df.select(col("project").alias("name")).where("project is not null")
 
 
 if __name__ == "__main__":
