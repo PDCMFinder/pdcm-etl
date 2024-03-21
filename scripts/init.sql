@@ -1146,7 +1146,7 @@ COMMENT ON COLUMN model_image.staining IS 'Staining used for imaging the sample'
 --- PostgreSQL functions
 
 -- Returns a JSON object with all the model parents connected to _model
-CREATE OR REPLACE FUNCTION get_parents_tree(_model varchar)
+CREATE OR REPLACE FUNCTION pdcm_api.get_parents_tree(_model varchar)
   RETURNS jsonb
   LANGUAGE sql STABLE PARALLEL SAFE AS
 $func$
@@ -1164,7 +1164,7 @@ FROM
 $func$;
 
 -- Returns a JSON object with all the models derived from _model
-CREATE OR REPLACE FUNCTION get_children_tree(_model varchar)
+CREATE OR REPLACE FUNCTION pdcm_api.get_children_tree(_model varchar)
   RETURNS jsonb
   LANGUAGE sql STABLE PARALLEL SAFE AS
 $func$
