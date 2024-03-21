@@ -940,6 +940,19 @@ COMMENT ON COLUMN pdcm_api.provider_group.description IS 'A description of the p
 COMMENT ON COLUMN pdcm_api.provider_group.provider_type_id IS 'Reference to the provider type';
 COMMENT ON COLUMN pdcm_api.provider_group.project_group_id IS 'Reference to the project the provider belongs to';
 
+-- project_group view: Project information
+
+DROP VIEW IF EXISTS pdcm_api.project_group;
+
+CREATE VIEW pdcm_api.project_group
+AS
+ SELECT project_group.*
+   FROM project_group;
+
+COMMENT ON VIEW pdcm_api.project_group IS 'Projects';
+COMMENT ON COLUMN pdcm_api.project_group.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.provider_group.name IS 'Project name';
+
 -- cell_model view: Cell Model
 
 DROP VIEW IF EXISTS pdcm_api.cell_model;
