@@ -1156,7 +1156,7 @@ FROM
 	SELECT 
 		r2.external_model_id,
 		r2.type,
-		get_parents_tree(r1.parent_id) AS parent
+		get_parents_tree(r1.parent_id) AS parents
  	FROM model_information r1, model_information r2
  	WHERE _model = r1.external_model_id
  	AND r1.parent_id = r2.external_model_id
@@ -1174,7 +1174,7 @@ FROM
 	SELECT 
 		r1.external_model_id,
 		r1.type,
-		get_children_tree(r1.external_model_id) AS child
+		get_children_tree(r1.external_model_id) AS children
  	FROM model_information r1, model_information r2
  	WHERE _model = r1.parent_id
  	AND r1.parent_id = r2.external_model_id

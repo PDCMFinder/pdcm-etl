@@ -70,8 +70,8 @@ SELECT
 		select to_jsonb(r) from 
 			(
 			select 
-				to_jsonb(get_parents_tree(mi.external_model_id)) as parents,
-        to_jsonb(get_children_tree(mi.external_model_id)) as children
+				to_jsonb(pdcm_api.get_parents_tree(mi.external_model_id)) as parents,
+        to_jsonb(pdcm_api.get_children_tree(mi.external_model_id)) as children
 			)r
 	) as model_relationships
 from model_information mi;
