@@ -5,49 +5,13 @@ from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit
 from pyspark.sql.types import StructType, StructField, LongType, IntegerType
 
+from etl.jobs.transformation.scoring.weights_per_fields import common_weights, pdx_only_weights
+
 # Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
 # resources connectedness. A weight is assigned manually to each one:
 metadata_score_weight = 0.9
 raw_data_score_weight = 0.07
 cancer_annotation_score_weight = 0.03
-
-column_weights = {
-    "patient_sex": 1,
-    "patient_history": 0,
-    "patient_ethnicity": 0.5,
-    "patient_ethnicity_assessment_method": 0,
-    "patient_initial_diagnosis": 0,
-    "patient_age_at_initial_diagnosis": 0,
-    "patient_sample_id": 1,
-    "patient_sample_collection_date": 0,
-    "patient_sample_collection_event": 0,
-    "patient_sample_months_since_collection_1": 0,
-    "patient_age": 1,
-    "histology": 1,
-    "tumour_type": 1,
-    "primary_site": 1,
-    "collection_site": 0.5,
-    "cancer_stage": 0.5,
-    "cancer_staging_system": 0,
-    "cancer_grade": 0.5,
-    "cancer_grading_system": 0,
-    "patient_sample_virology_status": 0,
-    "patient_sample_sharable": 0,
-    "patient_sample_treated_at_collection": 0.5,
-    "patient_sample_treated_prior_to_collection": 0.5,
-    "pdx_model_publications": 0,
-    "quality_assurance.validation_technique": 1,
-    "quality_assurance.description": 1,
-    "quality_assurance.passages_tested": 1,
-    "quality_assurance.validation_host_strain_nomenclature": 1,
-    "xenograft_model_specimens.host_strain_name": 1,
-    "xenograft_model_specimens.host_strain_nomenclature": 1,
-    "xenograft_model_specimens.engraftment_site": 1,
-    "xenograft_model_specimens.engraftment_type": 1,
-    "xenograft_model_specimens.engraftment_sample_type": 1,
-    "xenograft_model_specimens.engraftment_sample_state": 0.5,
-    "xenograft_model_specimens.passage_number": 1
-}
 
 columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
 
@@ -64,15 +28,12 @@ def count_cancer_annotation_resources(resources_df):
     return len(get_list_resources_available_molecular_data(resources_df))
 
 
-def get_metadata_max_score():
+def get_metadata_max_score(column_weights):
     total_score = 0
-    # Max score is the total possible score coming from `column_weights`
     for element in column_weights:
         total_score += column_weights[element]
+    
     return total_score
-
-
-metadata_max_score = get_metadata_max_score()
 
 
 def is_valid_value(attribute_value: str) -> bool:
@@ -83,7 +44,7 @@ def is_valid_value(attribute_value: str) -> bool:
             and lc_attribute_value != 'unknown')
 
 
-def calculate_score_single_value_column(column_name: str, column_value: str) -> float:
+def calculate_score_single_value_column(column_name: str, column_value: str, column_weights) -> float:
     column_weight = column_weights.get(column_name)
     if is_valid_value(column_value):
         return column_weight
@@ -91,7 +52,7 @@ def calculate_score_single_value_column(column_name: str, column_value: str) -> 
         return 0
 
 
-def calculate_score_multiple_value_column(column_name: str, column_value: str) -> float:
+def calculate_score_multiple_value_column(column_name: str, column_value: str, column_weights) -> float:
     score = 0
     if column_value == '[]' or column_value is None:
         return score
@@ -128,13 +89,13 @@ def calculate_score_external_resources(resources_list) -> float:
     return 0
 
 
-def calculate_score_by_column(column_name: str, column_value: str) -> float:
+def calculate_score_by_column(column_name: str, column_value: str, column_weights) -> float:
     score = 0
     if column_name in column_weights.keys():
         if is_valid_value(column_value):
-            score += calculate_score_single_value_column(column_name, column_value)
+            score += calculate_score_single_value_column(column_name, column_value, column_weights)
     elif column_name in columns_with_multiple_values:
-        score += calculate_score_multiple_value_column(column_name, column_value)
+        score += calculate_score_multiple_value_column(column_name, column_value, column_weights)
     elif column_name == "resources":
         score += calculate_score_external_resources(column_value)
     return score
@@ -149,6 +110,9 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resour
     # Process only PDX models
     input_df = search_index_df.where("model_type = 'PDX'")
     input_df = input_df.drop_duplicates()
+    
+    column_weights = common_weights.copy()
+    column_weights.update(pdx_only_weights)
 
     # If there is no data to process, return
     if input_df.count() == 0:
@@ -156,7 +120,7 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resour
 
     total_cancer_annotation_resources = count_cancer_annotation_resources(raw_external_resources_df)
 
-    rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources))
+    rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources, column_weights))
 
     score_schema = StructType([
         StructField('pdcm_model_id', LongType(), True),
@@ -173,12 +137,12 @@ def calculate_pdx_metadata_score(search_index_df: DataFrame, raw_external_resour
     return score_df
 
 
-def calculate_metadata_score(row):
+def calculate_metadata_score(row, column_weights):
     score = 0
     row_as_dict = row.asDict()
     for column_name in row_as_dict:
-        score += calculate_score_by_column(column_name, row_as_dict[column_name])
-    return score / metadata_max_score * 100
+        score += calculate_score_by_column(column_name, row_as_dict[column_name], column_weights)
+    return score / get_metadata_max_score(column_weights) * 100
 
 
 def calculate_raw_data_score(row):
@@ -204,10 +168,10 @@ def calculate_cancer_annotation_score(row, total_cancer_annotation_resources):
     return score / total_cancer_annotation_resources * 100
 
 
-def calculate_score_for_row(row, total_cancer_annotation_resources):
+def calculate_score_for_row(row, total_cancer_annotation_resources, column_weights):
     columns = {"pdcm_model_id": row["pdcm_model_id"]}
 
-    metadata_score = calculate_metadata_score(row) * metadata_score_weight
+    metadata_score = calculate_metadata_score(row, column_weights) * metadata_score_weight
     raw_data_score = calculate_raw_data_score(row) * raw_data_score_weight
     cancer_annotation_score = calculate_cancer_annotation_score(
         row, total_cancer_annotation_resources) * cancer_annotation_score_weight

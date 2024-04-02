@@ -76,7 +76,7 @@ def build_search_index_df_schema():
 
 def create_search_index_max_score_df():
     """
-       Creates a dataframe with ....
+       Creates a dataframe with max score
    """
 
     schema = build_search_index_df_schema()
@@ -109,7 +109,13 @@ def create_search_index_max_score_df():
             "validation_technique": "validation_technique_valid_value",
             "description": "description_valid_value",
             "passages_tested": "passages_tested_valid_value",
-            "validation_host_strain_nomenclature": "validation_host_strain_nomenclature_valid_value"
+            "validation_host_strain_nomenclature": "validation_host_strain_nomenclature_valid_value",
+            "morphological_features": "morphological_features_valid_value",
+            "SNP_analysis": "SNP_analysis_valid_value",
+            "STR_analysis": "STR_analysis_valid_value",
+            "tumour_status": "tumour_status_valid_value",
+            "model_purity": "model_purity_valid_value",
+            "comments": "comments_valid_value",
         }
     ]
 

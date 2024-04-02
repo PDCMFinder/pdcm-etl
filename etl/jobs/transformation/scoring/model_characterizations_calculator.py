@@ -10,8 +10,6 @@ Adds a `scores` column to search_index_df. `scores` is a JSON column containing 
 scores for each model. A model characterization score is calculated based on the information defined for a 
 model characterization definition, which are configured in the model_characterizations.yaml file. 
 """
-
-
 def add_scores_column(
         search_index_df: DataFrame,
         model_characterizations_conf_df: DataFrame,
