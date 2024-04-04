@@ -52,13 +52,9 @@ pdx_only_weights = {
 in_vitro_only_weights = {
     "model_name": 1,
     "model_name_aliases": 1,
-    "type": 1,
     "growth_properties": 1,
     "growth_media": 1,
     "media_id": 1,
-    "parent_id": 1,
-    "origin_patient_sample_id": 1,
-    "model_id": 1,
     "plate_coating": 1, 
     "other_plate_coating" :1,
     "passage_number": 1,

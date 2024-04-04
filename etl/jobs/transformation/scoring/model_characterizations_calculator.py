@@ -3,6 +3,7 @@ from pyspark.sql.functions import lit, concat, col, concat_ws, collect_list
 from pyspark.sql.types import StructType, StructField, StringType, LongType
 
 from etl.jobs.transformation.scoring.calculation_methods.data_calculator import calculate_data_score
+from etl.jobs.transformation.scoring.calculation_methods.in_vitro_metadata_calculator import calculate_in_vitro_metadata_score
 from etl.jobs.transformation.scoring.calculation_methods.pdx_metadata_calculator import calculate_pdx_metadata_score
 
 """
@@ -32,6 +33,8 @@ def add_scores_column(
             molecular_char_score_df = calculate_pdx_metadata_score(search_index_df, raw_external_resources_df)
         elif calculation_method == "calculate_data_score":
             molecular_char_score_df = calculate_data_score(search_index_df)
+        elif calculation_method == "calculate_in_vitro_metadata_score":
+            molecular_char_score_df = calculate_in_vitro_metadata_score(search_index_df, raw_external_resources_df)
         else:
             molecular_char_score_df = None
 
