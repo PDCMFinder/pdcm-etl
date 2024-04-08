@@ -112,6 +112,19 @@ def get_formatted_model(
         "catalog_number",
         "vendor_link",
         "rrid",
+        "model_name",
+        "model_name_aliases",
+        "growth_properties",
+        "growth_media",
+        "media_id",
+        "plate_coating",
+        "other_plate_coating",
+        "passage_number",
+        "contaminated",
+        "contamination_details",
+        "supplements",
+        "drug",
+        "drug_concentration",
         Constants.DATA_SOURCE_COLUMN
     )
     return model_df

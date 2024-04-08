@@ -28,12 +28,12 @@ common_weights = {
     "quality_assurance.description": 1,
     "quality_assurance.passages_tested": 1,
     "quality_assurance.validation_host_strain_nomenclature": 1,  #
-    "quality_assurance.morphological_features": 1,
-    "quality_assurance.SNP_analysis": 1,
-    "quality_assurance.STR_analysis": 1,
-    "quality_assurance.tumour_status": 1,
-    "quality_assurance.model_purity": 1,
-    "quality_assurance.comments": 1,
+    "quality_assurance.morphological_features": 0,
+    "quality_assurance.SNP_analysis": 0,
+    "quality_assurance.STR_analysis": 0,
+    "quality_assurance.tumour_status": 0,
+    "quality_assurance.model_purity": 0,
+    "quality_assurance.comments": 0,
 
 }
 

@@ -150,7 +150,7 @@ def calculate_model_metadata_score(input_df: DataFrame, raw_external_resources_d
     and returns a dataset with (pdcm_model_id, score)
     """
     input_df = input_df.drop_duplicates()
-
+    
     total_cancer_annotation_resources = count_cancer_annotation_resources(raw_external_resources_df)
 
     rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources, column_weights))
