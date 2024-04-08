@@ -6,7 +6,7 @@ from pyspark.sql.types import StructType, StructField, StringType, LongType, Arr
 
 from etl.jobs.transformation.scoring.model_characterizations_calculator import add_scores_column
 from tests.etl.workflow.links_generation.links_generation_tests_utils import create_resources_df
-from tests.schemas.schemas_builder import build_search_index_df_schema
+from tests.schemas.schemas_builder import build_model_characterizations_conf_df_schema, build_search_index_df_schema
 from tests.util import assert_df_are_equal_ignore_id
 
 
@@ -16,14 +16,7 @@ def create_model_characterizations_conf_df():
        in etl/external_resources.yaml, but it's not a restriction.
    """
 
-    schema = StructType([
-        StructField('id', IntegerType(), False),
-        StructField('name', StringType(), False),
-        StructField('description', StringType(), False),
-        StructField('applies_on', StringType(), False),
-        StructField('score_name', StringType(), False),
-        StructField('calculation_method', StringType(), False)
-    ])
+    schema = schema = build_model_characterizations_conf_df_schema()
 
     spark = SparkSession.builder.getOrCreate()
 
@@ -39,7 +32,7 @@ def create_model_characterizations_conf_df():
     return resources_df
 
 
-def create_search_index_max_score_df():
+def create_search_index_max_in_vitro_score_df():
     """
        Creates a dataframe with max score
    """
@@ -262,7 +255,7 @@ def create_search_index_some_invalid_data_df():
 def test_add_scores_column_max_score():
     spark = SparkSession.builder.getOrCreate()
 
-    search_index_max_score_df = create_search_index_max_score_df()
+    search_index_max_score_df = create_search_index_max_in_vitro_score_df()
     model_characterizations_conf_df = create_model_characterizations_conf_df()
     raw_external_resources_df = create_resources_df()
     output_df = add_scores_column(search_index_max_score_df, model_characterizations_conf_df, raw_external_resources_df)
@@ -279,7 +272,7 @@ def test_add_scores_column_max_score():
 def test_add_scores_column_no_resources():
     spark = SparkSession.builder.getOrCreate()
 
-    search_index_no_resources_df = create_search_index_max_score_df()
+    search_index_no_resources_df = create_search_index_max_in_vitro_score_df()
     search_index_no_resources_df = search_index_no_resources_df.withColumn("raw_data_resources", lit(None))
     search_index_no_resources_df = search_index_no_resources_df.withColumn("cancer_annotation_resources", lit(None))
     model_characterizations_conf_df = create_model_characterizations_conf_df()
@@ -299,7 +292,7 @@ def test_add_scores_column_no_resources():
 def test_add_scores_column_no_data_set():
     spark = SparkSession.builder.getOrCreate()
 
-    search_index_no_dataset_available_df = create_search_index_max_score_df()
+    search_index_no_dataset_available_df = create_search_index_max_in_vitro_score_df()
     search_index_no_dataset_available_df = search_index_no_dataset_available_df.withColumn(
         "dataset_available", lit(None))
 
