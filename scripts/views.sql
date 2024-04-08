@@ -64,7 +64,17 @@ COMMENT ON COLUMN molecular_characterization_vw.external_db_links IS 'JSON colum
 DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
 
 CREATE VIEW pdcm_api.model_information AS
- SELECT * from model_information;
+SELECT 
+  mi.*,
+  (
+		select to_jsonb(r) from 
+			(
+			select 
+				to_jsonb(pdcm_api.get_parents_tree(mi.external_model_id)) as parents,
+        to_jsonb(pdcm_api.get_children_tree(mi.external_model_id)) as children
+			)r
+	) as model_relationships
+from model_information mi;
 
 COMMENT ON VIEW pdcm_api.model_information IS
   $$Model information (without joins)
@@ -73,6 +83,7 @@ COMMENT ON VIEW pdcm_api.model_information IS
 
 COMMENT ON COLUMN pdcm_api.model_information.id IS 'Internal identifier';
 COMMENT ON COLUMN pdcm_api.model_information.external_model_id IS 'Unique identifier of the model. Given by the provider';
+COMMENT ON COLUMN pdcm_api.model_information.type IS 'Model Type';
 COMMENT ON COLUMN pdcm_api.model_information.data_source IS 'Abbreviation of the provider. Added explicitly here to help with queries';
 COMMENT ON COLUMN pdcm_api.model_information.publication_group_id IS 'Reference to the publication_group table. Corresponds to the publications the model is part of';
 COMMENT ON COLUMN pdcm_api.model_information.accessibility_group_id IS 'Reference to the accessibility_group table';
@@ -80,6 +91,14 @@ COMMENT ON COLUMN pdcm_api.model_information.contact_people_id IS 'Reference to 
 COMMENT ON COLUMN pdcm_api.model_information.contact_form_id IS 'Reference to the contact_form table';
 COMMENT ON COLUMN pdcm_api.model_information.source_database_id IS 'Reference to the source_database table';
 COMMENT ON COLUMN pdcm_api.model_information.license_id IS 'Reference to the license table';
+COMMENT ON COLUMN pdcm_api.model_information.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
+COMMENT ON COLUMN pdcm_api.model_information.supplier_type IS 'Model supplier type - commercial, academic, other';
+COMMENT ON COLUMN pdcm_api.model_information.catalog_number IS 'Catalogue number of cell model, if commercial';
+COMMENT ON COLUMN pdcm_api.model_information.vendor_link IS 'Link to purchasable cell model, if commercial';
+COMMENT ON COLUMN pdcm_api.model_information.rrid IS 'Cellosaurus ID';
+COMMENT ON COLUMN pdcm_api.model_information.parent_id IS 'model Id of the model used to generate the model';
+COMMENT ON COLUMN pdcm_api.model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
+
 
 -- model_metadata view
 
@@ -109,7 +128,6 @@ SELECT
   si.patient_age,
   si.patient_sex,
   si.patient_ethnicity,
-  si.patient_treatment_status,
   pg.pubmed_ids,
   ag.europdx_access_modalities,
   ag.accessibility,
@@ -160,7 +178,6 @@ COMMENT ON COLUMN pdcm_api.model_metadata.cancer_stage IS 'Stage of the patient 
 COMMENT ON COLUMN pdcm_api.model_metadata.patient_age IS 'Patient age at collection';
 COMMENT ON COLUMN pdcm_api.model_metadata.patient_sex IS 'Sex of the patient';
 COMMENT ON COLUMN pdcm_api.model_metadata.patient_ethnicity IS 'Patient Ethnic group';
-COMMENT ON COLUMN pdcm_api.model_metadata.patient_treatment_status IS 'Patient treatment status';
 COMMENT ON COLUMN pdcm_api.model_metadata.pubmed_ids IS 'PubMed ids related to the model';
 COMMENT ON COLUMN pdcm_api.model_metadata.europdx_access_modalities IS 'If a model is part of EUROPDX consortium, then this field defines if the model is accessible for transnational access through the EDIReX infrastructure, or only on a collaborative basis';
 COMMENT ON COLUMN pdcm_api.model_metadata.accessibility IS 'Defines any limitation of access of the model per type of users like academia only, industry and academia, or national limitation';
@@ -181,7 +198,13 @@ SELECT
   qa.description,
   qa.passages_tested,
   qa.validation_technique,
-  qa.validation_host_strain_nomenclature
+  qa.validation_host_strain_nomenclature,
+  qa.morphological_features,
+  qa.SNP_analysis,
+  qa.STR_analysis,
+  qa.tumour_status,
+  qa.model_purity,
+  qa.comments
 FROM
   quality_assurance qa
   JOIN model_information mi ON qa.model_id = mi.id;
@@ -197,6 +220,12 @@ COMMENT ON COLUMN pdcm_api.model_quality_assurance.description IS 'Short descrip
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.passages_tested IS 'List of all passages where validation was performed. Passage 0 correspond to first engraftment';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_technique IS 'Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry';
 COMMENT ON COLUMN pdcm_api.model_quality_assurance.validation_host_strain_nomenclature IS 'Validation host mouse strain, following mouse strain nomenclature from MGI JAX';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.morphological_features IS 'Morphological features of the model';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.SNP_analysis IS 'Was SNP analysis done on the model?';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.STR_analysis IS 'Was STR analysis done on the model?';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.tumour_status IS 'Gene expression validation of established model';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.model_purity IS 'Presence of tumour vs stroma or normal cells';
+COMMENT ON COLUMN pdcm_api.model_quality_assurance.comments IS 'Comments about the model that cannot be expressed by other fields';
 
 -- contact_people view
 
@@ -789,7 +818,11 @@ AS
                 or patient_age like '%months' 
             THEN true 
             ELSE false 
-        END as paediatric
+        END as paediatric,
+        (
+          SELECT mi.model_relationships FROM pdcm_api.model_information mi where mi.id = search_index.pdcm_model_id
+          and mi.data_source = search_index.data_source
+        ) as model_relationships
  FROM search_index;
 
 COMMENT ON VIEW pdcm_api.search_index IS 'Helper table to show results in a search';
@@ -799,6 +832,11 @@ COMMENT ON COLUMN pdcm_api.search_index.data_source IS 'Datasource (provider abb
 COMMENT ON COLUMN pdcm_api.search_index.project_name IS 'Project of the model';
 COMMENT ON COLUMN pdcm_api.search_index.provider_name IS 'Provider name';
 COMMENT ON COLUMN pdcm_api.search_index.model_type IS 'Type of model';
+COMMENT ON COLUMN pdcm_api.search_index.supplier_type IS 'Model supplier type - commercial, academic, other';
+COMMENT ON COLUMN pdcm_api.search_index.catalog_number IS 'Catalogue number of cell model, if commercial';
+COMMENT ON COLUMN pdcm_api.search_index.vendor_link IS 'Link to purchasable cell model, if commercial';
+COMMENT ON COLUMN pdcm_api.search_index.rrid IS 'Cellosaurus ID';
+COMMENT ON COLUMN pdcm_api.search_index.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
 COMMENT ON COLUMN pdcm_api.search_index.histology IS 'Harmonised patient sample diagnosis';
 COMMENT ON COLUMN pdcm_api.search_index.search_terms IS 'All diagnosis related (by ontology relations) to the model';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_system IS 'Cancer system of the model';
@@ -814,21 +852,25 @@ COMMENT ON COLUMN pdcm_api.search_index.cancer_grading_system IS 'Grade classifi
 COMMENT ON COLUMN pdcm_api.search_index.cancer_stage IS 'Stage of the patient at the time of collection';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_staging_system IS 'Stage classification system used to describe the stage, add the version if available';
 COMMENT ON COLUMN pdcm_api.search_index.patient_age IS 'Patient age at collection';
+COMMENT ON COLUMN pdcm_api.search_index.patient_age_category IS 'Age category at the time of sampling';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sex IS 'Patient sex';
 COMMENT ON COLUMN pdcm_api.search_index.patient_history IS 'Cancer relevant comorbidity or environmental exposure';
 COMMENT ON COLUMN pdcm_api.search_index.patient_ethnicity IS 'Patient Ethnic group. Can be derived from self-assessment or genetic analysis';
 COMMENT ON COLUMN pdcm_api.search_index.patient_ethnicity_assessment_method IS 'Patient Ethnic group assessment method';
 COMMENT ON COLUMN pdcm_api.search_index.patient_initial_diagnosis IS 'Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section';
-COMMENT ON COLUMN pdcm_api.search_index.patient_treatment_status IS 'Patient treatment status';
 COMMENT ON COLUMN pdcm_api.search_index.patient_age_at_initial_diagnosis IS 'This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_id IS 'Patient sample identifier given by the provider';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_collection_date IS 'Date of collections. Important for understanding the time relationship between models generated for the same patient';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_collection_event IS 'Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_collection_method IS 'Method of collection of the tissue sample';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_months_since_collection_1 IS 'The time difference between the 1st collection event and the current one (in months)';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_virology_status IS 'Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_sharable IS 'Indicates if patient treatment information is available and sharable';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_gene_mutation_status IS 'Outcome of mutational status tests for the following genes: BRAF, PIK3CA, PTEN, KRAS';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_treatment_naive_at_collection IS 'Was the patient treatment naive at the time of collection? This includes the patient being treated at the time of tumour sample collection and if the patient was treated prior to the tumour sample collection.\nThe value will be ''yes'' if either treated_at_collection or treated_prior_to_collection are ''yes''';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_treated_at_collection IS 'Indicates if the patient was being treated for cancer (radiotherapy, chemotherapy, targeted therapy, hormono-therapy) at the time of collection';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sample_treated_prior_to_collection IS 'Indicates if the patient was previously treated prior to the collection (radiotherapy, chemotherapy, targeted therapy, hormono-therapy)';
+COMMENT ON COLUMN pdcm_api.search_index.patient_sample_response_to_treatment IS 'Patient’s response to treatment.';
 COMMENT ON COLUMN pdcm_api.search_index.pdx_model_publications IS 'Publications that are associated to one or more models (PubMed IDs separated by commas)';
 COMMENT ON COLUMN pdcm_api.search_index.quality_assurance IS 'Quality assurance data';
 COMMENT ON COLUMN pdcm_api.search_index.xenograft_model_specimens IS 'Represents a xenografted mouse that has participated in the line creation and characterisation in some meaningful way. E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data';
@@ -898,6 +940,47 @@ COMMENT ON COLUMN pdcm_api.provider_group.description IS 'A description of the p
 COMMENT ON COLUMN pdcm_api.provider_group.provider_type_id IS 'Reference to the provider type';
 COMMENT ON COLUMN pdcm_api.provider_group.project_group_id IS 'Reference to the project the provider belongs to';
 
+-- project_group view: Project information
+
+DROP VIEW IF EXISTS pdcm_api.project_group;
+
+CREATE VIEW pdcm_api.project_group
+AS
+ SELECT project_group.*
+   FROM project_group;
+
+COMMENT ON VIEW pdcm_api.project_group IS 'Projects';
+COMMENT ON COLUMN pdcm_api.project_group.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.provider_group.name IS 'Project name';
+
+-- cell_model view: Cell Model
+
+DROP VIEW IF EXISTS pdcm_api.cell_model;
+
+CREATE VIEW pdcm_api.cell_model
+AS
+  SELECT cm.*
+  FROM   cell_model cm;
+
+COMMENT ON VIEW pdcm_api.cell_model IS 'Cell model';
+COMMENT ON COLUMN pdcm_api.cell_model.id IS 'Internal identifier';
+COMMENT ON COLUMN pdcm_api.cell_model.model_name IS 'Most common name associate with model. Please use the CCLE name if available';
+COMMENT ON COLUMN pdcm_api.cell_model.model_name_aliases IS 'model_name_aliases';
+COMMENT ON COLUMN pdcm_api.cell_model.type IS 'Type of organoid or cell model';
+COMMENT ON COLUMN pdcm_api.cell_model.growth_properties IS 'Observed growth properties of the related model';
+COMMENT ON COLUMN pdcm_api.cell_model.growth_media IS 'Base media formulation the model was grown in';
+COMMENT ON COLUMN pdcm_api.cell_model.media_id IS 'Unique identifier for each media formulation (Catalogue number)';
+COMMENT ON COLUMN pdcm_api.cell_model.parent_id IS 'model Id of the model used to generate the model';
+COMMENT ON COLUMN pdcm_api.cell_model.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
+COMMENT ON COLUMN pdcm_api.cell_model.model_id IS 'Reference to model_information_table';
+COMMENT ON COLUMN pdcm_api.cell_model.plate_coating IS 'Coating on plate model was grown in';
+COMMENT ON COLUMN pdcm_api.cell_model.other_plate_coating IS 'Other coating on plate model was grown in (not mentioned above)';
+COMMENT ON COLUMN pdcm_api.cell_model.passage_number IS 'Passage number at time of sequencing/screening';
+COMMENT ON COLUMN pdcm_api.cell_model.contaminated IS 'Is there contamination present in the model';
+COMMENT ON COLUMN pdcm_api.cell_model.contamination_details IS 'What are the details of the contamination';
+COMMENT ON COLUMN pdcm_api.cell_model.supplements IS 'Additional supplements the model was grown with';
+COMMENT ON COLUMN pdcm_api.cell_model.drug IS 'Additional drug/compounds the model was grown with';
+COMMENT ON COLUMN pdcm_api.cell_model.drug_concentration IS 'Concentration of Additional drug/compounds the model was grown with';
 
 --------------------------------- Materialized Views -------------------------------------------------------------------
 
@@ -1182,7 +1265,6 @@ SELECT
 	patient_age,
 	patient_sex,
 	patient_ethnicity,
-	patient_treatment_status,
 	histology,
 	string_agg(a.treatment, ' + ') AS treatment,
 	response,
@@ -1197,7 +1279,6 @@ FROM (
 		si.patient_age,
 		si.patient_sex,
 		si.patient_ethnicity,
-		si.patient_treatment_status,
 		si.histology,
 		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
 		r.name AS response,
@@ -1216,7 +1297,7 @@ FROM (
 	) a
 GROUP BY
 	id, external_model_id, data_source, external_patient_id, patient_age, patient_sex,
-	patient_ethnicity, patient_treatment_status, histology, response;
+	patient_ethnicity, histology, response;
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.patient_treatment_extended IS
   $$Patient treatment
@@ -1229,7 +1310,6 @@ COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_id IS 'Anonymous/d
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_age IS 'Patient age at collection';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_sex IS 'Sex of the patient';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_ethnicity IS 'Patient Ethnic group';
-COMMENT ON COLUMN pdcm_api.patient_treatment_extended.patient_treatment_status IS 'Status of the patient treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.histology IS 'Diagnosis at time of collection of the patient tumor';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.response IS 'Response of prior treatment';
@@ -1255,7 +1335,6 @@ FROM (
 		si.patient_age,
 		si.patient_sex,
 		si.patient_ethnicity,
-		si.patient_treatment_status,
 		si.histology,
 		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
 		r.name AS response,

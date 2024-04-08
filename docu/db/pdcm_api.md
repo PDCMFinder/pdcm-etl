@@ -51,6 +51,37 @@ Biomarker molecular data
 
 
 ---
+### cell_model
+
+Cell model
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|Internal identifier|
+|model_name|text|Most common name associate with model. Please use the CCLE name if available|
+|model_name_aliases|text|model_name_aliases|
+|type|text|Type of organoid or cell model|
+|growth_properties|text|Observed growth properties of the related model|
+|growth_media|text|Base media formulation the model was grown in|
+|media_id|text|Unique identifier for each media formulation (Catalogue number)|
+|parent_id|text|model Id of the model used to generate the model|
+|origin_patient_sample_id|text|Unique ID of the patient tumour sample used to generate the model|
+|model_id|bigint|Reference to model_information_table|
+|plate_coating|text|Coating on plate model was grown in|
+|other_plate_coating|text|Other coating on plate model was grown in (not mentioned above)|
+|passage_number|text|Passage number at time of sequencing/screening|
+|contaminated|text|Is there contamination present in the model|
+|contamination_details|text|What are the details of the contamination|
+|supplements|text|Additional supplements the model was grown with|
+|drug|text|Additional drug/compounds the model was grown with|
+|drug_concentration|text|Concentration of Additional drug/compounds the model was grown with|
+
+
+
+
+
+---
 ### cna_data_extended
 
 CNA molecular data
@@ -331,6 +362,7 @@ Model information (without joins)
 |-----|-----|-----|
 |id|bigint|Internal identifier|
 |external_model_id|text|Unique identifier of the model. Given by the provider|
+|type|text|Model Type|
 |data_source|character varying|Abbreviation of the provider. Added explicitly here to help with queries|
 |publication_group_id|bigint|Reference to the publication_group table. Corresponds to the publications the model is part of|
 |accessibility_group_id|bigint|Reference to the accessibility_group table|
@@ -338,6 +370,14 @@ Model information (without joins)
 |contact_form_id|bigint|Reference to the contact_form table|
 |source_database_id|bigint|Reference to the source_database table|
 |license_id|bigint|Reference to the license table|
+|external_ids|text|Depmap accession, Cellusaurus accession or other id. Please place in comma separated list|
+|supplier_type|text|Model supplier type - commercial, academic, other|
+|catalog_number|text|Catalogue number of cell model, if commercial|
+|vendor_link|text|Link to purchasable cell model, if commercial|
+|rrid|text|Cellosaurus ID|
+|parent_id|text|model Id of the model used to generate the model|
+|origin_patient_sample_id|text|Unique ID of the patient tumour sample used to generate the model|
+|model_relationships|jsonb|-|
 
 
 
@@ -375,7 +415,6 @@ Model metadata (joined with other tables)
 |patient_age|text|Patient age at collection|
 |patient_sex|text|Sex of the patient|
 |patient_ethnicity|text|Patient Ethnic group|
-|patient_treatment_status|text|Patient treatment status|
 |pubmed_ids|text|PubMed ids related to the model|
 |europdx_access_modalities|text|If a model is part of EUROPDX consortium, then this field defines if the model is accessible for transnational access through the EDIReX infrastructure, or only on a collaborative basis|
 |accessibility|text|Defines any limitation of access of the model per type of users like academia only, industry and academia, or national limitation|
@@ -404,6 +443,12 @@ Quality assurance
 |passages_tested|text|List of all passages where validation was performed. Passage 0 correspond to first engraftment|
 |validation_technique|text|Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry|
 |validation_host_strain_nomenclature|text|Validation host mouse strain, following mouse strain nomenclature from MGI JAX|
+|morphological_features|text|Morphological features of the model|
+|snp_analysis|text|Was SNP analysis done on the model?|
+|str_analysis|text|Was STR analysis done on the model?|
+|tumour_status|text|Gene expression validation of established model|
+|model_purity|text|Presence of tumour vs stroma or normal cells|
+|comments|text|Comments about the model that cannot be expressed by other fields|
 
 
 
@@ -482,6 +527,21 @@ Mutation measurement data
 
 
 ---
+### project_group
+
+Projects
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|Internal identifier|
+|name|text|-|
+
+
+
+
+
+---
 ### provider_group
 
 Information of data providers
@@ -490,7 +550,7 @@ Information of data providers
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
 |id|bigint|Internal identifier|
-|name|text|Provider name|
+|name|text|Project name|
 |abbreviation|text|Provider abbreviation|
 |description|text|A description of the provider|
 |provider_type_id|bigint|Reference to the provider type|
@@ -529,6 +589,12 @@ Cell Sample
 |validation_technique|text|Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry|
 |validation_host_strain_nomenclature|text|Validation host mouse strain, following mouse strain nomenclature from MGI JAX|
 |model_id|bigint|Reference to the model_information table|
+|morphological_features|text|-|
+|snp_analysis|text|-|
+|str_analysis|text|-|
+|tumour_status|text|-|
+|model_purity|text|-|
+|comments|text|-|
 
 
 
@@ -582,6 +648,11 @@ Helper table to show results in a search
 |project_name|text|Project of the model|
 |provider_name|text|Provider name|
 |model_type|text|Type of model|
+|supplier_type|text|Model supplier type - commercial, academic, other|
+|catalog_number|text|Catalogue number of cell model, if commercial|
+|vendor_link|text|Link to purchasable cell model, if commercial|
+|rrid|text|Cellosaurus ID|
+|external_ids|text|Depmap accession, Cellusaurus accession or other id. Please place in comma separated list|
 |histology|text|Harmonised patient sample diagnosis|
 |search_terms|text[]|All diagnosis related (by ontology relations) to the model|
 |cancer_system|text|Cancer system of the model|
@@ -596,21 +667,25 @@ Helper table to show results in a search
 |cancer_stage|text|Stage of the patient at the time of collection|
 |cancer_staging_system|text|Stage classification system used to describe the stage, add the version if available|
 |patient_age|text|Patient age at collection|
+|patient_age_category|text|Age category at the time of sampling|
 |patient_sex|text|Patient sex|
 |patient_history|text|Cancer relevant comorbidity or environmental exposure|
 |patient_ethnicity|text|Patient Ethnic group. Can be derived from self-assessment or genetic analysis|
 |patient_ethnicity_assessment_method|text|Patient Ethnic group assessment method|
 |patient_initial_diagnosis|text|Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section|
-|patient_treatment_status|text|Patient treatment status|
 |patient_age_at_initial_diagnosis|text|This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant|
 |patient_sample_id|text|Patient sample identifier given by the provider|
 |patient_sample_collection_date|text|Date of collections. Important for understanding the time relationship between models generated for the same patient|
 |patient_sample_collection_event|text|Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1|
+|patient_sample_collection_method|text|Method of collection of the tissue sample|
 |patient_sample_months_since_collection_1|text|The time difference between the 1st collection event and the current one (in months)|
+|patient_sample_gene_mutation_status|text|Outcome of mutational status tests for the following genes: BRAF, PIK3CA, PTEN, KRAS|
 |patient_sample_virology_status|text|Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status|
 |patient_sample_sharable|text|Indicates if patient treatment information is available and sharable|
+|patient_sample_treatment_naive_at_collection|text|Was the patient treatment naive at the time of collection? This includes the patient being treated at the time of tumour sample collection and if the patient was treated prior to the tumour sample collection.\nThe value will be 'yes' if either treated_at_collection or treated_prior_to_collection are 'yes'|
 |patient_sample_treated_at_collection|text|Indicates if the patient was being treated for cancer (radiotherapy, chemotherapy, targeted therapy, hormono-therapy) at the time of collection|
 |patient_sample_treated_prior_to_collection|text|Indicates if the patient was previously treated prior to the collection (radiotherapy, chemotherapy, targeted therapy, hormono-therapy)|
+|patient_sample_response_to_treatment|text|Patient’s response to treatment.|
 |pdx_model_publications|text|Publications that are associated to one or more models (PubMed IDs separated by commas)|
 |quality_assurance|json|Quality assurance data|
 |xenograft_model_specimens|json|Represents a xenografted mouse that has participated in the line creation and characterisation in some meaningful way. E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data|
@@ -630,6 +705,7 @@ Helper table to show results in a search
 |scores|json|Model characterizations scores|
 |model_dataset_type_count|integer|The number of datasets for which data exists|
 |paediatric|boolean|Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric|
+|model_relationships|jsonb|-|
 
 
 
@@ -645,8 +721,6 @@ Institution public database
 |-----|-----|-----|
 |id|bigint|Internal identifier|
 |database_url|text|Link of the institution public database|
-
-
 
 
 ---
