@@ -13,19 +13,33 @@
 model_characterizations:
   - id: 1
     name: "PDX Metadata Characterization"
-    description: "PDX Metadata Characterization score is calculated taking into account two criteria. First, it checks
-    the values of the fields in the models and assigns a score of 1 or 0.5 depending on the field being essential 
-    or desirable, and if the value is valid or not. Second, it assigns a score of 1 per external resource the model is 
-    linked to."
+    description: |
+      PDX Metadata Characterization score is calculated taking into account two criteria. First, it checks
+      the values of the fields in the models and assigns a score of 1 or 0.5 depending on the field being essential 
+      or desirable, and if the value is valid or not. Second, it assigns a score of 1 per external resource the model is 
+      linked to.
     applies_on: "PDX models"
     score_name: "pdx_metadata_score"
     calculation_method: "calculate_pdx_metadata_score"
 
   - id: 2
     name: "Data Characterization"
-    description: "Data Characterization score is calculated by taking into account the number of datasets the model
-    has. The datasets evaluated are: Publications, Expression data, Biomarker data, Mutation data, Patient treatment 
-    data, and Drug dosing data."
+    description: |
+      Data Characterization score is calculated by taking into account the number of datasets the model
+      has. The datasets evaluated are: Publications, Expression data, Biomarker data, Mutation data, Patient treatment 
+      data, and Drug dosing data.
     applies_on: "All models"
     score_name: "data_score"
     calculation_method: "calculate_data_score"
+
+  - id: 3
+    name: "In Vitro Metadata Characterization"
+    description: |
+      In Vitro Metadata Characterization score is calculated taking into account 3 components.
+      1) Metadata score: it checks the values of the fields in the in vitro models. It assigns a score (a value between 0 and 1) depending on the relevance of the field (essential vs desirable, for instance), and if the value is valid or not.
+      2) Raw data external resources: Intermediate score calculated based on the number of external resources the raw data is linked to.
+      3) Cancer annotation external resources: Intermediate score calculated based on the number of cancer annotation external resources the molecular data is linked to.
+      The 3 components are combined into a single score after giving each one a weight according to its relevance
+    applies_on: "cell line and organoid models"
+    score_name: "in_vitro_metadata_score"
+    calculation_method: "calculate_in_vitro_metadata_score"

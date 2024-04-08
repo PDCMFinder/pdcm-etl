@@ -89,6 +89,19 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
         lit("").alias("rrid"),
         "parent_id",
         "origin_patient_sample_id",
+        lit("").alias("model_name"),
+        lit("").alias("model_name_aliases"),
+        lit("").alias("growth_properties"),
+        lit("").alias("growth_media"),
+        lit("").alias("media_id"),
+        lit("").alias("plate_coating"),
+        lit("").alias("other_plate_coating"),
+        lit("").alias("passage_number"),
+        lit("").alias("contaminated"),
+        lit("").alias("contamination_details"),
+        lit("").alias("supplements"),
+        lit("").alias("drug"),
+        lit("").alias("drug_concentration"),
         Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     model_df = model_df.withColumn("type", lit("PDX"))
     model_df = model_df.withColumnRenamed("model_id", "external_model_id")
@@ -103,7 +116,21 @@ def get_data_from_model_modules(raw_model_df: DataFrame, raw_cell_model_df: Data
         "rrid",
         "parent_id",
         "origin_patient_sample_id",
-        "type", Constants.DATA_SOURCE_COLUMN).drop_duplicates()
+        "type",
+        "model_name",
+        "model_name_aliases",
+        "growth_properties",
+        "growth_media",
+        "media_id",
+        "plate_coating",
+        "other_plate_coating",
+        "passage_number",
+        "contaminated",
+        "contamination_details",
+        "supplements",
+        "drug",
+        "drug_concentration",
+        Constants.DATA_SOURCE_COLUMN).drop_duplicates()
     cell_model_df = cell_model_df.withColumn("type", lower_and_trim_all("type"))
     cell_model_df = cell_model_df.withColumnRenamed("model_id", "external_model_id")
     
@@ -211,7 +238,21 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "vendor_link",
         "rrid",
         "parent_id",
-        "origin_patient_sample_id"
+        "origin_patient_sample_id",
+        "model_name",
+        "model_name_aliases",
+        "growth_properties",
+        "growth_media",
+        "media_id",
+        "plate_coating",
+        "other_plate_coating",
+        "passage_number",
+        "contaminated",
+        "contamination_details",
+        "supplements",
+        "drug",
+        "drug_concentration",
+
         )
 
 
