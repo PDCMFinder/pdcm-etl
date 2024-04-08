@@ -1,4 +1,4 @@
-from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType
+from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType, IntegerType
 
 def build_search_index_df_schema():
     schema = StructType([
@@ -76,5 +76,16 @@ def build_search_index_df_schema():
         StructField('supplements', StringType(), False),
         StructField('drug', StringType(), False),
         StructField('drug_concentration', StringType(), False)
+    ])
+    return schema
+
+def build_model_characterizations_conf_df_schema():
+    schema = StructType([
+        StructField('id', IntegerType(), False),
+        StructField('name', StringType(), False),
+        StructField('description', StringType(), False),
+        StructField('applies_on', StringType(), False),
+        StructField('score_name', StringType(), False),
+        StructField('calculation_method', StringType(), False)
     ])
     return schema
