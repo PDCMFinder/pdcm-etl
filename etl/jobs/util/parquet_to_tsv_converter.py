@@ -26,7 +26,7 @@ def main(argv):
     df = flatten_array_columns(df)
     df = df.select(columns)
     # df.coalesce(1).write \
-    df.write.option("sep", "\t").option("quote", "\u0000").option(
+    df.write.option("sep", "\t").option("quote", "\u0022").option(
         "header", "true"
     ).mode("overwrite").csv(output_path)
 
