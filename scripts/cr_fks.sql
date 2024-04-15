@@ -133,30 +133,32 @@ ALTER TABLE molecular_characterization
     FOREIGN KEY (cell_sample_id)
     REFERENCES cell_sample (id);
 
-ALTER TABLE cna_molecular_data
-    ADD CONSTRAINT fk_cna_molecular_data_mol_char
-    FOREIGN KEY (molecular_characterization_id)
-    REFERENCES molecular_characterization (id);
+-- Disabling FKs because of performance issues
 
-ALTER TABLE biomarker_molecular_data
-    ADD CONSTRAINT fk_biomarker_molecular_data_mol_char
-    FOREIGN KEY (molecular_characterization_id)
-    REFERENCES molecular_characterization (id);
+-- ALTER TABLE cna_molecular_data
+--     ADD CONSTRAINT fk_cna_molecular_data_mol_char
+--     FOREIGN KEY (molecular_characterization_id)
+--     REFERENCES molecular_characterization (id);
 
-ALTER TABLE expression_molecular_data
-    ADD CONSTRAINT fk_expression_molecular_data_mol_char
-    FOREIGN KEY (molecular_characterization_id)
-    REFERENCES molecular_characterization (id);
+-- ALTER TABLE biomarker_molecular_data
+--     ADD CONSTRAINT fk_biomarker_molecular_data_mol_char
+--     FOREIGN KEY (molecular_characterization_id)
+--     REFERENCES molecular_characterization (id);
 
-ALTER TABLE mutation_measurement_data
-    ADD CONSTRAINT fk_mutation_measurement_data_mol_char
-    FOREIGN KEY (molecular_characterization_id)
-    REFERENCES molecular_characterization (id);
+-- ALTER TABLE expression_molecular_data
+--     ADD CONSTRAINT fk_expression_molecular_data_mol_char
+--     FOREIGN KEY (molecular_characterization_id)
+--     REFERENCES molecular_characterization (id);
 
-ALTER TABLE immunemarker_molecular_data
-    ADD CONSTRAINT fk_immunemarker_molecular_data_mol_char
-    FOREIGN KEY (molecular_characterization_id)
-    REFERENCES molecular_characterization (id);
+-- ALTER TABLE mutation_measurement_data
+--     ADD CONSTRAINT fk_mutation_measurement_data_mol_char
+--     FOREIGN KEY (molecular_characterization_id)
+--     REFERENCES molecular_characterization (id);
+
+-- ALTER TABLE immunemarker_molecular_data
+--     ADD CONSTRAINT fk_immunemarker_molecular_data_mol_char
+--     FOREIGN KEY (molecular_characterization_id)
+--     REFERENCES molecular_characterization (id);
 
 ALTER TABLE xenograft_model_specimen
     ADD CONSTRAINT fk_specimen_engraftment_site
