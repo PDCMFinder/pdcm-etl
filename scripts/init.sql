@@ -537,7 +537,7 @@ COMMENT ON COLUMN molecular_characterization.external_db_links IS 'JSON column w
 
 DROP TABLE IF EXISTS cna_molecular_data CASCADE;
 
-CREATE TABLE cna_molecular_data (
+CREATE UNLOGGED TABLE cna_molecular_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     chromosome TEXT,
@@ -578,7 +578,7 @@ COMMENT ON COLUMN cna_molecular_data.external_db_links IS 'JSON column with link
 
 DROP TABLE IF EXISTS biomarker_molecular_data CASCADE;
 
-CREATE TABLE biomarker_molecular_data (
+CREATE UNLOGGED TABLE biomarker_molecular_data (
     id BIGINT NOT NULL,
     biomarker TEXT,
     biomarker_status TEXT,
@@ -603,7 +603,7 @@ COMMENT ON COLUMN biomarker_molecular_data.external_db_links IS 'JSON column wit
 
 DROP TABLE IF EXISTS expression_molecular_data CASCADE;
 
-CREATE TABLE expression_molecular_data (
+CREATE UNLOGGED TABLE expression_molecular_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     z_score NUMERIC,
@@ -644,7 +644,7 @@ COMMENT ON COLUMN expression_molecular_data.external_db_links IS 'JSON column wi
 
 DROP TABLE IF EXISTS mutation_measurement_data CASCADE;
 
-CREATE TABLE mutation_measurement_data (
+CREATE UNLOGGED TABLE mutation_measurement_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     amino_acid_change TEXT,
@@ -701,7 +701,7 @@ COMMENT ON COLUMN mutation_measurement_data.external_db_links IS 'JSON column wi
 
 DROP TABLE IF EXISTS immunemarker_molecular_data CASCADE;
 
-CREATE TABLE immunemarker_molecular_data (
+CREATE UNLOGGED TABLE immunemarker_molecular_data (
     id BIGINT NOT NULL,
     marker_type TEXT,
     marker_name TEXT,

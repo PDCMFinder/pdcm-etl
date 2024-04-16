@@ -100,6 +100,9 @@ def transform_search_index_molecular_data(
 
     # Add hla types
     df = add_hla_types(df, search_index_molecular_char_df, immunemarkers_data_df)
+    
+    # Delete colums that get duplicate in the process
+    df = df.drop("model_id")
 
     return df
 
@@ -315,9 +318,6 @@ def join_symbols_list_to_model_df(
         model_symbols_list_per_datatype,
         on=[model_metadata_df.pdcm_model_id == model_symbols_list_per_datatype.model_id],
         how='left')
-
-    # Delete column because it is already present in the df
-    model_metadata_df = model_metadata_df.drop(model_symbols_list_per_datatype.model_id)
 
     return model_metadata_df
 
