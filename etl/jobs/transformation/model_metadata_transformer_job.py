@@ -108,6 +108,7 @@ def get_formatted_model(
         "license_name",
         "license_url",
         "external_ids",
+        "supplier",
         "supplier_type",
         "catalog_number",
         "vendor_link",

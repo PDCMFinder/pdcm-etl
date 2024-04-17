@@ -153,6 +153,7 @@ CREATE TABLE model_information (
     source_database_id BIGINT,
     license_id BIGINT,
     external_ids TEXT,
+    supplier TEXT,
     supplier_type TEXT,
     catalog_number TEXT,
     vendor_link TEXT,
@@ -173,6 +174,7 @@ COMMENT ON COLUMN model_information.contact_form_id IS 'Reference to the contact
 COMMENT ON COLUMN model_information.source_database_id IS 'Reference to the source_database table';
 COMMENT ON COLUMN model_information.license_id IS 'Reference to the license table';
 COMMENT ON COLUMN model_information.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
+COMMENT ON COLUMN model_information.supplier IS 'Supplier brief acronym or name followed by a colon and the number or name use to reference the model';
 COMMENT ON COLUMN model_information.supplier_type IS 'Model supplier type - commercial, academic, other';
 COMMENT ON COLUMN model_information.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN model_information.vendor_link IS 'Link to purchasable cell model, if commercial';
@@ -918,6 +920,7 @@ CREATE TABLE search_index (
     project_name TEXT,
     provider_name TEXT,
     model_type TEXT,
+    supplier TEXT,
     supplier_type TEXT,
     catalog_number TEXT,
     vendor_link TEXT,
@@ -982,6 +985,7 @@ COMMENT ON COLUMN search_index.data_source IS 'Datasource (provider abbreviation
 COMMENT ON COLUMN search_index.project_name IS 'Project of the model';
 COMMENT ON COLUMN search_index.provider_name IS 'Provider name';
 COMMENT ON COLUMN search_index.model_type IS 'Type of model';
+COMMENT ON COLUMN search_index.supplier IS 'Supplier brief acronym or name followed by a colon and the number or name use to reference the model';
 COMMENT ON COLUMN search_index.supplier_type IS 'Model supplier type - commercial, academic, other';
 COMMENT ON COLUMN search_index.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN search_index.vendor_link IS 'Link to purchasable cell model, if commercial';
