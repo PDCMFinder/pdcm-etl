@@ -1,6 +1,5 @@
 luigi==3.5.0
 
-#Making pyspark 3.1.1 because 3.2.0 and 3.2.1 have a bug regarding replacing a dataset view which is fixed in spark 3.2.2 but it's not available in pyspark at the moment (3.2.1)
 pyspark==3.3.3
 docutils~=0.17.1
 pip
