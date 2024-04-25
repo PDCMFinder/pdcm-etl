@@ -27,6 +27,7 @@ def main(argv):
     columns = get_columns_by_entity_name(entity)
     df = flatten_array_columns(df)
     df = df.select(columns)
+    
     # Null values need to be treated as empty strings so the copy to the database works
     df = null_values_to_empty_string(df)
     
@@ -35,9 +36,12 @@ def main(argv):
         "header", "true"
     ).mode("overwrite").csv(output_path)
     
-def null_values_to_empty_string(df : DataFrame):
-    for col_name in df.columns:
-        df = df.withColumn(col_name, when(col(col_name).isNull(), "").otherwise(col(col_name)))
+def null_values_to_empty_string(df):
+    for col_name, col_type in df.dtypes:
+        if col_type == 'boolean':
+            df = df.withColumn(col_name, when(col(col_name).isNull(), False).otherwise(col(col_name)))
+        else:
+            df = df.withColumn(col_name, when(col(col_name).isNull(), "").otherwise(col(col_name)))
     return df
     
 

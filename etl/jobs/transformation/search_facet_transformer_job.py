@@ -6,7 +6,7 @@ from pyspark.sql.functions import (
     lit,
     explode, col,
 )
-from pyspark.sql.types import ArrayType, StringType, StructType, StructField
+from pyspark.sql.types import ArrayType, StringType, BooleanType, StructType, StructField
 
 from etl.jobs.util.cleaner import lower_and_trim_all
 
@@ -20,140 +20,232 @@ facet_definitions = [
         "facet_section": "search",
         "facet_name": "Search",
         "facet_column": "search_terms",
-        "facet_example": "Melanoma"
+        "facet_example": "Melanoma",
+        "any_operator": "ov",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": ""
     },
     {
         "facet_section": "model",
         "facet_name": "Dataset available",
         "facet_column": "dataset_available",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "ov",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "model",
         "facet_name": "Datasource",
         "facet_column": "data_source",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "model",
         "facet_name": "Type",
         "facet_column": "model_type",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "model",
         "facet_name": "Model ID",
         "facet_column": "external_model_id",
-        "facet_example": "TM00015"
+        "facet_example": "TM00015",
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "autocomplete"
     },
     {
         "facet_section": "model",
         "facet_name": "Project",
         "facet_column": "project_name",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Gene mutation",
         "facet_column": "markers_with_mutation_data",
-        "facet_example": "RTP3"
+        "facet_example": "RTP3",
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Copy Number Alteration",
         "facet_column": "markers_with_cna_data",
-        "facet_example": "RTP3"
+        "facet_example": "RTP3",
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Gene Expression",
         "facet_column": "markers_with_expression_data",
-        "facet_example": "BEST1"
+        "facet_example": "BEST1",
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Breast cancer biomarkers",
         "facet_column": "breast_cancer_biomarkers",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "Bio markers",
         "facet_column": "markers_with_biomarker_data",
-        "facet_example": "ESR1"
+        "facet_example": "ESR1",
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "MSI Status",
         "facet_column": "msi_status",
-        "facet_example": "Stable"
+        "facet_example": "Stable",
+        "any_operator": "ov",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "molecular_data",
         "facet_name": "HLA types",
         "facet_column": "hla_types",
-        "facet_example": "HLA-A"
+        "facet_example": "HLA-A",
+        "any_operator": "ov",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "treatment_drug_dosing",
         "facet_name": "Treatment type",
         "facet_column": "custom_treatment_type_list",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "ov",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "treatment_drug_dosing",
         "facet_name": "Patient treatment",
         "facet_column": "treatment_list",
-        "facet_example": "radiation therapy"
+        "facet_example": "radiation therapy",
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "treatment_drug_dosing",
         "facet_name": "Model dosing",
         "facet_column": "model_treatment_list",
-        "facet_example": "cyclophosphamide"
+        "facet_example": "cyclophosphamide",
+        "any_operator": "ov",
+        "all_operator": "cs",
+        "is_boolean": False,
+        "facet_type": "multivalued"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Tumour type",
         "facet_column": "tumour_type",
         "facet_example": '""',
-        "remove_invalid_values": True
+        "remove_invalid_values": True,
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Patient sex",
         "facet_column": "patient_sex",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Patient Ethnicity",
         "facet_column": "patient_ethnicity",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Patient age",
         "facet_column": "patient_age",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Cancer system",
         "facet_column": "cancer_system",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Collection Site",
         "facet_column": "collection_site",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     },
     {
         "facet_section": "patient_tumour",
         "facet_name": "Primary Site",
         "facet_column": "primary_site",
-        "facet_example": '""'
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": False,
+        "facet_type": "check"
     }
 ]
 
@@ -177,6 +269,11 @@ def main(argv):
             StructField("facet_column", StringType(), True),
             StructField("facet_options", ArrayType(StringType()), True),
             StructField("facet_example", StringType(), True),
+            StructField("any_operator", StringType(), True),
+            StructField("all_operator", StringType(), True),
+            StructField("is_boolean", BooleanType(), True),
+            StructField("facet_type", StringType(), True),
+
         ]
     )
     search_facet_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema)
@@ -187,6 +284,9 @@ def main(argv):
 def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
     search_index_df = search_index_df.select(get_columns_to_select())
     for facet_definition in facet_definitions:
+        # Boolean types don't scan the valuesto build the options, so those are processed apart
+        if facet_definition["is_boolean"]:
+            continue
         column_name = facet_definition["facet_column"]
         facet_df = search_index_df.select(column_name)
         facet_df = facet_df.withColumn("temp", lit(0))
@@ -205,7 +305,15 @@ def transform_search_facet(search_facet_df, search_index_df) -> DataFrame:
             facet_df = facet_df.withColumn(k, lit(v))
         search_facet_df = search_facet_df.union(
             facet_df.select(
-                "facet_section", "facet_name", "facet_column", "facet_options", "facet_example"
+                "facet_section",
+                "facet_name",
+                "facet_column",
+                "facet_options",
+                "facet_example",
+                "any_operator",
+                "all_operator",
+                "is_boolean",
+                "facet_type"
             )
         )
     return search_facet_df

@@ -906,6 +906,10 @@ COMMENT ON COLUMN pdcm_api.search_facet.facet_name IS 'Facet name';
 COMMENT ON COLUMN pdcm_api.search_facet.facet_column IS 'Facet column';
 COMMENT ON COLUMN pdcm_api.search_facet.facet_options IS 'List of possible options';
 COMMENT ON COLUMN pdcm_api.search_facet.facet_example IS 'Facet example';
+COMMENT ON COLUMN pdcm_api.search_facet.any_operator IS 'Operator to be used when the search involves several options and the search uses ANY';
+COMMENT ON COLUMN pdcm_api.search_facet.all_operator IS 'Operator to be used when the search involves several options and the search uses ALL';
+COMMENT ON COLUMN pdcm_api.search_facet.is_boolean IS 'Indicates if the filter is to be used on a boolean field';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_type IS 'Indicates how to create the element in the UI: check, autocomplete, or multivalued';
 
 -- release_info view: Name, date and list of processed providers
 
