@@ -683,7 +683,11 @@ entities = {
             "facet_name",
             "facet_column",
             "facet_options",
-            "facet_example"
+            "facet_example",
+            "any_operator",
+            "all_operator",
+            "is_boolean",
+            "facet_type"
         ]
     },
     Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: {

@@ -65,15 +65,7 @@ DROP VIEW IF EXISTS pdcm_api.model_information CASCADE;
 
 CREATE VIEW pdcm_api.model_information AS
 SELECT 
-  mi.*,
-  (
-		select to_jsonb(r) from 
-			(
-			select 
-				to_jsonb(pdcm_api.get_parents_tree(mi.external_model_id)) as parents,
-        to_jsonb(pdcm_api.get_children_tree(mi.external_model_id)) as children
-			)r
-	) as model_relationships
+  mi.*
 from model_information mi;
 
 COMMENT ON VIEW pdcm_api.model_information IS
@@ -821,9 +813,13 @@ AS
             ELSE false 
         END as paediatric,
         (
-          SELECT mi.model_relationships FROM pdcm_api.model_information mi where mi.id = search_index.pdcm_model_id
+          SELECT mi.model_relationships FROM model_information mi where mi.id = search_index.pdcm_model_id
           and mi.data_source = search_index.data_source
-        ) as model_relationships
+        ) as model_relationships,
+         (
+          SELECT mi.has_relations FROM model_information mi where mi.id = search_index.pdcm_model_id
+          and mi.data_source = search_index.data_source
+        ) as has_relations
  FROM search_index;
 
 COMMENT ON VIEW pdcm_api.search_index IS 'Helper table to show results in a search';
@@ -892,7 +888,8 @@ COMMENT ON COLUMN pdcm_api.search_index.cancer_annotation_resources IS 'List of 
 COMMENT ON COLUMN pdcm_api.search_index.scores IS 'Model characterizations scores';
 COMMENT ON COLUMN pdcm_api.search_index.model_dataset_type_count IS 'The number of datasets for which data exists';
 COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric';
-
+COMMENT ON COLUMN pdcm_api.search_index.model_relationships IS 'Model relationships';
+COMMENT ON COLUMN pdcm_api.search_index.has_relations IS 'Indicates if the model has parent(s) or children';
 
 -- search_facet materialized view: Facets information
 
@@ -909,6 +906,10 @@ COMMENT ON COLUMN pdcm_api.search_facet.facet_name IS 'Facet name';
 COMMENT ON COLUMN pdcm_api.search_facet.facet_column IS 'Facet column';
 COMMENT ON COLUMN pdcm_api.search_facet.facet_options IS 'List of possible options';
 COMMENT ON COLUMN pdcm_api.search_facet.facet_example IS 'Facet example';
+COMMENT ON COLUMN pdcm_api.search_facet.any_operator IS 'Operator to be used when the search involves several options and the search uses ANY';
+COMMENT ON COLUMN pdcm_api.search_facet.all_operator IS 'Operator to be used when the search involves several options and the search uses ALL';
+COMMENT ON COLUMN pdcm_api.search_facet.is_boolean IS 'Indicates if the filter is to be used on a boolean field';
+COMMENT ON COLUMN pdcm_api.search_facet.facet_type IS 'Indicates how to create the element in the UI: check, autocomplete, or multivalued';
 
 -- release_info view: Name, date and list of processed providers
 
