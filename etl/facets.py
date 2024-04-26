@@ -68,12 +68,12 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Model Relationships",
-        "facet_column": "model_relationships",
+        "facet_column": "has_relations",
         "facet_example": '""',
         "any_operator": "in",
         "all_operator": "",
         "is_boolean": True,
-        "facet_options": ["Has Relationships=true"],
+        "facet_options": ["related models=true"],
         "facet_type": "check",
         "dynamic_values": False
     },
