@@ -2,7 +2,7 @@ import sys
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import lit, col, concat, concat_ws, collect_list, collect_set, when, array, size, \
-    regexp_replace, split, lower
+    regexp_replace, split, lower, coalesce, array
 
 from etl.constants import Constants
 from etl.jobs.transformation.links_generation.resources_per_model_util import add_raw_data_resources
@@ -275,17 +275,22 @@ def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
     model_df = model_df.withColumn(
         "tmp_patient_treatment_status",
         when(
-            lower(col("treatment_naive_at_collection")).isin('not provided', 'no'), None)
+            lower(col("treatment_naive_at_collection")).isin('not provided', 'not collected', 'no'), None)
+        .when(
+            lower(col("treatment_naive_at_collection")).isin('yes'), lit("Treatment naive"))
         .otherwise(col("treatment_naive_at_collection")))
-
+    
+    
     # Make patient_treatment_status an array
     model_df = model_df.withColumn("tmp_patient_treatment_status", split(col("tmp_patient_treatment_status"), ","))
 
     model_df = model_df.withColumn(
         "custom_treatment_type_list", 
-        when(
-            col("tmp_patient_treatment_status").isNull(), col("treatment_type_list"))
-            .otherwise(concat(col("treatment_type_list"), col("tmp_patient_treatment_status"))))
+        concat(
+            coalesce(col("treatment_type_list"), array()),
+            coalesce(col("tmp_patient_treatment_status"), array())
+        )
+    )
 
     return model_df
 
