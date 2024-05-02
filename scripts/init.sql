@@ -153,6 +153,7 @@ CREATE TABLE model_information (
     source_database_id BIGINT,
     license_id BIGINT,
     external_ids TEXT,
+    supplier TEXT,
     supplier_type TEXT,
     catalog_number TEXT,
     vendor_link TEXT,
@@ -173,6 +174,7 @@ COMMENT ON COLUMN model_information.contact_form_id IS 'Reference to the contact
 COMMENT ON COLUMN model_information.source_database_id IS 'Reference to the source_database table';
 COMMENT ON COLUMN model_information.license_id IS 'Reference to the license table';
 COMMENT ON COLUMN model_information.external_ids IS 'Depmap accession, Cellusaurus accession or other id. Please place in comma separated list';
+COMMENT ON COLUMN model_information.supplier IS 'Supplier brief acronym or name followed by a colon and the number or name use to reference the model';
 COMMENT ON COLUMN model_information.supplier_type IS 'Model supplier type - commercial, academic, other';
 COMMENT ON COLUMN model_information.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN model_information.vendor_link IS 'Link to purchasable cell model, if commercial';
@@ -537,7 +539,7 @@ COMMENT ON COLUMN molecular_characterization.external_db_links IS 'JSON column w
 
 DROP TABLE IF EXISTS cna_molecular_data CASCADE;
 
-CREATE TABLE cna_molecular_data (
+CREATE UNLOGGED TABLE cna_molecular_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     chromosome TEXT,
@@ -578,7 +580,7 @@ COMMENT ON COLUMN cna_molecular_data.external_db_links IS 'JSON column with link
 
 DROP TABLE IF EXISTS biomarker_molecular_data CASCADE;
 
-CREATE TABLE biomarker_molecular_data (
+CREATE UNLOGGED TABLE biomarker_molecular_data (
     id BIGINT NOT NULL,
     biomarker TEXT,
     biomarker_status TEXT,
@@ -603,7 +605,7 @@ COMMENT ON COLUMN biomarker_molecular_data.external_db_links IS 'JSON column wit
 
 DROP TABLE IF EXISTS expression_molecular_data CASCADE;
 
-CREATE TABLE expression_molecular_data (
+CREATE UNLOGGED TABLE expression_molecular_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     z_score NUMERIC,
@@ -644,7 +646,7 @@ COMMENT ON COLUMN expression_molecular_data.external_db_links IS 'JSON column wi
 
 DROP TABLE IF EXISTS mutation_measurement_data CASCADE;
 
-CREATE TABLE mutation_measurement_data (
+CREATE UNLOGGED TABLE mutation_measurement_data (
     id BIGINT NOT NULL,
     hgnc_symbol TEXT,
     amino_acid_change TEXT,
@@ -701,7 +703,7 @@ COMMENT ON COLUMN mutation_measurement_data.external_db_links IS 'JSON column wi
 
 DROP TABLE IF EXISTS immunemarker_molecular_data CASCADE;
 
-CREATE TABLE immunemarker_molecular_data (
+CREATE UNLOGGED TABLE immunemarker_molecular_data (
     id BIGINT NOT NULL,
     marker_type TEXT,
     marker_name TEXT,
@@ -918,6 +920,7 @@ CREATE TABLE search_index (
     project_name TEXT,
     provider_name TEXT,
     model_type TEXT,
+    supplier TEXT,
     supplier_type TEXT,
     catalog_number TEXT,
     vendor_link TEXT,
@@ -982,6 +985,7 @@ COMMENT ON COLUMN search_index.data_source IS 'Datasource (provider abbreviation
 COMMENT ON COLUMN search_index.project_name IS 'Project of the model';
 COMMENT ON COLUMN search_index.provider_name IS 'Provider name';
 COMMENT ON COLUMN search_index.model_type IS 'Type of model';
+COMMENT ON COLUMN search_index.supplier IS 'Supplier brief acronym or name followed by a colon and the number or name use to reference the model';
 COMMENT ON COLUMN search_index.supplier_type IS 'Model supplier type - commercial, academic, other';
 COMMENT ON COLUMN search_index.catalog_number IS 'Catalogue number of cell model, if commercial';
 COMMENT ON COLUMN search_index.vendor_link IS 'Link to purchasable cell model, if commercial';
@@ -1046,7 +1050,11 @@ CREATE TABLE search_facet (
     facet_name TEXT,
     facet_column TEXT,
     facet_options TEXT[],
-    facet_example TEXT
+    facet_example TEXT,
+    any_operator TEXT,
+    all_operator TEXT,
+    is_boolean BOOLEAN,
+    facet_type TEXT
 );
 
 COMMENT ON TABLE search_facet IS 'Helper table to show filter options';
@@ -1055,6 +1063,10 @@ COMMENT ON COLUMN search_facet.facet_name IS 'Facet name';
 COMMENT ON COLUMN search_facet.facet_column IS 'Facet column';
 COMMENT ON COLUMN search_facet.facet_options IS 'List of possible options';
 COMMENT ON COLUMN search_facet.facet_example IS 'Facet example';
+COMMENT ON COLUMN search_facet.any_operator IS 'Operator to be used when the search involves several options and the search uses ANY';
+COMMENT ON COLUMN search_facet.all_operator IS 'Operator to be used when the search involves several options and the search uses ALL';
+COMMENT ON COLUMN search_facet.is_boolean IS 'Indicates if the filter is to be used on a boolean field';
+COMMENT ON COLUMN search_facet.facet_type IS 'Indicates how to create the element in the UI: check, autocomplete, or multivalued';
 
 DROP TABLE IF EXISTS molecular_data_restriction CASCADE;
 

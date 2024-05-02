@@ -5,7 +5,7 @@ from etl.constants import Constants
 from etl.entities_registry import get_all_entities_names_to_store_db
 from etl.entities_task_index import get_transformation_class_by_entity_name
 from etl.jobs.load.database_manager import copy_entity_to_database, get_database_connection, \
-    create_indexes, create_fks, recreate_tables, create_views
+    create_indexes, create_fks, recreate_tables, create_views, run_updates
 from etl.jobs.util.file_manager import copy_directory
 from etl.workflow.config import PdcmConfig
 from etl.workflow.reporter import WriteReleaseInfoCsv
@@ -155,6 +155,42 @@ class Cache(luigi.Task):
             copy_directory(self.cache_dir, self.data_dir_out)
         with self.output().open('w') as outfile:
             outfile.write("use_cache: {0}. folder: {1}".format(use_cache, self.cache_dir))
+            
+            
+class RunUpdates(luigi.Task):
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    data_dir = luigi.Parameter()
+    data_dir = luigi.Parameter()
+    env = luigi.Parameter()
+    """
+        Updates some tables after they have data.
+    """
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "tables_updated"))
+        
+    def requires(self):
+        return CopyAll()
+
+    def run(self):
+        print("\n\n********** Updating tables ***********\n")
+
+        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+
+        run_updates(connection)
+        connection.commit()
+        connection.close()
+
+        with self.output().open('w') as outfile:
+            outfile.write("Tables updated")
+
+        print("\n********** End Tables Update ***********\n")
 
 
 class CreateViews(luigi.Task):
@@ -196,7 +232,7 @@ class LoadPublicDBObjects(luigi.Task):
     env = luigi.Parameter()
 
     def requires(self):
-        return [CreateFksAndIndexes(), LoadReleaseInfo()]
+        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates()]
 
     def output(self):
         return PdcmConfig().get_target(

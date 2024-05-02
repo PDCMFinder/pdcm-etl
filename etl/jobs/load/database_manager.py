@@ -55,6 +55,15 @@ def create_fks(connection):
         cursor.execute(open("scripts/cr_fks.sql", "r").read())
     end = time.time()
     print("Fkd created in {0} seconds".format(round(end - start, 4)))
+    
+    
+def run_updates(connection):
+    start = time.time()
+    print("post insert updates")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/updates.sql", "r").read())
+    end = time.time()
+    print("Updates applied in {0} seconds".format(round(end - start, 4)))
 
 
 def create_views(connection):

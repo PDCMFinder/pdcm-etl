@@ -27,13 +27,12 @@ common_weights = {
     "quality_assurance.validation_technique": 1,
     "quality_assurance.description": 1,
     "quality_assurance.passages_tested": 1,
-    "quality_assurance.validation_host_strain_nomenclature": 1,  #
-    "quality_assurance.morphological_features": 0,
+    "quality_assurance.validation_host_strain_nomenclature": 1,
     "quality_assurance.SNP_analysis": 0,
     "quality_assurance.STR_analysis": 0,
-    "quality_assurance.tumour_status": 0,
-    "quality_assurance.model_purity": 0,
     "quality_assurance.comments": 0,
+    "supplier": 0,
+    "supplier_type": 0
 
 }
 
@@ -51,7 +50,7 @@ pdx_only_weights = {
 # Weights for fields that only apply to In Vitro models
 in_vitro_only_weights = {
     "model_name": 1,
-    "model_name_aliases": 1,
+    "model_name_aliases": 0.5,
     "growth_properties": 1,
     "growth_media": 1,
     "media_id": 1,
@@ -59,9 +58,12 @@ in_vitro_only_weights = {
     "other_plate_coating" :1,
     "passage_number": 1,
     "contaminated": 1,
-    "contamination_details": 1,
-    "supplements": 1,
-    "drug": 1,
-    "drug_concentration": 1
+    "contamination_details": 0.5,
+    "supplements": 0.5,
+    "drug": 0.5,
+    "drug_concentration": 0.5,
+    "quality_assurance.morphological_features": 1,
+    "quality_assurance.tumour_status": 1,
+    "quality_assurance.model_purity": 1,
 }
 

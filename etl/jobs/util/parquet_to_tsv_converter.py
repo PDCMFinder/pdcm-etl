@@ -1,6 +1,8 @@
 import sys
 
 from pyspark.sql import SparkSession
+from pyspark.sql.dataframe import DataFrame
+from pyspark.sql.functions import col, when
 
 from etl.constants import Constants
 from etl.entities_registry import get_columns_by_entity_name
@@ -25,11 +27,23 @@ def main(argv):
     columns = get_columns_by_entity_name(entity)
     df = flatten_array_columns(df)
     df = df.select(columns)
+    
+    # Null values need to be treated as empty strings so the copy to the database works
+    df = null_values_to_empty_string(df)
+    
     # df.coalesce(1).write \
     df.write.option("sep", "\t").option("quote", "\u0000").option(
         "header", "true"
     ).mode("overwrite").csv(output_path)
-
+    
+def null_values_to_empty_string(df):
+    for col_name, col_type in df.dtypes:
+        if col_type == 'boolean':
+            df = df.withColumn(col_name, when(col(col_name).isNull(), False).otherwise(col(col_name)))
+        else:
+            df = df.withColumn(col_name, when(col(col_name).isNull(), "").otherwise(col(col_name)))
+    return df
+    
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

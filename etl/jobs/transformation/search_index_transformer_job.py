@@ -47,6 +47,7 @@ def transform_search_index(
             col("project_group_name").alias("project_name"),
             "provider_name",
             "model_type",
+            "supplier",
             "supplier_type",
             "catalog_number",
             "vendor_link",

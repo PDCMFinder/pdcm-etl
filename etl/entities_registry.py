@@ -144,6 +144,7 @@ entities = {
             "source_database_id",
             "license_id",
             "external_ids",
+            "supplier",
             "supplier_type",
             "catalog_number",
             "vendor_link",
@@ -617,6 +618,7 @@ entities = {
             "project_name",
             "provider_name",
             "model_type",
+            "supplier",
             "supplier_type",
             "catalog_number",
             "vendor_link",
@@ -681,7 +683,11 @@ entities = {
             "facet_name",
             "facet_column",
             "facet_options",
-            "facet_example"
+            "facet_example",
+            "any_operator",
+            "all_operator",
+            "is_boolean",
+            "facet_type"
         ]
     },
     Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: {
