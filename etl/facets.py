@@ -67,13 +67,25 @@ facet_definitions = [
     },
     {
         "facet_section": "model",
-        "facet_name": "Model Relationships",
+        "facet_name": "Related Models",
         "facet_column": "has_relations",
         "facet_example": '""',
         "any_operator": "in",
         "all_operator": "",
         "is_boolean": True,
         "facet_options": ["related models=true"],
+        "facet_type": "check",
+        "dynamic_values": False
+    },
+     {
+        "facet_section": "model",
+        "facet_name": "Paediatric",
+        "facet_column": "paediatric",
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": True,
+        "facet_options": ["paediatric=true"],
         "facet_type": "check",
         "dynamic_values": False
     },
