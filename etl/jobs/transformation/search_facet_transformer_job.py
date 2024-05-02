@@ -82,17 +82,11 @@ def transform_search_facet(spark, schema, search_facet_df, search_index_df) -> D
             search_facet_df = search_facet_df.union(
                 facet_df.select(column_names)
             )
-        # Process data driven filters
+        # Process static filters
         else:
-            df = spark.createDataFrame([], schema=schema)
-            for facet_definition in facets.facet_definitions:
-                l = []
-                if not facet_definition["dynamic_values"]:
-                    l = [facet_definition[x] for x in column_names]
-                    df = df.union(spark.createDataFrame([l]))
-            df = df.select(column_names)
-            search_facet_df = search_facet_df.union(df)
-        
+            l = [facet_definition[x] for x in column_names]
+            static_filter_df = spark.createDataFrame([l], schema=schema)
+            search_facet_df = search_facet_df.union(static_filter_df.select(column_names))
     return search_facet_df
 
 
