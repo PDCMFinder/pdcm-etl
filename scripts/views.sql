@@ -360,7 +360,7 @@ DROP VIEW IF EXISTS pdcm_api.mutation_data_table CASCADE;
 
 CREATE VIEW pdcm_api.mutation_data_table
 AS SELECT mmd.molecular_characterization_id,
-          mmd.hgnc_symbol,
+          COALESCE(mmd.hgnc_symbol, mmd.non_harmonised_symbol) AS hgnc_symbol,
           mmd.non_harmonised_symbol,
           mmd.amino_acid_change,
           mmd.chromosome,
@@ -374,6 +374,7 @@ AS SELECT mmd.molecular_characterization_id,
           mmd.biotype,
           mmd.external_db_links,
           mmd.data_source,
+          mmd.harmonisation_result,
           ( mmd.* ) :: text AS text
    FROM   mutation_measurement_data mmd
    WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
@@ -394,6 +395,7 @@ COMMENT ON COLUMN pdcm_api.mutation_data_table.alt_allele IS 'The base other tha
 COMMENT ON COLUMN pdcm_api.mutation_data_table.biotype IS 'Biotype of the transcript or regulatory feature eg. protein coding, non coding';
 COMMENT ON COLUMN pdcm_api.mutation_data_table.external_db_links IS 'JSON column with links to external resources';
 COMMENT ON COLUMN pdcm_api.mutation_data_table.data_source IS 'Data source (abbreviation of the provider)';
+COMMENT ON COLUMN pdcm_api.mutation_data_table.harmonisation_result IS 'Result of the symbol harmonisation process';
 COMMENT ON COLUMN pdcm_api.mutation_data_table.text IS 'Text representation of the row';
 -- model_molecular_metadata materialized view: Model molecular metadata
 
@@ -447,7 +449,7 @@ SELECT
 	mmm.model_id,
 	mmm.sample_id,
 	mmm.source,
-	mmd.hgnc_symbol,
+	COALESCE(mmd.hgnc_symbol, mmd.non_harmonised_symbol) AS hgnc_symbol,
 	mmd.amino_acid_change,
 	mmd.consequence,
 	mmd.read_depth,
@@ -456,7 +458,9 @@ SELECT
 	mmd.ref_allele,
 	mmd.alt_allele,
 	mmd.data_source,
-	mmd.external_db_links
+	mmd.external_db_links,
+  mmd.non_harmonised_symbol,
+  mmd.harmonisation_result
 FROM
 	mutation_measurement_data mmd, pdcm_api.model_molecular_metadata mmm
 WHERE (mmd.data_source, 'mutation_measurement_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
@@ -480,6 +484,8 @@ COMMENT ON COLUMN pdcm_api.mutation_data_extended.seq_start_position IS 'Locatio
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.ref_allele IS 'The base seen in the reference genome';
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.alt_allele IS 'The base other than the reference allele seen at the locus';
 COMMENT ON COLUMN pdcm_api.mutation_data_extended.external_db_links IS 'JSON column with links to external resources';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN pdcm_api.mutation_data_extended.harmonisation_result IS 'Result of the symbol harmonisation process';
 
 -- expression_data_table view
 
@@ -488,7 +494,7 @@ DROP VIEW IF EXISTS pdcm_api.expression_data_table;
 CREATE VIEW pdcm_api.expression_data_table
 AS
   SELECT emd.molecular_characterization_id,
-         emd.hgnc_symbol,
+         COALESCE(emd.hgnc_symbol, emd.non_harmonised_symbol) as hgnc_symbol,
          emd.non_harmonised_symbol,
          emd.rnaseq_coverage,
          emd.rnaseq_fpkm,
@@ -500,6 +506,7 @@ AS
          emd.illumina_hgea_expression_value,
          emd.z_score,
          emd.external_db_links,
+         emd.harmonisation_result,
          ( emd.* ) :: text AS text
   FROM   expression_molecular_data emd
   WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
@@ -523,6 +530,7 @@ COMMENT ON COLUMN pdcm_api.expression_data_table.illumina_hgea_expression_value 
 COMMENT ON COLUMN pdcm_api.expression_data_table.z_score IS 'Z-score representing the gene expression level';
 COMMENT ON COLUMN pdcm_api.expression_data_table.external_db_links IS 'Links to external resources';
 COMMENT ON COLUMN pdcm_api.expression_data_table.text IS 'Text representation of the row';
+COMMENT ON COLUMN pdcm_api.expression_data_table.harmonisation_result IS 'Result of the symbol harmonisation process';
 
 -- expression_data_extended view
 
@@ -545,7 +553,7 @@ SELECT
 	emd.illumina_hgea_probe_id,
 	emd.illumina_hgea_expression_value,
 	emd.z_score,
-    emd.external_db_links
+  emd.external_db_links
 FROM   expression_molecular_data emd, pdcm_api.model_molecular_metadata mmm
 WHERE (emd.data_source, 'expression_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND emd.molecular_characterization_id = mmm.molecular_characterization_id;
@@ -578,12 +586,13 @@ DROP VIEW IF EXISTS pdcm_api.biomarker_data_table CASCADE;
 CREATE VIEW pdcm_api.biomarker_data_table
 AS
   SELECT cmd.molecular_characterization_id,
-         cmd.biomarker,
+         COALESCE(cmd.biomarker, cmd.non_harmonised_symbol) as biomarker,
          cmd.non_harmonised_symbol,
          cmd.biomarker_status AS result,
          REPLACE(cmd.external_db_links::text, 'hgnc_symbol', 'biomarker')::json AS external_db_links,
          ( cmd.* ) :: text AS text,
-         cmd.data_source
+         cmd.data_source,
+         cmd.harmonisation_result
   FROM   biomarker_molecular_data cmd
   WHERE (cmd.data_source, 'biomarker_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction);
 
@@ -599,6 +608,7 @@ COMMENT ON COLUMN pdcm_api.biomarker_data_table.result IS 'Presence or absence o
 COMMENT ON COLUMN pdcm_api.biomarker_data_table.external_db_links IS 'Links to external resources';
 COMMENT ON COLUMN pdcm_api.biomarker_data_table.text IS 'Text representation of the row';
 COMMENT ON COLUMN pdcm_api.biomarker_data_table.data_source IS 'Data source of the model (provider abbreviation)';
+COMMENT ON COLUMN pdcm_api.biomarker_data_table.harmonisation_result IS 'Result of the symbol harmonisation process';
 
 -- biomarker_data_extended view
 
@@ -611,10 +621,11 @@ SELECT
 	mmm.data_source,
 	mmm.source,
 	mmm.sample_id,
-	cmd.biomarker,
+	COALESCE(cmd.biomarker, cmd.non_harmonised_symbol) as biomarker,
 	cmd.non_harmonised_symbol,
 	cmd.biomarker_status AS result,
-	cmd.external_db_links
+	cmd.external_db_links,
+  cmd.harmonisation_result
 FROM   biomarker_molecular_data cmd, pdcm_api.model_molecular_metadata mmm
 WHERE (cmd.data_source, 'biomarker_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cmd.molecular_characterization_id = mmm.molecular_characterization_id;
@@ -632,6 +643,7 @@ COMMENT ON COLUMN pdcm_api.biomarker_data_extended.biomarker IS 'Gene symbol';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.non_harmonised_symbol IS 'Original symbol as reported by the provider';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.result IS 'Presence or absence of the biomarker';
 COMMENT ON COLUMN pdcm_api.biomarker_data_extended.external_db_links IS 'Links to external resources';
+COMMENT ON COLUMN pdcm_api.biomarker_data_extended.harmonisation_result IS 'Result of the symbol harmonisation process';
 
 
 -- immunemarker_data_table view
@@ -692,7 +704,7 @@ CREATE VIEW pdcm_api.cna_data_table
 AS
   SELECT
          cnamd.id,
-         cnamd.hgnc_symbol,
+         COALESCE(cnamd.hgnc_symbol, cnamd.non_harmonised_symbol) AS hgnc_symbol,
          cnamd.chromosome,
          cnamd.strand,
          cnamd.log10r_cna,
@@ -744,7 +756,7 @@ SELECT
 	mmm.data_source,
 	mmm.source,
 	mmm.sample_id,
-	cnamd.hgnc_symbol,
+	COALESCE(cnamd.hgnc_symbol, cnamd.non_harmonised_symbol) AS hgnc_symbol,
 	cnamd.chromosome,
   cnamd.strand,
 	cnamd.log10r_cna,
@@ -754,7 +766,9 @@ SELECT
 	cnamd.copy_number_status,
 	cnamd.gistic_value,
 	cnamd.picnic_value,
-	cnamd.external_db_links
+	cnamd.external_db_links,
+  cnamd.non_harmonised_symbol,
+  cnamd.harmonisation_result
 FROM   cna_molecular_data cnamd, pdcm_api.model_molecular_metadata mmm
 WHERE (cnamd.data_source, 'cna_molecular_data') NOT IN (SELECT data_source, molecular_data_table FROM molecular_data_restriction)
 AND cnamd.molecular_characterization_id = mmm.molecular_characterization_id;
@@ -779,6 +793,8 @@ COMMENT ON COLUMN pdcm_api.cna_data_extended.copy_number_status IS 'Details whet
 COMMENT ON COLUMN pdcm_api.cna_data_extended.gistic_value IS 'Score predicted using GISTIC tool for the copy number variation';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.picnic_value IS 'Score predicted using PICNIC algorithm for the copy number variation';
 COMMENT ON COLUMN pdcm_api.cna_data_extended.external_db_links IS 'Links to external resources';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.non_harmonised_symbol IS 'Original symbol as reported by the provider';
+COMMENT ON COLUMN pdcm_api.cna_data_extended.harmonisation_result IS 'Result of the symbol harmonisation process';
 
 DROP VIEW IF EXISTS pdcm_api.molecular_data_restriction;
 
