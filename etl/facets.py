@@ -172,7 +172,7 @@ facet_definitions = [
         "facet_column": "custom_treatment_type_list",
         "facet_example": '""',
         "any_operator": "ov",
-        "all_operator": "",
+        "all_operator": "cs",
         "is_boolean": False,
         "facet_type": "multivalued",
         "dynamic_values": True
