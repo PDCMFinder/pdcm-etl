@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame, SparkSession, Column
 from pyspark.sql.functions import col, trim, lit, when
 
 from etl.constants import Constants
+from etl.jobs.transformation.links_generation.model_ids_links import add_model_links
 from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
@@ -20,18 +21,20 @@ def main(argv):
     raw_model_parquet_path = argv[1]
     raw_cell_model_parquet_path = argv[2]
     raw_sharing_parquet_path = argv[3]
-    publication_group_parquet_path = argv[4]
-    accessibility_group_parquet_path = argv[5]
-    contact_people_parquet_path = argv[6]
-    contact_form_parquet_path = argv[7]
-    source_database_parquet_path = argv[8]
-    license_parquet_path = argv[9]
-    output_path = argv[10]
+    raw_external_model_ids_resources_parquet_path = argv[4]
+    publication_group_parquet_path = argv[5]
+    accessibility_group_parquet_path = argv[6]
+    contact_people_parquet_path = argv[7]
+    contact_form_parquet_path = argv[8]
+    source_database_parquet_path = argv[9]
+    license_parquet_path = argv[10]
+    output_path = argv[11]
 
     spark = SparkSession.builder.getOrCreate()
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
     raw_cell_model_df = spark.read.parquet(raw_cell_model_parquet_path)
     raw_sharing_df = spark.read.parquet(raw_sharing_parquet_path)
+    raw_external_model_ids_df = spark.read.parquet(raw_external_model_ids_resources_parquet_path)
     publication_group_df = spark.read.parquet(publication_group_parquet_path)
     accessibility_group_df = spark.read.parquet(accessibility_group_parquet_path)
     contact_people_df = spark.read.parquet(contact_people_parquet_path)
@@ -43,6 +46,7 @@ def main(argv):
         raw_model_df,
         raw_cell_model_df,
         raw_sharing_df,
+        raw_external_model_ids_df,
         publication_group_df,
         accessibility_group_df,
         contact_people_df,
@@ -57,6 +61,7 @@ def transform_model(
         raw_model_df: DataFrame,
         raw_cell_model_df: DataFrame,
         raw_sharing_df: DataFrame,
+        raw_external_model_ids_df: DataFrame,
         publication_group_df: DataFrame,
         accessibility_group_df: DataFrame,
         contact_people_df: DataFrame,
@@ -73,6 +78,8 @@ def transform_model(
     model_df = set_fk_contact_form(model_df, contact_form_df)
     model_df = set_fk_source_database(model_df, source_database_df)
     model_df = set_fk_license(model_df, license_df)
+    model_df = add_model_links(model_df, raw_external_model_ids_df)
+    
     model_df = get_columns_expected_order(model_df)
 
     return model_df
@@ -255,7 +262,7 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "supplements",
         "drug",
         "drug_concentration",
-
+        "other_model_links"
         )
 
 

@@ -3,7 +3,7 @@ from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
 from etl.workflow.config import PdcmConfig
-from etl.workflow.extractor import ExtractImmunemarker, ExtractPatient, ExtractSharing, ExtractModel, \
+from etl.workflow.extractor import ExtractImmunemarker, ExtractModelIdsResources, ExtractPatient, ExtractSharing, ExtractModel, \
     ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
     ExtractCna, ExtractBiomarker, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
     ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
@@ -138,12 +138,14 @@ class TransformModel(TransformEntity):
         ExtractModel(),
         ExtractCellModel(),
         ExtractSharing(),
+        ExtractModelIdsResources(),
         TransformPublicationGroup(),
         TransformAccessibilityGroup(),
         TransformContactPeople(),
         TransformContactForm(),
         TransformSourceDatabase(),
         TransformLicense()
+        
     ]
     entity_name = Constants.MODEL_INFORMATION_ENTITY
 

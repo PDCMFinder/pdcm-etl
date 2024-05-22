@@ -32,6 +32,7 @@ class Constants:
     MODEL_CHARACTERIZATIONS_CONF_MODULE = "model_characterizations_conf"
     IMAGE_STUDY_MODULE = "image_study"
     MODEL_IMAGE_MODULE = "model_image"
+    MODEL_IDS_RESOURCES_MODULE = "model_ids_resources"
 
     DATA_SOURCE_COLUMN = "data_source_tmp"
 
