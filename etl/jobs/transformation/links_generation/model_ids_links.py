@@ -45,6 +45,8 @@ def add_model_links(
 
         if resource["link_building_method"] == "CancerCellLinesLink":
             print("Create links for CancerCellLines")
+            tmp_df = find_cancer_cell_lines_links(model_information_df, resource)
+            all_links_df = all_links_df.unionAll(tmp_df)
 
     model_ids_links_column_df = create_model_links_column(all_links_df)
 
@@ -110,7 +112,7 @@ def find_cellosaurus_links(model_information_df: DataFrame, resource_definition)
     )
     data_df = data_df.withColumn("type", lit(resource_definition["type"]))
     
-    data_df = data_df.where("upper(external_ids) like '%ACH-%'")
+    data_df = data_df.where("upper(external_ids) like '%CVCL_%'")
 
     data_df = data_df.withColumn("cellosaurus_id", regexp_extract(col('external_ids'), r'CVCL_[A-Za-z0-9\.]+', 0))
     data_df = data_df.withColumn("link_label", col("cellosaurus_id"))
@@ -121,6 +123,33 @@ def find_cellosaurus_links(model_information_df: DataFrame, resource_definition)
     links_df = links_df.withColumn(
         "link",
         expr("regexp_replace(link, 'CELLOSAURUS_ID', cellosaurus_id)")
+    )
+    return links_df.select("id", "resource_label", "link_label", "type", "link")
+
+# For IDs with CCLE_Name, use the same ID as CVCL, but only if text contains CCLE_Name
+def find_cancer_cell_lines_links(model_information_df: DataFrame, resource_definition) -> DataFrame:
+
+    data_df = model_information_df.select("id", "external_ids")
+    data_df = data_df.withColumn(
+        "resource_label", lit(resource_definition["resource_label"])
+    )
+    data_df = data_df.withColumn("type", lit(resource_definition["type"]))
+
+    # It needs to have CVCL_ as we are using it to extract the id
+    data_df = data_df.where("upper(external_ids) like '%CVCL_%'")
+
+    # It also needs to have CCLE_Name because we only create the link if the text contains CCLE_Name
+    data_df = data_df.where("external_ids like '%CCLE_Name%'")
+
+    data_df = data_df.withColumn("cellosaurus_id", regexp_extract(col('external_ids'), r'CVCL_[A-Za-z0-9\.]+', 0))
+    data_df = data_df.withColumn("link_label", col("cellosaurus_id"))
+
+    links_df = data_df.withColumn(
+        "link", lit(resource_definition["link_template"])
+    )
+    links_df = links_df.withColumn(
+        "link",
+        expr("regexp_replace(link, 'CCLE_ID', cellosaurus_id)")
     )
     return links_df.select("id", "resource_label", "link_label", "type", "link")
 

@@ -28,4 +28,4 @@ resources:
     resource_label: "CCLE ID"
     type: "external_id"
     link_building_method: "CancerCellLinesLink"
-    link_template: "https://cancercelllines.org/cellline/?id=cellosaurus:{id}"
+    link_template: "https://cancercelllines.org/cellline/?id=cellosaurus:CCLE_ID"
