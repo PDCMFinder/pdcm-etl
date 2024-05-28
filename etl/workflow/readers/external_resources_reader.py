@@ -20,6 +20,14 @@ def read_resources_conf_file():
         conf = yaml.safe_load(ymlFile)
     return conf
 
+@lru_cache(maxsize=None)
+def read_model_ids_resources_conf_file():
+    model_links_resources_path = \
+        "etl/model_links_resources.yaml" if Path("etl/model_links_resources.yaml").is_file() else "model_links_resources.yaml"
+    with open(model_links_resources_path, "r") as ymlFile:
+        conf = yaml.safe_load(ymlFile)
+    return conf
+
 
 class ReadResources(PySparkTask):
     data_dir = luigi.Parameter()
@@ -104,6 +112,36 @@ class ReadDownloadedExternalResourcesFromCsv(PySparkTask):
             self.data_dir,
             self.input().path,
             self.output().path]
+        
+        
+class ReadModelIdsResources(PySparkTask):
+    data_dir = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    module_name = luigi.Parameter()
+
+    def main(self, sc, *args):
+        spark = SparkSession(sc)
+
+        output_path = args[0]
+
+        schema = StructType([
+            StructField('id', IntegerType(), False),
+            StructField('name', StringType(), False),
+            StructField('resource_label', StringType(), False),
+             StructField('type', StringType(), False),
+            StructField('link_building_method', StringType(), False),
+            StructField('link_template', StringType(), False)
+        ])
+        resources = read_model_ids_resources_conf_file()["resources"]
+        df = spark.createDataFrame(data=resources, schema=schema)
+        df.write.mode("overwrite").parquet(output_path)
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.module_name))
+
+    def app_options(self):
+        return [self.output().path]
 
 
 if __name__ == "__main__":

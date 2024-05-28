@@ -3,6 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import null_values_to_empty_string
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -31,6 +32,7 @@ def transform_model_image(raw_model_image_df: DataFrame, model_df: DataFrame) ->
     model_image_df = raw_model_image_df.drop_duplicates()
     model_image_df = set_fk_model(model_image_df, model_df)
     model_image_df = add_id(model_image_df, "id")
+    model_image_df = null_values_to_empty_string(model_image_df)
 
     return model_image_df
 

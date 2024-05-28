@@ -159,7 +159,8 @@ CREATE TABLE model_information (
     vendor_link TEXT,
     rrid TEXT,
     parent_id TEXT,
-    origin_patient_sample_id TEXT
+    origin_patient_sample_id TEXT,
+    other_model_links JSON
 );
 
 COMMENT ON TABLE model_information IS 'Model creation information';

@@ -150,7 +150,8 @@ entities = {
             "vendor_link",
             "rrid",
             "parent_id",
-            "origin_patient_sample_id"
+            "origin_patient_sample_id",
+            "other_model_links"
         ]
     },
     Constants.LICENSE_ENTITY: {
