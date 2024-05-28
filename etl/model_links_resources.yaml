@@ -1,0 +1,31 @@
+# Resources for links at the model level. The links will be created based on the information in 'external_ids' and
+# (Vendor_link - supplier -  catalog_number) at model_information
+
+resources:
+  - id: 1
+    name: "COSMIC"
+    resource_label: "COSMIC ID"
+    type: "external_id"
+    link_building_method: "COSMICLink"
+    link_template: "https://cancer.sanger.ac.uk/cell_lines/search?q=model_name#"
+
+  - id: 2
+    name: "DepMap"
+    resource_label: "DepMap ID"
+    type: "external_id"
+    link_building_method: "DeepMapLink"
+    link_template: "https://depmap.org/portal/cell_line/DEPMAP_ID?tab=overview"
+
+  - id: 3
+    name: "Cellosaurus"
+    resource_label: "Cellosaurus"
+    type: "external_id"
+    link_building_method: "CellosaurusLink"
+    link_template: "https://www.cellosaurus.org/CELLOSAURUS_ID"
+
+  - id: 4
+    name: "CancerCellLines"
+    resource_label: "CCLE ID"
+    type: "external_id"
+    link_building_method: "CancerCellLinesLink"
+    link_template: "https://cancercelllines.org/cellline/?id=cellosaurus:CCLE_ID"
