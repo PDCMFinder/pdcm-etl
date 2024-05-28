@@ -1,7 +1,7 @@
 import re
 
 from pyspark.sql import Column
-from pyspark.sql.functions import regexp_replace, col, trim, initcap, lower
+from pyspark.sql.functions import regexp_replace, col, trim, initcap, lower, when
 
 
 def remove_no_break_space(column_name: str) -> Column:
@@ -22,3 +22,13 @@ def init_cap_and_trim_all(column_name: str) -> Column:
 
 def lower_and_trim_all(column_name: str) -> Column:
     return lower(trim_all(column_name))
+
+
+# Converts null values to empty string
+def null_values_to_empty_string(df):
+    for col_name, col_type in df.dtypes:
+        if col_type == 'boolean':
+            df = df.withColumn(col_name, when(col(col_name).isNull(), False).otherwise(col(col_name)))
+        else:
+            df = df.withColumn(col_name, when(col(col_name).isNull(), "").otherwise(col(col_name)))
+    return df
