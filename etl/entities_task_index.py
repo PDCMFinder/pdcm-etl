@@ -18,6 +18,7 @@ entities = {
     Constants.PROVIDER_TYPE_ENTITY: TransformProviderType(),
     Constants.PROVIDER_GROUP_ENTITY: TransformProviderGroup(),
     Constants.PUBLICATION_GROUP_ENTITY: TransformPublicationGroup(),
+    Constants.INITIAL_MODEL_INFORMATION_ENTITY: TransformInitialModel(),
     Constants.MODEL_INFORMATION_ENTITY: TransformModel(),
     Constants.LICENSE_ENTITY: TransformLicense(),
     Constants.CELL_MODEL_ENTITY: TransformCellModel(),

@@ -133,12 +133,19 @@ class TransformLicense(TransformEntity):
     entity_name = Constants.LICENSE_ENTITY
 
 
-class TransformModel(TransformEntity):
+class TransformInitialModel(TransformEntity):
     requiredTasks = [
         ExtractModel(),
         ExtractCellModel(),
-        ExtractSharing(),
+        ExtractSharing()
+    ]
+    entity_name = Constants.INITIAL_MODEL_INFORMATION_ENTITY
+
+
+class TransformModel(TransformEntity):
+    requiredTasks = [
         ExtractModelIdsResources(),
+        TransformInitialModel(),
         TransformPublicationGroup(),
         TransformAccessibilityGroup(),
         TransformContactPeople(),

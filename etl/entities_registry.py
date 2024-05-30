@@ -1,6 +1,7 @@
 import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
+import etl.jobs.transformation.initial_model_transformer_job
 import etl.jobs.transformation.model_transformer_job
 import etl.jobs.transformation.license_transformer_job
 import etl.jobs.transformation.cell_model_transformer_job
@@ -129,6 +130,10 @@ entities = {
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
         "expected_database_columns": ["id", "pubmed_ids"]
+    },
+    Constants.INITIAL_MODEL_INFORMATION_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_model_transformer_job.main,
+        "expected_database_columns": []
     },
     Constants.MODEL_INFORMATION_ENTITY: {
         "spark_job": etl.jobs.transformation.model_transformer_job.main,
