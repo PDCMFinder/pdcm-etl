@@ -108,6 +108,8 @@ class Constants:
     INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY = "initial_expression_molecular_data"
     INITIAL_MUTATION_MOLECULAR_DATA_ENTITY = "initial_mutation_molecular_data"
 
+    INITIAL_MODEL_INFORMATION_ENTITY = "initial_model_information"
+
     # Others
     NOT_PROVIDED_VALUE = "Not Provided"
 
