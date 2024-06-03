@@ -62,7 +62,6 @@ def get_term_names_from_term_id_list(graph, term_list):
     name_list = []
     for t in term_list:
         name_list.append(update_term_name(get_term_name_by_id(graph, t)))
-        print(get_term_name_by_id(graph, t), "-->", update_term_name(get_term_name_by_id(graph, t)))
     return name_list
 
 
