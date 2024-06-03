@@ -1,10 +1,14 @@
 import sys
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.types import StringType
+from pyspark.sql.functions import col, udf
 from pyspark.sql.functions import regexp_replace
 from pyspark.sql.functions import trim
 from etl.jobs.util.id_assigner import add_id
 from etl.jobs.util.graph_builder import *
+from etl.jobs.util.cleaner import remove_all_trailing_whitespaces
+
+remove_all_trailing_whitespaces_udf = udf(remove_all_trailing_whitespaces, StringType())
 
 
 def main(argv):
@@ -43,8 +47,7 @@ def update_term_names(ontology_term_diagnosis_df: DataFrame) -> DataFrame:
 
     ontology_term_diagnosis_df = ontology_term_diagnosis_df.withColumn(
         'term_name',
-        regexp_replace('term_name', '(.*)Malignant(.*)Neoplasm(.*)', '$1$2Cancer$3'))
-    ontology_term_diagnosis_df = ontology_term_diagnosis_df.withColumn('term_name', trim(col('term_name')))
+        remove_all_trailing_whitespaces_udf(col('term_name')))
     return ontology_term_diagnosis_df
 
 
