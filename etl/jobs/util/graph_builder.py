@@ -1,6 +1,8 @@
 import networkx as nx
 import re
 
+from etl.jobs.util.cleaner import remove_all_trailing_whitespaces
+
 ONTOLOGIES = [
 
     {"id": "ncit_treatment", "format": "obo", "top_level_terms": ["NCIT:C1932","NCIT:C1505", "NCIT:C1913", "NCIT:C45678",
@@ -60,6 +62,7 @@ def get_term_names_from_term_id_list(graph, term_list):
     name_list = []
     for t in term_list:
         name_list.append(update_term_name(get_term_name_by_id(graph, t)))
+        print(get_term_name_by_id(graph, t), "-->", update_term_name(get_term_name_by_id(graph, t)))
     return name_list
 
 
@@ -81,7 +84,10 @@ def extract_treatment_ontology_terms(graph, ontology_id):
 
 
 def update_term_name(term_name):
+    updatedTerm = term_name
     if "Malignant" in term_name:
-        return re.sub(r"(.*)Malignant(.*)Neoplasm(.*)", r"\1\2Cancer\3", term_name).strip()
+        updatedTerm = re.sub(r"(.*)Malignant(.*)Neoplasm(.*)", r"\1\2Cancer\3", term_name).strip()
     else:
-        return re.sub(r"(.*)Neoplasm(.*)", r"\1Cancer\2", term_name).strip()
+        updatedTerm = re.sub(r"(.*)Neoplasm(.*)", r"\1Cancer\2", term_name).strip()
+    return remove_all_trailing_whitespaces(updatedTerm)
+    

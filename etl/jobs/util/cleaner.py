@@ -32,3 +32,7 @@ def null_values_to_empty_string(df):
         else:
             df = df.withColumn(col_name, when(col(col_name).isNull(), "").otherwise(col(col_name)))
     return df
+
+
+def remove_all_trailing_whitespaces(s: str):
+    return " ".join(s.split())
