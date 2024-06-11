@@ -34,7 +34,7 @@ def transform_publication_group(raw_model_df: DataFrame, raw_cell_model_df: Data
 def extract_publications_from_models(raw_model_df: DataFrame, raw_cell_model_df: DataFrame) -> DataFrame:
     pdx_publications_df = raw_model_df.select("publications").where("publications is not null").drop_duplicates()
     cell_model_publications_df = raw_cell_model_df.select("publications").where("publications is not null").drop_duplicates()
-    publication_group_df = pdx_publications_df.union(cell_model_publications_df)
+    publication_group_df = pdx_publications_df.union(cell_model_publications_df).distinct()
     publication_group_df = publication_group_df.withColumnRenamed("publications", "pubmed_ids")
     return publication_group_df
 
