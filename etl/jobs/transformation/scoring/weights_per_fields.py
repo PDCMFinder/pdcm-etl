@@ -26,8 +26,6 @@ common_weights = {
     "pdx_model_publications": 0,
     "quality_assurance.validation_technique": 1,
     "quality_assurance.description": 1,
-    "quality_assurance.passages_tested": 1,
-    "quality_assurance.validation_host_strain_nomenclature": 1,
     "quality_assurance.SNP_analysis": 0,
     "quality_assurance.STR_analysis": 0,
     "quality_assurance.comments": 0,
@@ -44,7 +42,9 @@ pdx_only_weights = {
     "xenograft_model_specimens.engraftment_type": 1,
     "xenograft_model_specimens.engraftment_sample_type": 1,
     "xenograft_model_specimens.engraftment_sample_state": 0.5,
-    "xenograft_model_specimens.passage_number": 1
+    "xenograft_model_specimens.passage_number": 1,
+    "quality_assurance.passages_tested": 1,
+    "quality_assurance.validation_host_strain_nomenclature": 1,
 }
 
 # Weights for fields that only apply to In Vitro models
