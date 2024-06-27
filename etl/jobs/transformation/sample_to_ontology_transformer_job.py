@@ -1,6 +1,6 @@
 import sys
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, lower, when
+from pyspark.sql.functions import col, when
 from etl.jobs.util.cleaner import lower_and_trim_all
 
 from etl.jobs.util.id_assigner import add_id
@@ -109,10 +109,10 @@ def join_sample_with_linked_data(
     sample_data_df = sample_data_df.join(tumor_type_df, on=['tumour_type_id'], how='left')
 
     # lowercase data in df
-    sample_data_df = sample_data_df.withColumn('data_source', lower(col('data_source')))
-    sample_data_df = sample_data_df.withColumn('diagnosis', lower(col('diagnosis')))
-    sample_data_df = sample_data_df.withColumn('primary_tissue', lower(col('primary_tissue')))
-    sample_data_df = sample_data_df.withColumn('tumor_type', lower(col('tumor_type')))
+    sample_data_df = sample_data_df.withColumn('data_source', lower_and_trim_all('data_source'))
+    sample_data_df = sample_data_df.withColumn('diagnosis', lower_and_trim_all('diagnosis'))
+    sample_data_df = sample_data_df.withColumn('primary_tissue', lower_and_trim_all('primary_tissue'))
+    sample_data_df = sample_data_df.withColumn('tumor_type', lower_and_trim_all('tumor_type'))
 
     return sample_data_df.select("sample_id", "data_source", "diagnosis", "primary_tissue", "tumor_type")
 
