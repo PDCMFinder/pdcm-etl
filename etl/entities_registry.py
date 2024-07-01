@@ -62,6 +62,8 @@ import etl.jobs.transformation.regimen_to_treatment_transformer_job
 import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
 import etl.jobs.transformation.molecular_data_restriction_transformer_job
 import etl.jobs.transformation.available_molecular_data_columns_transformer_job
+import etl.jobs.transformation.nodes_transformer_job
+import etl.jobs.transformation.edges_transformer_job
 from etl.constants import Constants
 
 
@@ -710,6 +712,14 @@ entities = {
             "not_empty_cols",
             "molecular_characterization_type"
         ]
+    },
+    Constants.NODES_ENTITY: {
+        "spark_job": etl.jobs.transformation.nodes_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.EDGES_ENTITY: {
+        "spark_job": etl.jobs.transformation.edges_transformer_job.main,
+        "expected_database_columns": []
     }
 
 }
