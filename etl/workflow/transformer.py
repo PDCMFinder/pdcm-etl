@@ -606,5 +606,24 @@ class TransformAvailableMolecularDataColumns(TransformEntity):
     entity_name = Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY
 
 
+class TransformNodes(TransformEntity):
+    requiredTasks = [
+        TransformPatient(),
+        TransformPatientSample(),
+        TransformInitialModel()
+    ]
+    entity_name = Constants.NODES_ENTITY
+
+
+class TransformEdges(TransformEntity):
+    requiredTasks = [
+        TransformNodes(),
+        TransformPatient(),
+        TransformPatientSample(),
+        TransformInitialModel()
+    ]
+    entity_name = Constants.EDGES_ENTITY
+
+
 if __name__ == "__main__":
     luigi.run()

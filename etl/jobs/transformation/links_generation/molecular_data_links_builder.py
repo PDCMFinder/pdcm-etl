@@ -72,7 +72,7 @@ def find_inline_links_molecular_data(spark, molecular_data_df: DataFrame, link_b
     inline_resources_df = resources_df.where("link_building_method != 'referenceLookup'")
 
     link_build_confs_df = spark.createDataFrame(data=link_build_confs)
-    inline_resources_df = inline_resources_df.join(link_build_confs_df, on=["type"], how='inner')
+    inline_resources_df = inline_resources_df.join(link_build_confs_df, on=["type"], how='inner').orderBy("id")
 
     data_with_references_df = create_empty_df_for_data_reference_processing(spark)
 
