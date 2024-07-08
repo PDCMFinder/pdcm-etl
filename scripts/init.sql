@@ -1277,7 +1277,7 @@ DECLARE
     edges_json JSONB;
 BEGIN
     -- Calculate the root node ID dynamically
-    SELECT find_root_node(_model_external_id, _data_source) INTO root_node_id;
+    SELECT pdcm_api.find_root_node(_model_external_id, _data_source) INTO root_node_id;
 
     -- Create temporary tables to store unique node ids and edges
     CREATE TEMP TABLE temp_unique_node_id (
