@@ -33,11 +33,11 @@ UPDATE model_information
     )
 ;
 
-ALTER TABLE model_information
-    ADD COLUMN IF NOT exists knowledge_graph JSON;
+-- ALTER TABLE model_information
+--     ADD COLUMN IF NOT exists knowledge_graph JSON;
 
-COMMENT ON COLUMN model_information.knowledge_graph IS 'Knowledge graph';
+-- COMMENT ON COLUMN model_information.knowledge_graph IS 'Knowledge graph';
 
-UPDATE  model_information
-    SET knowledge_graph = pdcm_api.get_knowledge_graph(external_model_id, data_source)
-;
+-- UPDATE  model_information
+--     SET knowledge_graph = pdcm_api.get_knowledge_graph(external_model_id, data_source)
+-- ;
