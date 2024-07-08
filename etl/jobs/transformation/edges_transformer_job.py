@@ -36,32 +36,26 @@ def main(argv):
 
     :param list argv: The list elements should be:
                       [1]: Parquet file path with patient data
-                      [2]: Parquet file path with patient data
-                      [3]: Parquet file path with patient sample data
-                      [4]: Parquet file path with model data
-                      [5]: Output file path for the nodes data
+                      [2]: Parquet file path with patient sample data
+                      [3]: Parquet file path with model data
+                      [4]: Output file path for the nodes data
     """
     nodes_parquet_path = argv[1]
-    patient_parquet_path = argv[2]
-    patient_sample_parquet_path = argv[3]
-    initial_model_information_parquet_path = argv[4]
-    output_path = argv[5]
+    patient_sample_parquet_path = argv[2]
+    initial_model_information_parquet_path = argv[3]
+    output_path = argv[4]
 
     spark: SparkSession = SparkSession.builder.getOrCreate()
     nodes_df: DataFrame = spark.read.parquet(nodes_parquet_path)
-    patient_df: DataFrame = spark.read.parquet(patient_parquet_path)
     patient_sample_df: DataFrame = spark.read.parquet(patient_sample_parquet_path)
     model_df: DataFrame = spark.read.parquet(initial_model_information_parquet_path)
-    edges_df: DataFrame = transform_edges(
-        nodes_df, patient_df, patient_sample_df, model_df
-    )
+    edges_df: DataFrame = transform_edges(nodes_df, patient_sample_df, model_df)
 
     edges_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_edges(
     nodes_df: DataFrame,
-    patient_df: DataFrame,
     patient_sample_df: DataFrame,
     model_df: DataFrame,
 ) -> DataFrame:
@@ -144,6 +138,11 @@ def extract_patient_to_sample_edges(
     # We add a description for the relationship
     df = df.withColumn("edge_label", lit("has_sample"))
 
+    # Remove any relationship that ended up without a next_node due to the removal of patient - sample relationships that are not direct
+    df = df.where("next_node is not null")
+    # Just to be consistent let's make sure previous_node is also not null
+    df = df.where("previous_node is not null")
+
     return df.select("previous_node", "next_node", "edge_label")
 
 
@@ -151,7 +150,11 @@ def extract_sample_to_model_edges(
     nodes_df: DataFrame, patient_sample_df: DataFrame, model_df: DataFrame
 ) -> DataFrame:
     """
-    Create the relationships between samples and all the models originated from them. @
+    Create the relationships between samples and all the models originated from them.
+
+    Note: The relationships between samples and models come from the patient_sample data. However, it contains all relations,
+    direct and indirect. We actually only want to keep sample-model pairs if the model was generated directly from that patient sample.
+    If the model was created from another model (the model has a parent_id) then we ignore the record sample-model as the relationship is actually model-model.
 
     :param DataFrame nodes_df: DataFrame containing nodes.
     :param DataFrame patient_sample_df: DataFrame containing patient samples data.
@@ -174,6 +177,12 @@ def extract_sample_to_model_edges(
     model_nodes_df = model_nodes_df.withColumnRenamed("id", "model_node_id")
 
     patient_sample_df = patient_sample_df.select("id", "model_id")
+
+    # We need to join with the models DataFrame to be able to remove those that have a parent
+    model_df = model_df.select("id").where("parent_id is null")
+    model_df = model_df.withColumnRenamed("id", "model_id")
+
+    patient_sample_df = patient_sample_df.join(model_df, on=["model_id"], how="inner")
 
     # First we add the ids of the patient sample nodes to the patient_sample dataframe:
     df: DataFrame = patient_sample_df.join(
@@ -218,7 +227,7 @@ def extract_model_to_model_edges(nodes_df: DataFrame, model_df: DataFrame) -> Da
     model_nodes_df = model_nodes_df.withColumnRenamed("id", "model_node_id")
 
     # DataFrame with the internal ids of parent - children. These relationships are the ones we want to include in the graph
-    parent_child_models_df = get_parent_child_models(model_df)
+    parent_child_models_df: DataFrame = get_parent_child_models(model_df)
 
     # Join with the DataFrame that contains the nodes ids.
 
@@ -229,7 +238,7 @@ def extract_model_to_model_edges(nodes_df: DataFrame, model_df: DataFrame) -> Da
     )
 
     parent_child_models_df = parent_child_models_df.withColumnRenamed(
-        "model_node_id", "next_node"
+        "model_node_id", "previous_node"
     )
     # Delete unneeded columns to avoid ambiguity in next join
     parent_child_models_df = parent_child_models_df.drop("internal_id", "node_type")
@@ -241,7 +250,7 @@ def extract_model_to_model_edges(nodes_df: DataFrame, model_df: DataFrame) -> Da
     )
 
     parent_child_models_df = parent_child_models_df.withColumnRenamed(
-        "model_node_id", "previous_node"
+        "model_node_id", "next_node"
     )
 
     # Add a label to the relation

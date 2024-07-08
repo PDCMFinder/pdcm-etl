@@ -713,13 +713,23 @@ entities = {
             "molecular_characterization_type"
         ]
     },
-    Constants.NODES_ENTITY: {
+    Constants.NODE_ENTITY: {
         "spark_job": etl.jobs.transformation.nodes_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [
+            "id",
+            "node_type",
+            "node_label",
+            "data_source",
+            "data"
+        ]
     },
-    Constants.EDGES_ENTITY: {
+    Constants.EDGE_ENTITY: {
         "spark_job": etl.jobs.transformation.edges_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [
+            "previous_node",
+            "next_node",
+            "edge_label"
+        ]
     }
 
 }

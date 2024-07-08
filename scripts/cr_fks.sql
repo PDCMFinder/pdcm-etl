@@ -270,3 +270,13 @@ ALTER TABLE model_image
     FOREIGN KEY (model_id)
     REFERENCES model_information (id);
 
+ALTER TABLE edge
+    ADD CONSTRAINT fk_edge_node_1
+    FOREIGN KEY (previous_node)
+    REFERENCES node (id);
+
+ALTER TABLE edge
+    ADD CONSTRAINT fk_edge_node_2
+    FOREIGN KEY (next_node)
+    REFERENCES node (id);
+

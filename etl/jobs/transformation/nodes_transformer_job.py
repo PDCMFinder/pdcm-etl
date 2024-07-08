@@ -52,11 +52,13 @@ def main(argv):
     patient_sample_df: DataFrame = spark.read.parquet(patient_sample_parquet_path)
     model_df: DataFrame = spark.read.parquet(initial_model_information_parquet_path)
     nodes_df: DataFrame = transform_nodes(patient_df, patient_sample_df, model_df)
-  
+
     nodes_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_nodes(patient_df: DataFrame, patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame:
+def transform_nodes(
+    patient_df: DataFrame, patient_sample_df: DataFrame, model_df: DataFrame
+) -> DataFrame:
     """
     Processes all the dataframes for which we want to extract nodes for the graph.
 
@@ -67,11 +69,12 @@ def transform_nodes(patient_df: DataFrame, patient_sample_df: DataFrame, model_d
     :rtype: DataFrame
     """
     patient_nodes_df: DataFrame = extract_patient_nodes(patient_df)
-    patient_sample_nodes_df: DataFrame = extract_patient_sample_nodes(patient_sample_df)
+    patient_sample_nodes_df: DataFrame = extract_patient_sample_nodes(patient_sample_df, model_df)
     model_nodes_df: DataFrame = extract_model_nodes(model_df)
-    model_nodes_df.show()
 
-    nodes_df: DataFrame = patient_nodes_df.union(patient_sample_nodes_df).union(model_nodes_df)
+    nodes_df: DataFrame = patient_nodes_df.union(patient_sample_nodes_df).union(
+        model_nodes_df
+    )
     nodes_df = add_id(nodes_df, "id")
     return nodes_df
 
@@ -120,7 +123,7 @@ def extract_patient_nodes(patient_df: DataFrame) -> DataFrame:
     ).drop_duplicates()
 
 
-def extract_patient_sample_nodes(patient_sample_df: DataFrame) -> DataFrame:
+def extract_patient_sample_nodes(patient_sample_df: DataFrame, model_df: DataFrame) -> DataFrame:
     """
     Extract nodes for patient samples.
 
@@ -137,6 +140,13 @@ def extract_patient_sample_nodes(patient_sample_df: DataFrame) -> DataFrame:
         - data_source (String): Source of the data.
         - data (String): JSON string containing additional data.
     """
+    # First we need to filter out samples that don't come directly from the patient, that is, samples 
+    # in models that have a parent_id
+    model_df = model_df.select("id").where("parent_id is null")
+    model_df = model_df.withColumnRenamed("id", "model_id")
+
+    patient_sample_df = patient_sample_df.join(model_df, on=["model_id"], how="inner")
+
     # Get the data we need from the patient
     df: DataFrame = patient_sample_df.select(
         "id", "external_patient_sample_id", "patient_id", Constants.DATA_SOURCE_COLUMN
@@ -146,7 +156,9 @@ def extract_patient_sample_nodes(patient_sample_df: DataFrame) -> DataFrame:
     df = df.withColumnRenamed("id", "internal_id")
 
     # patient sample nodes will have the node_type `patient_sample`
-    patient_sample_nodes_df: DataFrame = df.withColumn("node_type", lit("patient_sample"))
+    patient_sample_nodes_df: DataFrame = df.withColumn(
+        "node_type", lit("patient_sample")
+    )
 
     # Maybe this value won't be displayed at the end but it's good to have a label to show for the patient just in case
     patient_sample_nodes_df = patient_sample_nodes_df.withColumnRenamed(
@@ -163,6 +175,7 @@ def extract_patient_sample_nodes(patient_sample_df: DataFrame) -> DataFrame:
     return patient_sample_nodes_df.select(
         "internal_id", "node_type", "node_label", "data_source", "data"
     ).drop_duplicates()
+
 
 def extract_model_nodes(model_df: DataFrame) -> DataFrame:
     """
@@ -190,17 +203,14 @@ def extract_model_nodes(model_df: DataFrame) -> DataFrame:
     # model nodes will have the node_type `model`
     model_nodes_df: DataFrame = df.withColumn("node_type", lit("model"))
 
-    model_nodes_df = model_nodes_df.withColumnRenamed(
-        "external_model_id", "node_label"
-    )
+    model_nodes_df = model_nodes_df.withColumnRenamed("external_model_id", "node_label")
 
     model_nodes_df = model_nodes_df.withColumnRenamed(
         Constants.DATA_SOURCE_COLUMN, "data_source"
     )
 
     # Add type to the additional data
-    model_nodes_df = model_nodes_df.withColumn("data",to_json(struct("type")))
-
+    model_nodes_df = model_nodes_df.withColumn("data", to_json(struct("type")))
 
     return model_nodes_df.select(
         "internal_id", "node_type", "node_label", "data_source", "data"

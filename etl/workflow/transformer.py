@@ -612,17 +612,16 @@ class TransformNodes(TransformEntity):
         TransformPatientSample(),
         TransformInitialModel()
     ]
-    entity_name = Constants.NODES_ENTITY
+    entity_name = Constants.NODE_ENTITY
 
 
 class TransformEdges(TransformEntity):
     requiredTasks = [
         TransformNodes(),
-        TransformPatient(),
         TransformPatientSample(),
         TransformInitialModel()
     ]
-    entity_name = Constants.EDGES_ENTITY
+    entity_name = Constants.EDGE_ENTITY
 
 
 if __name__ == "__main__":

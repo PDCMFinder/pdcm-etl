@@ -66,6 +66,6 @@ entities = {
     Constants.SEARCH_FACET_ENTITY: TransformSearchFacet(),
     Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: TransformMolecularDataRestriction(),
     Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY: TransformAvailableMolecularDataColumns(),
-    Constants.NODES_ENTITY: TransformNodes(),
-    Constants.EDGES_ENTITY: TransformEdges()
+    Constants.NODE_ENTITY: TransformNodes(),
+    Constants.EDGE_ENTITY: TransformEdges()
 }

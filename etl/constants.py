@@ -92,8 +92,8 @@ class Constants:
     RELEASE_INFO_ENTITY = "release_info"
 
     # Graph tables
-    NODES_ENTITY = "nodes"
-    EDGES_ENTITY = "edges"
+    NODE_ENTITY = "node"
+    EDGE_ENTITY = "edge"
 
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
