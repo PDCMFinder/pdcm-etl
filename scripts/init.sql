@@ -1249,10 +1249,8 @@ BEGIN
     WHERE edge_label = 'has_sample'
     LIMIT 1; -- Assuming there is only one root node found
 
-    -- Raise notice if root_node_id is found
-    IF FOUND THEN
-        RAISE NOTICE 'Found root node id: %', root_node_id;
-    ELSE
+    -- Raise notice if the root node couldn't be calculated, that is, that from the model it wasn't possible to get the patient.
+    IF NOT FOUND THEN
         RAISE NOTICE 'Root node id not found for model_external_id: %, data_source: %', _model_external_id, _data_source;
     END IF;
 
@@ -1332,3 +1330,37 @@ EXCEPTION
         RAISE;
 END;
 $$;
+
+CREATE OR REPLACE PROCEDURE pdcm_api.update_knowledge_graphs()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    new_knowledge_graph JSONB;
+    batch_size INT := 1000;
+    counter INT := 0;
+BEGIN
+    FOR rec IN SELECT * FROM model_information LOOP
+        -- Call the pdcm_api.get_knowledge_graph function
+        new_knowledge_graph := pdcm_api.get_knowledge_graph(rec.external_model_id, rec.data_source);
+        
+        -- Update the knowledge_graph column
+        UPDATE model_information
+        SET knowledge_graph = new_knowledge_graph
+        WHERE external_model_id = rec.external_model_id
+          AND data_source = rec.data_source;
+        
+        -- Increment the counter
+        counter := counter + 1;
+        
+        -- Commit after batch_size updates
+        IF counter >= batch_size THEN
+            counter := 0;
+            COMMIT;
+            
+        END IF;
+    END LOOP;
+
+    -- Final commit in case of any remaining updates
+    COMMIT;
+END $$;
