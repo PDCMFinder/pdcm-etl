@@ -5,6 +5,7 @@ from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import lower_and_trim_all
 
 
 def harmonise_treatments(
@@ -60,6 +61,8 @@ def harmonise_treatments(
     treatment_df = treatment_df.withColumnRenamed("id", "treatment_id")
     treatment_df = treatment_df.withColumnRenamed("name", "treatment_name_no_harmonised")
     treatment_df = treatment_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
+    # Make treatment type lowercase to make it easier to remove duplicates that just differ on the case
+    treatment_df = treatment_df.withColumn("type", lower_and_trim_all( "type"))
 
     treatment_to_ontology_df = treatment_to_ontology_df.select("treatment_id", "ontology_term_id")
 
@@ -290,8 +293,9 @@ def calculate_treatment_types_by_model(
     treatment_types_df = direct_treatment_ontologies_by_protocol_df.select("protocol_model", "type")
     regimen_types_df = direct_regimen_ontologies_by_protocol_df.select("protocol_model", "type")
     types_by_model_df = treatment_types_df.union(regimen_types_df)
+    
     types_by_model_df = types_by_model_df.withColumn(
-        "type", when((lower("type") == 'not provided'), None).otherwise(col("type")))
+        "type", when((col("type") == 'not provided'), None).otherwise(col("type")))
     types_by_model_df = types_by_model_df.drop_duplicates()
 
     grouped_df = types_by_model_df. \
