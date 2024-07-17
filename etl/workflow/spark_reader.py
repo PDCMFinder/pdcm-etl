@@ -144,8 +144,7 @@ def extract_provider_name(path: str):
 
 def get_json_by_yaml(yaml_content):
     yaml_as_json = yaml.safe_load(yaml_content)
-    yaml_as_json = json.dumps(yaml_as_json)
-    yaml_as_json = yaml_as_json.encode("unicode_escape").decode("utf-8")
+    yaml_as_json = json.dumps(yaml_as_json, ensure_ascii=False)
     return yaml_as_json
 
 
@@ -175,7 +174,7 @@ class ReadYamlsByModule(PySparkTask):
         all_json_and_providers = []
 
         for yaml_file_path in yaml_file_paths:
-            with open(yaml_file_path, 'r') as stream:
+            with open(yaml_file_path, 'r', encoding='utf-8') as stream:
                 yaml_as_json = get_json_by_yaml(stream)
                 json_content_and_provider = (yaml_as_json, extract_provider_name(yaml_file_path))
                 all_json_and_providers.append(json_content_and_provider)
