@@ -190,8 +190,8 @@ def add_xenograft_model_specimen_data(df: DataFrame, xenograft_model_specimen_df
 def add_images_data(df: DataFrame, model_image_df: DataFrame) -> DataFrame:
     # Handle quotes in the description. In some cases there are double quites ("") so handling those cases with
     # a regexp
-    model_image_df = model_image_df.withColumn("description", regexp_replace(col("description"), '"+', "'"))
-
+    model_image_df = model_image_df.withColumn("description", regexp_replace(col("description"), '"+', ''))
+    
     model_image_df = model_image_df.withColumn(
         "json_entry",
         concat(lit("{"),
