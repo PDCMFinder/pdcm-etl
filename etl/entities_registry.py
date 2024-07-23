@@ -689,6 +689,7 @@ entities = {
         "expected_database_columns": [
             "facet_section",
             "facet_name",
+            "facet_description",
             "facet_column",
             "facet_options",
             "facet_example",

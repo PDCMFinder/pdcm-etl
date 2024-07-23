@@ -2,6 +2,7 @@ facet_definitions = [
     {
         "facet_section": "search",
         "facet_name": "Search",
+        "facet_description": "",
         "facet_column": "search_terms",
         "facet_example": "Melanoma",
         "any_operator": "ov",
@@ -13,6 +14,7 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Dataset available",
+        "facet_description": "Datasets associated with the model that are available to view/request",
         "facet_column": "dataset_available",
         "facet_example": '""',
         "any_operator": "ov",
@@ -24,6 +26,7 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Datasource",
+        "facet_description": "Laboratory, biobank, CRO. etc. that generated and characterised the model",
         "facet_column": "data_source",
         "facet_example": '""',
         "any_operator": "in",
@@ -35,6 +38,7 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Type",
+         "facet_description": "",
         "facet_column": "model_type",
         "facet_example": '""',
         "any_operator": "in",
@@ -46,6 +50,7 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Model ID",
+        "facet_description": "Unique identifier for all the cancer models derived from the same tissue sample",
         "facet_column": "external_model_id",
         "facet_example": "TM00015",
         "any_operator": "in",
@@ -57,6 +62,7 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Project",
+        "facet_description": "Consortium or project",
         "facet_column": "project_name",
         "facet_example": '""',
         "any_operator": "in",
@@ -68,6 +74,7 @@ facet_definitions = [
     {
         "facet_section": "model",
         "facet_name": "Related Models",
+        "facet_description": "Models generated from the same patient or sample",
         "facet_column": "has_relations",
         "facet_example": '""',
         "any_operator": "in",
@@ -79,7 +86,8 @@ facet_definitions = [
     },
      {
         "facet_section": "model",
-        "facet_name": "Paediatric",
+        "facet_name": "Paediatric Models",
+        "facet_description": "",
         "facet_column": "paediatric",
         "facet_example": '""',
         "any_operator": "in",
@@ -92,6 +100,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Gene mutation",
+        "facet_description": "Filter to identify specific mutations within the genomic data. This includes single nucleotide polymorphisms (SNPs), insertions, deletions, and other genetic variants",
         "facet_column": "markers_with_mutation_data",
         "facet_example": "RTP3",
         "any_operator": "ov",
@@ -103,6 +112,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Copy Number Alteration",
+        "facet_description": "Filter to detect changes in the number of gene copies",
         "facet_column": "markers_with_cna_data",
         "facet_example": "RTP3",
         "any_operator": "ov",
@@ -114,6 +124,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Gene Expression",
+        "facet_description": "Filter to measure the levels of mRNA expression for particular genes",
         "facet_column": "markers_with_expression_data",
         "facet_example": "BEST1",
         "any_operator": "ov",
@@ -125,6 +136,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Breast cancer biomarkers",
+        "facet_description": "Filter to select biomarkers specifically relevant to breast cancer. These biomarkers can include hormone receptor status (ER, PR), HER2 status",
         "facet_column": "breast_cancer_biomarkers",
         "facet_example": '""',
         "any_operator": "ov",
@@ -136,6 +148,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "Bio markers",
+        "facet_description": "Filter to identify presence or absence of particular genes",
         "facet_column": "markers_with_biomarker_data",
         "facet_example": "ESR1",
         "any_operator": "ov",
@@ -147,6 +160,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "MSI Status",
+        "facet_description": "Displays the microsatellite instability status of a cell model",
         "facet_column": "msi_status",
         "facet_example": "Stable",
         "any_operator": "ov",
@@ -158,6 +172,7 @@ facet_definitions = [
     {
         "facet_section": "molecular_data",
         "facet_name": "HLA types",
+        "facet_description": "Filter to identify the Human Leukocyte Antigen types present in the patient",
         "facet_column": "hla_types",
         "facet_example": "HLA-A",
         "any_operator": "ov",
@@ -169,6 +184,7 @@ facet_definitions = [
     {
         "facet_section": "treatment_drug_dosing",
         "facet_name": "Treatment type",
+        "facet_description": "Filter to categorize and select different types of treatments based on their modality. This includes chemotherapy, targeted therapy, immunotherapy, hormonal therapy, radiation therapy, and surgery",
         "facet_column": "custom_treatment_type_list",
         "facet_example": '""',
         "any_operator": "ov",
@@ -180,6 +196,7 @@ facet_definitions = [
     {
         "facet_section": "treatment_drug_dosing",
         "facet_name": "Patient treatment",
+        "facet_description": "Filter to identify the treatments received by the patient",
         "facet_column": "treatment_list",
         "facet_example": "radiation therapy",
         "any_operator": "ov",
@@ -190,7 +207,8 @@ facet_definitions = [
     },
     {
         "facet_section": "treatment_drug_dosing",
-        "facet_name": "Model dosing",
+        "facet_name": "Model Drug Dosing",
+        "facet_description": "Filter to identify dosing regimens used in experimental models or clinical trials",
         "facet_column": "model_treatment_list",
         "facet_example": "cyclophosphamide",
         "any_operator": "ov",
@@ -202,6 +220,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Tumour type",
+        "facet_description": "",
         "facet_column": "tumour_type",
         "facet_example": '""',
         "remove_invalid_values": True,
@@ -214,6 +233,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Patient sex",
+        "facet_description": "",
         "facet_column": "patient_sex",
         "facet_example": '""',
         "any_operator": "in",
@@ -225,6 +245,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Patient Ethnicity",
+        "facet_description": "Patient Ethnic group. Can be derived from self-assessment or genetic analysis",
         "facet_column": "patient_ethnicity",
         "facet_example": '""',
         "any_operator": "in",
@@ -236,6 +257,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Patient age",
+        "facet_description": "",
         "facet_column": "patient_age",
         "facet_example": '""',
         "any_operator": "in",
@@ -247,6 +269,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Cancer system",
+        "facet_description": "",
         "facet_column": "cancer_system",
         "facet_example": '""',
         "any_operator": "in",
@@ -258,6 +281,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Collection Site",
+        "facet_description": "Site of the tissue sample used to generate the model",
         "facet_column": "collection_site",
         "facet_example": '""',
         "any_operator": "in",
@@ -269,6 +293,7 @@ facet_definitions = [
     {
         "facet_section": "patient_tumour",
         "facet_name": "Primary Site",
+        "facet_description": "Site of the primary tumor",
         "facet_column": "primary_site",
         "facet_example": '""',
         "any_operator": "in",
