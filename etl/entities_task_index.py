@@ -18,6 +18,7 @@ entities = {
     Constants.PROVIDER_TYPE_ENTITY: TransformProviderType(),
     Constants.PROVIDER_GROUP_ENTITY: TransformProviderGroup(),
     Constants.PUBLICATION_GROUP_ENTITY: TransformPublicationGroup(),
+    Constants.INITIAL_MODEL_INFORMATION_ENTITY: TransformInitialModel(),
     Constants.MODEL_INFORMATION_ENTITY: TransformModel(),
     Constants.LICENSE_ENTITY: TransformLicense(),
     Constants.CELL_MODEL_ENTITY: TransformCellModel(),
@@ -64,5 +65,7 @@ entities = {
     Constants.SEARCH_INDEX_ENTITY: TransformSearchIndex(),
     Constants.SEARCH_FACET_ENTITY: TransformSearchFacet(),
     Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: TransformMolecularDataRestriction(),
-    Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY: TransformAvailableMolecularDataColumns()
+    Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY: TransformAvailableMolecularDataColumns(),
+    Constants.NODE_ENTITY: TransformNodes(),
+    Constants.EDGE_ENTITY: TransformEdges()
 }

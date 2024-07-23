@@ -5,7 +5,9 @@ from pyspark.sql.types import (
     StringType,
     StructField,
 )
-from pyspark.sql.functions import col, lit, expr, regexp_extract, when, concat, concat_ws, collect_list
+from pyspark.sql.functions import col, lit, expr, regexp_extract, when, concat, concat_ws, collect_list, lower
+
+from etl.constants import Constants
 
 
 # Adds links to other resources with aditional information about the model
@@ -48,6 +50,9 @@ def add_model_links(
             tmp_df = find_cancer_cell_lines_links(model_information_df, resource)
             all_links_df = all_links_df.unionAll(tmp_df)
 
+    # Add suplier links, which don't depend on a external resources definition 
+    all_links_df = all_links_df.union(find_supplier_links(model_information_df))
+    
     model_ids_links_column_df = create_model_links_column(all_links_df)
 
     # Join back to the original data frame to add the new column to it
@@ -151,6 +156,30 @@ def find_cancer_cell_lines_links(model_information_df: DataFrame, resource_defin
         "link",
         expr("regexp_replace(link, 'CCLE_ID', cellosaurus_id)")
     )
+    return links_df.select("id", "resource_label", "link_label", "type", "link")
+
+
+# Supplier link uses Vendor_link - supplier - catalog_number
+# Vendor_link -> link
+# supplier -> resource_label
+# catalog_number -> link_label
+def find_supplier_links(model_information_df: DataFrame) -> DataFrame:
+
+    data_df = model_information_df.select("id", "supplier", "vendor_link", "catalog_number")
+
+    # Remove records with Not Provided values
+    not_provided = Constants.NOT_PROVIDED_VALUE.lower()
+
+    data_df = data_df.where((lower(col("supplier")) != not_provided) & (col("supplier").isNotNull()))
+    data_df = data_df.where((lower(col("vendor_link")) != not_provided) & (col("vendor_link").isNotNull()))
+    data_df = data_df.where((lower(col("catalog_number")) != not_provided) & (col("catalog_number").isNotNull()))
+
+    data_df = data_df.withColumn("resource_label", col("supplier"))
+    data_df = data_df.withColumn("type", lit("supplier"))
+    data_df = data_df.withColumn("link_label", col("catalog_number"))
+
+    links_df = data_df.withColumn("link", col("vendor_link"))
+
     return links_df.select("id", "resource_label", "link_label", "type", "link")
 
 

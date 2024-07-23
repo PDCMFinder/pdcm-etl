@@ -14,6 +14,7 @@ from etl.jobs.util.cleaner import lower_and_trim_all
 column_names = [
     "facet_section",
     "facet_name",
+    "facet_description",
     "facet_column",
     "facet_options",
     "facet_example",
@@ -43,6 +44,7 @@ def main(argv):
         [
             StructField("facet_section", StringType(), True),
             StructField("facet_name", StringType(), True),
+            StructField("facet_description", StringType(), True),
             StructField("facet_column", StringType(), True),
             StructField("facet_options", ArrayType(StringType()), True),
             StructField("facet_example", StringType(), True),

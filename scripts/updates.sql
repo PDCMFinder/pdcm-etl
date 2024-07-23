@@ -32,3 +32,8 @@ UPDATE model_information
         END
     )
 ;
+
+ALTER TABLE model_information
+    ADD COLUMN IF NOT exists knowledge_graph JSON;
+
+COMMENT ON COLUMN model_information.knowledge_graph IS 'Knowledge graph';

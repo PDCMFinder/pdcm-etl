@@ -145,7 +145,6 @@ def extract_provider_name(path: str):
 def get_json_by_yaml(yaml_content):
     yaml_as_json = yaml.safe_load(yaml_content)
     yaml_as_json = json.dumps(yaml_as_json)
-    yaml_as_json = yaml_as_json.encode("unicode_escape").decode("utf-8")
     return yaml_as_json
 
 

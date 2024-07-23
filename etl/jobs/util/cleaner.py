@@ -1,7 +1,8 @@
 import re
 
 from pyspark.sql import Column
-from pyspark.sql.functions import regexp_replace, col, trim, initcap, lower, when
+from pyspark.sql.functions import regexp_replace, col, trim, initcap, lower, when, udf
+from pyspark.sql.types import StringType
 
 
 def remove_no_break_space(column_name: str) -> Column:
@@ -32,3 +33,13 @@ def null_values_to_empty_string(df):
         else:
             df = df.withColumn(col_name, when(col(col_name).isNull(), "").otherwise(col(col_name)))
     return df
+
+
+def remove_all_trailing_whitespaces(s: str):
+    return " ".join(s.split())
+
+def replace_substring(text, old_substring, new_substring):
+        if text is not None:
+            return text.replace(old_substring, new_substring)
+        return text
+

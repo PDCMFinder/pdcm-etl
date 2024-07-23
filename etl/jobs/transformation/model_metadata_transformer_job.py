@@ -2,10 +2,11 @@ import sys
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import lit, col, concat, concat_ws, collect_list, collect_set, when, array, size, \
-    regexp_replace, split, lower, coalesce, array
+    regexp_replace, split, coalesce
 
 from etl.constants import Constants
 from etl.jobs.transformation.links_generation.resources_per_model_util import add_raw_data_resources
+from etl.jobs.util.cleaner import lower_and_trim_all
 
 
 def main(argv):
@@ -189,8 +190,8 @@ def add_xenograft_model_specimen_data(df: DataFrame, xenograft_model_specimen_df
 def add_images_data(df: DataFrame, model_image_df: DataFrame) -> DataFrame:
     # Handle quotes in the description. In some cases there are double quites ("") so handling those cases with
     # a regexp
-    model_image_df = model_image_df.withColumn("description", regexp_replace(col("description"), '"+', "'"))
-
+    model_image_df = model_image_df.withColumn("description", regexp_replace(col("description"), '"+', ''))
+    
     model_image_df = model_image_df.withColumn(
         "json_entry",
         concat(lit("{"),
@@ -270,14 +271,17 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
 # Adds a custom column that is the combination of `treatment_type_list` + `patient_treatment_status` as that would be a
 # more complete filter in the UI
 def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
+    # Format `treatment_naive_at_collection` column to make processing easier
+    model_df = model_df.withColumn('treatment_naive_at_collection', lower_and_trim_all('treatment_naive_at_collection'))
+
     # Ignore treatment status that is Not Provided (because is not that meaningful) and `Not Treatment Naive`
     # (because if it's Not Treatment Naive then it means there is a treatment)
     model_df = model_df.withColumn(
         "tmp_patient_treatment_status",
         when(
-            lower(col("treatment_naive_at_collection")).isin('not provided', 'not collected', 'no'), None)
+            col("treatment_naive_at_collection").isin('not provided', 'not collected', 'no'), None)
         .when(
-            lower(col("treatment_naive_at_collection")).isin('yes'), lit("Treatment naive"))
+            col("treatment_naive_at_collection").isin('yes'), lit("Treatment naive"))
         .otherwise(col("treatment_naive_at_collection")))
     
     

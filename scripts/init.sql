@@ -1049,6 +1049,7 @@ DROP TABLE IF EXISTS search_facet CASCADE;
 CREATE TABLE search_facet (
     facet_section TEXT,
     facet_name TEXT,
+    facet_description TEXT,
     facet_column TEXT,
     facet_options TEXT[],
     facet_example TEXT,
@@ -1156,6 +1157,35 @@ COMMENT ON COLUMN model_image.passage IS 'Passage number imaging was performed. 
 COMMENT ON COLUMN model_image.magnification IS 'Magnification of the mode image';
 COMMENT ON COLUMN model_image.staining IS 'Staining used for imaging the sample';
 
+
+DROP TABLE IF EXISTS node CASCADE;
+CREATE TABLE node (
+    id BIGINT NOT NULL,
+    node_type TEXT,
+    node_label TEXT,
+    data_source TEXT,
+    data JSON
+);
+
+COMMENT ON TABLE node IS 'Represents a node in a graph';
+COMMENT ON COLUMN node.id IS 'Internal identifier';
+COMMENT ON COLUMN node.node_type IS 'The type of data we are representing: patient sample, model, treatment, etc.';
+COMMENT ON COLUMN node.node_label IS 'Text to display for the node. It will be the external_model_id in the case of models, or external sample id in the case of samples, for example.';
+COMMENT ON COLUMN node.data_source IS 'Data source associated to the node';
+COMMENT ON COLUMN node.data IS 'A JSON column with arbitrary key-value information about the current entity/node';
+
+DROP TABLE IF EXISTS edge CASCADE;
+CREATE TABLE edge (
+    previous_node BIGINT NOT NULL,
+    next_node BIGINT NOT NULL,
+    edge_label TEXT
+);
+
+COMMENT ON TABLE edge IS 'Represents the connection between nodes';
+COMMENT ON COLUMN edge.previous_node IS 'Reference to the previous node.';
+COMMENT ON COLUMN edge.next_node IS 'Reference to the next node.';
+COMMENT ON COLUMN edge.edge_label IS 'Label of the relation.';
+
 --- PostgreSQL functions
 
 -- Returns a JSON object with all the model parents connected to _model
@@ -1193,3 +1223,145 @@ FROM
  	AND r1.parent_id = r2.external_model_id
    ) sub
 $func$;
+
+-- Find the id of the root node in the knowledge graph for a specific model
+CREATE OR REPLACE FUNCTION pdcm_api.find_root_node(_model_external_id VARCHAR, _data_source VARCHAR)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    root_node_id INTEGER;
+    edge_record RECORD;
+BEGIN
+    -- Fetch the root node ID using a recursive CTE
+    WITH RECURSIVE cte_query AS (
+        SELECT e.*
+        FROM edge e
+        JOIN node n ON e.next_node = n.id
+        WHERE n.node_label = _model_external_id
+          AND n.data_source = _data_source
+        UNION ALL
+        SELECT e.*
+        FROM edge e
+        JOIN cte_query c ON e.next_node = c.previous_node
+    )
+    SELECT previous_node INTO root_node_id
+    FROM cte_query
+    WHERE edge_label = 'has_sample'
+    LIMIT 1; -- Assuming there is only one root node found
+
+    -- Raise notice if the root node couldn't be calculated, that is, that from the model it wasn't possible to get the patient.
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Root node id not found for model_external_id: %, data_source: %', _model_external_id, _data_source;
+    END IF;
+
+    RETURN root_node_id;
+EXCEPTION
+    WHEN others THEN
+        -- Handle exceptions if needed
+        RAISE;
+END;
+$$;
+
+-- Return a JSON with the knowledge graph for a specific model
+CREATE OR REPLACE FUNCTION pdcm_api.get_knowledge_graph(_model_external_id VARCHAR, _data_source VARCHAR)
+RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    root_node_id BIGINT;
+    edge_record RECORD;
+    graph_record JSONB;
+    nodes_json JSONB;
+    edges_json JSONB;
+BEGIN
+    -- Calculate the root node ID dynamically
+    SELECT pdcm_api.find_root_node(_model_external_id, _data_source) INTO root_node_id;
+
+    -- Create temporary tables to store unique node ids and edges
+    CREATE TEMP TABLE temp_unique_node_id (
+        node_id BIGINT PRIMARY KEY
+    );
+
+    CREATE TEMP TABLE temp_edges (
+        source BIGINT,
+        target BIGINT,
+        label VARCHAR
+    );
+
+    -- Fetch all descendants using a recursive CTE and insert into temp tables
+    WITH RECURSIVE cte_query AS (
+        SELECT e.*
+        FROM edge e
+        WHERE previous_node = root_node_id
+        UNION ALL
+        SELECT e.*
+        FROM edge e
+        JOIN cte_query c ON e.previous_node = c.next_node
+    )
+    INSERT INTO temp_edges (source, target, label)
+    SELECT c.previous_node, c.next_node, c.edge_label
+    FROM cte_query c;
+
+    INSERT INTO temp_unique_node_id (node_id)
+    SELECT DISTINCT unnest(ARRAY(SELECT source FROM temp_edges UNION SELECT target FROM temp_edges));
+
+    -- Create the JSON for nodes
+    SELECT jsonb_agg(to_jsonb(n)) INTO nodes_json
+    FROM temp_unique_node_id t
+    JOIN node n ON t.node_id = n.id;
+
+    -- Create the JSON for edges
+    SELECT jsonb_agg(to_jsonb(e)) INTO edges_json
+    FROM temp_edges e;
+
+    -- Combine nodes and edges into a single JSON object
+    graph_record := jsonb_build_object('nodes', nodes_json, 'edges', edges_json);
+
+    -- Drop temporary tables
+    DROP TABLE temp_unique_node_id;
+    DROP TABLE temp_edges;
+
+    RETURN graph_record;
+EXCEPTION
+    WHEN others THEN
+        -- Handle exceptions if needed
+        DROP TABLE IF EXISTS temp_unique_node_id;
+        DROP TABLE IF EXISTS temp_edges;
+        RAISE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE pdcm_api.update_knowledge_graphs()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    new_knowledge_graph JSONB;
+    batch_size INT := 1000;
+    counter INT := 0;
+BEGIN
+    FOR rec IN SELECT * FROM model_information LOOP
+        -- Call the pdcm_api.get_knowledge_graph function
+        new_knowledge_graph := pdcm_api.get_knowledge_graph(rec.external_model_id, rec.data_source);
+        
+        -- Update the knowledge_graph column
+        UPDATE model_information
+        SET knowledge_graph = new_knowledge_graph
+        WHERE external_model_id = rec.external_model_id
+          AND data_source = rec.data_source;
+        
+        -- Increment the counter
+        counter := counter + 1;
+        
+        -- Commit after batch_size updates
+        IF counter >= batch_size THEN
+            counter := 0;
+            COMMIT;
+            
+        END IF;
+    END LOOP;
+
+    -- Final commit in case of any remaining updates
+    COMMIT;
+END $$;

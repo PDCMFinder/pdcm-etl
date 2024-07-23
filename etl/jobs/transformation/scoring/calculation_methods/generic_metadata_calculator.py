@@ -28,7 +28,11 @@ def count_cancer_annotation_resources(resources_df):
 def get_metadata_max_score(column_weights):
     total_score = 0
     for element in column_weights:
-        total_score += column_weights[element]
+        value = column_weights[element]
+        # It might be that the attribute does not exist in the dictionary (maybe the attribute is not relevant for the type of model)
+        if value is None:
+            value = 0
+        total_score += value
     
     return total_score
 
@@ -75,6 +79,9 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str, c
             # How this column can be found in `column_weights`
             key = column_name + "." + column
             column_weight = column_weights.get(key)
+            # It might be that the attribute does not exist in the dictionary (maybe the attribute is not relevant for the type of model)
+            if column_weight is None:
+                column_weight = 0
             score += column_weight
     return score
 

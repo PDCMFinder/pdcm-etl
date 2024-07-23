@@ -133,12 +133,19 @@ class TransformLicense(TransformEntity):
     entity_name = Constants.LICENSE_ENTITY
 
 
-class TransformModel(TransformEntity):
+class TransformInitialModel(TransformEntity):
     requiredTasks = [
         ExtractModel(),
         ExtractCellModel(),
-        ExtractSharing(),
+        ExtractSharing()
+    ]
+    entity_name = Constants.INITIAL_MODEL_INFORMATION_ENTITY
+
+
+class TransformModel(TransformEntity):
+    requiredTasks = [
         ExtractModelIdsResources(),
+        TransformInitialModel(),
         TransformPublicationGroup(),
         TransformAccessibilityGroup(),
         TransformContactPeople(),
@@ -597,6 +604,24 @@ class TransformAvailableMolecularDataColumns(TransformEntity):
         TransformBiomarkerMolecularData(),
         TransformMutationMeasurementData()]
     entity_name = Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY
+
+
+class TransformNodes(TransformEntity):
+    requiredTasks = [
+        TransformPatient(),
+        TransformPatientSample(),
+        TransformInitialModel()
+    ]
+    entity_name = Constants.NODE_ENTITY
+
+
+class TransformEdges(TransformEntity):
+    requiredTasks = [
+        TransformNodes(),
+        TransformPatientSample(),
+        TransformInitialModel()
+    ]
+    entity_name = Constants.EDGE_ENTITY
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import etl.jobs.transformation.ethnicity_transformer_job
 import etl.jobs.transformation.provider_group_transformer_job
 import etl.jobs.transformation.provider_type_transformer_job
+import etl.jobs.transformation.initial_model_transformer_job
 import etl.jobs.transformation.model_transformer_job
 import etl.jobs.transformation.license_transformer_job
 import etl.jobs.transformation.cell_model_transformer_job
@@ -61,6 +62,8 @@ import etl.jobs.transformation.regimen_to_treatment_transformer_job
 import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
 import etl.jobs.transformation.molecular_data_restriction_transformer_job
 import etl.jobs.transformation.available_molecular_data_columns_transformer_job
+import etl.jobs.transformation.nodes_transformer_job
+import etl.jobs.transformation.edges_transformer_job
 from etl.constants import Constants
 
 
@@ -129,6 +132,10 @@ entities = {
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
         "expected_database_columns": ["id", "pubmed_ids"]
+    },
+    Constants.INITIAL_MODEL_INFORMATION_ENTITY: {
+        "spark_job": etl.jobs.transformation.initial_model_transformer_job.main,
+        "expected_database_columns": []
     },
     Constants.MODEL_INFORMATION_ENTITY: {
         "spark_job": etl.jobs.transformation.model_transformer_job.main,
@@ -682,6 +689,7 @@ entities = {
         "expected_database_columns": [
             "facet_section",
             "facet_name",
+            "facet_description",
             "facet_column",
             "facet_options",
             "facet_example",
@@ -704,6 +712,24 @@ entities = {
             "data_source",
             "not_empty_cols",
             "molecular_characterization_type"
+        ]
+    },
+    Constants.NODE_ENTITY: {
+        "spark_job": etl.jobs.transformation.nodes_transformer_job.main,
+        "expected_database_columns": [
+            "id",
+            "node_type",
+            "node_label",
+            "data_source",
+            "data"
+        ]
+    },
+    Constants.EDGE_ENTITY: {
+        "spark_job": etl.jobs.transformation.edges_transformer_job.main,
+        "expected_database_columns": [
+            "previous_node",
+            "next_node",
+            "edge_label"
         ]
     }
 

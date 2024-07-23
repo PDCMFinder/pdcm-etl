@@ -91,6 +91,10 @@ class Constants:
     AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY = "available_molecular_data_columns"
     RELEASE_INFO_ENTITY = "release_info"
 
+    # Graph tables
+    NODE_ENTITY = "node"
+    EDGE_ENTITY = "edge"
+
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
     TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
@@ -107,6 +111,8 @@ class Constants:
     INITIAL_BIOMARKER_MOLECULAR_DATA_ENTITY = "initial_biomarker_molecular_data"
     INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY = "initial_expression_molecular_data"
     INITIAL_MUTATION_MOLECULAR_DATA_ENTITY = "initial_mutation_molecular_data"
+
+    INITIAL_MODEL_INFORMATION_ENTITY = "initial_model_information"
 
     # Others
     NOT_PROVIDED_VALUE = "Not Provided"
