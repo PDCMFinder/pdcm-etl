@@ -33,7 +33,7 @@ def main(argv):
     df = clean_df(df)
 
     # df.coalesce(1).write \
-    df.write.option("sep", "\t").option("quote", "'").option("header", "true").mode(
+    df.write.option("sep", "\t").option("quote", "\u0000").option("header", "true").mode(
         "overwrite"
     ).csv(output_path)
 
