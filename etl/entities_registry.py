@@ -158,6 +158,8 @@ entities = {
             "rrid",
             "parent_id",
             "origin_patient_sample_id",
+            "model_availability",
+            "date_submitted",
             "other_model_links"
         ]
     },
@@ -681,6 +683,8 @@ entities = {
             "custom_treatment_type_list",
             "raw_data_resources",
             "cancer_annotation_resources",
+            "model_availability",
+            "date_submitted",
             "scores"
         ]
     },

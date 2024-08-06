@@ -160,6 +160,8 @@ CREATE TABLE model_information (
     rrid TEXT,
     parent_id TEXT,
     origin_patient_sample_id TEXT,
+    model_availability TEXT,
+    date_submitted TEXT,
     other_model_links JSON
 );
 
@@ -182,6 +184,10 @@ COMMENT ON COLUMN model_information.vendor_link IS 'Link to purchasable cell mod
 COMMENT ON COLUMN model_information.rrid IS 'Cellosaurus ID';
 COMMENT ON COLUMN model_information.parent_id IS 'model Id of the model used to generate the model';
 COMMENT ON COLUMN model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
+COMMENT ON COLUMN model_information.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN model_information.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN model_information.other_model_links IS 'External ids links and supplier link';
+
 
 DROP TABLE IF EXISTS license CASCADE;
 
@@ -976,6 +982,8 @@ CREATE TABLE search_index (
     custom_treatment_type_list TEXT[],
     raw_data_resources TEXT[],
     cancer_annotation_resources TEXT[],
+    model_availability TEXT,
+    date_submitted TEXT,
     scores JSON
 );
 
@@ -1041,6 +1049,8 @@ COMMENT ON COLUMN search_index.model_treatment_list IS 'Drug dosing data';
 COMMENT ON COLUMN search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
 COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
+COMMENT ON COLUMN search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN search_index.date_submitted IS 'Date of submission to the resource';
 COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 
 

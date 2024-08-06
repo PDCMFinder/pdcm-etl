@@ -114,7 +114,9 @@ def transform_search_index(
             "license_name",
             "license_url",
             "raw_data_resources",
-            "cancer_annotation_resources"
+            "cancer_annotation_resources",
+            "model_availability",
+            "date_submitted"
         )
         .where(col("histology").isNotNull())
         .distinct()
