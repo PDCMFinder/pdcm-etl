@@ -91,7 +91,9 @@ COMMENT ON COLUMN pdcm_api.model_information.vendor_link IS 'Link to purchasable
 COMMENT ON COLUMN pdcm_api.model_information.rrid IS 'Cellosaurus ID';
 COMMENT ON COLUMN pdcm_api.model_information.parent_id IS 'model Id of the model used to generate the model';
 COMMENT ON COLUMN pdcm_api.model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
-
+COMMENT ON COLUMN pdcm_api.model_information.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN pdcm_api.model_information.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN pdcm_api.model_information.other_model_links IS 'External ids links and supplier link';
 
 -- model_metadata view
 
@@ -905,6 +907,8 @@ COMMENT ON COLUMN pdcm_api.search_index.scores IS 'Model characterizations score
 COMMENT ON COLUMN pdcm_api.search_index.model_dataset_type_count IS 'The number of datasets for which data exists';
 COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric';
 COMMENT ON COLUMN pdcm_api.search_index.model_relationships IS 'Model relationships';
+COMMENT ON COLUMN pdcm_api.search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN pdcm_api.search_index.date_submitted IS 'Date of submission to the resource';
 COMMENT ON COLUMN pdcm_api.search_index.has_relations IS 'Indicates if the model has parent(s) or children';
 
 -- search_facet materialized view: Facets information

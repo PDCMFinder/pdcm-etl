@@ -136,6 +136,8 @@ groups:
           - "form_url"
           - "database_url"
           - "license"
+          - "date_submitted"
+          - "model_availability"
 
       - name: "drug-dosing"
         type: "tsv"

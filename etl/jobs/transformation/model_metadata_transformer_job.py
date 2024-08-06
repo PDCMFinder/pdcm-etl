@@ -127,6 +127,8 @@ def get_formatted_model(
         "supplements",
         "drug",
         "drug_concentration",
+        "model_availability",
+        "date_submitted",
         Constants.DATA_SOURCE_COLUMN
     )
     return model_df

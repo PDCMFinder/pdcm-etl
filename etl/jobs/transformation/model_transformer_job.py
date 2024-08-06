@@ -1,13 +1,11 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession, Column
-from pyspark.sql.functions import col, trim, lit, when
+from pyspark.sql.functions import col, trim
 
 from etl.constants import Constants
 from etl.jobs.transformation.links_generation.model_ids_links import add_model_links
-from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
-from etl.jobs.util.id_assigner import add_id
 
 
 def main(argv):
@@ -179,7 +177,9 @@ def get_columns_expected_order(model_df: DataFrame) -> DataFrame:
         "supplements",
         "drug",
         "drug_concentration",
-        "other_model_links"
+        "other_model_links",
+        "date_submitted",
+        "model_availability"
         )
 
 
