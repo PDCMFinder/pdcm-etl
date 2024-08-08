@@ -84,7 +84,7 @@ facet_definitions = [
         "facet_type": "check",
         "dynamic_values": False
     },
-     {
+    {
         "facet_section": "model",
         "facet_name": "Paediatric Models",
         "facet_description": "",
@@ -94,6 +94,19 @@ facet_definitions = [
         "all_operator": "",
         "is_boolean": True,
         "facet_options": ["paediatric=true"],
+        "facet_type": "check",
+        "dynamic_values": False
+    },
+    {
+        "facet_section": "model",
+        "facet_name": "Model Availability",
+        "facet_description": "Filters out currently unavailable models",
+        "facet_column": "model_availability_boolean",
+        "facet_example": '""',
+        "any_operator": "in",
+        "all_operator": "",
+        "is_boolean": True,
+        "facet_options": ["Hide not available models=true"],
         "facet_type": "check",
         "dynamic_values": False
     },

@@ -830,6 +830,11 @@ AS
             THEN true 
             ELSE false 
         END as paediatric,
+        CASE 
+	          WHEN lower(model_availability) = 'available'
+            THEN true 
+            ELSE false 
+        END as model_availability_boolean,
         (
           SELECT mi.model_relationships FROM model_information mi where mi.id = search_index.pdcm_model_id
           and mi.data_source = search_index.data_source
@@ -906,6 +911,7 @@ COMMENT ON COLUMN pdcm_api.search_index.cancer_annotation_resources IS 'List of 
 COMMENT ON COLUMN pdcm_api.search_index.scores IS 'Model characterizations scores';
 COMMENT ON COLUMN pdcm_api.search_index.model_dataset_type_count IS 'The number of datasets for which data exists';
 COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric';
+COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field that indicates if the model is available or not';
 COMMENT ON COLUMN pdcm_api.search_index.model_relationships IS 'Model relationships';
 COMMENT ON COLUMN pdcm_api.search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
 COMMENT ON COLUMN pdcm_api.search_index.date_submitted IS 'Date of submission to the resource';
