@@ -4,7 +4,7 @@ from luigi.contrib.spark import SparkSubmitTask
 from etl.constants import Constants
 from etl.entities_registry import get_all_entities_names_to_store_db
 from etl.entities_task_index import get_transformation_class_by_entity_name
-from etl.jobs.load.database_manager import copy_entity_to_database, get_database_connection, \
+from etl.jobs.load.database_manager import copy_entity_to_database, create_data_visualization_views, get_database_connection, \
     create_indexes, create_fks, recreate_tables, create_views, run_updates
 from etl.jobs.util.file_manager import copy_directory
 from etl.workflow.config import PdcmConfig
@@ -193,6 +193,44 @@ class RunUpdates(luigi.Task):
         print("\n********** End Tables Update ***********\n")
 
 
+class CreateDataVisualizationViews(luigi.Task):
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    data_dir = luigi.Parameter()
+    data_dir = luigi.Parameter()
+    env = luigi.Parameter()
+    """
+        Views for visualizations on data.
+    """
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "data_visualization_views_created"))
+        
+    def requires(self):
+        # CreateFksAndIndexes not really needed as dependency, but this allows to have less memory load
+        # when running this task
+        return [CreateViews(), CreateFksAndIndexes()]
+
+    def run(self):
+        print("\n\n********** Creating data visualization views ***********\n")
+
+        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+
+        create_data_visualization_views(connection)
+        connection.commit()
+        connection.close()
+
+        with self.output().open('w') as outfile:
+            outfile.write("Data visualization views created")
+
+        print("\n********** End data visualization views ***********\n")
+
+
 class CreateViews(luigi.Task):
     db_host = luigi.Parameter()
     db_port = luigi.Parameter()
@@ -208,6 +246,9 @@ class CreateViews(luigi.Task):
     def output(self):
         return PdcmConfig().get_target(
             "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "views_created"))
+    
+    def requires(self):
+        return [RunUpdates()]
 
     def run(self):
         print("\n\n********** Loading views ***********\n")
@@ -232,7 +273,7 @@ class LoadPublicDBObjects(luigi.Task):
     env = luigi.Parameter()
 
     def requires(self):
-        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates()]
+        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates(), CreateDataVisualizationViews()]
 
     def output(self):
         return PdcmConfig().get_target(
