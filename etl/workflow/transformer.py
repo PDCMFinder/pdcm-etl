@@ -270,7 +270,8 @@ class TransformTreatmentAndComponentHelper(TransformEntity):
 
 class TransformTreatment(TransformEntity):
     requiredTasks = [
-        TransformTreatmentAndComponentHelper()
+        TransformTreatmentAndComponentHelper(),
+        ExtractExternalResources()
     ]
     entity_name = Constants.TREATMENT_ENTITY
 

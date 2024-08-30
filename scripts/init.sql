@@ -463,13 +463,16 @@ CREATE TABLE treatment (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,
     type TEXT NOT NULL,
-    data_source TEXT NOT NULL
+    data_source TEXT NOT NULL,
+    external_db_links JSON
 );
 
 COMMENT ON TABLE treatment IS 'Treatment name';
 COMMENT ON COLUMN treatment.id IS 'Internal identifier';
 COMMENT ON COLUMN treatment.name IS 'treatment name, can be surgery, radiotherapy, drug name or drug combination ( (radiotherapy, chemotherapy, targeted therapy, hormone-therapy))';
 COMMENT ON COLUMN treatment.data_source IS 'Abbreviation of the provider. Here due to mapping, but might change if treatment names do not change between providers';
+COMMENT ON COLUMN treatment.external_db_links IS 'JSON column with links to external resources';
+
 
 DROP TABLE IF EXISTS response CASCADE;
 
