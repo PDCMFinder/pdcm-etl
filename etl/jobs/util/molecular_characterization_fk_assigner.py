@@ -2,6 +2,7 @@ from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import when, col, lit
 
 from etl.constants import Constants
+from etl.jobs.util.cleaner import lower_and_trim_all
 
 
 # Assigns the corresponding fk to a molecular data dataframe. The molecular data can be: cna, mutation, expression or
@@ -17,9 +18,14 @@ def set_fk_molecular_characterization(
         .when((col("external_cell_sample_id").isNotNull()), col("external_cell_sample_id"))
         .otherwise(lit("")))
     molecular_characterization_df = molecular_characterization_df.select(
-        "id", "sample_id", "platform_external_id", "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
+        "id", 
+        "sample_id", 
+        lower_and_trim_all("platform_external_id").alias("platform_external_id"), 
+        "molecular_characterisation_type",
+          Constants.DATA_SOURCE_COLUMN)
 
     molecular_data_df = molecular_data_df.withColumnRenamed("platform_id", "platform_external_id")
+    molecular_data_df = molecular_data_df.withColumn("platform_external_id", lower_and_trim_all("platform_external_id"))
 
     molecular_characterization_df = molecular_characterization_df.withColumnRenamed(
         "id", "molecular_characterization_id").where("molecular_characterisation_type = '" + molchar_type + "'")

@@ -86,13 +86,6 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str, c
     return score
 
 
-def calculate_score_external_resources(resources_list) -> float:
-    # Assign 1 score point per external resource
-    if resources_list:
-        return len(resources_list)
-    return 0
-
-
 def calculate_score_by_column(column_name: str, column_value: str, column_weights) -> float:
     score = 0
     if column_name in column_weights.keys():
@@ -100,8 +93,6 @@ def calculate_score_by_column(column_name: str, column_value: str, column_weight
             score += calculate_score_single_value_column(column_name, column_value, column_weights)
     elif column_name in columns_with_multiple_values:
         score += calculate_score_multiple_value_column(column_name, column_value, column_weights)
-    elif column_name == "resources":
-        score += calculate_score_external_resources(column_value)
     return score
 
 
