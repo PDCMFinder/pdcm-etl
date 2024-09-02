@@ -46,6 +46,9 @@ def add_treatment_links(treatment_df: DataFrame, resources_df: DataFrame):
             tmp_df = find_chembl_links(unique_treatment_names_df, resource)
             all_links_df = all_links_df.unionAll(tmp_df)
 
+        elif  resource["link_building_method"] == "PubChemInlineLink":
+            print("Create links for PubChem (NOT IMPLEMENTED YET)")
+
     treatment_names_links_column_df = create_treatment_links_column(all_links_df)
 
     # # Join back to the original data frame to add the new column to it
