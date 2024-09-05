@@ -160,9 +160,8 @@ def find_pubchem_id_by_name(input: str) -> str:
     response = requests.get(url)
 
     if response.status_code != 404:
-        pubchem_id: str = response.text
-        pubchem_id = pubchem_id.replace('\n','')
-        pubchem_id = pubchem_id.replace('\t','')
+        response_entries = response.text.split('\n')
+        pubchem_id: str = response_entries[0]
 
     return pubchem_id
 
