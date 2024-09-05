@@ -88,6 +88,20 @@ resources:
     link_building_method: "dbGAPInlineLink"
     link_template: "https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=dbGAP_ID"
 
+  - id: 12
+    name: "ChEMBL (Treatments)"
+    label: "ChEMBL"
+    type: "Treatment"
+    link_building_method: "ChEMBLInlineLink"
+    link_template: "https://www.ebi.ac.uk/chembl/compound_report_card/ChEMBL_ID"
+
+  - id: 13
+    name: "PubChem (Treatments)"
+    label: "PubChem"
+    type: "Treatment"
+    link_building_method: "PubChemInlineLink"
+    link_template: "https://pubchem.ncbi.nlm.nih.gov/compound/PubChem_ID"
+
 # Resources that require downloading data. These resources should be marked with link_building_method: "referenceLookup"
 # in the previous section
 

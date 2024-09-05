@@ -1136,7 +1136,19 @@ CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
        protocol_id,
        string_agg(treatment, ' And ') treatment,
        response,
-       string_agg(dose, ' + ') AS dose
+       string_agg(dose, ' + ') AS dose,
+       (
+        SELECT jsonb_agg(sub)
+        FROM  
+        (
+          SELECT 
+            t.name, tc.dose, t.external_db_links
+          FROM treatment t, treatment_protocol tp, treatment_component tc 
+          WHERE t.id = tc.treatment_id
+          AND tc.treatment_protocol_id = tp.id
+          AND tp.id = protocol_id
+        ) sub
+      ) entries
 FROM   (SELECT model_id,
                protocol_id,
                ( CASE
@@ -1177,6 +1189,7 @@ COMMENT ON COLUMN pdcm_api.dosing_studies.protocol_id IS 'Reference to the treat
 COMMENT ON COLUMN pdcm_api.dosing_studies.treatment IS 'Treatment names';
 COMMENT ON COLUMN pdcm_api.dosing_studies.response IS 'Response to the treatment';
 COMMENT ON COLUMN pdcm_api.dosing_studies.dose IS 'Dose used';
+COMMENT ON COLUMN pdcm_api.dosing_studies.entries IS 'Information about each individual treatment used';
 
 -- patient_treatment materialized view: Treatment information linked to the patient
 
@@ -1187,7 +1200,19 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
        protocol_id,
        string_agg(treatment, ' And ') treatment,
        response,
-       string_agg(dose, ' + ') AS dose
+       string_agg(dose, ' + ') AS dose,
+       (
+        SELECT jsonb_agg(sub)
+        FROM  
+        (
+          SELECT 
+            t.name, tc.dose, t.external_db_links
+          FROM treatment t, treatment_protocol tp, treatment_component tc 
+          WHERE t.id = tc.treatment_id
+          AND tc.treatment_protocol_id = tp.id
+          AND tp.id = protocol_id
+        ) sub
+      ) entries
  FROM   (SELECT model_id,
                protocol_id,
                ( CASE
@@ -1231,6 +1256,8 @@ COMMENT ON COLUMN pdcm_api.patient_treatment.protocol_id IS 'Reference to the tr
 COMMENT ON COLUMN pdcm_api.patient_treatment.treatment IS 'Treatment names';
 COMMENT ON COLUMN pdcm_api.patient_treatment.response IS 'Response to the treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment.dose IS 'Dose used';
+COMMENT ON COLUMN pdcm_api.patient_treatment.entries IS 'Information about each individual treatment used';
+
 
 -- models_by_treatment materialized view: Models by treatment
 
@@ -1297,7 +1324,19 @@ SELECT
 	histology,
 	string_agg(a.treatment, ' + ') AS treatment,
 	response,
-	string_agg(dose, ' + ') AS dose
+	string_agg(dose, ' + ') AS dose,
+  (
+  SELECT jsonb_agg(sub)
+  FROM  
+  (
+    SELECT 
+      t.name, tc.dose, t.external_db_links
+    FROM treatment t, treatment_protocol tp, treatment_component tc 
+    WHERE t.id = tc.treatment_id
+    AND tc.treatment_protocol_id = tp.id
+    AND tp.id = a.id
+  ) sub
+) entries
 FROM (
 	SELECT
 		tp.id,
@@ -1343,6 +1382,7 @@ COMMENT ON COLUMN pdcm_api.patient_treatment_extended.histology IS 'Diagnosis at
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.dose IS 'Treatment dose and unit';
+COMMENT ON COLUMN pdcm_api.patient_treatment_extended.entries IS 'Information about each individual treatment used';
 
 -- drug_dosing_extended materialized view: drug dosing treatment data + model information
 
@@ -1355,8 +1395,20 @@ SELECT
 	histology,
 	string_agg(a.treatment, ' + ') AS treatment,
 	response,
-	string_agg(dose, ' + ') AS dose
-FROM (
+	string_agg(dose, ' + ') AS dose,
+  (
+    SELECT jsonb_agg(sub)
+    FROM  
+    (
+      SELECT 
+        t.name, tc.dose, t.external_db_links
+      FROM treatment t, treatment_protocol tp, treatment_component tc 
+      WHERE t.id = tc.treatment_id
+      AND tc.treatment_protocol_id = tp.id
+      AND tp.id = a.id
+    ) sub
+  ) entries
+  FROM (
 	SELECT
 		tp.id,
 		si.external_model_id,
@@ -1392,6 +1444,7 @@ COMMENT ON COLUMN pdcm_api.drug_dosing_extended.histology IS 'Diagnosis at time 
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.dose IS 'Treatment dose and unit';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.entries IS 'Information about each individual treatment used';
 
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
 
