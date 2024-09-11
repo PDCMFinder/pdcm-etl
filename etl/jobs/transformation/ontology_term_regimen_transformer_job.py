@@ -29,7 +29,7 @@ def transform_ontology_term_regimen(ontology_term_df: DataFrame) -> DataFrame:
     for row in df_collect:
         add_node_to_graph(graph, row)
 
-    regimen_ontology_terms = extract_treatment_ontology_terms(graph, "ncit_regimen")
+    regimen_ontology_terms = extract_terms_by_ontology(graph, "ncit_regimen")
     regimen_term_id_list = get_term_ids_from_term_list(regimen_ontology_terms)
 
     ontology_term_regimen_df = ontology_term_df.where(col("term_id").isin(regimen_term_id_list))

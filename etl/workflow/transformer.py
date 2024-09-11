@@ -268,6 +268,14 @@ class TransformTreatmentAndComponentHelper(TransformEntity):
     entity_name = Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY
 
 
+# Helper transformation to obtain unique names from the treatments
+class TransformTreatmentNameHelper(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentAndComponentHelper()
+    ]
+    entity_name = Constants.TREATMENT_NAME_HELPER_ENTITY
+
+
 class TransformTreatment(TransformEntity):
     requiredTasks = [
         TransformTreatmentAndComponentHelper(),
@@ -528,6 +536,16 @@ class TransformTreatmentHarmonisationHelper(TransformEntity):
         TransformResponse()
     ]
     entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
+
+
+# Helper transformation to harmonise the treatment names
+class TransformTreatmentNameHarmonisation(TransformEntity):
+    requiredTasks = [
+        TransformTreatmentNameHelper(),
+        ExtractMappingTreatment(),
+        TransformOntologyTermTreatment()
+    ]
+    entity_name = Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY
 
 
 class TransformSearchIndexPatientSample(TransformEntity):

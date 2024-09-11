@@ -99,6 +99,8 @@ class Constants:
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
     TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
     EXTERNAL_RESOURCES_REFERENCES = "external_resources_references_helper"
+    TREATMENT_NAME_HELPER_ENTITY = "treatment_name_helper"
+    TREATMENT_NAME_HARMONISATION_HELPER_ENTITY = "treatment_name_harmonisation_helper"
     GENE_HELPER_ENTITY = "gene_helper"
 
     # Search index related transformations

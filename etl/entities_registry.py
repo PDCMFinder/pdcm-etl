@@ -24,6 +24,8 @@ import etl.jobs.transformation.accessibility_group_transformer_job
 import etl.jobs.transformation.host_strain_transformer_job
 import etl.jobs.transformation.project_group_transformer_job
 import etl.jobs.transformation.treatment_transformer_job
+import etl.jobs.transformation.treatment_name_helper_transformer_job
+import etl.jobs.transformation.treatment_name_harmonisation_helper_transformer_job
 import etl.jobs.transformation.response_transformer_job
 import etl.jobs.transformation.response_classification_transformer_job
 import etl.jobs.transformation.molecular_characterization_type_transformer_job
@@ -316,6 +318,14 @@ entities = {
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
         "expected_database_columns": ["id", "name", "type", "data_source", "external_db_links"]
+    },
+    Constants.TREATMENT_NAME_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_name_helper_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_name_harmonisation_helper_transformer_job.main,
+        "expected_database_columns": []
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
