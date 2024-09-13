@@ -38,8 +38,9 @@ def transform_treatment(treatment_and_component_helper_df, raw_external_resource
     treatment_df = add_id(treatment_df, "id")
     treatment_df = treatment_df.select("id", "name", "type", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"))
 
-    # Links to resources describing the treatments 
-    treatment_df = add_treatment_links(treatment_df, raw_external_resources_df)
+    # Links to resources describing the treatments
+    print("Now we are adding links")
+    # treatment_df = add_treatment_links(treatment_df, raw_external_resources_df)
 
     return treatment_df
 

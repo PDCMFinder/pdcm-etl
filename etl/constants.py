@@ -101,6 +101,7 @@ class Constants:
     EXTERNAL_RESOURCES_REFERENCES = "external_resources_references_helper"
     TREATMENT_NAME_HELPER_ENTITY = "treatment_name_helper"
     TREATMENT_NAME_HARMONISATION_HELPER_ENTITY = "treatment_name_harmonisation_helper"
+    TREATMENT_TYPE_HELPER_ENTITY = "treatment_type_helper"
     GENE_HELPER_ENTITY = "gene_helper"
 
     # Search index related transformations
