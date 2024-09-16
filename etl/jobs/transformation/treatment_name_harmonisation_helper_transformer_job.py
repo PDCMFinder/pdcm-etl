@@ -9,13 +9,17 @@ def main(argv):
     """
     Creates a parquet file the harmonised terms for treatments.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with the treatment names
-                    [2]: Output file
+                    [1]: Parquet file path from where all treatment names will be obtained
+                    [2]: Parquet file path with the mapping rules for treaments
+                    [3]: Parquet file path with with the ontology terms for treatments (processed from NCIt obo ontology)
+                    [4]: Parquet file path with with the ontology terms for regimens (processed from NCIt obo ontology)
+                    [5]: Output file
     """
     treatment_name_helper_parquet_path = argv[1]
     raw_treatment_mapping_parquet_path = argv[2]
     ontology_term_treatment_parquet_path = argv[3]
-    output_path = argv[4]
+    ontology_term_regimen_parquet_path = argv[4]
+    output_path = argv[5]
 
     spark = SparkSession.builder.getOrCreate()
     treatment_name_df = spark.read.parquet(treatment_name_helper_parquet_path)
@@ -23,9 +27,13 @@ def main(argv):
     ontology_term_treatment_df = spark.read.parquet(
         ontology_term_treatment_parquet_path
     )
+    ontology_term_regimen_df = spark.read.parquet(ontology_term_regimen_parquet_path)
 
     treatment_name_harmonisation_df = transform_treatment_name_harmonisation(
-        treatment_name_df, raw_treatment_mapping_df, ontology_term_treatment_df
+        treatment_name_df,
+        raw_treatment_mapping_df,
+        ontology_term_treatment_df,
+        ontology_term_regimen_df,
     )
 
     treatment_name_harmonisation_df.write.mode("overwrite").parquet(output_path)
@@ -35,6 +43,7 @@ def transform_treatment_name_harmonisation(
     treatment_name_df: DataFrame,
     raw_treatment_mapping_df: DataFrame,
     ontology_term_treatment_df: DataFrame,
+    ontology_term_regimen_df: DataFrame,
 ) -> DataFrame:
     # Add a lower case column to help with joins but keep original one to conserve the original case
     treatment_name_df = treatment_name_df.withColumn(
@@ -60,13 +69,13 @@ def transform_treatment_name_harmonisation(
 
     df = df.select("name", "mapped_term_url")
 
+    # Combine the ontology terms for the treatment branches and regimen brances
+    ontology_terms_df = ontology_term_treatment_df.unionAll(ontology_term_regimen_df)
+
     # Join to link ontology url with ontology information
-    ontology_term_treatment_df.select("term_id", "term_name", "term_url").show(
-        truncate=False
-    )
     df = df.join(
-        ontology_term_treatment_df,
-        on=[df.mapped_term_url == ontology_term_treatment_df.term_url],
+        ontology_terms_df,
+        on=[df.mapped_term_url == ontology_terms_df.term_url],
         how="left",
     )
 

@@ -488,6 +488,7 @@ class TransformTreatmentNameHarmonisation(TransformEntity):
         TransformTreatmentNameHelper(),
         ExtractMappingTreatment(),
         TransformOntologyTermTreatment(),
+        TransformRegimenToOntology()
     ]
     entity_name = Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY
 

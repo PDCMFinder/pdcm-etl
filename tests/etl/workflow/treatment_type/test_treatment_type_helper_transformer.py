@@ -100,7 +100,7 @@ from etl.jobs.transformation.treatment_type_helper_transformer_job import calcul
         (
             "liposomal doxorubicin",
             [],
-            ["Chemotherapy"],
+            ["Chemotherapy"], # Failing because there is no mapping yet
         ),
         (
             "Plitidepsin",
@@ -108,7 +108,8 @@ from etl.jobs.transformation.treatment_type_helper_transformer_job import calcul
                 "Antineoplastic Agent",
                 "Antineoplastic Antibiotic",
                 "Protein Synthesis Inhibitor",
-                "Depsipeptide Antineoplastic Antibiotic|Cytotoxic Chemotherapeutic Agent",
+                "Depsipeptide Antineoplastic Antibiotic",
+                "Cytotoxic Chemotherapeutic Agent",
             ],
             ["Chemotherapy"],
         ),
@@ -116,6 +117,16 @@ from etl.jobs.transformation.treatment_type_helper_transformer_job import calcul
             "lymphadenectomy",
             [],
             ["Surgery"],  # Not mapped yet
+        ),
+        (
+            "Surgery",
+            [],
+            ["Surgery"],
+        ),
+        (
+            "Biopsy",
+            [],
+            ["Surgery"],
         ),
         (
             "anti-hgf monoclonal antibody tak-701",
@@ -145,5 +156,6 @@ from etl.jobs.transformation.treatment_type_helper_transformer_job import calcul
         ),
     ],
 )
+
 def test_calculate_type_parametrized(treatment_name, ancestors, expected):
     assert calculate_type(treatment_name, ancestors) == expected

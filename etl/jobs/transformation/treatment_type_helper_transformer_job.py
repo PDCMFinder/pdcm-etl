@@ -1,14 +1,17 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import udf
+from pyspark.sql.functions import udf, split, coalesce
 from pyspark.sql.types import StringType
 
-from etl.jobs.util.cleaner import lower_and_trim_all
+from etl.jobs.util.dataframe_functions import flatten_array_columns
 
 KEYWORDS_BY_TYPE = [
     {"type": "Hormone therapy", "keywords": ["hormone therapy"]},
-    {"type": "Immunotherapy", "keywords": ["cytokine"]},
+    {
+        "type": "Immunotherapy",
+        "keywords": ["cytokine", "immunotherapeutic", "immunomodulatory"],
+    },
     {
         "type": "Targeted Therapy",
         "keywords": [
@@ -18,12 +21,11 @@ KEYWORDS_BY_TYPE = [
             "anti-hgf monoclonal antibody tak-701",
         ],
     },
-    {"type": "Immunotherapy", "keywords": ["immunotherapeutic", "immunomodulatory"]},
+    # {"type": "Immunotherapy", "keywords": ["immunotherapeutic", "immunomodulatory"]},
     {"type": "Chemotherapy", "keywords": ["chemotherapy", "chemotherapeutic"]},
     {
         "type": "Surgery",
-        # "keywords": ["mammoplasty", "mastectomy", "lumpectomy", "lymphadenectomy"],
-        "keywords": ["mammoplasty", "ectomy"],
+        "keywords": ["surgery", "mammoplasty", "ectomy", "biopsy"],
     },
     {
         "type": "Radiation Therapy",
@@ -48,6 +50,9 @@ def calculate_type(treatment_name: str, ancestors: list) -> list:
     :return: A list containing the types of the treatment based on its ontology ancestors.
     :rtype: list
     """
+    print("Calling calculate_type with", treatment_name, "and", ancestors)
+    if not ancestors:
+        ancestors = []
     types = []
 
     # Put all in a single list to compare with keywords
@@ -104,30 +109,34 @@ def main(argv):
     )
 
     treatment_type_df = transform_treatment_type_helper(treatment_name_harmonisation_df)
+    
+    # To remove. Here to compare with original classification
+    treatment_type_df = flatten_array_columns(treatment_type_df)
+    treatment_type_df.coalesce(1).write.option("sep", "\t").option(
+        "quote", "\u0000"
+    ).option("header", "true").mode("overwrite").csv("treatment_type")
 
-    # treatment_type_df.write.mode("overwrite").parquet(output_path)
+    treatment_type_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_treatment_type_helper(
     treatment_name_harmonisation_df: DataFrame,
 ) -> DataFrame:
     df = treatment_name_harmonisation_df
-    df = df.limit(5)
+
+    # We try to use the harmonise treatment name, but if not available, we use the original treatment name
+    df = df.withColumn("not_null_treatment_name", coalesce(df["term_name"], df["name"]))
+
+    # Ancestors come in a string where individual ancestors are separated by "|"
+    df = df.withColumn("ancestors_as_list", split(df.ancestors, ","))
 
     # Add the new column using the UDF
-    df_with_new_col = df.withColumn(
-        "treatment_types", calculate_type_udf(df["term_name"], df["ancestors"])
+    df = df.withColumn(
+        "treatment_types",
+        calculate_type_udf(df["not_null_treatment_name"], df["ancestors_as_list"]),
     )
-    df_with_new_col.show()
 
-    # df.show()
-    # df_rows = treatment_name_harmonisation_df.collect()
-    # for row in df_rows:
-
-    #     type = calculate_type(row['term_name'], row['ancestors'])
-    #     row.asDict()
-    #     row['type'] = type
-    #     print("row", row)
+    df = df.select("name", "term_name", "treatment_types")
 
     return df
 
