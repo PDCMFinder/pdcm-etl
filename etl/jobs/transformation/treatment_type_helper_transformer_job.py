@@ -7,7 +7,7 @@ from pyspark.sql.types import StringType
 from etl.jobs.util.dataframe_functions import flatten_array_columns
 
 KEYWORDS_BY_TYPE = [
-    {"type": "Hormone therapy", "keywords": ["hormone therapy"]},
+    {"type": "Hormone Therapy", "keywords": ["hormone therapy"]},
     {
         "type": "Immunotherapy",
         "keywords": ["cytokine", "immunotherapeutic", "immunomodulatory"],
@@ -21,7 +21,6 @@ KEYWORDS_BY_TYPE = [
             "anti-hgf monoclonal antibody tak-701",
         ],
     },
-    # {"type": "Immunotherapy", "keywords": ["immunotherapeutic", "immunomodulatory"]},
     {"type": "Chemotherapy", "keywords": ["chemotherapy", "chemotherapeutic"]},
     {
         "type": "Surgery",
@@ -109,7 +108,7 @@ def main(argv):
     )
 
     treatment_type_df = transform_treatment_type_helper(treatment_name_harmonisation_df)
-    
+
     # To remove. Here to compare with original classification
     treatment_type_df = flatten_array_columns(treatment_type_df)
     treatment_type_df.coalesce(1).write.option("sep", "\t").option(

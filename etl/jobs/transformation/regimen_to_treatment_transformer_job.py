@@ -3,9 +3,6 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import explode, split, regexp_replace, col
 
-from etl.jobs.util.dataframe_functions import transform_to_fk
-from etl.jobs.util.id_assigner import add_id
-
 
 def main(argv):
     """
@@ -24,43 +21,77 @@ def main(argv):
     spark = SparkSession.builder.getOrCreate()
     raw_ontolia_df = spark.read.parquet(raw_ontolia_parquet_path)
     ontology_term_regimen_df = spark.read.parquet(ontology_term_regimen_parquet_path)
-    ontology_term_treatment_df = spark.read.parquet(ontology_term_treatment_parquet_path)
+    ontology_term_treatment_df = spark.read.parquet(
+        ontology_term_treatment_parquet_path
+    )
     regimen_to_treatment_df = transform_regimen_to_treatment(
-        raw_ontolia_df, ontology_term_regimen_df, ontology_term_treatment_df)
+        raw_ontolia_df, ontology_term_regimen_df, ontology_term_treatment_df
+    )
+
     regimen_to_treatment_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_regimen_to_treatment(
-        raw_ontolia_df: DataFrame,
-        ontology_term_regimen_df: DataFrame,
-        ontology_term_treatment_df: DataFrame) -> DataFrame:
+    raw_ontolia_df: DataFrame,
+    ontology_term_regimen_df: DataFrame,
+    ontology_term_treatment_df: DataFrame,
+) -> DataFrame:
+    raw_ontolia_df = raw_ontolia_df.withColumnRenamed("regimen", "regimen_ncit_id")
+    raw_ontolia_df = raw_ontolia_df.withColumnRenamed(
+        "treatments", "treatments_ncit_ids"
+    )
+
     regimen_to_treatment_df = convert_into_single_treatment_by_row(raw_ontolia_df)
-    regimen_to_treatment_df = set_fk_ontology_term_regimen(regimen_to_treatment_df, ontology_term_regimen_df)
-    regimen_to_treatment_df = set_fk_ontology_term_treatment(regimen_to_treatment_df, ontology_term_treatment_df)
-    regimen_to_treatment_df = regimen_to_treatment_df.drop_duplicates()
-    regimen_to_treatment_df = add_id(regimen_to_treatment_df, "id")
-    return regimen_to_treatment_df
+    regimen_to_treatment_df = regimen_to_treatment_df.withColumn(
+        "regimen_ncit_id", regexp_replace(col("regimen_ncit_id"), "_", ":")
+    )
+    regimen_to_treatment_df = regimen_to_treatment_df.withColumn(
+        "treatment_ncit_id", regexp_replace(col("treatment_ncit_id"), "_", ":")
+    )
+
+    # Get the name of the regimen
+
+    ontology_term_regimen_df = ontology_term_regimen_df.select("term_id", "term_name")
+    ontology_term_regimen_df = ontology_term_regimen_df.withColumnRenamed(
+        "term_name", "regimen"
+    )
+
+    df: DataFrame = regimen_to_treatment_df.join(
+        ontology_term_regimen_df,
+        on=[
+            regimen_to_treatment_df.regimen_ncit_id == ontology_term_regimen_df.term_id
+        ],
+        how="inner",
+    )
+    df = df.select("regimen", "treatment_ncit_id")
+
+    # Get the name of the treatment
+
+    ontology_term_treatment_df = ontology_term_treatment_df.select(
+        "term_id", "term_name"
+    )
+    ontology_term_treatment_df = ontology_term_treatment_df.withColumnRenamed(
+        "term_name", "treatment"
+    )
+
+    df: DataFrame = df.join(
+        ontology_term_treatment_df,
+        on=[df.treatment_ncit_id == ontology_term_treatment_df.term_id],
+        how="inner",
+    )
+
+    df = df.select("regimen", "treatment")
+
+    return df
 
 
 def convert_into_single_treatment_by_row(raw_ontolia_df: DataFrame) -> DataFrame:
-    regimen_to_treatment_df = raw_ontolia_df.withColumn("treatment", explode(split("treatments", ",")))
-    regimen_to_treatment_df = regimen_to_treatment_df.select("regimen", "treatment")
-    return regimen_to_treatment_df
-
-
-def set_fk_ontology_term_regimen(regimen_to_treatment_df: DataFrame, ontology_term_regimen_df: DataFrame) -> DataFrame:
-    ontology_term_regimen_df = ontology_term_regimen_df.select("id", "term_id")
-    regimen_to_treatment_df = regimen_to_treatment_df.withColumn("regimen", regexp_replace(col("regimen"), "_", ":"))
-    regimen_to_treatment_df = transform_to_fk(
-        regimen_to_treatment_df, ontology_term_regimen_df, "regimen", "term_id", "id", "regimen_ontology_term_id")
-    return regimen_to_treatment_df
-
-
-def set_fk_ontology_term_treatment(regimen_to_treatment_df: DataFrame, ontology_term_treatment_df: DataFrame) -> DataFrame:
-    ontology_term_treatment_df = ontology_term_treatment_df.select("id", "term_id")
-    regimen_to_treatment_df = regimen_to_treatment_df.withColumn("treatment", regexp_replace(col("treatment"), "_", ":"))
-    regimen_to_treatment_df = transform_to_fk(
-        regimen_to_treatment_df, ontology_term_treatment_df, "treatment", "term_id", "id", "treatment_ontology_term_id")
+    regimen_to_treatment_df = raw_ontolia_df.withColumn(
+        "treatment_ncit_id", explode(split("treatments_ncit_ids", ","))
+    )
+    regimen_to_treatment_df = regimen_to_treatment_df.select(
+        "regimen_ncit_id", "treatment_ncit_id"
+    )
     return regimen_to_treatment_df
 
 

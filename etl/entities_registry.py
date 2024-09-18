@@ -550,7 +550,7 @@ entities = {
     },
     Constants.REGIMENT_TO_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.regimen_to_treatment_transformer_job.main,
-        "expected_database_columns": ["id", "regimen_ontology_term_id", "treatment_ontology_term_id"]
+        "expected_database_columns": []
     },
     Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: {
         "spark_job": etl.jobs.transformation.xenograft_model_specimen_transformer_job.main,
