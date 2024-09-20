@@ -1,6 +1,6 @@
 from pyspark.sql.dataframe import DataFrame
-from etl.jobs.transformation.harmonisation.treatments_harmonisation import (
-    harmonise_treatments,
+from etl.jobs.transformation.harmonisation.treatment_data_aggregator_by_model import (
+    aggregate_treatment_data_by_model,
 )
 from tests.etl.workflow.harmonisation.treatments_harmonisation.expected_outputs import (
     expected_harmonised_treatments,
@@ -21,7 +21,7 @@ def test_treatments_harmonisation(spark_session):
     treatment_component_df: DataFrame = convert_to_dataframe(spark_session, treatment_component)
     regimen_to_treatment_df: DataFrame = convert_to_dataframe(spark_session, regimen_to_treatment)
 
-    harmonised_treatments_df: DataFrame = harmonise_treatments(
+    harmonised_treatments_df: DataFrame = aggregate_treatment_data_by_model(
         formatted_protocol_df,
         treatment_component_df,
         treatment_df,

@@ -97,7 +97,7 @@ class Constants:
 
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
-    TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
+    TREATMENT_AGGREGATOR_HELPER_ENTITY = "treatment_aggregator_helper"
     EXTERNAL_RESOURCES_REFERENCES = "external_resources_references_helper"
     TREATMENT_NAME_HELPER_ENTITY = "treatment_name_helper"
     TREATMENT_NAME_HARMONISATION_HELPER_ENTITY = "treatment_name_harmonisation_helper"

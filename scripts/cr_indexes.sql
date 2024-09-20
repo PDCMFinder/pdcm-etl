@@ -124,9 +124,6 @@ ALTER TABLE treatment_to_ontology ADD CONSTRAINT pk_treatment_to_ontology PRIMAR
 ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS pk_regimen_to_ontology CASCADE;
 ALTER TABLE regimen_to_ontology ADD CONSTRAINT pk_regimen_to_ontology PRIMARY KEY (id);
 
-ALTER TABLE regimen_to_treatment DROP CONSTRAINT IF EXISTS pk_regimen_to_treatment CASCADE;
-ALTER TABLE regimen_to_treatment ADD CONSTRAINT pk_regimen_to_treatment PRIMARY KEY (id);
-
 ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS pk_treatment_protocol CASCADE;
 ALTER TABLE treatment_protocol ADD CONSTRAINT pk_treatment_protocol PRIMARY KEY (id);
 

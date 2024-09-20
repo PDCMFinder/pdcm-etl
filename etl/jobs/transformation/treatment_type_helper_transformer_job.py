@@ -2,9 +2,7 @@ import sys
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import udf, split, coalesce
-from pyspark.sql.types import StringType
-
-from etl.jobs.util.dataframe_functions import flatten_array_columns
+from pyspark.sql.types import StringType, ArrayType
 
 KEYWORDS_BY_TYPE = [
     {"type": "Hormone Therapy", "keywords": ["hormone therapy"]},
@@ -49,7 +47,6 @@ def calculate_type(treatment_name: str, ancestors: list) -> list:
     :return: A list containing the types of the treatment based on its ontology ancestors.
     :rtype: list
     """
-    print("Calling calculate_type with", treatment_name, "and", ancestors)
     if not ancestors:
         ancestors = []
     types = []
@@ -58,7 +55,6 @@ def calculate_type(treatment_name: str, ancestors: list) -> list:
     ancestors.append(treatment_name)
 
     lower_case_names = [x.lower() for x in ancestors]
-    print("lower_case_names", lower_case_names)
 
     for entry in KEYWORDS_BY_TYPE:
         keywords = entry["keywords"]
@@ -89,7 +85,7 @@ def any_ancestors_contain_keyword(ancestors: list, keywords: list) -> bool:
 
 
 # Register the function as a UDF
-calculate_type_udf = udf(calculate_type, StringType())
+calculate_type_udf = udf(calculate_type, ArrayType(StringType()))
 
 
 def main(argv):
@@ -108,12 +104,6 @@ def main(argv):
     )
 
     treatment_type_df = transform_treatment_type_helper(treatment_name_harmonisation_df)
-
-    # To remove. Here to compare with original classification
-    treatment_type_df = flatten_array_columns(treatment_type_df)
-    treatment_type_df.coalesce(1).write.option("sep", "\t").option(
-        "quote", "\u0000"
-    ).option("header", "true").mode("overwrite").csv("treatment_type")
 
     treatment_type_df.write.mode("overwrite").parquet(output_path)
 
@@ -135,7 +125,7 @@ def transform_treatment_type_helper(
         calculate_type_udf(df["not_null_treatment_name"], df["ancestors_as_list"]),
     )
 
-    df = df.select("name", "term_name", "treatment_types")
+    df = df.select("name", "term_name", "term_id", "treatment_types")
 
     return df
 

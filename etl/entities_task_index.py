@@ -60,8 +60,6 @@ entities = {
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: TransformSampleToOntology(),
     Constants.TREATMENT_PROTOCOL_ENTITY: TransformTreatmentProtocol(),
     Constants.TREATMENT_COMPONENT_ENTITY: TransformTreatmentComponent(),
-    Constants.TREATMENT_TO_ONTOLOGY_ENTITY: TransformTreatmentToOntology(),
-    Constants.REGIMEN_TO_ONTOLOGY_ENTITY: TransformRegimenToOntology(),
     Constants.SEARCH_INDEX_ENTITY: TransformSearchIndex(),
     Constants.SEARCH_FACET_ENTITY: TransformSearchFacet(),
     Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: TransformMolecularDataRestriction(),

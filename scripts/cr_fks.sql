@@ -220,16 +220,6 @@ ALTER TABLE regimen_to_ontology
     FOREIGN KEY (regimen_id)
     REFERENCES treatment (id);
 
-ALTER TABLE regimen_to_treatment
-    ADD CONSTRAINT fk_regimen_to_treatment_ontology_term_regimen
-    FOREIGN KEY (regimen_ontology_term_id)
-    REFERENCES ontology_term_regimen (id);
-
-ALTER TABLE regimen_to_treatment
-    ADD CONSTRAINT fk_regimen_to_treatment_ontology_term_treatment
-    FOREIGN KEY (treatment_ontology_term_id)
-    REFERENCES ontology_term_treatment (id);
-
 ALTER TABLE treatment_protocol
     ADD CONSTRAINT fk_treatment_protocol_model
     FOREIGN KEY (model_id)

@@ -62,7 +62,7 @@ import etl.jobs.transformation.search_index_molecular_characterization_transform
 import etl.jobs.transformation.search_index_molecular_data_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.regimen_to_treatment_transformer_job
-import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
+import etl.jobs.transformation.treatment_aggregator_helper_transformer_job
 import etl.jobs.transformation.molecular_data_restriction_transformer_job
 import etl.jobs.transformation.available_molecular_data_columns_transformer_job
 import etl.jobs.transformation.nodes_transformer_job
@@ -318,7 +318,7 @@ entities = {
     },
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
-        "expected_database_columns": ["id", "name", "type", "data_source", "external_db_links"]
+        "expected_database_columns": ["id", "name", "term_id", "types", "external_db_links", "aliases"]
     },
     Constants.TREATMENT_NAME_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_name_helper_transformer_job.main,
@@ -609,8 +609,8 @@ entities = {
             "ontology_term_id"
         ]
     },
-    Constants.TREATMENT_HARMONISATION_HELPER_ENTITY: {
-        "spark_job": etl.jobs.transformation.treatment_harmonisation_helper_transformer_job.main,
+    Constants.TREATMENT_AGGREGATOR_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_aggregator_helper_transformer_job.main,
         "expected_database_columns": []
     },
 

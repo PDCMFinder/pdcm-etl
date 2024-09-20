@@ -4,10 +4,8 @@ from pyspark.sql.functions import collect_list, col, lower, concat_ws, when, con
 from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 
-from etl.constants import Constants
 
-
-def harmonise_treatments(
+def aggregate_treatment_data_by_model(
     formatted_protocol_df: DataFrame,
     treatment_component_df: DataFrame,
     treatment_df: DataFrame,
@@ -88,9 +86,7 @@ def harmonise_treatments(
     ).union(discovered_regimens_by_protocol_df)
 
     formatted_data_df = format_output(
-        harmonised_terms_by_protocol_df,
-        formatted_protocol_df,
-        None,
+        harmonised_terms_by_protocol_df, formatted_protocol_df
     )
 
     return formatted_data_df
@@ -99,9 +95,7 @@ def harmonise_treatments(
 # Receive a dataframe in the format [treatment_protocol_id|term_name] and creates a df with only model_id and
 # list of treatment names coming from model_drug_doses and patient_treatment.
 def format_output(
-    harmonised_terms_by_protocol_df: DataFrame,
-    formatted_protocol_df: DataFrame,
-    treatment_types_by_model_df: DataFrame,
+    harmonised_terms_by_protocol_df: DataFrame, formatted_protocol_df: DataFrame
 ) -> DataFrame:
     harmonised_terms_by_protocol_df = harmonised_terms_by_protocol_df.withColumnRenamed(
         "types", "treatment_type_list"
@@ -199,27 +193,6 @@ def format_output(
     return result_df
 
 
-def get_direct_treatment_ontologies_by_protocol(
-    formatted_protocol_df: DataFrame,
-    treatment_component_df: DataFrame,
-    treatment_df: DataFrame,
-    treatment_to_ontology_df: DataFrame,
-) -> DataFrame:
-    treatments_by_protocol_df = formatted_protocol_df.join(
-        treatment_component_df, on=["treatment_protocol_id"], how="inner"
-    )
-
-    treatments_by_protocol_df = treatments_by_protocol_df.join(
-        treatment_df, on=["treatment_id", Constants.DATA_SOURCE_COLUMN], how="inner"
-    )
-
-    treatments_by_protocol_df = treatments_by_protocol_df.join(
-        treatment_to_ontology_df, on=["treatment_id"], how="inner"
-    )
-
-    return treatments_by_protocol_df
-
-
 def get_direct_treatments_by_protocol(
     formatted_protocol_df: DataFrame,
     treatment_component_df: DataFrame,
@@ -238,30 +211,6 @@ def get_direct_treatments_by_protocol(
     )
 
     return treatments_by_protocol_df
-
-
-def get_direct_regimen_ontologies_by_protocol(
-    formatted_protocol_df: DataFrame,
-    treatment_component_df: DataFrame,
-    treatment_df: DataFrame,
-    regimen_to_ontology_df: DataFrame,
-) -> DataFrame:
-    regimen_by_protocol_df = formatted_protocol_df.join(
-        treatment_component_df, on=["treatment_protocol_id"], how="inner"
-    )
-
-    regimen_by_protocol_df = regimen_by_protocol_df.join(
-        treatment_df, on=["treatment_id", Constants.DATA_SOURCE_COLUMN], how="inner"
-    )
-
-    regimen_to_ontology_df = regimen_to_ontology_df.withColumnRenamed(
-        "regimen_id", "treatment_id"
-    )
-    regimen_by_protocol_df = regimen_by_protocol_df.join(
-        regimen_to_ontology_df, on=["treatment_id"], how="inner"
-    )
-
-    return regimen_by_protocol_df
 
 
 def discover_additional_treatment_connections(

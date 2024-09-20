@@ -40,8 +40,8 @@ def add_node_to_graph(graph, row):
     return None
 
 
-def extract_cancer_ontology_graph(graph):
-    return extract_subgraph_from_graph(graph, "NCIT:C3262")
+# def extract_cancer_ontology_graph(graph):
+#     return extract_subgraph_from_graph(graph, "NCIT:C3262")
 
 
 def extract_subgraph_from_graph(graph, top_term):
