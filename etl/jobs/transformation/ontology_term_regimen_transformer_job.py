@@ -14,9 +14,9 @@ from etl.jobs.util.graph_builder import (
 
 def main(argv):
     """
-    Creates a parquet file with provider group data.
+    Creates a parquet file with all the ontology terms from NCIt (obo file) which are descendants of regimens used to treat cancer.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw sharing data
+                    [1]: Parquet file path with the ontologies read from the NCIt obo file
                     [2]: Output file
     """
     raw_ontology_term_parquet_path = argv[1]
@@ -34,7 +34,7 @@ def transform_ontology_term_regimen(ontology_term_df: DataFrame, spark) -> DataF
     for row in df_collect:
         add_node_to_graph(graph, row)
 
-    regimen_graph: nx.DiGraph = extract_graph_by_ontology_id(graph, "ncit_treatment")
+    regimen_graph: nx.DiGraph = extract_graph_by_ontology_id(graph, "ncit_regimen")
     regimen_term_id_list = get_term_ids_from_graph(regimen_graph)
 
     ontology_term_regimen_df = ontology_term_df.where(

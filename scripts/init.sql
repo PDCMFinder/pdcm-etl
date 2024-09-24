@@ -848,32 +848,6 @@ COMMENT ON COLUMN sample_to_ontology.id IS 'Internal identifier';
 COMMENT ON COLUMN sample_to_ontology.sample_id IS 'Reference to the patient_sample table';
 COMMENT ON COLUMN sample_to_ontology.ontology_term_id IS 'Reference to the ontology_term_diagnosis table';
 
-DROP TABLE IF EXISTS treatment_to_ontology CASCADE;
-
-CREATE TABLE treatment_to_ontology (
-    id BIGINT NOT NULL,
-    treatment_id BIGINT,
-    ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE treatment_to_ontology IS 'Mapping between treatments and ontology terms';
-COMMENT ON COLUMN treatment_to_ontology.id IS 'Internal identifier';
-COMMENT ON COLUMN treatment_to_ontology.treatment_id IS 'Reference to the treatment table';
-COMMENT ON COLUMN treatment_to_ontology.ontology_term_id IS 'Reference to the ontology_term_treatment table';
-
-DROP TABLE IF EXISTS regimen_to_ontology CASCADE;
-
-CREATE TABLE regimen_to_ontology (
-    id BIGINT NOT NULL,
-    regimen_id BIGINT,
-    ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE regimen_to_ontology IS 'Mapping between treatments and ontology terms';
-COMMENT ON COLUMN regimen_to_ontology.id IS 'Internal identifier';
-COMMENT ON COLUMN regimen_to_ontology.regimen_id IS 'Reference to the treatment table (regimens)';
-COMMENT ON COLUMN regimen_to_ontology.ontology_term_id IS 'Reference to the ontology_term_regimen table';
-
 DROP TABLE IF EXISTS treatment_protocol CASCADE;
 
 CREATE TABLE treatment_protocol (

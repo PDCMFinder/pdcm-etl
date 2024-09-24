@@ -200,26 +200,6 @@ ALTER TABLE sample_to_ontology
     FOREIGN KEY (ontology_term_id)
     REFERENCES ontology_term_diagnosis (id);
 
-ALTER TABLE treatment_to_ontology
-    ADD CONSTRAINT fk_treatment_to_ontology_treatment
-    FOREIGN KEY (treatment_id)
-    REFERENCES treatment (id);
-
-ALTER TABLE treatment_to_ontology
-    ADD CONSTRAINT fk_treatment_to_ontology_ontology_term_treatment
-    FOREIGN KEY (ontology_term_id)
-    REFERENCES ontology_term_treatment (id);
-
-ALTER TABLE regimen_to_ontology
-    ADD CONSTRAINT fk_regimen_to_ontology_ontology_term_regimen
-    FOREIGN KEY (ontology_term_id)
-    REFERENCES ontology_term_regimen (id);
-
-ALTER TABLE regimen_to_ontology
-    ADD CONSTRAINT fk_regimen_to_ontology_treatment
-    FOREIGN KEY (regimen_id)
-    REFERENCES treatment (id);
-
 ALTER TABLE treatment_protocol
     ADD CONSTRAINT fk_treatment_protocol_model
     FOREIGN KEY (model_id)

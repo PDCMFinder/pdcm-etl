@@ -15,9 +15,9 @@ from etl.jobs.util.id_assigner import add_id
 
 def main(argv):
     """
-    Creates a parquet file with provider group data.
+    Creates a parquet file with all the ontology terms from NCIt (obo file) which are descendants of treatments used to treat cancer.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw sharing data
+                    [1]: Parquet file path with the ontologies read from the NCIt obo file
                     [2]: Output file
     """
     raw_ontology_term_parquet_path = argv[1]

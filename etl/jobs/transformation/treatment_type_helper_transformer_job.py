@@ -125,7 +125,7 @@ def transform_treatment_type_helper(
         calculate_type_udf(df["not_null_treatment_name"], df["ancestors_as_list"]),
     )
 
-    df = df.select("name", "term_name", "term_id", "treatment_types")
+    df = df.select("name", "term_name", "term_id", "treatment_types", "class")
 
     return df
 

@@ -63,7 +63,6 @@ def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) ->
     data_from_drug_dosing = drug_dosing_df.select(
         "model_id",
         "treatment_name",
-        "treatment_type",
         "treatment_dose",
         "treatment_response",
         "response_classification",
@@ -78,7 +77,6 @@ def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) ->
         "model_id",
         "patient_id",
         "treatment_name",
-        "treatment_type",
         "treatment_dose",
         "treatment_response",
         "response_classification",
@@ -92,7 +90,6 @@ def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df:
     data_from_patient_treatment = patient_treatment_df.select(
         "patient_id",
         "treatment_name",
-        "treatment_type",
         "treatment_dose",
         "treatment_response",
         "response_classification",
@@ -107,7 +104,6 @@ def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df:
         "model_id",
         "patient_id",
         "treatment_name",
-        "treatment_type",
         "treatment_dose",
         "treatment_response",
         "response_classification",

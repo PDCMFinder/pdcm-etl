@@ -124,8 +124,13 @@ def format_output(
     )
 
     grouped_term_names_df = harmonised_treatments_by_models_df.groupBy(
-        "protocol_model", "treatment_target", "treatment_type_list"
-    ).agg(collect_list("treatment_name").alias("only_terms_names"))
+        "protocol_model", "treatment_target"
+    ).agg(
+        F.array_distinct(collect_list("treatment_name")).alias("only_terms_names"),
+        F.array_distinct(F.flatten(F.collect_list("treatment_type_list"))).alias(
+            "treatment_type_list"
+        ),
+    )
 
     grouped_term_names_plus_response_df = harmonised_treatments_by_models_df.groupBy(
         "protocol_model", "treatment_target"

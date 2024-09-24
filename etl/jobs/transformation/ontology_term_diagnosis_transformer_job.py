@@ -7,7 +7,7 @@ from pyspark.sql.functions import col, udf
 from etl.jobs.util.graph_builder import (
     add_node_to_graph,
     create_term_ancestors,
-    extract_terms_by_ontology,
+    extract_graph_by_ontology_id,
     get_term_ids_from_graph
 )
 from etl.jobs.util.id_assigner import add_id
@@ -18,9 +18,9 @@ remove_all_trailing_whitespaces_udf = udf(remove_all_trailing_whitespaces, Strin
 
 def main(argv):
     """
-    Creates a parquet file with ontology_term_diagnosis data.
+    Creates a parquet file with all the ontology terms from NCIt (obo file) which are descendants of Cancer diagnosis terms.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with raw ontology_term data
+                    [1]: Parquet file path with the ontologies read from the NCIt obo file
                     [2]: Output file
     """
     raw_ontology_term_parquet_path = argv[1]
@@ -42,13 +42,15 @@ def transform_ontology_term_diagnosis(
     for row in df_collect:
         add_node_to_graph(graph, row)
 
-    cancer_graph = extract_terms_by_ontology(graph, "ncit_ontology")
+    cancer_graph = extract_graph_by_ontology_id(graph, "ncit_diagnosis")
+ 
     cancer_term_id_list = get_term_ids_from_graph(cancer_graph)
     ontology_term_diagnosis_df = raw_ontology_term_df.where(
         col("term_id").isin(cancer_term_id_list)
     )
     ontology_term_diagnosis_df = update_term_names(ontology_term_diagnosis_df)
     ontology_term_diagnosis_df = add_id(ontology_term_diagnosis_df, "id")
+
     ancestors_df = create_term_ancestors(spark, cancer_graph)
 
     ontology_term_diagnosis_df = ontology_term_diagnosis_df.join(

@@ -83,8 +83,6 @@ class Constants:
     SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
     TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
     TREATMENT_COMPONENT_ENTITY = "treatment_component"
-    TREATMENT_TO_ONTOLOGY_ENTITY = "treatment_to_ontology"
-    REGIMEN_TO_ONTOLOGY_ENTITY = "regimen_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
     MOLECULAR_DATA_RESTRICTION_ENTITY = "molecular_data_restriction"

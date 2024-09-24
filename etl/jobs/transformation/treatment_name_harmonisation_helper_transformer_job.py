@@ -1,6 +1,7 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import lit
 
 from etl.jobs.util.cleaner import lower_and_trim_all
 
@@ -69,6 +70,10 @@ def transform_treatment_name_harmonisation(
 
     df = df.select("name", "mapped_term_url")
 
+    # Add class as static values to identifu what is a treatment and what is a regimen
+    ontology_term_treatment_df = ontology_term_treatment_df.withColumn("class", lit("treatment"))
+    ontology_term_regimen_df = ontology_term_regimen_df.withColumn("class", lit("regimen"))
+
     # Combine the ontology terms for the treatment branches and regimen brances
     ontology_terms_df = ontology_term_treatment_df.unionAll(ontology_term_regimen_df)
 
@@ -79,7 +84,7 @@ def transform_treatment_name_harmonisation(
         how="left",
     )
 
-    df = df.select("name", "term_name", "term_id", "ancestors")
+    df = df.select("name", "term_name", "term_id", "ancestors", "class").drop_duplicates()
 
     return df
 

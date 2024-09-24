@@ -467,7 +467,7 @@ class TransformTreatment(TransformEntity):
 
 
 class TransformTreatmentComponent(TransformEntity):
-    requiredTasks = [TransformTreatmentAndComponentHelper(), TransformTreatment()]
+    requiredTasks = [TransformTreatmentAndComponentHelper(), TransformTreatment(), TransformTreatmentNameHarmonisation()]
     entity_name = Constants.TREATMENT_COMPONENT_ENTITY
 
 

@@ -593,22 +593,6 @@ entities = {
             "treatment_id"
         ]
     },
-    Constants.TREATMENT_TO_ONTOLOGY_ENTITY: {
-        "spark_job": etl.jobs.transformation.treatment_to_ontology_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "treatment_id",
-            "ontology_term_id"
-        ]
-    },
-    Constants.REGIMEN_TO_ONTOLOGY_ENTITY: {
-        "spark_job": etl.jobs.transformation.regimen_to_ontology_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "regimen_id",
-            "ontology_term_id"
-        ]
-    },
     Constants.TREATMENT_AGGREGATOR_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_aggregator_helper_transformer_job.main,
         "expected_database_columns": []

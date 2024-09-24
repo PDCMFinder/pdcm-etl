@@ -6,7 +6,6 @@ from pyspark.sql.functions import collect_list, lit, array_distinct
 from etl.jobs.transformation.links_generation.treatments_links_builder import (
     add_treatment_links,
 )
-from etl.jobs.util.cleaner import lower_and_trim_all
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -48,7 +47,7 @@ def transform_treatment(
     unmapped_treatments_df = unmapped_treatments_df.withColumn("aliases", lit(None))
 
     aggrgegated_treatments_df: DataFrame = mapped_treatments_df.groupBy(
-        "term_name", "term_id", "treatment_types"
+        "term_name", "term_id", "treatment_types", "class"
     ).agg(array_distinct(collect_list("name")).alias("aliases"))
 
     # Change name to unify later

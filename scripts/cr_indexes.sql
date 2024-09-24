@@ -118,12 +118,6 @@ ALTER TABLE ontology_term_regimen ADD CONSTRAINT pk_ontology_term_regimen PRIMAR
 ALTER TABLE sample_to_ontology DROP CONSTRAINT IF EXISTS pk_sample_to_ontology CASCADE;
 ALTER TABLE sample_to_ontology ADD CONSTRAINT pk_sample_to_ontology PRIMARY KEY (id);
 
-ALTER TABLE treatment_to_ontology DROP CONSTRAINT IF EXISTS pk_treatment_to_ontology CASCADE;
-ALTER TABLE treatment_to_ontology ADD CONSTRAINT pk_treatment_to_ontology PRIMARY KEY (id);
-
-ALTER TABLE regimen_to_ontology DROP CONSTRAINT IF EXISTS pk_regimen_to_ontology CASCADE;
-ALTER TABLE regimen_to_ontology ADD CONSTRAINT pk_regimen_to_ontology PRIMARY KEY (id);
-
 ALTER TABLE treatment_protocol DROP CONSTRAINT IF EXISTS pk_treatment_protocol CASCADE;
 ALTER TABLE treatment_protocol ADD CONSTRAINT pk_treatment_protocol PRIMARY KEY (id);
 
