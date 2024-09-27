@@ -24,11 +24,6 @@ import requests
 def add_treatment_links(treatment_df: DataFrame, resources_df: DataFrame):
     spark: SparkSession = SparkSession.builder.getOrCreate()
 
-    # At the moment we can have duplicate treatment names, so to reduce the processing effort
-    # we only calculate links for unique treatments, then we join back to the original df
-
-    unique_treatment_names_df = treatment_df.select("name").drop_duplicates()
-
     # Schema for the df each method is going to return
     schema = StructType(
         [
@@ -43,12 +38,12 @@ def add_treatment_links(treatment_df: DataFrame, resources_df: DataFrame):
     for resource in resources_list:
         if resource["link_building_method"] == "ChEMBLInlineLink":
             print("Create links for ChEMBL")
-            tmp_df = find_chembl_links(unique_treatment_names_df, resource)
+            tmp_df = find_chembl_links(treatment_df, resource)
             all_links_df = all_links_df.unionAll(tmp_df)
 
         elif resource["link_building_method"] == "PubChemInlineLink":
             print("Create links for PubChem")
-            tmp_df = find_pubchem_links(unique_treatment_names_df, resource)
+            tmp_df = find_pubchem_links(treatment_df, resource)
             all_links_df = all_links_df.unionAll(tmp_df)
 
     treatment_names_links_column_df = create_treatment_links_column(all_links_df)
@@ -160,7 +155,7 @@ def find_pubchem_id_by_name(input: str) -> str:
     response = requests.get(url)
 
     if response.status_code != 404:
-        response_entries = response.text.split('\n')
+        response_entries = response.text.split("\n")
         pubchem_id: str = response_entries[0]
 
     return pubchem_id
@@ -169,7 +164,6 @@ def find_pubchem_id_by_name(input: str) -> str:
 # Takes a df with the columns <"name", "resource_label", "link"> and returns a df
 # with columns <"name", "external_db_links"> where "treatment_links" is a JSON with the information to build links in the UI
 def create_treatment_links_column(links_df: DataFrame) -> DataFrame:
-
     # Only interested in cases where links where found. This filter here causes `external_db_links` to br null if no links found.
     links_df = links_df.where("link is not null")
 

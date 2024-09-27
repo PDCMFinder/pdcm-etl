@@ -1132,56 +1132,46 @@ COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.count IS 'Number of mo
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.dosing_studies;
 
 CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
- SELECT model_id,
-       protocol_id,
-       string_agg(treatment, ' And ') treatment,
-       response,
-       string_agg(dose, ' + ') AS dose,
-       (
-        SELECT jsonb_agg(sub)
-        FROM  
+  SELECT model_id,
+        protocol_id,
+        string_agg(treatment, ' And ') treatment,
+    response,
+    string_agg(dose, ' + ') AS dose,
         (
-          SELECT 
-            t.name, tc.dose, t.external_db_links
-          FROM treatment t, treatment_protocol tp, treatment_component tc 
-          WHERE t.id = tc.treatment_id
-          AND tc.treatment_protocol_id = tp.id
-          AND tp.id = protocol_id
-        ) sub
-      ) entries
-FROM   (SELECT model_id,
-               protocol_id,
-               ( CASE
-                   WHEN treatment_harmonised IS NOT NULL THEN
-                   treatment_harmonised
-                   ELSE treatment_raw
-                 END ) treatment,
-               response,
-               dose
-        FROM   (SELECT model_id,
-                       tp.id         protocol_id,
-                       ott.term_name treatment_harmonised,
-                       r.NAME        response,
-                       tc.dose       dose,
-                       t.NAME        treatment_raw
-                FROM   model_information m,
-                       treatment_protocol tp,
-                       response r,
-                       treatment_component tc,
-                       treatment t
-                       LEFT JOIN treatment_to_ontology tont
-                              ON ( t.id = tont.treatment_id )
-                       LEFT JOIN ontology_term_treatment ott
-                              ON ( tont.ontology_term_id = ott.id )
-                WHERE  treatment_target = 'drug dosing'
-                       AND m.id = tp.model_id
-                       AND tp.response_id = r.id
-                       AND tc.treatment_protocol_id = tp.id
-                       AND tc.treatment_id = t.id
-                       AND t.data_source = m.data_source) a)b
-GROUP  BY model_id,
-          protocol_id,
-          response;
+          SELECT jsonb_agg(sub)
+          FROM  
+          (
+            SELECT 
+              t.name, tc.dose, t.external_db_links
+            FROM treatment t, treatment_protocol tp, treatment_component tc 
+            WHERE t.id = tc.treatment_id
+            AND tc.treatment_protocol_id = tp.id
+            AND tp.id = protocol_id
+          ) sub
+        ) entries
+  FROM   (SELECT model_id,
+                protocol_id,
+                treatment,
+                response,
+                dose
+          FROM   (SELECT model_id,
+                        tp.id         protocol_id,
+                        r.NAME        response,
+                        tc.dose       dose,
+                        t.NAME        treatment
+                  FROM   model_information m,
+                        treatment_protocol tp,
+                        response r,
+                        treatment_component tc,
+                        treatment t
+                  WHERE  treatment_target = 'drug dosing'
+                        AND m.id = tp.model_id
+                        AND tp.response_id = r.id
+                        AND tc.treatment_protocol_id = tp.id
+                        AND tc.treatment_id = t.id) a)b
+  GROUP  BY model_id,
+            protocol_id,
+            response;
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.dosing_studies IS 'Dosing studies section data';
 COMMENT ON COLUMN pdcm_api.dosing_studies.model_id IS 'Reference to the model_information table';
@@ -1215,37 +1205,27 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
       ) entries
  FROM   (SELECT model_id,
                protocol_id,
-               ( CASE
-                   WHEN treatment_harmonised IS NOT NULL THEN
-                   treatment_harmonised
-                   ELSE treatment_raw
-                 END ) treatment,
+               treatment,
                response,
                dose
         FROM   (SELECT m.id    model_id,
                        tp.id         protocol_id,
-                       ott.term_name treatment_harmonised,
                        r.NAME        response,
                        tc.dose       dose,
-                       t.NAME        treatment_raw
+                       t.NAME        treatment
                 FROM
-					   patient_sample ps,
-					   model_information m,
-                       treatment_protocol tp,
-                       response r,
-                       treatment_component tc,
-                       treatment t
-                       LEFT JOIN treatment_to_ontology tont
-                              ON ( t.id = tont.treatment_id )
-                       LEFT JOIN ontology_term_treatment ott
-                              ON ( tont.ontology_term_id = ott.id )
+                      patient_sample ps,
+                      model_information m,
+                      treatment_protocol tp,
+                      response r,
+                      treatment_component tc,
+                      treatment t
                 WHERE  treatment_target = 'patient'
 				       AND tp.patient_id = ps.patient_id
                        AND m.id = ps.model_id
                        AND tp.response_id = r.id
                        AND tc.treatment_protocol_id = tp.id
-                       AND tc.treatment_id = t.id
-                       AND t.data_source = m.data_source) a)b
+                       AND tc.treatment_id = t.id) a)b
  GROUP  BY model_id,
           protocol_id,
           response;
@@ -1348,7 +1328,7 @@ FROM (
 		si.patient_sex,
 		si.patient_ethnicity,
 		si.histology,
-		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
+		t.name AS treatment,
 		r.name AS response,
 		tc.dose
 	FROM treatment_protocol tp
@@ -1358,10 +1338,7 @@ FROM (
 	JOIN treatment_component tc on tc.treatment_protocol_id = tp.id
 	JOIN response r on r.id = tp.response_id
 	JOIN treatment t on t.id = tc.treatment_id
-	LEFT JOIN treatment_to_ontology tont ON t.id = tont.treatment_id
-	LEFT JOIN ontology_term_treatment ott ON tont.ontology_term_id = ott.id
 	WHERE treatment_target = 'patient'
-	AND t.data_source=si.data_source
 	) a
 GROUP BY
 	id, external_model_id, data_source, external_patient_id, patient_age, patient_sex,
@@ -1417,7 +1394,7 @@ SELECT
 		si.patient_sex,
 		si.patient_ethnicity,
 		si.histology,
-		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
+		t.name AS treatment,
 		r.name AS response,
 		tc.dose
 	FROM treatment_protocol tp
@@ -1425,10 +1402,7 @@ SELECT
 	JOIN treatment_component tc on tc.treatment_protocol_id = tp.id
 	JOIN response r on r.id = tp.response_id
 	JOIN treatment t on t.id = tc.treatment_id
-	LEFT JOIN treatment_to_ontology tont ON t.id = tont.treatment_id
-	LEFT JOIN ontology_term_treatment ott ON tont.ontology_term_id = ott.id
 	WHERE treatment_target = 'drug dosing'
-	AND t.data_source=si.data_source
 	) a
 GROUP BY
 	id, external_model_id, data_source, histology, response;

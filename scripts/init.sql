@@ -462,17 +462,19 @@ DROP TABLE IF EXISTS treatment CASCADE;
 CREATE TABLE treatment (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,
-    type TEXT NOT NULL,
-    data_source TEXT NOT NULL,
-    external_db_links JSON
+    term_id TEXT,
+    types TEXT[],
+    external_db_links JSON,
+    aliases TEXT[]
 );
 
 COMMENT ON TABLE treatment IS 'Treatment name';
 COMMENT ON COLUMN treatment.id IS 'Internal identifier';
-COMMENT ON COLUMN treatment.name IS 'treatment name, can be surgery, radiotherapy, drug name or drug combination ( (radiotherapy, chemotherapy, targeted therapy, hormone-therapy))';
-COMMENT ON COLUMN treatment.data_source IS 'Abbreviation of the provider. Here due to mapping, but might change if treatment names do not change between providers';
+COMMENT ON COLUMN treatment.name IS 'Treatment name. If `term_id` is not null, `name` corresponds to the ontology term found in the mapping process';
+COMMENT ON COLUMN treatment.term_id IS 'Id of the ontology term for this treatment';
+COMMENT ON COLUMN treatment.types IS 'List of treatment types associated to the treatment';
 COMMENT ON COLUMN treatment.external_db_links IS 'JSON column with links to external resources';
-
+COMMENT ON COLUMN treatment.aliases IS 'List of names for the treatment as we got them from the providers';
 
 DROP TABLE IF EXISTS response CASCADE;
 
@@ -845,45 +847,6 @@ COMMENT ON TABLE sample_to_ontology IS 'Mapping between diagnosis in from a samp
 COMMENT ON COLUMN sample_to_ontology.id IS 'Internal identifier';
 COMMENT ON COLUMN sample_to_ontology.sample_id IS 'Reference to the patient_sample table';
 COMMENT ON COLUMN sample_to_ontology.ontology_term_id IS 'Reference to the ontology_term_diagnosis table';
-
-DROP TABLE IF EXISTS treatment_to_ontology CASCADE;
-
-CREATE TABLE treatment_to_ontology (
-    id BIGINT NOT NULL,
-    treatment_id BIGINT,
-    ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE treatment_to_ontology IS 'Mapping between treatments and ontology terms';
-COMMENT ON COLUMN treatment_to_ontology.id IS 'Internal identifier';
-COMMENT ON COLUMN treatment_to_ontology.treatment_id IS 'Reference to the treatment table';
-COMMENT ON COLUMN treatment_to_ontology.ontology_term_id IS 'Reference to the ontology_term_treatment table';
-
-DROP TABLE IF EXISTS regimen_to_ontology CASCADE;
-
-CREATE TABLE regimen_to_ontology (
-    id BIGINT NOT NULL,
-    regimen_id BIGINT,
-    ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE regimen_to_ontology IS 'Mapping between treatments and ontology terms';
-COMMENT ON COLUMN regimen_to_ontology.id IS 'Internal identifier';
-COMMENT ON COLUMN regimen_to_ontology.regimen_id IS 'Reference to the treatment table (regimens)';
-COMMENT ON COLUMN regimen_to_ontology.ontology_term_id IS 'Reference to the ontology_term_regimen table';
-
-DROP TABLE IF EXISTS regimen_to_treatment CASCADE;
-
-CREATE TABLE regimen_to_treatment (
-    id BIGINT NOT NULL,
-    regimen_ontology_term_id BIGINT,
-    treatment_ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE regimen_to_treatment IS 'Relation between regimen and treatments';
-COMMENT ON COLUMN regimen_to_treatment.id IS 'Internal identifier';
-COMMENT ON COLUMN regimen_to_treatment.regimen_ontology_term_id IS 'Reference to the regimen_ontology_term table';
-COMMENT ON COLUMN regimen_to_treatment.treatment_ontology_term_id IS 'Reference to the treatment_ontology_term table';
 
 DROP TABLE IF EXISTS treatment_protocol CASCADE;
 

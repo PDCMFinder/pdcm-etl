@@ -1,11 +1,11 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import collect_list, lit, array_distinct
 
-from etl.constants import Constants
-from etl.jobs.transformation.links_generation.treatments_links_builder import add_treatment_links
-from etl.jobs.util.cleaner import lower_and_trim_all
+from etl.jobs.transformation.links_generation.treatments_links_builder import (
+    add_treatment_links,
+)
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -13,33 +13,58 @@ def main(argv):
     """
     Creates a parquet file with treatment data.
     :param list argv: the list elements should be:
-                    [1]: Parquet file path with the treatment_and_component_helper data
+                    [1]: Parquet file path with the treatment_type_helper data
                     [2]: Output file
     """
-    treatment_and_component_helper_parquet_path = argv[1]
+    treatment_type_helper_parquet_path = argv[1]
     raw_external_resources_parquet_path = argv[2]
     output_path = argv[3]
 
     spark = SparkSession.builder.getOrCreate()
-    treatment_and_component_helper_df = spark.read.parquet(treatment_and_component_helper_parquet_path)
+    treatment_type_helper_df = spark.read.parquet(treatment_type_helper_parquet_path)
+
     raw_external_resources_df = spark.read.parquet(raw_external_resources_parquet_path)
-    treatment_df = transform_treatment(treatment_and_component_helper_df, raw_external_resources_df)
+
+    treatment_df = transform_treatment(
+        treatment_type_helper_df, raw_external_resources_df
+    )
+
     treatment_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_treatment(treatment_and_component_helper_df, raw_external_resources_df) -> DataFrame:
-    treatment_df = treatment_and_component_helper_df.select(
-        col("treatment_name").alias("name"), col("treatment_type").alias("type"), Constants.DATA_SOURCE_COLUMN)
-    # Temporary solution for null treatment type
-    treatment_df = treatment_df.withColumn("type", when(col("type").isNull(), "treatment").otherwise(col("type")))
+def transform_treatment(
+    treatment_type_helper_df: DataFrame, raw_external_resources_df: DataFrame
+) -> DataFrame:
+    #  We want only one treatment per record. So we will group by `term_name` and `treatment_types` and the "raw" names given by the provider
+    # will be aggregated into a list as 'aliases'
 
-    treatment_df = treatment_df.withColumn("name", lower_and_trim_all("name"))
-    treatment_df = treatment_df.drop_duplicates()
-    treatment_df = add_id(treatment_df, "id")
-    treatment_df = treatment_df.select("id", "name", "type", col(Constants.DATA_SOURCE_COLUMN).alias("data_source"))
+    mapped_treatments_df: DataFrame = treatment_type_helper_df.where(
+        "term_name is not null"
+    )
+    unmapped_treatments_df: DataFrame = treatment_type_helper_df.where(
+        "term_name is null"
+    )
+    unmapped_treatments_df = unmapped_treatments_df.withColumn("aliases", lit(None))
 
-    # Links to resources describing the treatments 
+    aggrgegated_treatments_df: DataFrame = mapped_treatments_df.groupBy(
+        "term_name", "term_id", "treatment_types", "class"
+    ).agg(array_distinct(collect_list("name")).alias("aliases"))
+
+    # Change name to unify later
+    aggrgegated_treatments_df = aggrgegated_treatments_df.withColumnRenamed(
+        "term_name", "name"
+    )
+
+    unmapped_treatments_df = unmapped_treatments_df.drop("term_name")
+    unmapped_treatments_df = unmapped_treatments_df.withColumn("term_id", lit(None))
+
+    treatment_df: DataFrame = aggrgegated_treatments_df.unionAll(unmapped_treatments_df)
+
+    treatment_df = treatment_df.withColumnRenamed("treatment_types", "types")
+
     treatment_df = add_treatment_links(treatment_df, raw_external_resources_df)
+
+    treatment_df = add_id(treatment_df, "id")
 
     return treatment_df
 
