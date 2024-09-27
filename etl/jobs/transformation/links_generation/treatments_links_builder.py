@@ -92,8 +92,9 @@ def find_chembl_id_by_name(input: str) -> str:
     response = requests.get(url)
     data = response.json()
 
-    if data["page_meta"]["total_count"] == 1:
-        chembl_id = data["molecules"][0]["molecule_chembl_id"]
+    if data and data["page_meta"]:
+        if data["page_meta"]["total_count"] == 1:
+            chembl_id = data["molecules"][0]["molecule_chembl_id"]
 
     return chembl_id
 
@@ -104,21 +105,22 @@ def find_chembl_id_by_synonym(input: str) -> str:
     response = requests.get(url)
     data = response.json()
 
-    # Check if any molecules were found
-    if data["page_meta"]["total_count"] > 0:
-        # Iterate over the molecules and filter by synonyms
-        for molecule in data["molecules"]:
-            synonyms = molecule.get("molecule_synonyms", [])
-            # Check if the synonym matches the searched term
-            matching_synonyms = [
-                synonym
-                for synonym in synonyms
-                if synonym["molecule_synonym"].lower() == input.lower()
-            ]
-            if matching_synonyms:
-                # Extract and print the ChEMBL ID for matched synonyms
-                chembl_id = molecule["molecule_chembl_id"]
-                break
+    if data and data["page_meta"]:
+        # Check if any molecules were found
+        if data["page_meta"]["total_count"] > 0:
+            # Iterate over the molecules and filter by synonyms
+            for molecule in data["molecules"]:
+                synonyms = molecule.get("molecule_synonyms", [])
+                # Check if the synonym matches the searched term
+                matching_synonyms = [
+                    synonym
+                    for synonym in synonyms
+                    if synonym["molecule_synonym"].lower() == input.lower()
+                ]
+                if matching_synonyms:
+                    # Extract and print the ChEMBL ID for matched synonyms
+                    chembl_id = molecule["molecule_chembl_id"]
+                    break
 
     return chembl_id
 
@@ -145,18 +147,27 @@ def find_pubchem_links(treatment_names_df: DataFrame, resource) -> DataFrame:
 # Tries to find the PubChem id for the treatment name. For now no search by synonyms
 def get_pubchem_id(treatment_name: str) -> str:
     pubchem_id = find_pubchem_id_by_name(treatment_name)
-    print(f"By name {treatment_name} is {pubchem_id}")
     return pubchem_id
 
 
 def find_pubchem_id_by_name(input: str) -> str:
     pubchem_id = None
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{input}/cids/TXT"
-    response = requests.get(url)
 
-    if response.status_code != 404:
-        response_entries = response.text.split("\n")
-        pubchem_id: str = response_entries[0]
+    try:
+        response = requests.get(url, timeout=10)  # Add a timeout to prevent indefinite waiting
+
+        if response.status_code == 200:  # Ensure response is successful
+            response_entries = response.text.split("\n")
+            if response_entries:
+                pubchem_id = response_entries[0]  # Take the first entry if available
+                
+    except requests.ConnectTimeout:
+        # Handle connection timeout and return None
+        print(f"Connection to PubChem timed out for {input}.")
+    except Exception as e:
+        # Handle other potential exceptions
+        print(f"An error occurred: {e}")
 
     return pubchem_id
 
