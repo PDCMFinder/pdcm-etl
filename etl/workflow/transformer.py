@@ -3,18 +3,42 @@ from luigi.contrib.spark import SparkSubmitTask
 
 from etl.constants import Constants
 from etl.workflow.config import PdcmConfig
-from etl.workflow.extractor import ExtractImmunemarker, ExtractModelIdsResources, ExtractPatient, ExtractSharing, ExtractModel, \
-    ExtractModelValidation, ExtractSample, ExtractDrugDosing, ExtractPatientTreatment, \
-    ExtractCna, ExtractBiomarker, ExtractExpression, ExtractMutation, ExtractMolecularMetadataPlatform, \
-    ExtractMolecularMetadataSample, ExtractSource, ExtractGeneMarker, ExtractOntology, ExtractMappingDiagnosis, \
-    ExtractCellModel, ExtractOntolia, ExtractMappingTreatment, ExtractExternalResources, ExtractDownloadedResourcesData, \
-    ExtractModelCharacterizationConf, ExtractImageStudy, ExtractModelImage
+from etl.workflow.extractor import (
+    ExtractImmunemarker,
+    ExtractModelIdsResources,
+    ExtractPatient,
+    ExtractSharing,
+    ExtractModel,
+    ExtractModelValidation,
+    ExtractSample,
+    ExtractDrugDosing,
+    ExtractPatientTreatment,
+    ExtractCna,
+    ExtractBiomarker,
+    ExtractExpression,
+    ExtractMutation,
+    ExtractMolecularMetadataPlatform,
+    ExtractMolecularMetadataSample,
+    ExtractSource,
+    ExtractGeneMarker,
+    ExtractOntology,
+    ExtractMappingDiagnosis,
+    ExtractCellModel,
+    ExtractOntolia,
+    ExtractMappingTreatment,
+    ExtractExternalResources,
+    ExtractDownloadedResourcesData,
+    ExtractModelCharacterizationConf,
+    ExtractImageStudy,
+    ExtractModelImage,
+)
 
 
 class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
     """
-        Creates a dataframe ready with all the information needed for a specific entity.
+    Creates a dataframe ready with all the information needed for a specific entity.
     """
+
     data_dir = luigi.Parameter()
     providers = luigi.ListParameter()
     data_dir_out = luigi.Parameter()
@@ -25,7 +49,7 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
     """ Entity to be processed """
     entity_name = None
 
-    app = 'etl/jobs/transformation/spark_transformation_job.py'
+    app = "etl/jobs/transformation/spark_transformation_job.py"
 
     def requires(self):
         return self.requiredTasks
@@ -48,83 +72,60 @@ class TransformEntity(luigi.contrib.spark.SparkSubmitTask):
         return spark_input_parameters
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(
-            self.data_dir_out, Constants.TRANSFORMED_DIRECTORY, self.entity_name))
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(
+                self.data_dir_out, Constants.TRANSFORMED_DIRECTORY, self.entity_name
+            )
+        )
 
 
 class TransformEthnicity(TransformEntity):
-    requiredTasks = [
-        ExtractPatient()
-    ]
+    requiredTasks = [ExtractPatient()]
     entity_name = Constants.ETHNICITY_ENTITY
 
 
 class TransformProviderType(TransformEntity):
-    requiredTasks = [
-        ExtractSource()
-    ]
+    requiredTasks = [ExtractSource()]
     entity_name = Constants.PROVIDER_TYPE_ENTITY
 
 
 class TransformProjectGroup(TransformEntity):
-    requiredTasks = [
-        ExtractSource()
-    ]
+    requiredTasks = [ExtractSource()]
     entity_name = Constants.PROJECT_GROUP_ENTITY
 
 
 class TransformProviderGroup(TransformEntity):
-    requiredTasks = [
-        ExtractSource(),
-        TransformProviderType(),
-        TransformProjectGroup()
-    ]
+    requiredTasks = [ExtractSource(), TransformProviderType(), TransformProjectGroup()]
     entity_name = Constants.PROVIDER_GROUP_ENTITY
 
 
 class TransformPatient(TransformEntity):
-    requiredTasks = [
-        ExtractPatient(),
-        TransformEthnicity(),
-        TransformProviderGroup()
-    ]
+    requiredTasks = [ExtractPatient(), TransformEthnicity(), TransformProviderGroup()]
     entity_name = Constants.PATIENT_ENTITY
 
 
 class TransformPublicationGroup(TransformEntity):
-    requiredTasks = [
-        ExtractModel(),
-        ExtractCellModel()
-    ]
+    requiredTasks = [ExtractModel(), ExtractCellModel()]
     entity_name = Constants.PUBLICATION_GROUP_ENTITY
 
 
 class TransformContactPeople(TransformEntity):
-    requiredTasks = [
-        ExtractSharing()
-    ]
+    requiredTasks = [ExtractSharing()]
     entity_name = Constants.CONTACT_PEOPLE_ENTITY
 
 
 class TransformContactForm(TransformEntity):
-    requiredTasks = [
-        ExtractSharing()
-    ]
+    requiredTasks = [ExtractSharing()]
     entity_name = Constants.CONTACT_FORM_ENTITY
 
 
 class TransformSourceDatabase(TransformEntity):
-    requiredTasks = [
-        ExtractSharing()
-    ]
+    requiredTasks = [ExtractSharing()]
     entity_name = Constants.SOURCE_DATABASE_ENTITY
 
 
 class TransformAccessibilityGroup(TransformEntity):
-    requiredTasks = [
-        ExtractSharing(),
-        ExtractSharing()
-    ]
+    requiredTasks = [ExtractSharing(), ExtractSharing()]
     entity_name = Constants.ACCESSIBILITY_GROUP_ENTITY
 
 
@@ -134,11 +135,7 @@ class TransformLicense(TransformEntity):
 
 
 class TransformInitialModel(TransformEntity):
-    requiredTasks = [
-        ExtractModel(),
-        ExtractCellModel(),
-        ExtractSharing()
-    ]
+    requiredTasks = [ExtractModel(), ExtractCellModel(), ExtractSharing()]
     entity_name = Constants.INITIAL_MODEL_INFORMATION_ENTITY
 
 
@@ -151,39 +148,28 @@ class TransformModel(TransformEntity):
         TransformContactPeople(),
         TransformContactForm(),
         TransformSourceDatabase(),
-        TransformLicense()
-        
+        TransformLicense(),
     ]
     entity_name = Constants.MODEL_INFORMATION_ENTITY
 
 
 class TransformCellModel(TransformEntity):
-    requiredTasks = [
-        ExtractCellModel(),
-        TransformModel()
-    ]
+    requiredTasks = [ExtractCellModel(), TransformModel()]
     entity_name = Constants.CELL_MODEL_ENTITY
 
 
 class TransformQualityAssurance(TransformEntity):
-    requiredTasks = [
-        ExtractModelValidation(),
-        TransformModel()
-    ]
+    requiredTasks = [ExtractModelValidation(), TransformModel()]
     entity_name = Constants.QUALITY_ASSURANCE_ENTITY
 
 
 class TransformTissue(TransformEntity):
-    requiredTasks = [
-        ExtractSample()
-    ]
+    requiredTasks = [ExtractSample()]
     entity_name = Constants.TISSUE_ENTITY
 
 
 class TransformTumourType(TransformEntity):
-    requiredTasks = [
-        ExtractSample()
-    ]
+    requiredTasks = [ExtractSample()]
     entity_name = Constants.TUMOUR_TYPE_ENTITY
 
 
@@ -193,59 +179,43 @@ class TransformPatientSample(TransformEntity):
         TransformPatient(),
         TransformTissue(),
         TransformTumourType(),
-        TransformModel()
+        TransformModel(),
     ]
     entity_name = Constants.PATIENT_SAMPLE_ENTITY
 
 
 class TransformEngraftmentSite(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
+    requiredTasks = [ExtractModel()]
     entity_name = Constants.ENGRAFTMENT_SITE_ENTITY
 
 
 class TransformEngraftmentType(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
+    requiredTasks = [ExtractModel()]
     entity_name = Constants.ENGRAFTMENT_TYPE_ENTITY
 
 
 class TransformEngraftmentSampleState(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
+    requiredTasks = [ExtractModel()]
     entity_name = Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY
 
 
 class TransformEngraftmentSampleType(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
+    requiredTasks = [ExtractModel()]
     entity_name = Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY
 
 
 class TransformHostStrain(TransformEntity):
-    requiredTasks = [
-        ExtractModel()
-    ]
+    requiredTasks = [ExtractModel()]
     entity_name = Constants.HOST_STRAIN_ENTITY
 
 
 class TransformResponse(TransformEntity):
-    requiredTasks = [
-        ExtractDrugDosing(),
-        ExtractPatientTreatment()
-    ]
+    requiredTasks = [ExtractDrugDosing(), ExtractPatientTreatment()]
     entity_name = Constants.RESPONSE_ENTITY
 
 
 class TransformResponseClassification(TransformEntity):
-    requiredTasks = [
-        ExtractDrugDosing(),
-        ExtractPatientTreatment()
-    ]
+    requiredTasks = [ExtractDrugDosing(), ExtractPatientTreatment()]
     entity_name = Constants.RESPONSE_CLASSIFICATION_ENTITY
 
 
@@ -256,24 +226,23 @@ class TransformTreatmentProtocol(TransformEntity):
         TransformModel(),
         TransformPatient(),
         TransformResponse(),
-        TransformResponseClassification()
+        TransformResponseClassification(),
     ]
     entity_name = Constants.TREATMENT_PROTOCOL_ENTITY
 
 
 class TransformTreatmentAndComponentHelper(TransformEntity):
-    requiredTasks = [
-        TransformTreatmentProtocol()
-    ]
+    requiredTasks = [TransformTreatmentProtocol()]
     entity_name = Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY
 
 
-class TransformTreatment(TransformEntity):
-    requiredTasks = [
-        TransformTreatmentAndComponentHelper(),
-        ExtractExternalResources()
-    ]
-    entity_name = Constants.TREATMENT_ENTITY
+# Helper transformation to obtain unique names from the treatments
+class TransformTreatmentNameHelper(TransformEntity):
+    requiredTasks = [TransformTreatmentAndComponentHelper()]
+    entity_name = Constants.TREATMENT_NAME_HELPER_ENTITY
+
+
+
 
 
 class TransformMolecularCharacterizationType(TransformEntity):
@@ -281,10 +250,7 @@ class TransformMolecularCharacterizationType(TransformEntity):
 
 
 class TransformPlatform(TransformEntity):
-    requiredTasks = [
-        ExtractMolecularMetadataPlatform(),
-        TransformProviderGroup()
-    ]
+    requiredTasks = [ExtractMolecularMetadataPlatform(), TransformProviderGroup()]
     entity_name = Constants.PLATFORM_ENTITY
 
 
@@ -293,7 +259,7 @@ class TransformXenograftSample(TransformEntity):
         ExtractMolecularMetadataSample(),
         TransformHostStrain(),
         TransformModel(),
-        TransformPlatform()
+        TransformPlatform(),
     ]
     entity_name = Constants.XENOGRAFT_SAMPLE_ENTITY
 
@@ -302,7 +268,7 @@ class TransformCellSample(TransformEntity):
     requiredTasks = [
         ExtractMolecularMetadataSample(),
         TransformModel(),
-        TransformPlatform()
+        TransformPlatform(),
     ]
     entity_name = Constants.CELL_SAMPLE_ENTITY
 
@@ -315,7 +281,7 @@ class TransformXenograftModelSpecimen(TransformEntity):
         TransformEngraftmentSampleType(),
         TransformEngraftmentSampleState(),
         TransformHostStrain(),
-        TransformModel()
+        TransformModel(),
     ]
     entity_name = Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY
 
@@ -328,15 +294,13 @@ class TransformMolecularCharacterization(TransformEntity):
         TransformXenograftSample(),
         TransformCellSample(),
         TransformMolecularCharacterizationType(),
-        ExtractExternalResources()
+        ExtractExternalResources(),
     ]
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_ENTITY
 
 
 class TransformGeneMarker(TransformEntity):
-    requiredTasks = [
-        ExtractGeneMarker()
-    ]
+    requiredTasks = [ExtractGeneMarker()]
     entity_name = Constants.GENE_MARKER_ENTITY
 
 
@@ -346,23 +310,18 @@ class TransformGeneHelper(TransformEntity):
         ExtractBiomarker(),
         ExtractExpression(),
         ExtractMutation(),
-        TransformGeneMarker()
+        TransformGeneMarker(),
     ]
     entity_name = Constants.GENE_HELPER_ENTITY
 
 
 class TransformImageStudy(TransformEntity):
-    requiredTasks = [
-        ExtractImageStudy()
-    ]
+    requiredTasks = [ExtractImageStudy()]
     entity_name = Constants.IMAGE_STUDY_ENTITY
 
 
 class TransformModelImage(TransformEntity):
-    requiredTasks = [
-        ExtractModelImage(),
-        TransformModel()
-    ]
+    requiredTasks = [ExtractModelImage(), TransformModel()]
     entity_name = Constants.MODEL_IMAGE_ENTITY
 
 
@@ -403,7 +362,7 @@ class TransformCnaMolecularData(TransformEntity):
         TransformInitialCnaMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformGeneHelper()
+        TransformGeneHelper(),
     ]
     entity_name = Constants.CNA_MOLECULAR_DATA_ENTITY
 
@@ -413,7 +372,7 @@ class TransformBiomarkerMolecularData(TransformEntity):
         TransformInitialBiomarkerMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformGeneHelper()
+        TransformGeneHelper(),
     ]
     entity_name = Constants.BIOMARKER_MOLECULAR_DATA_ENTITY
 
@@ -431,7 +390,7 @@ class TransformExpressionMolecularData(TransformEntity):
         TransformInitialExpressionMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformGeneHelper()
+        TransformGeneHelper(),
     ]
     entity_name = Constants.EXPRESSION_MOLECULAR_DATA_ENTITY
 
@@ -441,29 +400,23 @@ class TransformMutationMeasurementData(TransformEntity):
         TransformInitialMutationMolecularData(),
         ExtractExternalResources(),
         ExtractDownloadedResourcesData(),
-        TransformGeneHelper()
+        TransformGeneHelper(),
     ]
     entity_name = Constants.MUTATION_MEASUREMENT_DATA_ENTITY
 
 
 class TransformOntologyTermDiagnosis(TransformEntity):
-    requiredTasks = [
-        ExtractOntology()
-    ]
+    requiredTasks = [ExtractOntology()]
     entity_name = Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY
 
 
 class TransformOntologyTermTreatment(TransformEntity):
-    requiredTasks = [
-        ExtractOntology()
-    ]
+    requiredTasks = [ExtractOntology()]
     entity_name = Constants.ONTOLOGY_TERM_TREATMENT_ENTITY
 
 
 class TransformOntologyTermRegimen(TransformEntity):
-    requiredTasks = [
-        ExtractOntology()
-    ]
+    requiredTasks = [ExtractOntology()]
     entity_name = Constants.ONTOLOGY_TERM_REGIMEN_ENTITY
 
 
@@ -483,51 +436,54 @@ class TransformSampleToOntology(TransformEntity):
         TransformTumourType(),
         TransformTissue(),
         TransformOntologyTermDiagnosis(),
-        ExtractMappingDiagnosis()
+        ExtractMappingDiagnosis(),
     ]
     entity_name = Constants.SAMPLE_TO_ONTOLOGY_ENTITY
 
 
-class TransformTreatmentToOntology(TransformEntity):
+
+# Helper transformation to harmonise the treatment names
+class TransformTreatmentNameHarmonisation(TransformEntity):
     requiredTasks = [
-        TransformTreatment(),
+        TransformTreatmentNameHelper(),
+        ExtractMappingTreatment(),
         TransformOntologyTermTreatment(),
-        ExtractMappingTreatment()
+        TransformOntologyTermRegimen()
     ]
-    entity_name = Constants.TREATMENT_TO_ONTOLOGY_ENTITY
+    entity_name = Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY
 
 
-class TransformRegimenToOntology(TransformEntity):
-    requiredTasks = [
-        TransformTreatment(),
-        TransformOntologyTermRegimen(),
-        ExtractMappingTreatment()
-    ]
-    entity_name = Constants.REGIMEN_TO_ONTOLOGY_ENTITY
+# Helper transformation to calculate treatment types
+class TransformTreatmentTypeHelper(TransformEntity):
+    requiredTasks = [TransformTreatmentNameHarmonisation()]
+    entity_name = Constants.TREATMENT_TYPE_HELPER_ENTITY
+
+class TransformTreatment(TransformEntity):
+    requiredTasks = [TransformTreatmentTypeHelper(), ExtractExternalResources()]
+    entity_name = Constants.TREATMENT_ENTITY
+
+
+
 
 
 class TransformTreatmentComponent(TransformEntity):
-    requiredTasks = [
-        TransformTreatmentAndComponentHelper(),
-        TransformTreatment()
-    ]
+    requiredTasks = [TransformTreatmentAndComponentHelper(), TransformTreatment(), TransformTreatmentNameHarmonisation()]
     entity_name = Constants.TREATMENT_COMPONENT_ENTITY
 
 
-class TransformTreatmentHarmonisationHelper(TransformEntity):
+class TransformTreatmentAggregatorHelper(TransformEntity):
     requiredTasks = [
         TransformPatientSample(),
         TransformTreatmentProtocol(),
         TransformTreatmentComponent(),
         TransformTreatment(),
-        TransformTreatmentToOntology(),
         TransformRegimenToTreatment(),
-        TransformRegimenToOntology(),
-        TransformOntologyTermTreatment(),
-        TransformOntologyTermRegimen(),
-        TransformResponse()
+        TransformResponse(),
     ]
-    entity_name = Constants.TREATMENT_HARMONISATION_HELPER_ENTITY
+    entity_name = Constants.TREATMENT_AGGREGATOR_HELPER_ENTITY
+
+
+
 
 
 class TransformSearchIndexPatientSample(TransformEntity):
@@ -545,7 +501,7 @@ class TransformSearchIndexMolecularCharacterization(TransformEntity):
         TransformMolecularCharacterization(),
         TransformPatientSample(),
         TransformXenograftSample(),
-        TransformCellSample()
+        TransformCellSample(),
     ]
     entity_name = Constants.SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY
 
@@ -557,8 +513,8 @@ class TransformModelMetadata(TransformEntity):
         TransformXenograftModelSpecimen(),
         TransformQualityAssurance(),
         TransformModelImage(),
-        TransformTreatmentHarmonisationHelper(),
-        TransformSearchIndexMolecularCharacterization()
+        TransformTreatmentAggregatorHelper(),
+        TransformSearchIndexMolecularCharacterization(),
     ]
     entity_name = Constants.MODEL_METADATA
 
@@ -581,8 +537,7 @@ class TransformSearchIndex(TransformEntity):
     requiredTasks = [
         TransformSearchIndexMolecularData(),
         ExtractExternalResources(),
-        ExtractModelCharacterizationConf()
-
+        ExtractModelCharacterizationConf(),
     ]
     entity_name = Constants.SEARCH_INDEX_ENTITY
 
@@ -603,7 +558,8 @@ class TransformAvailableMolecularDataColumns(TransformEntity):
         TransformExpressionMolecularData(),
         TransformCnaMolecularData(),
         TransformBiomarkerMolecularData(),
-        TransformMutationMeasurementData()]
+        TransformMutationMeasurementData(),
+    ]
     entity_name = Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY
 
 
@@ -611,7 +567,7 @@ class TransformNodes(TransformEntity):
     requiredTasks = [
         TransformPatient(),
         TransformPatientSample(),
-        TransformInitialModel()
+        TransformInitialModel(),
     ]
     entity_name = Constants.NODE_ENTITY
 
@@ -620,7 +576,7 @@ class TransformEdges(TransformEntity):
     requiredTasks = [
         TransformNodes(),
         TransformPatientSample(),
-        TransformInitialModel()
+        TransformInitialModel(),
     ]
     entity_name = Constants.EDGE_ENTITY
 

@@ -146,7 +146,6 @@ groups:
           - "model_id"
           - "passage_range"
           - "treatment_name"
-          - "treatment_type"
           - "treatment_dose"
           - "administration_route"
           - "treatment_schedule"

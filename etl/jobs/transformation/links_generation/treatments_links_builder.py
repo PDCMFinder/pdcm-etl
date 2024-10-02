@@ -24,11 +24,6 @@ import requests
 def add_treatment_links(treatment_df: DataFrame, resources_df: DataFrame):
     spark: SparkSession = SparkSession.builder.getOrCreate()
 
-    # At the moment we can have duplicate treatment names, so to reduce the processing effort
-    # we only calculate links for unique treatments, then we join back to the original df
-
-    unique_treatment_names_df = treatment_df.select("name").drop_duplicates()
-
     # Schema for the df each method is going to return
     schema = StructType(
         [
@@ -43,12 +38,12 @@ def add_treatment_links(treatment_df: DataFrame, resources_df: DataFrame):
     for resource in resources_list:
         if resource["link_building_method"] == "ChEMBLInlineLink":
             print("Create links for ChEMBL")
-            tmp_df = find_chembl_links(unique_treatment_names_df, resource)
+            tmp_df = find_chembl_links(treatment_df, resource)
             all_links_df = all_links_df.unionAll(tmp_df)
 
         elif resource["link_building_method"] == "PubChemInlineLink":
             print("Create links for PubChem")
-            tmp_df = find_pubchem_links(unique_treatment_names_df, resource)
+            tmp_df = find_pubchem_links(treatment_df, resource)
             all_links_df = all_links_df.unionAll(tmp_df)
 
     treatment_names_links_column_df = create_treatment_links_column(all_links_df)
@@ -94,37 +89,52 @@ def get_chembl_id(treatment_name: str) -> str:
 def find_chembl_id_by_name(input: str) -> str:
     chembl_id = None
     url = f"https://www.ebi.ac.uk/chembl/api/data/molecule?pref_name__iexact={input}&format=json"
-    response = requests.get(url)
-    data = response.json()
-
-    if data["page_meta"]["total_count"] == 1:
-        chembl_id = data["molecules"][0]["molecule_chembl_id"]
-
+    
+    try:
+        response = requests.get(url, timeout=10)  # Add a timeout to avoid long waits
+        if response.status_code == 200:  # Ensure the request was successful
+            data = response.json()
+            
+            # Check if 'page_meta' exists safely
+            if data and "page_meta" in data and data["page_meta"].get("total_count", 0) == 1:
+                chembl_id = data["molecules"][0].get("molecule_chembl_id", None)
+        else:
+            print(f"Failed to retrieve data for {input}, status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        # Handle connection errors or other request issues
+        print(f"An error occurred: {e}")
+    
     return chembl_id
 
 
 def find_chembl_id_by_synonym(input: str) -> str:
     chembl_id = None
     url = f"https://www.ebi.ac.uk/chembl/api/data/molecule/search?q={input}&format=json"
-    response = requests.get(url)
-    data = response.json()
+    
+    try:
+        response = requests.get(url, timeout=10)  # Add a timeout to avoid hanging requests
+        if response.status_code == 200:  # Ensure the request was successful
+            data = response.json()
 
-    # Check if any molecules were found
-    if data["page_meta"]["total_count"] > 0:
-        # Iterate over the molecules and filter by synonyms
-        for molecule in data["molecules"]:
-            synonyms = molecule.get("molecule_synonyms", [])
-            # Check if the synonym matches the searched term
-            matching_synonyms = [
-                synonym
-                for synonym in synonyms
-                if synonym["molecule_synonym"].lower() == input.lower()
-            ]
-            if matching_synonyms:
-                # Extract and print the ChEMBL ID for matched synonyms
-                chembl_id = molecule["molecule_chembl_id"]
-                break
-
+            # Safely check for 'page_meta' and 'molecules' in the response
+            if data and "page_meta" in data and data["page_meta"].get("total_count", 0) > 0:
+                for molecule in data.get("molecules", []):  # Safely get 'molecules' list
+                    synonyms = molecule.get("molecule_synonyms", [])
+                    # Check if any synonyms match the input
+                    matching_synonyms = [
+                        synonym
+                        for synonym in synonyms
+                        if synonym["molecule_synonym"].lower() == input.lower()
+                    ]
+                    if matching_synonyms:
+                        chembl_id = molecule.get("molecule_chembl_id", None)
+                        break  # Stop after finding the first matching synonym
+        else:
+            print(f"Failed to retrieve data for {input}, status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        # Handle any network issues or connection errors
+        print(f"An error occurred: {e}")
+    
     return chembl_id
 
 
@@ -150,18 +160,27 @@ def find_pubchem_links(treatment_names_df: DataFrame, resource) -> DataFrame:
 # Tries to find the PubChem id for the treatment name. For now no search by synonyms
 def get_pubchem_id(treatment_name: str) -> str:
     pubchem_id = find_pubchem_id_by_name(treatment_name)
-    print(f"By name {treatment_name} is {pubchem_id}")
     return pubchem_id
 
 
 def find_pubchem_id_by_name(input: str) -> str:
     pubchem_id = None
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{input}/cids/TXT"
-    response = requests.get(url)
 
-    if response.status_code != 404:
-        response_entries = response.text.split('\n')
-        pubchem_id: str = response_entries[0]
+    try:
+        response = requests.get(url, timeout=10)  # Add a timeout to prevent indefinite waiting
+
+        if response.status_code == 200:  # Ensure response is successful
+            response_entries = response.text.split("\n")
+            if response_entries:
+                pubchem_id = response_entries[0]  # Take the first entry if available
+                
+    except requests.ConnectTimeout:
+        # Handle connection timeout and return None
+        print(f"Connection to PubChem timed out for {input}.")
+    except Exception as e:
+        # Handle other potential exceptions
+        print(f"An error occurred: {e}")
 
     return pubchem_id
 
@@ -169,7 +188,6 @@ def find_pubchem_id_by_name(input: str) -> str:
 # Takes a df with the columns <"name", "resource_label", "link"> and returns a df
 # with columns <"name", "external_db_links"> where "treatment_links" is a JSON with the information to build links in the UI
 def create_treatment_links_column(links_df: DataFrame) -> DataFrame:
-
     # Only interested in cases where links where found. This filter here causes `external_db_links` to br null if no links found.
     links_df = links_df.where("link is not null")
 
