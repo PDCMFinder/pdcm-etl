@@ -273,7 +273,9 @@ class LoadPublicDBObjects(luigi.Task):
     env = luigi.Parameter()
 
     def requires(self):
-        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates(), CreateDataVisualizationViews()]
+        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates()]
+        # Temporarily remove  CreateDataVisualizationViews as it takes a lot to run in the cluster.
+        # return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates(), CreateDataVisualizationViews()]
 
     def output(self):
         return PdcmConfig().get_target(

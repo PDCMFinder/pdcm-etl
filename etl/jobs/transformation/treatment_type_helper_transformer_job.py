@@ -14,7 +14,6 @@ KEYWORDS_BY_TYPE = [
         "type": "Targeted Therapy",
         "keywords": [
             "targeted therapy",
-            "protein inhibitor",
             "targeting",
             "anti-hgf monoclonal antibody tak-701",
         ],
@@ -22,7 +21,7 @@ KEYWORDS_BY_TYPE = [
     {"type": "Chemotherapy", "keywords": ["chemotherapy", "chemotherapeutic"]},
     {
         "type": "Surgery",
-        "keywords": ["surgery", "mammoplasty", "ectomy", "biopsy"],
+        "keywords": ["surgery", "mammoplasty", "ectomy", "biopsy", "plasty"],
     },
     {
         "type": "Radiation Therapy",
