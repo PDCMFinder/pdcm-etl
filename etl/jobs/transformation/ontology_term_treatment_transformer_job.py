@@ -53,10 +53,6 @@ def transform_ontology_term_treatment(ontology_term_df: DataFrame, spark) -> Dat
         ancestors_df, on=["term_id"], how="left"
     )
 
-    ontology_term_treatment_df.select("term_id", "term_name", "ancestors").show(
-        truncate=False
-    )
-
     return ontology_term_treatment_df
 
 

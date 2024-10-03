@@ -14,7 +14,9 @@ def is_array(string_value):
 def convert_comma_separated_string_to_array(value: str):
     result = []
     for x in value.split(","):
-        result.append(x.strip())
+        x = x.strip()
+        x = x.strip("'")
+        result.append(x)
     return result
 
 
