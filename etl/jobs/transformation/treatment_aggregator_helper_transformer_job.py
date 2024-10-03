@@ -46,7 +46,7 @@ def main(argv):
         regimen_to_treatment_df,
         response_df,
     )
-    # treatment_aggregator_helper_df.write.mode("overwrite").parquet(output_path)
+    treatment_aggregator_helper_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_treatment_aggregator_helper(

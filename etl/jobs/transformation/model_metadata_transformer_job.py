@@ -237,7 +237,7 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     df = df.withColumn(
         "dataset_available",
         when(
-            col("model_treatment_list").isNotNull() & (size("model_treatment_list") > 0),
+            col("model_treatments").isNotNull() & (size("model_treatments") > 0),
             when(col("dataset_available").isNotNull(),
                  concat(col("dataset_available"), array(lit("dosing studies")))).otherwise(
                 array(lit("dosing studies")))
@@ -247,7 +247,7 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     df = df.withColumn(
         "dataset_available",
         when(
-            col("treatment_list").isNotNull() & (size("treatment_list") > 0),
+            col("patient_treatments").isNotNull() & (size("patient_treatments") > 0),
             when(col("dataset_available").isNotNull(),
                  concat(col("dataset_available"), array(lit("patient treatment")))).otherwise(
                 array(lit("patient treatment")))
@@ -270,7 +270,7 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     return df
 
 
-# Adds a custom column that is the combination of `treatment_type_list` + `patient_treatment_status` as that would be a
+# Adds a custom column that is the combination of `treatment_types` + `patient_treatment_status` as that would be a
 # more complete filter in the UI
 def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
     # Format `treatment_naive_at_collection` column to make processing easier
@@ -293,7 +293,7 @@ def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
     model_df = model_df.withColumn(
         "custom_treatment_type_list", 
         concat(
-            coalesce(col("treatment_type_list"), array()),
+            coalesce(col("treatment_types"), array()),
             coalesce(col("tmp_patient_treatment_status"), array())
         )
     )
