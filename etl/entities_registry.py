@@ -692,6 +692,7 @@ entities = {
     Constants.SEARCH_FACET_ENTITY: {
         "spark_job": etl.jobs.transformation.search_facet_transformer_job.main,
         "expected_database_columns": [
+            "index",
             "facet_section",
             "facet_name",
             "facet_description",

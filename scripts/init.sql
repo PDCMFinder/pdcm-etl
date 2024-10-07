@@ -1027,6 +1027,7 @@ COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 DROP TABLE IF EXISTS search_facet CASCADE;
 
 CREATE TABLE search_facet (
+    index INT,
     facet_section TEXT,
     facet_name TEXT,
     facet_description TEXT,
