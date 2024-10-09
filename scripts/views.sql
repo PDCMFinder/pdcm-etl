@@ -835,6 +835,9 @@ AS
             THEN true 
             ELSE false 
         END as model_availability_boolean,
+        ARRAY[CASE WHEN model_availability = 'available' then 'Available' ELSE 'Not available' END] ||
+        ARRAY[CASE WHEN vendor_link is null or lower(vendor_link) = 'not provided' then 'Commercially Not Available'  ELSE 'Commercially Available' END] 
+        as model_availability_plus_commercial_availability,
         (
           SELECT mi.model_relationships FROM model_information mi where mi.id = search_index.pdcm_model_id
           and mi.data_source = search_index.data_source
