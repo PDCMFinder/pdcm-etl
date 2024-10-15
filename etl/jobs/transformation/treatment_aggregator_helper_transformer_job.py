@@ -38,7 +38,7 @@ def main(argv):
 
     response_df = spark.read.parquet(response_parquet_path)
 
-    harmonised_treatment_df = transform_treatment_harmonisation_helper(
+    treatment_aggregator_helper_df = transform_treatment_aggregator_helper(
         patient_sample_df,
         treatment_protocol_df,
         treatment_component_df,
@@ -46,10 +46,10 @@ def main(argv):
         regimen_to_treatment_df,
         response_df,
     )
-    harmonised_treatment_df.write.mode("overwrite").parquet(output_path)
+    treatment_aggregator_helper_df.write.mode("overwrite").parquet(output_path)
 
 
-def transform_treatment_harmonisation_helper(
+def transform_treatment_aggregator_helper(
     patient_sample_df: DataFrame,
     treatment_protocol_df: DataFrame,
     treatment_component_df: DataFrame,

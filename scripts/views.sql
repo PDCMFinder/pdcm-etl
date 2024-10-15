@@ -831,10 +831,14 @@ AS
             ELSE false 
         END as paediatric,
         CASE 
-	          WHEN lower(model_availability) = 'available'
+	          WHEN lower(model_availability) = 'available' OR lower(model_availability) = 'unknown'
+                OR COALESCE(lower(vendor_link), '') like 'http%'
             THEN true 
             ELSE false 
         END as model_availability_boolean,
+        ARRAY[CASE WHEN model_availability = 'available' then 'Available' ELSE 'Not available' END] ||
+        ARRAY[CASE WHEN vendor_link is null or lower(vendor_link) = 'not provided' then 'Commercially Not Available'  ELSE 'Commercially Available' END] 
+        as model_availability_plus_commercial_availability,
         (
           SELECT mi.model_relationships FROM model_information mi where mi.id = search_index.pdcm_model_id
           and mi.data_source = search_index.data_source
@@ -903,8 +907,10 @@ COMMENT ON COLUMN pdcm_api.search_index.markers_with_biomarker_data IS 'Marker l
 COMMENT ON COLUMN pdcm_api.search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
 COMMENT ON COLUMN pdcm_api.search_index.msi_status IS 'MSI status';
 COMMENT ON COLUMN pdcm_api.search_index.hla_types IS 'HLA types';
-COMMENT ON COLUMN pdcm_api.search_index.treatment_list IS 'Patient treatment data';
-COMMENT ON COLUMN pdcm_api.search_index.model_treatment_list IS 'Drug dosing data';
+COMMENT ON COLUMN pdcm_api.search_index.patient_treatments IS 'Patient treatment data';
+COMMENT ON COLUMN pdcm_api.search_index.patient_treatments_responses IS 'List of responses for the patient treatments';
+COMMENT ON COLUMN pdcm_api.search_index.model_treatments IS 'Drug dosing data';
+COMMENT ON COLUMN pdcm_api.search_index.model_treatments_responses IS 'List of responses for the model treatments';
 COMMENT ON COLUMN pdcm_api.search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
 COMMENT ON COLUMN pdcm_api.search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
@@ -1246,10 +1252,9 @@ DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_treatment;
 CREATE MATERIALIZED VIEW pdcm_api.models_by_treatment AS
    SELECT treatment,
           COUNT(DISTINCT pdcm_model_id) AS count
-   FROM   (SELECT UNNEST(search_index.treatment_list) AS treatment,
+   FROM   (SELECT UNNEST(search_index.patient_treatments) AS treatment,
                   search_index.pdcm_model_id
            FROM   search_index) treatment_model
-   WHERE  treatment_model.treatment NOT LIKE '% = %'
    GROUP  BY ( treatment );
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_treatment IS 'Dosing studies section data';

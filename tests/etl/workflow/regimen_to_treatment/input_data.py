@@ -12,45 +12,55 @@ raw_ontolia = [
 ontology_term_regimen = [
     {
         "id": "1",
-        "term_id": "NCIT:C37604"
+        "term_id": "NCIT:C37604",
+        "term_name": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab"
     },
     {
         "id": "2",
-        "term_id": "NCIT:C37605"
+        "term_id": "NCIT:C37605",
+        "term_name": "GCD Regimen"
     }
 ]
 
 ontology_term_treatment = [
     {
         "id": "1",
-        "term_id": "NCIT:C1282"
+        "term_id": "NCIT:C1282",
+        "term_name": "Carboplatin"
     },
     {
         "id": "2",
-        "term_id": "NCIT:C408"
+        "term_id": "NCIT:C408",
+        "term_name": "Cytarabine"
     },
     {
         "id": "3",
-        "term_id": "NCIT:C491"
+        "term_id": "NCIT:C491",
+        "term_name": "Etoposide"
     },
     {
         "id": "4",
-        "term_id": "NCIT:C564"
+        "term_id": "NCIT:C564",
+        "term_name": "Ifosfamide"
     },
     {
         "id": "5",
-        "term_id": "NCIT:C642"
+        "term_id": "NCIT:C642",
+        "term_name": "Methotrexate"
     },
     {
         "id": "6",
-        "term_id": "NCIT:C1702"
+        "term_id": "NCIT:C1702",
+        "term_name": "Rituximab"
     },
     {
         "id": "7",
-        "term_id": "NCIT:C66876"
+        "term_id": "NCIT:C66876",
+        "term_name": "Gemcitabine"
     },
     {
         "id": "8",
-        "term_id": "NCIT:C422"
+        "term_id": "NCIT:C422",
+        "term_name": "Dexamethasone"
     }
 ]

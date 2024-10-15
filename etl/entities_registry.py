@@ -677,8 +677,10 @@ entities = {
             "breast_cancer_biomarkers",
             "msi_status",
             "hla_types",
-            "treatment_list",
-            "model_treatment_list",
+            "patient_treatments",
+            "patient_treatments_responses",
+            "model_treatments",
+            "model_treatments_responses",
             "custom_treatment_type_list",
             "raw_data_resources",
             "cancer_annotation_resources",
@@ -690,6 +692,7 @@ entities = {
     Constants.SEARCH_FACET_ENTITY: {
         "spark_job": etl.jobs.transformation.search_facet_transformer_job.main,
         "expected_database_columns": [
+            "index",
             "facet_section",
             "facet_name",
             "facet_description",

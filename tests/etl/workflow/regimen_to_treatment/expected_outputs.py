@@ -1,47 +1,38 @@
 expected_regimen_to_treatment = [
     {
-        "id": "1",
-        "regimen_ontology_term_id": "1",
-        "treatment_ontology_term_id": "1"
+        "regimen": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab",
+        "treatment": "Carboplatin"
     },
     {
-        "id": "2",
-        "regimen_ontology_term_id": "1",
-        "treatment_ontology_term_id": "2"
+        "regimen": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab",
+        "treatment": "Cytarabine"
     },
     {
-        "id": "3",
-        "regimen_ontology_term_id": "1",
-        "treatment_ontology_term_id": "3"
+        "regimen": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab",
+        "treatment": "Etoposide"
     },
     {
-        "id": "4",
-        "regimen_ontology_term_id": "1",
-        "treatment_ontology_term_id": "4"
+        "regimen": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab",
+        "treatment": "Ifosfamide"
     },
     {
-        "id": "5",
-        "regimen_ontology_term_id": "1",
-        "treatment_ontology_term_id": "5"
+        "regimen": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab",
+        "treatment": "Methotrexate"
     },
     {
-        "id": "6",
-        "regimen_ontology_term_id": "1",
-        "treatment_ontology_term_id": "6"
+        "regimen": "Carboplatin/Cytarabine/Etoposide/Ifosfamide/Methotrexate/Rituximab",
+        "treatment": "Rituximab"
     },
     {
-        "id": "7",
-        "regimen_ontology_term_id": "2",
-        "treatment_ontology_term_id": "7"
+        "regimen": "GCD Regimen",
+        "treatment": "Gemcitabine"
     },
     {
-        "id": "8",
-        "regimen_ontology_term_id": "2",
-        "treatment_ontology_term_id": "1"
+        "regimen": "GCD Regimen",
+        "treatment": "Carboplatin"
     },
     {
-        "id": "9",
-        "regimen_ontology_term_id": "2",
-        "treatment_ontology_term_id": "8"
+        "regimen": "GCD Regimen",
+        "treatment": "Dexamethasone"
     }
 ]

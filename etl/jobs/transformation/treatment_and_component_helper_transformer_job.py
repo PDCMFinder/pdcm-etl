@@ -9,11 +9,36 @@ from etl.jobs.util.cleaner import trim_all
 
 def main(argv):
     """
-    Creates a parquet file with the structure the transformation tasks for treatment and component will need.
-    It basically splits the content of '+' separated treatment and doses into separated rows
-    :param list argv: the list elements should be:
-                    [1]: Parquet file path with treatment protocol data
-                    [2]: Output file
+    Creates a Parquet file with the structure needed for subsequent transformation tasks 
+    involving treatment protocols and their components. The function splits the '+'-separated 
+    treatment names and doses into individual rows for easier downstream processing.
+
+    Args:
+        argv (list): A list of arguments where:
+            argv[1]: Path to the input Parquet file containing treatment protocol data.
+            argv[2]: Path to the output Parquet file where the transformed data will be saved.
+
+    The input Parquet file should have columns such as 'treatment_protocol_id', 'treatment_name', 
+    and 'treatment_dose'. The output Parquet file will contain the following schema:
+
+    Output DataFrame Schema:
+        - treatment_protocol_id (int): Unique identifier for each treatment protocol.
+        - treatment_name (string): Name of the treatment or component.
+        - treatment_dose (string): The dose of the treatment in the format '<amount> <unit>'.
+        - data_source_tmp (string): Temporary column indicating the source of the data.
+
+    Example of Output DataFrame:
+    +----------------------+--------------------+--------------------+----------------+
+    | treatment_protocol_id|      treatment_name|      treatment_dose| data_source_tmp|
+    +----------------------+--------------------+--------------------+----------------+
+    |                     0|          Dactolisib|          40.0 mg/kg|           TRACE|
+    |                     1|         Trabectedin|          0.15 mg/kg|           TRACE|
+    |                     2|         Trabectedin|          0.15 mg/kg|           TRACE|
+    |                     3|          Dactolisib|          40.0 mg/kg|           TRACE|
+    |                     4|         Trabectedin|          0.15 mg/kg|           TRACE|
+    |                     5|          Dactolisib|          40.0 mg/kg|           TRACE|
+
+    The output DataFrame is saved in Parquet format at the specified output path.
     """
     treatment_protocol_parquet_path = argv[1]
     output_path = argv[2]
