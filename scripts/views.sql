@@ -831,7 +831,8 @@ AS
             ELSE false 
         END as paediatric,
         CASE 
-	          WHEN lower(model_availability) = 'available'
+	          WHEN lower(model_availability) = 'available' OR lower(model_availability) = 'unknown'
+                OR COALESCE(lower(vendor_link), '') like 'http%'
             THEN true 
             ELSE false 
         END as model_availability_boolean,
