@@ -64,6 +64,7 @@ def transform_search_index(
             "cancer_grading_system",
             "cancer_stage",
             "cancer_staging_system",
+            col("external_patient_id").alias("patient_id"),
             "patient_age",
             "patient_age_category",
             "patient_sex",
