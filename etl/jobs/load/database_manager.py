@@ -95,6 +95,15 @@ def create_views(connection):
     print("Views created in {0} seconds".format(round(end - start, 4)))
 
 
+def create_data_visualization_views(connection):
+    start = time.time()
+    print("creating data visualization views")
+    with connection.cursor() as cursor:
+        cursor.execute(open("scripts/data_visualization_views.sql", "r").read())
+    end = time.time()
+    print("Data visualization views created in {0} seconds".format(round(end - start, 4)))
+
+
 def recreate_tables(connection):
     start = time.time()
     print("Recreating tables")

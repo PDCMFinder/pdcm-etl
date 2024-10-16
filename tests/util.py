@@ -5,15 +5,18 @@ from chispa.dataframe_comparer import *
 
 
 def is_array(string_value):
-    if not string_value or not isinstance(string_value, str):
-        return False
-    return string_value.startswith("[") and string_value.endswith("]")
+    if isinstance(string_value, str):
+        return string_value.startswith("[") and string_value.endswith("]")
+    else:
+        return isinstance(string_value, list)
 
 
 def convert_comma_separated_string_to_array(value: str):
     result = []
     for x in value.split(","):
-        result.append(x.strip())
+        x = x.strip()
+        x = x.strip("'")
+        result.append(x)
     return result
 
 
@@ -32,7 +35,7 @@ def convert_to_dataframe(spark: SparkSession, dict_list: List[Dict]) -> DataFram
         for x in element.keys():
             value = str(element[x])
             if value.startswith("[") and value.endswith("]"):
-                content = value[1:len(value) - 1]
+                content = value[1 : len(value) - 1]
                 element[x] = convert_comma_separated_string_to_array(content)
 
         data.append(element)
@@ -43,8 +46,20 @@ def convert_to_dataframe(spark: SparkSession, dict_list: List[Dict]) -> DataFram
 def assert_df_are_equal_ignore_id(df_a: DataFrame, df_b: DataFrame):
     df_a = df_a.drop("id")
     df_b = df_b.drop("id")
-    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True, ignore_column_order=True)
+    assert_df_equality(
+        df_a,
+        df_b,
+        ignore_nullable=True,
+        ignore_row_order=True,
+        ignore_column_order=True,
+    )
 
 
 def assert_df_are_equal(df_a: DataFrame, df_b: DataFrame):
-    assert_df_equality(df_a, df_b, ignore_nullable=True, ignore_row_order=True, ignore_column_order=True)
+    assert_df_equality(
+        df_a,
+        df_b,
+        ignore_nullable=True,
+        ignore_row_order=True,
+        ignore_column_order=True,
+    )

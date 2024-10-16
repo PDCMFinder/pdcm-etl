@@ -24,6 +24,9 @@ import etl.jobs.transformation.accessibility_group_transformer_job
 import etl.jobs.transformation.host_strain_transformer_job
 import etl.jobs.transformation.project_group_transformer_job
 import etl.jobs.transformation.treatment_transformer_job
+import etl.jobs.transformation.treatment_name_helper_transformer_job
+import etl.jobs.transformation.treatment_name_harmonisation_helper_transformer_job
+import etl.jobs.transformation.treatment_type_helper_transformer_job
 import etl.jobs.transformation.response_transformer_job
 import etl.jobs.transformation.response_classification_transformer_job
 import etl.jobs.transformation.molecular_characterization_type_transformer_job
@@ -59,7 +62,7 @@ import etl.jobs.transformation.search_index_molecular_characterization_transform
 import etl.jobs.transformation.search_index_molecular_data_transformer_job
 import etl.jobs.transformation.search_index_transformer_job
 import etl.jobs.transformation.regimen_to_treatment_transformer_job
-import etl.jobs.transformation.treatment_harmonisation_helper_transformer_job
+import etl.jobs.transformation.treatment_aggregator_helper_transformer_job
 import etl.jobs.transformation.molecular_data_restriction_transformer_job
 import etl.jobs.transformation.available_molecular_data_columns_transformer_job
 import etl.jobs.transformation.nodes_transformer_job
@@ -158,6 +161,8 @@ entities = {
             "rrid",
             "parent_id",
             "origin_patient_sample_id",
+            "model_availability",
+            "date_submitted",
             "other_model_links"
         ]
     },
@@ -313,7 +318,19 @@ entities = {
     },
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
-        "expected_database_columns": ["id", "name", "type", "data_source"]
+        "expected_database_columns": ["id", "name", "term_id", "types", "external_db_links", "aliases"]
+    },
+    Constants.TREATMENT_NAME_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_name_helper_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_name_harmonisation_helper_transformer_job.main,
+        "expected_database_columns": []
+    },
+    Constants.TREATMENT_TYPE_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_type_helper_transformer_job.main,
+        "expected_database_columns": []
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
@@ -533,7 +550,7 @@ entities = {
     },
     Constants.REGIMENT_TO_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.regimen_to_treatment_transformer_job.main,
-        "expected_database_columns": ["id", "regimen_ontology_term_id", "treatment_ontology_term_id"]
+        "expected_database_columns": []
     },
     Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: {
         "spark_job": etl.jobs.transformation.xenograft_model_specimen_transformer_job.main,
@@ -576,24 +593,8 @@ entities = {
             "treatment_id"
         ]
     },
-    Constants.TREATMENT_TO_ONTOLOGY_ENTITY: {
-        "spark_job": etl.jobs.transformation.treatment_to_ontology_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "treatment_id",
-            "ontology_term_id"
-        ]
-    },
-    Constants.REGIMEN_TO_ONTOLOGY_ENTITY: {
-        "spark_job": etl.jobs.transformation.regimen_to_ontology_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "regimen_id",
-            "ontology_term_id"
-        ]
-    },
-    Constants.TREATMENT_HARMONISATION_HELPER_ENTITY: {
-        "spark_job": etl.jobs.transformation.treatment_harmonisation_helper_transformer_job.main,
+    Constants.TREATMENT_AGGREGATOR_HELPER_ENTITY: {
+        "spark_job": etl.jobs.transformation.treatment_aggregator_helper_transformer_job.main,
         "expected_database_columns": []
     },
 
@@ -645,6 +646,7 @@ entities = {
             "cancer_grading_system",
             "cancer_stage",
             "cancer_staging_system",
+            "patient_id",
             "patient_age",
             "patient_age_category",
             "patient_sex",
@@ -676,17 +678,22 @@ entities = {
             "breast_cancer_biomarkers",
             "msi_status",
             "hla_types",
-            "treatment_list",
-            "model_treatment_list",
+            "patient_treatments",
+            "patient_treatments_responses",
+            "model_treatments",
+            "model_treatments_responses",
             "custom_treatment_type_list",
             "raw_data_resources",
             "cancer_annotation_resources",
+            "model_availability",
+            "date_submitted",
             "scores"
         ]
     },
     Constants.SEARCH_FACET_ENTITY: {
         "spark_job": etl.jobs.transformation.search_facet_transformer_job.main,
         "expected_database_columns": [
+            "index",
             "facet_section",
             "facet_name",
             "facet_description",

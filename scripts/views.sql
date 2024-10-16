@@ -91,7 +91,9 @@ COMMENT ON COLUMN pdcm_api.model_information.vendor_link IS 'Link to purchasable
 COMMENT ON COLUMN pdcm_api.model_information.rrid IS 'Cellosaurus ID';
 COMMENT ON COLUMN pdcm_api.model_information.parent_id IS 'model Id of the model used to generate the model';
 COMMENT ON COLUMN pdcm_api.model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
-
+COMMENT ON COLUMN pdcm_api.model_information.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN pdcm_api.model_information.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN pdcm_api.model_information.other_model_links IS 'External ids links and supplier link';
 
 -- model_metadata view
 
@@ -828,6 +830,15 @@ AS
             THEN true 
             ELSE false 
         END as paediatric,
+        CASE 
+	          WHEN lower(model_availability) = 'available' OR lower(model_availability) = 'unknown'
+                OR COALESCE(lower(vendor_link), '') like 'http%'
+            THEN true 
+            ELSE false 
+        END as model_availability_boolean,
+        ARRAY[CASE WHEN model_availability = 'available' then 'Available' ELSE 'Not available' END] ||
+        ARRAY[CASE WHEN vendor_link is null or lower(vendor_link) = 'not provided' then 'Commercially Not Available'  ELSE 'Commercially Available' END] 
+        as model_availability_plus_commercial_availability,
         (
           SELECT mi.model_relationships FROM model_information mi where mi.id = search_index.pdcm_model_id
           and mi.data_source = search_index.data_source
@@ -865,6 +876,7 @@ COMMENT ON COLUMN pdcm_api.search_index.cancer_grade IS 'The implanted tumour gr
 COMMENT ON COLUMN pdcm_api.search_index.cancer_grading_system IS 'Grade classification corresponding used to describe the stage, add the version if available';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_stage IS 'Stage of the patient at the time of collection';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_staging_system IS 'Stage classification system used to describe the stage, add the version if available';
+COMMENT ON COLUMN pdcm_api.search_index.patient_id IS 'Patient id given by the provider';
 COMMENT ON COLUMN pdcm_api.search_index.patient_age IS 'Patient age at collection';
 COMMENT ON COLUMN pdcm_api.search_index.patient_age_category IS 'Age category at the time of sampling';
 COMMENT ON COLUMN pdcm_api.search_index.patient_sex IS 'Patient sex';
@@ -896,15 +908,20 @@ COMMENT ON COLUMN pdcm_api.search_index.markers_with_biomarker_data IS 'Marker l
 COMMENT ON COLUMN pdcm_api.search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
 COMMENT ON COLUMN pdcm_api.search_index.msi_status IS 'MSI status';
 COMMENT ON COLUMN pdcm_api.search_index.hla_types IS 'HLA types';
-COMMENT ON COLUMN pdcm_api.search_index.treatment_list IS 'Patient treatment data';
-COMMENT ON COLUMN pdcm_api.search_index.model_treatment_list IS 'Drug dosing data';
+COMMENT ON COLUMN pdcm_api.search_index.patient_treatments IS 'Patient treatment data';
+COMMENT ON COLUMN pdcm_api.search_index.patient_treatments_responses IS 'List of responses for the patient treatments';
+COMMENT ON COLUMN pdcm_api.search_index.model_treatments IS 'Drug dosing data';
+COMMENT ON COLUMN pdcm_api.search_index.model_treatments_responses IS 'List of responses for the model treatments';
 COMMENT ON COLUMN pdcm_api.search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
 COMMENT ON COLUMN pdcm_api.search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN pdcm_api.search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
 COMMENT ON COLUMN pdcm_api.search_index.scores IS 'Model characterizations scores';
 COMMENT ON COLUMN pdcm_api.search_index.model_dataset_type_count IS 'The number of datasets for which data exists';
 COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric';
+COMMENT ON COLUMN pdcm_api.search_index.paediatric IS 'Calculated field that indicates if the model is available or not';
 COMMENT ON COLUMN pdcm_api.search_index.model_relationships IS 'Model relationships';
+COMMENT ON COLUMN pdcm_api.search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN pdcm_api.search_index.date_submitted IS 'Date of submission to the resource';
 COMMENT ON COLUMN pdcm_api.search_index.has_relations IS 'Indicates if the model has parent(s) or children';
 
 -- search_facet materialized view: Facets information
@@ -1122,44 +1139,46 @@ COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.count IS 'Number of mo
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.dosing_studies;
 
 CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
- SELECT model_id,
-       protocol_id,
-       string_agg(treatment, ' And ') treatment,
-       response,
-       string_agg(dose, ' + ') AS dose
-FROM   (SELECT model_id,
-               protocol_id,
-               ( CASE
-                   WHEN treatment_harmonised IS NOT NULL THEN
-                   treatment_harmonised
-                   ELSE treatment_raw
-                 END ) treatment,
-               response,
-               dose
-        FROM   (SELECT model_id,
-                       tp.id         protocol_id,
-                       ott.term_name treatment_harmonised,
-                       r.NAME        response,
-                       tc.dose       dose,
-                       t.NAME        treatment_raw
-                FROM   model_information m,
-                       treatment_protocol tp,
-                       response r,
-                       treatment_component tc,
-                       treatment t
-                       LEFT JOIN treatment_to_ontology tont
-                              ON ( t.id = tont.treatment_id )
-                       LEFT JOIN ontology_term_treatment ott
-                              ON ( tont.ontology_term_id = ott.id )
-                WHERE  treatment_target = 'drug dosing'
-                       AND m.id = tp.model_id
-                       AND tp.response_id = r.id
-                       AND tc.treatment_protocol_id = tp.id
-                       AND tc.treatment_id = t.id
-                       AND t.data_source = m.data_source) a)b
-GROUP  BY model_id,
-          protocol_id,
-          response;
+  SELECT model_id,
+        protocol_id,
+        string_agg(treatment, ' And ') treatment,
+    response,
+    string_agg(dose, ' + ') AS dose,
+        (
+          SELECT jsonb_agg(sub)
+          FROM  
+          (
+            SELECT 
+              t.name, tc.dose, t.external_db_links
+            FROM treatment t, treatment_protocol tp, treatment_component tc 
+            WHERE t.id = tc.treatment_id
+            AND tc.treatment_protocol_id = tp.id
+            AND tp.id = protocol_id
+          ) sub
+        ) entries
+  FROM   (SELECT model_id,
+                protocol_id,
+                treatment,
+                response,
+                dose
+          FROM   (SELECT model_id,
+                        tp.id         protocol_id,
+                        r.NAME        response,
+                        tc.dose       dose,
+                        t.NAME        treatment
+                  FROM   model_information m,
+                        treatment_protocol tp,
+                        response r,
+                        treatment_component tc,
+                        treatment t
+                  WHERE  treatment_target = 'drug dosing'
+                        AND m.id = tp.model_id
+                        AND tp.response_id = r.id
+                        AND tc.treatment_protocol_id = tp.id
+                        AND tc.treatment_id = t.id) a)b
+  GROUP  BY model_id,
+            protocol_id,
+            response;
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.dosing_studies IS 'Dosing studies section data';
 COMMENT ON COLUMN pdcm_api.dosing_studies.model_id IS 'Reference to the model_information table';
@@ -1167,6 +1186,7 @@ COMMENT ON COLUMN pdcm_api.dosing_studies.protocol_id IS 'Reference to the treat
 COMMENT ON COLUMN pdcm_api.dosing_studies.treatment IS 'Treatment names';
 COMMENT ON COLUMN pdcm_api.dosing_studies.response IS 'Response to the treatment';
 COMMENT ON COLUMN pdcm_api.dosing_studies.dose IS 'Dose used';
+COMMENT ON COLUMN pdcm_api.dosing_studies.entries IS 'Information about each individual treatment used';
 
 -- patient_treatment materialized view: Treatment information linked to the patient
 
@@ -1177,40 +1197,42 @@ CREATE MATERIALIZED VIEW pdcm_api.patient_treatment AS
        protocol_id,
        string_agg(treatment, ' And ') treatment,
        response,
-       string_agg(dose, ' + ') AS dose
+       string_agg(dose, ' + ') AS dose,
+       (
+        SELECT jsonb_agg(sub)
+        FROM  
+        (
+          SELECT 
+            t.name, tc.dose, t.external_db_links
+          FROM treatment t, treatment_protocol tp, treatment_component tc 
+          WHERE t.id = tc.treatment_id
+          AND tc.treatment_protocol_id = tp.id
+          AND tp.id = protocol_id
+        ) sub
+      ) entries
  FROM   (SELECT model_id,
                protocol_id,
-               ( CASE
-                   WHEN treatment_harmonised IS NOT NULL THEN
-                   treatment_harmonised
-                   ELSE treatment_raw
-                 END ) treatment,
+               treatment,
                response,
                dose
         FROM   (SELECT m.id    model_id,
                        tp.id         protocol_id,
-                       ott.term_name treatment_harmonised,
                        r.NAME        response,
                        tc.dose       dose,
-                       t.NAME        treatment_raw
+                       t.NAME        treatment
                 FROM
-					   patient_sample ps,
-					   model_information m,
-                       treatment_protocol tp,
-                       response r,
-                       treatment_component tc,
-                       treatment t
-                       LEFT JOIN treatment_to_ontology tont
-                              ON ( t.id = tont.treatment_id )
-                       LEFT JOIN ontology_term_treatment ott
-                              ON ( tont.ontology_term_id = ott.id )
+                      patient_sample ps,
+                      model_information m,
+                      treatment_protocol tp,
+                      response r,
+                      treatment_component tc,
+                      treatment t
                 WHERE  treatment_target = 'patient'
 				       AND tp.patient_id = ps.patient_id
                        AND m.id = ps.model_id
                        AND tp.response_id = r.id
                        AND tc.treatment_protocol_id = tp.id
-                       AND tc.treatment_id = t.id
-                       AND t.data_source = m.data_source) a)b
+                       AND tc.treatment_id = t.id) a)b
  GROUP  BY model_id,
           protocol_id,
           response;
@@ -1221,6 +1243,8 @@ COMMENT ON COLUMN pdcm_api.patient_treatment.protocol_id IS 'Reference to the tr
 COMMENT ON COLUMN pdcm_api.patient_treatment.treatment IS 'Treatment names';
 COMMENT ON COLUMN pdcm_api.patient_treatment.response IS 'Response to the treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment.dose IS 'Dose used';
+COMMENT ON COLUMN pdcm_api.patient_treatment.entries IS 'Information about each individual treatment used';
+
 
 -- models_by_treatment materialized view: Models by treatment
 
@@ -1229,10 +1253,9 @@ DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_treatment;
 CREATE MATERIALIZED VIEW pdcm_api.models_by_treatment AS
    SELECT treatment,
           COUNT(DISTINCT pdcm_model_id) AS count
-   FROM   (SELECT UNNEST(search_index.treatment_list) AS treatment,
+   FROM   (SELECT UNNEST(search_index.patient_treatments) AS treatment,
                   search_index.pdcm_model_id
            FROM   search_index) treatment_model
-   WHERE  treatment_model.treatment NOT LIKE '% = %'
    GROUP  BY ( treatment );
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_treatment IS 'Dosing studies section data';
@@ -1287,7 +1310,19 @@ SELECT
 	histology,
 	string_agg(a.treatment, ' + ') AS treatment,
 	response,
-	string_agg(dose, ' + ') AS dose
+	string_agg(dose, ' + ') AS dose,
+  (
+  SELECT jsonb_agg(sub)
+  FROM  
+  (
+    SELECT 
+      t.name, tc.dose, t.external_db_links
+    FROM treatment t, treatment_protocol tp, treatment_component tc 
+    WHERE t.id = tc.treatment_id
+    AND tc.treatment_protocol_id = tp.id
+    AND tp.id = a.id
+  ) sub
+) entries
 FROM (
 	SELECT
 		tp.id,
@@ -1299,7 +1334,7 @@ FROM (
 		si.patient_sex,
 		si.patient_ethnicity,
 		si.histology,
-		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
+		t.name AS treatment,
 		r.name AS response,
 		tc.dose
 	FROM treatment_protocol tp
@@ -1309,10 +1344,7 @@ FROM (
 	JOIN treatment_component tc on tc.treatment_protocol_id = tp.id
 	JOIN response r on r.id = tp.response_id
 	JOIN treatment t on t.id = tc.treatment_id
-	LEFT JOIN treatment_to_ontology tont ON t.id = tont.treatment_id
-	LEFT JOIN ontology_term_treatment ott ON tont.ontology_term_id = ott.id
 	WHERE treatment_target = 'patient'
-	AND t.data_source=si.data_source
 	) a
 GROUP BY
 	id, external_model_id, data_source, external_patient_id, patient_age, patient_sex,
@@ -1333,6 +1365,7 @@ COMMENT ON COLUMN pdcm_api.patient_treatment_extended.histology IS 'Diagnosis at
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.patient_treatment_extended.dose IS 'Treatment dose and unit';
+COMMENT ON COLUMN pdcm_api.patient_treatment_extended.entries IS 'Information about each individual treatment used';
 
 -- drug_dosing_extended materialized view: drug dosing treatment data + model information
 
@@ -1345,8 +1378,20 @@ SELECT
 	histology,
 	string_agg(a.treatment, ' + ') AS treatment,
 	response,
-	string_agg(dose, ' + ') AS dose
-FROM (
+	string_agg(dose, ' + ') AS dose,
+  (
+    SELECT jsonb_agg(sub)
+    FROM  
+    (
+      SELECT 
+        t.name, tc.dose, t.external_db_links
+      FROM treatment t, treatment_protocol tp, treatment_component tc 
+      WHERE t.id = tc.treatment_id
+      AND tc.treatment_protocol_id = tp.id
+      AND tp.id = a.id
+    ) sub
+  ) entries
+  FROM (
 	SELECT
 		tp.id,
 		si.external_model_id,
@@ -1355,7 +1400,7 @@ FROM (
 		si.patient_sex,
 		si.patient_ethnicity,
 		si.histology,
-		CASE WHEN ott.term_name IS NULL THEN t.name ELSE ott.term_name END AS treatment,
+		t.name AS treatment,
 		r.name AS response,
 		tc.dose
 	FROM treatment_protocol tp
@@ -1363,10 +1408,7 @@ FROM (
 	JOIN treatment_component tc on tc.treatment_protocol_id = tp.id
 	JOIN response r on r.id = tp.response_id
 	JOIN treatment t on t.id = tc.treatment_id
-	LEFT JOIN treatment_to_ontology tont ON t.id = tont.treatment_id
-	LEFT JOIN ontology_term_treatment ott ON tont.ontology_term_id = ott.id
 	WHERE treatment_target = 'drug dosing'
-	AND t.data_source=si.data_source
 	) a
 GROUP BY
 	id, external_model_id, data_source, histology, response;
@@ -1382,6 +1424,7 @@ COMMENT ON COLUMN pdcm_api.drug_dosing_extended.histology IS 'Diagnosis at time 
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.treatment IS 'Treatment name. It can be surgery, radiotherapy,  drug name  or drug combination';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.dose IS 'Treatment dose and unit';
+COMMENT ON COLUMN pdcm_api.drug_dosing_extended.entries IS 'Information about each individual treatment used';
 
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
 
@@ -1519,4 +1562,3 @@ CREATE MATERIALIZED VIEW pdcm_api.info AS
 COMMENT ON MATERIALIZED VIEW pdcm_api.info IS 'General metrics in key value formar';
 COMMENT ON COLUMN pdcm_api.info.key IS 'Key';
 COMMENT ON COLUMN pdcm_api.info.value IS 'Value';
-

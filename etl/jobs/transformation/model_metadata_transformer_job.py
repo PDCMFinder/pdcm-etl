@@ -16,11 +16,11 @@ def main(argv):
     :param list argv: the list elements should be:
                     [1]: Parquet file path with the model_information transformed data.
                     [2]: Parquet file path with the search_index_patient_sample transformed data.
-                    [3]: Parquet file path with the xenograft_model_specimen_parquet_path transformed data.
-                    [4]: Parquet file path with the quality_assurance_parquet_path transformed data.
+                    [3]: Parquet file path with the xenograft_model_specimen transformed data.
+                    [4]: Parquet file path with the quality_assurance transformed data.
                     [5]: Parquet file path with the model_image transformed data.
-                    [6]: Parquet file path with the treatment_harmonisation_helper_parquet_path transformed data.
-                    [7]: Parquet file path with the search_index_molecular_characterization_parquet_path transformed data.
+                    [6]: Parquet file path with the treatment aggregation per model.
+                    [7]: Parquet file path with the search_index_molecular_characterization transformed data.
                     [8]: Output file
     """
     model_parquet_path = argv[1]
@@ -28,7 +28,7 @@ def main(argv):
     xenograft_model_specimen_parquet_path = argv[3]
     quality_assurance_parquet_path = argv[4]
     model_image_parquet_path = argv[5]
-    treatment_harmonisation_helper_parquet_path = argv[6]
+    treatment_aggregator_helper_parquet_path = argv[6]
     search_index_molecular_characterization_parquet_path = argv[7]
     output_path = argv[8]
 
@@ -38,7 +38,7 @@ def main(argv):
     xenograft_model_specimen_df = spark.read.parquet(xenograft_model_specimen_parquet_path)
     quality_assurance_df = spark.read.parquet(quality_assurance_parquet_path)
     model_image_df = spark.read.parquet(model_image_parquet_path)
-    treatment_harmonisation_helper_df = spark.read.parquet(treatment_harmonisation_helper_parquet_path)
+    treatment_aggregator_helper_df = spark.read.parquet(treatment_aggregator_helper_parquet_path)
     search_index_molecular_char_df = spark.read.parquet(search_index_molecular_characterization_parquet_path)
 
     model_metadata = transform_model_metadata(
@@ -47,7 +47,7 @@ def main(argv):
         xenograft_model_specimen_df,
         quality_assurance_df,
         model_image_df,
-        treatment_harmonisation_helper_df,
+        treatment_aggregator_helper_df,
         search_index_molecular_char_df
     )
 
@@ -60,7 +60,7 @@ def transform_model_metadata(
         xenograft_model_specimen_df: DataFrame,
         quality_assurance_df: DataFrame,
         model_image_df: DataFrame,
-        treatment_harmonisation_helper_df: DataFrame,
+        treatment_aggregator_helper_df: DataFrame,
         search_index_molecular_char_df
 ) -> DataFrame:
     model_df = get_formatted_model(model_df)
@@ -77,8 +77,8 @@ def transform_model_metadata(
 
     # Adding treatment list (patient treatment) and model treatment list (model drug dosing), and treatment type list
     # to search_index
-    treatment_harmonisation_helper_df = treatment_harmonisation_helper_df.withColumnRenamed("model_id", "pdcm_model_id")
-    model_df = model_df.join(treatment_harmonisation_helper_df, on=["pdcm_model_id"], how="left")
+    treatment_aggregator_helper_df = treatment_aggregator_helper_df.withColumnRenamed("model_id", "pdcm_model_id")
+    model_df = model_df.join(treatment_aggregator_helper_df, on=["pdcm_model_id"], how="left")
 
     model_df = add_custom_treatment_type_column(model_df)
 
@@ -127,6 +127,8 @@ def get_formatted_model(
         "supplements",
         "drug",
         "drug_concentration",
+        "model_availability",
+        "date_submitted",
         Constants.DATA_SOURCE_COLUMN
     )
     return model_df
@@ -235,7 +237,7 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     df = df.withColumn(
         "dataset_available",
         when(
-            col("model_treatment_list").isNotNull() & (size("model_treatment_list") > 0),
+            col("model_treatments").isNotNull() & (size("model_treatments") > 0),
             when(col("dataset_available").isNotNull(),
                  concat(col("dataset_available"), array(lit("dosing studies")))).otherwise(
                 array(lit("dosing studies")))
@@ -245,7 +247,7 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     df = df.withColumn(
         "dataset_available",
         when(
-            col("treatment_list").isNotNull() & (size("treatment_list") > 0),
+            col("patient_treatments").isNotNull() & (size("patient_treatments") > 0),
             when(col("dataset_available").isNotNull(),
                  concat(col("dataset_available"), array(lit("patient treatment")))).otherwise(
                 array(lit("patient treatment")))
@@ -268,7 +270,7 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
     return df
 
 
-# Adds a custom column that is the combination of `treatment_type_list` + `patient_treatment_status` as that would be a
+# Adds a custom column that is the combination of `treatment_types` + `patient_treatment_status` as that would be a
 # more complete filter in the UI
 def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
     # Format `treatment_naive_at_collection` column to make processing easier
@@ -291,7 +293,7 @@ def add_custom_treatment_type_column(model_df: DataFrame) -> DataFrame:
     model_df = model_df.withColumn(
         "custom_treatment_type_list", 
         concat(
-            coalesce(col("treatment_type_list"), array()),
+            coalesce(col("treatment_types"), array()),
             coalesce(col("tmp_patient_treatment_status"), array())
         )
     )

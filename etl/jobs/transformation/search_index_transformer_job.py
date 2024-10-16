@@ -64,6 +64,7 @@ def transform_search_index(
             "cancer_grading_system",
             "cancer_stage",
             "cancer_staging_system",
+            col("external_patient_id").alias("patient_id"),
             "patient_age",
             "patient_age_category",
             "patient_sex",
@@ -108,13 +109,17 @@ def transform_search_index(
             "breast_cancer_biomarkers",
             "msi_status",
             "hla_types",
-            "treatment_list",
-            "model_treatment_list",
+            "patient_treatments",
+            "patient_treatments_responses",
+            "model_treatments",
+            "model_treatments_responses",
             "custom_treatment_type_list",
             "license_name",
             "license_url",
             "raw_data_resources",
-            "cancer_annotation_resources"
+            "cancer_annotation_resources",
+            "model_availability",
+            "date_submitted"
         )
         .where(col("histology").isNotNull())
         .distinct()

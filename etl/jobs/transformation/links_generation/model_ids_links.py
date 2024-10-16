@@ -57,7 +57,6 @@ def add_model_links(
 
     # Join back to the original data frame to add the new column to it
     model_information_df = model_information_df.join(model_ids_links_column_df, on=["id"], how="left")
-    model_information_df.show(truncate=False)
 
     return model_information_df
 

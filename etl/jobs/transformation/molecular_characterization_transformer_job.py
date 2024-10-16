@@ -1,5 +1,8 @@
+import sys
+
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
+from pyspark.sql.dataframe import DataFrame
+from pyspark.sql.functions import col, lit
 
 from etl.constants import Constants
 from etl.jobs.transformation.links_generation.molecular_characterization_links_builder import \
@@ -97,8 +100,10 @@ def get_molchar_sample(raw_molchar_metadata_sample_df: DataFrame) -> DataFrame:
 def set_fk_platform(molecular_characterization_df: DataFrame, platform_df: DataFrame) -> DataFrame:
 
     platform_df = platform_df.select(
-        "id", "platform_id", "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
+        "id", lower_and_trim_all("platform_id").alias("platform_id"), "molecular_characterisation_type", Constants.DATA_SOURCE_COLUMN)
     platform_df = platform_df.withColumnRenamed("id", "platform_internal_id")
+
+    molecular_characterization_df = molecular_characterization_df.withColumn("platform_id", lower_and_trim_all("platform_id"))
 
     molecular_characterization_df = molecular_characterization_df.join(
         platform_df, on=["platform_id", Constants.DATA_SOURCE_COLUMN], how='left')

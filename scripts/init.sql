@@ -160,6 +160,8 @@ CREATE TABLE model_information (
     rrid TEXT,
     parent_id TEXT,
     origin_patient_sample_id TEXT,
+    model_availability TEXT,
+    date_submitted TEXT,
     other_model_links JSON
 );
 
@@ -182,6 +184,10 @@ COMMENT ON COLUMN model_information.vendor_link IS 'Link to purchasable cell mod
 COMMENT ON COLUMN model_information.rrid IS 'Cellosaurus ID';
 COMMENT ON COLUMN model_information.parent_id IS 'model Id of the model used to generate the model';
 COMMENT ON COLUMN model_information.origin_patient_sample_id IS 'Unique ID of the patient tumour sample used to generate the model';
+COMMENT ON COLUMN model_information.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN model_information.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN model_information.other_model_links IS 'External ids links and supplier link';
+
 
 DROP TABLE IF EXISTS license CASCADE;
 
@@ -456,14 +462,19 @@ DROP TABLE IF EXISTS treatment CASCADE;
 CREATE TABLE treatment (
     id BIGINT NOT NULL,
     name TEXT NOT NULL,
-    type TEXT NOT NULL,
-    data_source TEXT NOT NULL
+    term_id TEXT,
+    types TEXT[],
+    external_db_links JSON,
+    aliases TEXT[]
 );
 
 COMMENT ON TABLE treatment IS 'Treatment name';
 COMMENT ON COLUMN treatment.id IS 'Internal identifier';
-COMMENT ON COLUMN treatment.name IS 'treatment name, can be surgery, radiotherapy, drug name or drug combination ( (radiotherapy, chemotherapy, targeted therapy, hormone-therapy))';
-COMMENT ON COLUMN treatment.data_source IS 'Abbreviation of the provider. Here due to mapping, but might change if treatment names do not change between providers';
+COMMENT ON COLUMN treatment.name IS 'Treatment name. If `term_id` is not null, `name` corresponds to the ontology term found in the mapping process';
+COMMENT ON COLUMN treatment.term_id IS 'Id of the ontology term for this treatment';
+COMMENT ON COLUMN treatment.types IS 'List of treatment types associated to the treatment';
+COMMENT ON COLUMN treatment.external_db_links IS 'JSON column with links to external resources';
+COMMENT ON COLUMN treatment.aliases IS 'List of names for the treatment as we got them from the providers';
 
 DROP TABLE IF EXISTS response CASCADE;
 
@@ -837,45 +848,6 @@ COMMENT ON COLUMN sample_to_ontology.id IS 'Internal identifier';
 COMMENT ON COLUMN sample_to_ontology.sample_id IS 'Reference to the patient_sample table';
 COMMENT ON COLUMN sample_to_ontology.ontology_term_id IS 'Reference to the ontology_term_diagnosis table';
 
-DROP TABLE IF EXISTS treatment_to_ontology CASCADE;
-
-CREATE TABLE treatment_to_ontology (
-    id BIGINT NOT NULL,
-    treatment_id BIGINT,
-    ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE treatment_to_ontology IS 'Mapping between treatments and ontology terms';
-COMMENT ON COLUMN treatment_to_ontology.id IS 'Internal identifier';
-COMMENT ON COLUMN treatment_to_ontology.treatment_id IS 'Reference to the treatment table';
-COMMENT ON COLUMN treatment_to_ontology.ontology_term_id IS 'Reference to the ontology_term_treatment table';
-
-DROP TABLE IF EXISTS regimen_to_ontology CASCADE;
-
-CREATE TABLE regimen_to_ontology (
-    id BIGINT NOT NULL,
-    regimen_id BIGINT,
-    ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE regimen_to_ontology IS 'Mapping between treatments and ontology terms';
-COMMENT ON COLUMN regimen_to_ontology.id IS 'Internal identifier';
-COMMENT ON COLUMN regimen_to_ontology.regimen_id IS 'Reference to the treatment table (regimens)';
-COMMENT ON COLUMN regimen_to_ontology.ontology_term_id IS 'Reference to the ontology_term_regimen table';
-
-DROP TABLE IF EXISTS regimen_to_treatment CASCADE;
-
-CREATE TABLE regimen_to_treatment (
-    id BIGINT NOT NULL,
-    regimen_ontology_term_id BIGINT,
-    treatment_ontology_term_id BIGINT
-);
-
-COMMENT ON TABLE regimen_to_treatment IS 'Relation between regimen and treatments';
-COMMENT ON COLUMN regimen_to_treatment.id IS 'Internal identifier';
-COMMENT ON COLUMN regimen_to_treatment.regimen_ontology_term_id IS 'Reference to the regimen_ontology_term table';
-COMMENT ON COLUMN regimen_to_treatment.treatment_ontology_term_id IS 'Reference to the treatment_ontology_term table';
-
 DROP TABLE IF EXISTS treatment_protocol CASCADE;
 
 CREATE TABLE treatment_protocol (
@@ -940,6 +912,7 @@ CREATE TABLE search_index (
     cancer_grading_system TEXT,
     cancer_stage TEXT,
     cancer_staging_system TEXT,
+    patient_id TEXT,
     patient_age TEXT,
     patient_age_category TEXT,
     patient_sex TEXT,
@@ -971,11 +944,15 @@ CREATE TABLE search_index (
     breast_cancer_biomarkers TEXT[],
     msi_status TEXT[],
     hla_types TEXT[],
-    treatment_list TEXT[],
-    model_treatment_list TEXT[],
+    patient_treatments TEXT[],
+    patient_treatments_responses TEXT[],
+    model_treatments TEXT[],
+    model_treatments_responses TEXT[],
     custom_treatment_type_list TEXT[],
     raw_data_resources TEXT[],
     cancer_annotation_resources TEXT[],
+    model_availability TEXT,
+    date_submitted TEXT,
     scores JSON
 );
 
@@ -1006,6 +983,7 @@ COMMENT ON COLUMN search_index.cancer_grade IS 'The implanted tumour grade value
 COMMENT ON COLUMN search_index.cancer_grading_system IS 'Grade classification corresponding used to describe the stage, add the version if available';
 COMMENT ON COLUMN search_index.cancer_stage IS 'Stage of the patient at the time of collection';
 COMMENT ON COLUMN search_index.cancer_staging_system IS 'Stage classification system used to describe the stage, add the version if available';
+COMMENT ON COLUMN search_index.patient_id IS 'Patient id given by the provider';
 COMMENT ON COLUMN search_index.patient_age IS 'Patient age at collection';
 COMMENT ON COLUMN search_index.patient_age_category IS 'Age category at the time of sampling';
 COMMENT ON COLUMN search_index.patient_sex IS 'Patient sex';
@@ -1036,17 +1014,22 @@ COMMENT ON COLUMN search_index.markers_with_biomarker_data IS 'Marker list in as
 COMMENT ON COLUMN search_index.breast_cancer_biomarkers IS 'List of biomarkers associated to breast cancer';
 COMMENT ON COLUMN search_index.msi_status IS 'MSI status';
 COMMENT ON COLUMN search_index.hla_types IS 'HLA types';
-COMMENT ON COLUMN search_index.treatment_list IS 'Patient treatment data';
-COMMENT ON COLUMN search_index.model_treatment_list IS 'Drug dosing data';
+COMMENT ON COLUMN search_index.patient_treatments IS 'Patient treatments';
+COMMENT ON COLUMN search_index.patient_treatments_responses IS 'List of responses for the patient treatments';
+COMMENT ON COLUMN search_index.model_treatments IS 'Drug dosing data';
+COMMENT ON COLUMN search_index.model_treatments_responses IS 'List of responses for the model treatments';
 COMMENT ON COLUMN search_index.custom_treatment_type_list IS 'Treatment types + patient treatment status (Excluding "Not Provided")';
 COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calculated from raw data links) the model links to';
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
+COMMENT ON COLUMN search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
+COMMENT ON COLUMN search_index.date_submitted IS 'Date of submission to the resource';
 COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 
 
 DROP TABLE IF EXISTS search_facet CASCADE;
 
 CREATE TABLE search_facet (
+    index INT,
     facet_section TEXT,
     facet_name TEXT,
     facet_description TEXT,

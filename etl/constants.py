@@ -83,8 +83,6 @@ class Constants:
     SAMPLE_TO_ONTOLOGY_ENTITY = "sample_to_ontology"
     TREATMENT_PROTOCOL_ENTITY = "treatment_protocol"
     TREATMENT_COMPONENT_ENTITY = "treatment_component"
-    TREATMENT_TO_ONTOLOGY_ENTITY = "treatment_to_ontology"
-    REGIMEN_TO_ONTOLOGY_ENTITY = "regimen_to_ontology"
     SEARCH_INDEX_ENTITY = "search_index"
     SEARCH_FACET_ENTITY = "search_facet"
     MOLECULAR_DATA_RESTRICTION_ENTITY = "molecular_data_restriction"
@@ -97,8 +95,11 @@ class Constants:
 
     # Helper Entities (do not get stored into the database, they just provide data to other transformations)
     TREATMENT_AND_COMPONENT_HELPER_ENTITY = "treatment_and_component_helper"
-    TREATMENT_HARMONISATION_HELPER_ENTITY = "treatment_harmonisation_helper"
+    TREATMENT_AGGREGATOR_HELPER_ENTITY = "treatment_aggregator_helper"
     EXTERNAL_RESOURCES_REFERENCES = "external_resources_references_helper"
+    TREATMENT_NAME_HELPER_ENTITY = "treatment_name_helper"
+    TREATMENT_NAME_HARMONISATION_HELPER_ENTITY = "treatment_name_harmonisation_helper"
+    TREATMENT_TYPE_HELPER_ENTITY = "treatment_type_helper"
     GENE_HELPER_ENTITY = "gene_helper"
 
     # Search index related transformations

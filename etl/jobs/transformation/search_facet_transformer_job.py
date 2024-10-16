@@ -6,12 +6,13 @@ from pyspark.sql.functions import (
     lit,
     explode, col
 )
-from pyspark.sql.types import ArrayType, StringType, BooleanType, StructType, StructField
+from pyspark.sql.types import ArrayType, StringType, IntegerType, BooleanType, StructType, StructField
 
 from etl import facets
 from etl.jobs.util.cleaner import lower_and_trim_all
 
 column_names = [
+    "index",
     "facet_section",
     "facet_name",
     "facet_description",
@@ -42,6 +43,7 @@ def main(argv):
     search_index_df = spark.read.parquet(search_index_parquet_path)
     schema = StructType(
         [
+            StructField("index", IntegerType(), True),
             StructField("facet_section", StringType(), True),
             StructField("facet_name", StringType(), True),
             StructField("facet_description", StringType(), True),
