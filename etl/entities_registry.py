@@ -646,6 +646,7 @@ entities = {
             "cancer_grading_system",
             "cancer_stage",
             "cancer_staging_system",
+            "patient_id",
             "patient_age",
             "patient_age_category",
             "patient_sex",

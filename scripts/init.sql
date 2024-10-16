@@ -912,6 +912,7 @@ CREATE TABLE search_index (
     cancer_grading_system TEXT,
     cancer_stage TEXT,
     cancer_staging_system TEXT,
+    patient_id TEXT,
     patient_age TEXT,
     patient_age_category TEXT,
     patient_sex TEXT,
@@ -982,6 +983,7 @@ COMMENT ON COLUMN search_index.cancer_grade IS 'The implanted tumour grade value
 COMMENT ON COLUMN search_index.cancer_grading_system IS 'Grade classification corresponding used to describe the stage, add the version if available';
 COMMENT ON COLUMN search_index.cancer_stage IS 'Stage of the patient at the time of collection';
 COMMENT ON COLUMN search_index.cancer_staging_system IS 'Stage classification system used to describe the stage, add the version if available';
+COMMENT ON COLUMN search_index.patient_id IS 'Patient id given by the provider';
 COMMENT ON COLUMN search_index.patient_age IS 'Patient age at collection';
 COMMENT ON COLUMN search_index.patient_age_category IS 'Age category at the time of sampling';
 COMMENT ON COLUMN search_index.patient_sex IS 'Patient sex';
