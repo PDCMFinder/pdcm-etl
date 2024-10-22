@@ -50,6 +50,16 @@ def transform_treatment(
         "term_name", "term_id", "treatment_types", "class"
     ).agg(array_distinct(collect_list("name")).alias("aliases"))
 
+    # Detect inconsistencies: terms that appear both mapped and unmapped. This can occur when the we have the treatment both as
+    # an alias and the offical name but we only have a mapping for the alias. In this case, we only keep the mapped term.
+    inconsistencies_df = unmapped_treatments_df.join(
+        aggrgegated_treatments_df,
+        on=unmapped_treatments_df.name == aggrgegated_treatments_df.term_name,
+    )
+
+    # Using left_anti alows us to remove from unmapped_treatments_df the matches with inconsistencies_df
+    unmapped_treatments_df = unmapped_treatments_df.join(inconsistencies_df, on="name", how="left_anti")
+
     # Change name to unify later
     aggrgegated_treatments_df = aggrgegated_treatments_df.withColumnRenamed(
         "term_name", "name"
