@@ -827,6 +827,7 @@ AS
  	              or lower(histology) like '%childhood%'
 	              or patient_age like '%19' or patient_age like '2 - 9'
                 or patient_age like '%months' 
+                or data_source = 'CCC'
             THEN true 
             ELSE false 
         END as paediatric,
