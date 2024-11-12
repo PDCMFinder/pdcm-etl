@@ -23,6 +23,7 @@ Biomarker molecular data
 |non_harmonised_symbol|text|Original symbol as reported by the provider|
 |result|text|Presence or absence of the biomarker|
 |external_db_links|json|Links to external resources|
+|harmonisation_result|text|Result of the symbol harmonisation process|
 
 
 
@@ -45,6 +46,7 @@ Biomarker molecular data
 |external_db_links|json|Links to external resources|
 |text|text|Text representation of the row|
 |data_source|text|Data source of the model (provider abbreviation)|
+|harmonisation_result|text|Result of the symbol harmonisation process|
 
 
 
@@ -106,6 +108,8 @@ CNA molecular data
 |gistic_value|text|Score predicted using GISTIC tool for the copy number variation|
 |picnic_value|text|Score predicted using PICNIC algorithm for the copy number variation|
 |external_db_links|json|Links to external resources|
+|non_harmonised_symbol|text|Original symbol as reported by the provider|
+|harmonisation_result|text|Result of the symbol harmonisation process|
 
 
 
@@ -287,6 +291,7 @@ Expression molecular data (without joins)
 |illumina_hgea_expression_value|numeric|Expresion value captured using Illumina arrays|
 |z_score|numeric|Z-score representing the gene expression level|
 |external_db_links|json|Links to external resources|
+|harmonisation_result|text|Result of the symbol harmonisation process|
 |text|text|Text representation of the row|
 
 
@@ -371,13 +376,19 @@ Model information (without joins)
 |source_database_id|bigint|Reference to the source_database table|
 |license_id|bigint|Reference to the license table|
 |external_ids|text|Depmap accession, Cellusaurus accession or other id. Please place in comma separated list|
+|supplier|text|Supplier brief acronym or name followed by a colon and the number or name use to reference the model|
 |supplier_type|text|Model supplier type - commercial, academic, other|
 |catalog_number|text|Catalogue number of cell model, if commercial|
 |vendor_link|text|Link to purchasable cell model, if commercial|
 |rrid|text|Cellosaurus ID|
 |parent_id|text|model Id of the model used to generate the model|
 |origin_patient_sample_id|text|Unique ID of the patient tumour sample used to generate the model|
-|model_relationships|jsonb|-|
+|model_availability|text|Model availability status, i.e. if the model is still available to purchase.|
+|date_submitted|text|Date of submission to the resource|
+|other_model_links|json|External ids links and supplier link|
+|model_relationships|json|-|
+|has_relations|boolean|-|
+|knowledge_graph|json|-|
 
 
 
@@ -492,6 +503,8 @@ Mutation molecular data
 |alt_allele|text|The base other than the reference allele seen at the locus|
 |data_source|text|Data source of the model (provider abbreviation)|
 |external_db_links|json|JSON column with links to external resources|
+|non_harmonised_symbol|text|Original symbol as reported by the provider|
+|harmonisation_result|text|Result of the symbol harmonisation process|
 
 
 
@@ -520,6 +533,7 @@ Mutation measurement data
 |biotype|text|Biotype of the transcript or regulatory feature eg. protein coding, non coding|
 |external_db_links|json|JSON column with links to external resources|
 |data_source|text|Data source (abbreviation of the provider)|
+|harmonisation_result|text|Result of the symbol harmonisation process|
 |text|text|Text representation of the row|
 
 
@@ -624,11 +638,17 @@ Helper table to show filter options
 #### Columns
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
+|index|integer|-|
 |facet_section|text|Facet section|
 |facet_name|text|Facet name|
+|facet_description|text|-|
 |facet_column|text|Facet column|
 |facet_options|text[]|List of possible options|
 |facet_example|text|Facet example|
+|any_operator|text|Operator to be used when the search involves several options and the search uses ANY|
+|all_operator|text|Operator to be used when the search involves several options and the search uses ALL|
+|is_boolean|boolean|Indicates if the filter is to be used on a boolean field|
+|facet_type|text|Indicates how to create the element in the UI: check, autocomplete, or multivalued|
 
 
 
@@ -648,6 +668,7 @@ Helper table to show results in a search
 |project_name|text|Project of the model|
 |provider_name|text|Provider name|
 |model_type|text|Type of model|
+|supplier|text|Supplier brief acronym or name followed by a colon and the number or name use to reference the model|
 |supplier_type|text|Model supplier type - commercial, academic, other|
 |catalog_number|text|Catalogue number of cell model, if commercial|
 |vendor_link|text|Link to purchasable cell model, if commercial|
@@ -666,6 +687,7 @@ Helper table to show results in a search
 |cancer_grading_system|text|Grade classification corresponding used to describe the stage, add the version if available|
 |cancer_stage|text|Stage of the patient at the time of collection|
 |cancer_staging_system|text|Stage classification system used to describe the stage, add the version if available|
+|patient_id|text|Patient id given by the provider|
 |patient_age|text|Patient age at collection|
 |patient_age_category|text|Age category at the time of sampling|
 |patient_sex|text|Patient sex|
@@ -697,15 +719,22 @@ Helper table to show results in a search
 |breast_cancer_biomarkers|text[]|List of biomarkers associated to breast cancer|
 |msi_status|text[]|MSI status|
 |hla_types|text[]|HLA types|
-|treatment_list|text[]|Patient treatment data|
-|model_treatment_list|text[]|Drug dosing data|
+|patient_treatments|text[]|Patient treatment data|
+|patient_treatments_responses|text[]|List of responses for the patient treatments|
+|model_treatments|text[]|Drug dosing data|
+|model_treatments_responses|text[]|List of responses for the model treatments|
 |custom_treatment_type_list|text[]|Treatment types + patient treatment status (Excluding "Not Provided")|
 |raw_data_resources|text[]|List of resources (calculated from raw data links) the model links to|
 |cancer_annotation_resources|text[]|List of resources (calculated from cancer annotation links) the model links to|
+|model_availability|text|Model availability status, i.e. if the model is still available to purchase.|
+|date_submitted|text|Date of submission to the resource|
 |scores|json|Model characterizations scores|
 |model_dataset_type_count|integer|The number of datasets for which data exists|
-|paediatric|boolean|Calculated field based on the diagnosis, patient age and project that indicates if the model is paediatric|
-|model_relationships|jsonb|-|
+|paediatric|boolean|Calculated field that indicates if the model is available or not|
+|model_availability_boolean|boolean|-|
+|model_availability_plus_commercial_availability|text[]|-|
+|model_relationships|json|Model relationships|
+|has_relations|boolean|Indicates if the model has parent(s) or children|
 
 
 
@@ -721,6 +750,10 @@ Institution public database
 |-----|-----|-----|
 |id|bigint|Internal identifier|
 |database_url|text|Link of the institution public database|
+
+
+
+
 
 
 ---
