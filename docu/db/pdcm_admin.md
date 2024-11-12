@@ -35,23 +35,53 @@ Table that shows columns with data per data source / molecular data table
 
 
 ---
+### biomarker_molecular_data
+
+Biomarker molecular data
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|Internal identifier|
+|biomarker|text|Gene symbol|
+|biomarker_status|text|Marker status|
+|essential_or_additional_marker|text|Essential or additional marker|
+|non_harmonised_symbol|text|Original symbol as reported by the provider|
+|harmonisation_result|text|Result of the symbol harmonisation process|
+|molecular_characterization_id|bigint|Reference to the molecular_characterization_ table|
+|data_source|text|Data source (abbreviation of the provider)|
+|external_db_links|json|JSON column with links to external resources|
+
+
+
+
+
+---
 ### cell_model
 
-License of a model
+Cell model
 
 #### Columns
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
 |id 🔑|bigint|Internal identifier|
-|name|text|Unique identifier for all the cancer models derived from the same tissue sample|
+|model_name|text|Most common name associate with model. Please use the CCLE name if available|
+|model_name_aliases|text|model_name_aliases|
 |type|text|Type of organoid or cell model|
 |growth_properties|text|Observed growth properties of the related model|
+|growth_media|text|Base media formulation the model was grown in|
+|media_id|text|Unique identifier for each media formulation (Catalogue number)|
 |parent_id|text|model Id of the model used to generate the model|
 |origin_patient_sample_id|text|Unique ID of the patient tumour sample used to generate the model|
-|comments|text|Comments about the model that cannot be expressed by other fields|
 |model_id|bigint|Reference to model_information_table|
-|supplier|text|Supplier brief acronym or name followed by a colon and the number or name use to reference the model|
-|external_ids|text|DepMap accession, Cellusaurus accession or other id. Comma separated list|
+|plate_coating|text|Coating on plate model was grown in|
+|other_plate_coating|text|Other coating on plate model was grown in (not mentioned above)|
+|passage_number|text|Passage number at time of sequencing/screening|
+|contaminated|text|Is there contamination present in the model|
+|contamination_details|text|What are the details of the contamination|
+|supplements|text|Additional supplements the model was grown with|
+|drug|text|Additional drug/compounds the model was grown with|
+|drug_concentration|text|Concentration of Additional drug/compounds the model was grown with|
 
 
 
@@ -83,6 +113,7 @@ Cell Sample
 |platform_id|platform|id|fk_cell_sample_platform|
 
 
+
 ---
 ### cna_molecular_data
 
@@ -95,13 +126,15 @@ CNA molecular data
 |hgnc_symbol|text|Gene symbol|
 |chromosome|text|Chromosome where the DNA copy occurs|
 |strand|text|Orientation of the DNA strand associated with the observed copy number changes, whether it is the positive or negative strand|
-|log10r_cna|text|Log10 scaled copy number variation ratio|
-|log2r_cna|text|Log2 scaled copy number variation ratio|
+|log10r_cna|numeric|Log10 scaled copy number variation ratio|
+|log2r_cna|numeric|Log2 scaled copy number variation ratio|
 |seq_start_position|numeric|Starting position of a genomic sequence or region that is associated with a copy number alteration|
 |seq_end_position|numeric|Ending position of a genomic sequence or region that is associated with a copy number alteration|
 |copy_number_status|text|Details whether there was a gain or loss of function. Categorized into gain, loss|
 |gistic_value|text|Score predicted using GISTIC tool for the copy number variation|
 |picnic_value|text|Score predicted using PICNIC algorithm for the copy number variation|
+|ensembl_gene_id|text|-|
+|ncbi_gene_id|text|-|
 |non_harmonised_symbol|text|Original symbol as reported by the provider|
 |harmonisation_result|text|Result of the symbol harmonisation process|
 |molecular_characterization_id|bigint|Reference to the molecular_characterization_ table|
@@ -110,10 +143,6 @@ CNA molecular data
 
 
 
-#### Relations
-|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
-|-----|-----|-----|-----|
-|molecular_characterization_id|molecular_characterization|id|fk_cna_molecular_data_mol_char|
 
 
 ---
@@ -134,7 +163,7 @@ Contact form
 ---
 ### contact_people
 
-Groups of publications that are associated to one or more models
+Contact information
 
 #### Columns
 |Column Name|Data Type|Comment|
@@ -144,33 +173,25 @@ Groups of publications that are associated to one or more models
 |email_list|text|Contact email for any requests from users about models. If multiple, included as comma separated list|
 
 
-
-
-
 ---
-### cytogenetics_molecular_data
+### edge
 
-Cytogenetics molecular data
+Represents the connection between nodes
 
 #### Columns
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
-|id|bigint|Internal identifier|
-|hgnc_symbol|text|Gene symbol|
-|marker_status|text|Marker status|
-|essential_or_additional_marker|text|Essential or additional marker|
-|non_harmonised_symbol|text|Original symbol as reported by the provider|
-|harmonisation_result|text|Result of the symbol harmonisation process|
-|molecular_characterization_id|bigint|Reference to the molecular_characterization_ table|
-|data_source|text|Data source (abbreviation of the provider)|
-|external_db_links|json|JSON column with links to external resources|
+|previous_node 🔑|bigint|Reference to the previous node.|
+|next_node 🔑|bigint|Reference to the next node.|
+|edge_label|text|Label of the relation.|
 
 
 
 #### Relations
 |Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
 |-----|-----|-----|-----|
-|molecular_characterization_id|molecular_characterization|id|fk_cytogenetics_molecular_data_mol_char|
+|previous_node|node|id|fk_edge_node_1|
+|next_node|node|id|fk_edge_node_2|
 
 
 ---
@@ -251,22 +272,24 @@ Patient Ethnic group. Can be derived from self-assessment or genetic analysis
 ---
 ### expression_molecular_data
 
-Cytogenetics molecular data
+Expression molecular data
 
 #### Columns
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
 |id|bigint|Internal identifier|
 |hgnc_symbol|text|Gene symbol|
-|z_score|text|Z-score representing the gene expression level|
-|rnaseq_coverage|text|The ratio between the number of bases of the mapped reads by the number of bases of a reference|
-|rnaseq_fpkm|text|Gene expression value represented in Fragments per kilo base of transcript per million mapped fragments (FPKM)|
-|rnaseq_tpm|text|Gene expression value represented in transcript per million (TPM)|
-|rnaseq_count|text|Read counts of the gene|
+|z_score|numeric|Z-score representing the gene expression level|
+|rnaseq_coverage|numeric|The ratio between the number of bases of the mapped reads by the number of bases of a reference|
+|rnaseq_fpkm|numeric|Gene expression value represented in Fragments per kilo base of transcript per million mapped fragments (FPKM)|
+|rnaseq_tpm|numeric|Gene expression value represented in transcript per million (TPM)|
+|rnaseq_count|numeric|Read counts of the gene|
 |affy_hgea_probe_id|text|Affymetrix probe identifier|
-|affy_hgea_expression_value|text|Expresion value captured using Affymetrix arrays|
+|affy_hgea_expression_value|numeric|Expresion value captured using Affymetrix arrays|
 |illumina_hgea_probe_id|text|Illumina probe identifier|
-|illumina_hgea_expression_value|text|Expresion value captured using Illumina arrays|
+|illumina_hgea_expression_value|numeric|Expresion value captured using Illumina arrays|
+|ensembl_gene_id|text|-|
+|ncbi_gene_id|text|-|
 |non_harmonised_symbol|text|Original symbol as reported by the provider|
 |harmonisation_result|text|Result of the symbol harmonisation process|
 |molecular_characterization_id|bigint|Reference to the molecular_characterization_ table|
@@ -275,10 +298,6 @@ Cytogenetics molecular data
 
 
 
-#### Relations
-|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
-|-----|-----|-----|-----|
-|molecular_characterization_id|molecular_characterization|id|fk_expression_molecular_data_mol_char|
 
 
 ---
@@ -322,6 +341,51 @@ Host strain information
 
 
 ---
+### image_study
+
+Information about an image study
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id 🔑|bigint|Internal identifier|
+|study_id|text|Accession number for BioImage Archive study|
+|title|text|The title for your dataset|
+|description|text|Field to describe your dataset. This can be the abstract to an accompanying publication|
+|licence|text|The licence under which the data are available|
+|contact|text|Contact details for the authors involved in the study|
+|sample_organism|text|What is being imaged|
+|sample_description|text|High level description of sample|
+|sample_preparation_protocol|text|How the sample was prepared for imaging|
+|imaging_instrument|text|Description of the instrument used to capture the images|
+|image_acquisition_parameters|text|How the images were acquired, including instrument settings/parameters|
+|imaging_method|text|What method was used to capture images|
+
+
+
+
+
+---
+### immunemarker_molecular_data
+
+Immunemarker molecular data
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|Internal identifier|
+|marker_type|text|Marker type|
+|marker_name|text|Name of the immune marker|
+|marker_value|text|Value or measurement associated with the immune marker|
+|essential_or_additional_details|text|Additional details or notes about the immune marker|
+|molecular_characterization_id|bigint|Reference to the molecular_characterization_ table|
+|data_source|text|Data source (abbreviation of the provider)|
+
+
+
+
+
+---
 ### license
 
 License of a model
@@ -337,6 +401,32 @@ License of a model
 
 
 
+
+---
+### model_image
+
+Information about an image study
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id 🔑|bigint|Internal identifier|
+|model_id|bigint|Unique identifier for all the PDXs derived from the same tissue sample|
+|url|text|Link to the model image|
+|description|text|Description of the image on what was being imaged|
+|sample_type|text|Type of sample being imaged (pdx, patient, organoid, cell line)|
+|passage|text|Passage number imaging was performed. Passage 0 correspond to first engraftment|
+|magnification|text|Magnification of the mode image|
+|staining|text|Staining used for imaging the sample|
+
+
+
+#### Relations
+|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
+|-----|-----|-----|-----|
+|model_id|model_information|id|fk_model_image_model|
+
+
 ---
 ### model_information
 
@@ -347,6 +437,7 @@ Model creation information
 |-----|-----|-----|
 |id 🔑|bigint|Internal identifier|
 |external_model_id|text|Unique identifier of the model. Given by the provider|
+|type|text|Model type|
 |data_source|character varying|Abbreviation of the provider. Added explicitly here to help with queries|
 |publication_group_id|bigint|Reference to the publication_group table. Corresponds to the publications the model is part of|
 |accessibility_group_id|bigint|Reference to the accessibility_group table|
@@ -354,6 +445,20 @@ Model creation information
 |contact_form_id|bigint|Reference to the contact_form table|
 |source_database_id|bigint|Reference to the source_database table|
 |license_id|bigint|Reference to the license table|
+|external_ids|text|Depmap accession, Cellusaurus accession or other id. Please place in comma separated list|
+|supplier|text|Supplier brief acronym or name followed by a colon and the number or name use to reference the model|
+|supplier_type|text|Model supplier type - commercial, academic, other|
+|catalog_number|text|Catalogue number of cell model, if commercial|
+|vendor_link|text|Link to purchasable cell model, if commercial|
+|rrid|text|Cellosaurus ID|
+|parent_id|text|model Id of the model used to generate the model|
+|origin_patient_sample_id|text|Unique ID of the patient tumour sample used to generate the model|
+|model_availability|text|Model availability status, i.e. if the model is still available to purchase.|
+|date_submitted|text|Date of submission to the resource|
+|other_model_links|json|External ids links and supplier link|
+|model_relationships|json|Model relationships|
+|has_relations|boolean|Indicates if the model has parent(s) or children|
+|knowledge_graph|json|Knowledge graph|
 
 
 
@@ -428,6 +533,36 @@ Internal table to store molecular tables which data cannot be displayed to the u
 
 
 ---
+### mutation_marker
+
+
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|-|
+|biotype|text|-|
+|coding_sequence_change|text|-|
+|variant_class|text|-|
+|codon_change|text|-|
+|amino_acid_change|text|-|
+|consequence|text|-|
+|functional_prediction|text|-|
+|seq_start_position|text|-|
+|ref_allele|text|-|
+|alt_allele|text|-|
+|ncbi_transcript_id|text|-|
+|ensembl_transcript_id|text|-|
+|variation_id|text|-|
+|gene_marker_id|bigint|-|
+|non_harmonised_symbol|text|-|
+|harmonisation_result|text|-|
+
+
+
+
+
+---
 ### mutation_measurement_data
 
 Mutation measurement data
@@ -454,6 +589,8 @@ Mutation measurement data
 |ncbi_transcript_id|text|NCBI transcript id|
 |ensembl_transcript_id|text|Ensembl transcript id|
 |variation_id|text|Gene symbol|
+|ensembl_gene_id|text|-|
+|ncbi_gene_id|text|-|
 |molecular_characterization_id|bigint|Reference to the molecular_characterization_ table|
 |non_harmonised_symbol|text|Original symbol as reported by the provider|
 |harmonisation_result|text|Result of the symbol harmonisation process|
@@ -462,10 +599,24 @@ Mutation measurement data
 
 
 
-#### Relations
-|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
-|-----|-----|-----|-----|
-|molecular_characterization_id|molecular_characterization|id|fk_mutation_measurement_data_mol_char|
+
+
+---
+### node
+
+Represents a node in a graph
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id 🔑|bigint|Internal identifier|
+|node_type|text|The type of data we are representing: patient sample, model, treatment, etc.|
+|node_label|text|Text to display for the node. It will be the external_model_id in the case of models, or external sample id in the case of samples, for example.|
+|data_source|text|Data source associated to the node|
+|data|json|A JSON column with arbitrary key-value information about the current entity/node|
+
+
+
 
 
 ---
@@ -538,6 +689,11 @@ Information about a patient
 |initial_diagnosis|text|Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section|
 |age_at_initial_diagnosis|text|This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant|
 |provider_group_id|bigint|Reference to the provider group the patient is related to|
+|age_category|text|Age category at time of sampling|
+|smoking_status|text|Patient smoking history|
+|alcohol_status|text|Alcohol intake of the patient, self-reported|
+|alcohol_frequency|text|The average number of days per week on which the patient consumes alcohol, self-reported|
+|family_history_of_cancer|text|If a first-degree relative of the patient has been diagnosed with a cancer of the same or different type|
 
 
 
@@ -571,9 +727,15 @@ Tumour type
 |age_in_years_at_collection|text|Patient age at collection|
 |collection_event|text|Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1|
 |collection_date|text|Date of collections. Important for understanding the time relationship between models generated for the same patient|
+|collection_method|text|Method of collection of the tissue sample|
 |months_since_collection_1|text|The time difference between the 1st collection event and the current one (in months)|
+|gene_mutation_status|text|Outcome of mutational status tests for the following genes: BRAF, PIK3CA, PTEN, KRAS|
 |treatment_naive_at_collection|text|Was the patient treatment naive at the time of collection? This includes the patient being treated at the time of tumour sample collection and if the patient was treated prior to the tumour sample collection.\nThe value will be 'yes' if either treated_at_collection or treated_prior_to_collection are 'yes'|
+|treated_at_collection|text|Was the patient being treated for cancer at the time of tumour sample collection.|
+|treated_prior_to_collection|text|Was the patient treated prior to the tumour sample collection.|
+|response_to_treatment|text|Patient’s response to treatment.|
 |virology_status|text|Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status|
+|sharable|text|-|
 |model_id|bigint|Reference to the model_information table|
 
 
@@ -692,6 +854,12 @@ Cell Sample
 |validation_technique|text|Any technique used to validate PDX against their original patient tumour, including fingerprinting, histology, immunohistochemistry|
 |validation_host_strain_nomenclature|text|Validation host mouse strain, following mouse strain nomenclature from MGI JAX|
 |model_id|bigint|Reference to the model_information table|
+|morphological_features|text|Morphological features of the model|
+|snp_analysis|text|Was SNP analysis done on the model?|
+|str_analysis|text|Was STR analysis done on the model?|
+|tumour_status|text|Gene expression validation of established model|
+|model_purity|text|Presence of tumour vs stroma or normal cells|
+|comments|text|Comments about the model that cannot be expressed by other fields|
 
 
 
@@ -715,11 +883,6 @@ Mapping between treatments and ontology terms
 
 
 
-#### Relations
-|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
-|-----|-----|-----|-----|
-|ontology_term_id|ontology_term_regimen|id|fk_regimen_to_ontology_ontology_term_regimen|
-|regimen_id|treatment|id|fk_regimen_to_ontology_treatment|
 
 
 ---
@@ -736,11 +899,6 @@ Relation between regimen and treatments
 
 
 
-#### Relations
-|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
-|-----|-----|-----|-----|
-|regimen_ontology_term_id|ontology_term_regimen|id|fk_regimen_to_treatment_ontology_term_regimen|
-|treatment_ontology_term_id|ontology_term_treatment|id|fk_regimen_to_treatment_ontology_term_treatment|
 
 
 ---
@@ -818,11 +976,17 @@ Helper table to show filter options
 #### Columns
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
+|index|integer|-|
 |facet_section|text|Facet section|
 |facet_name|text|Facet name|
+|facet_description|text|-|
 |facet_column|text|Facet column|
 |facet_options|text[]|List of possible options|
 |facet_example|text|Facet example|
+|any_operator|text|Operator to be used when the search involves several options and the search uses ANY|
+|all_operator|text|Operator to be used when the search involves several options and the search uses ALL|
+|is_boolean|boolean|Indicates if the filter is to be used on a boolean field|
+|facet_type|text|Indicates how to create the element in the UI: check, autocomplete, or multivalued|
 
 
 
@@ -842,6 +1006,12 @@ Helper table to show results in a search
 |project_name|text|Project of the model|
 |provider_name|text|Provider name|
 |model_type|text|Type of model|
+|supplier|text|Supplier brief acronym or name followed by a colon and the number or name use to reference the model|
+|supplier_type|text|Model supplier type - commercial, academic, other|
+|catalog_number|text|Catalogue number of cell model, if commercial|
+|vendor_link|text|Link to purchasable cell model, if commercial|
+|rrid|text|Cellosaurus ID|
+|external_ids|text|Depmap accession, Cellusaurus accession or other id. Please place in comma separated list|
 |histology|text|Harmonised patient sample diagnosis|
 |search_terms|text[]|All diagnosis related (by ontology relations) to the model|
 |cancer_system|text|Cancer system of the model|
@@ -855,33 +1025,48 @@ Helper table to show results in a search
 |cancer_grading_system|text|Grade classification corresponding used to describe the stage, add the version if available|
 |cancer_stage|text|Stage of the patient at the time of collection|
 |cancer_staging_system|text|Stage classification system used to describe the stage, add the version if available|
+|patient_id|text|Patient id given by the provider|
 |patient_age|text|Patient age at collection|
+|patient_age_category|text|Age category at the time of sampling|
 |patient_sex|text|Patient sex|
 |patient_history|text|Cancer relevant comorbidity or environmental exposure|
 |patient_ethnicity|text|Patient Ethnic group. Can be derived from self-assessment or genetic analysis|
 |patient_ethnicity_assessment_method|text|Patient Ethnic group assessment method|
 |patient_initial_diagnosis|text|Diagnosis of the patient when first diagnosed at age_at_initial_diagnosis - this can be different than the diagnosis at the time of collection which is collected in the sample section|
-|patient_treatment_status|text|Patient treatment status|
 |patient_age_at_initial_diagnosis|text|This is the age of first diagnostic. Can be prior to the age at which the tissue sample was collected for implant|
 |patient_sample_id|text|Patient sample identifier given by the provider|
 |patient_sample_collection_date|text|Date of collections. Important for understanding the time relationship between models generated for the same patient|
 |patient_sample_collection_event|text|Collection event corresponding to each time a patient was sampled to generate a cancer model, subsequent collection events are incremented by 1|
+|patient_sample_collection_method|text|Method of collection of the tissue sample|
 |patient_sample_months_since_collection_1|text|The time difference between the 1st collection event and the current one (in months)|
+|patient_sample_gene_mutation_status|text|Outcome of mutational status tests for the following genes: BRAF, PIK3CA, PTEN, KRAS|
 |patient_sample_virology_status|text|Positive virology status at the time of collection. Any relevant virology information which can influence cancer like EBV, HIV, HPV status|
 |patient_sample_sharable|text|Indicates if patient treatment information is available and sharable|
+|patient_sample_treatment_naive_at_collection|text|-|
 |patient_sample_treated_at_collection|text|Indicates if the patient was being treated for cancer (radiotherapy, chemotherapy, targeted therapy, hormono-therapy) at the time of collection|
 |patient_sample_treated_prior_to_collection|text|Indicates if the patient was previously treated prior to the collection (radiotherapy, chemotherapy, targeted therapy, hormono-therapy)|
+|patient_sample_response_to_treatment|text|Patient’s response to treatment.|
 |pdx_model_publications|text|Publications that are associated to one or more models (PubMed IDs separated by commas)|
 |quality_assurance|json|Quality assurance data|
 |xenograft_model_specimens|json|Represents a xenografted mouse that has participated in the line creation and characterisation in some meaningful way. E.g., the specimen provided a tumor that was characterized and used as quality assurance or drug dosing data|
-|makers_with_cna_data|text[]|Marker list in associate CNA data|
-|makers_with_mutation_data|text[]|Marker list in associate mutation data|
-|makers_with_expression_data|text[]|Marker list in associate expression data|
-|makers_with_cytogenetics_data|text[]|Marker list in associate cytogenetics data|
+|model_images|json|Images associated with the model|
+|markers_with_cna_data|text[]|Marker list in associate CNA data|
+|markers_with_mutation_data|text[]|Marker list in associate mutation data|
+|markers_with_expression_data|text[]|Marker list in associate expression data|
+|markers_with_biomarker_data|text[]|Marker list in associate biomarker data|
 |breast_cancer_biomarkers|text[]|List of biomarkers associated to breast cancer|
-|treatment_list|text[]|Patient treatment data|
-|model_treatment_list|text[]|Drug dosing data|
-|score|numeric|PDX model richness score|
+|msi_status|text[]|MSI status|
+|hla_types|text[]|HLA types|
+|patient_treatments|text[]|Patient treatments|
+|patient_treatments_responses|text[]|List of responses for the patient treatments|
+|model_treatments|text[]|Drug dosing data|
+|model_treatments_responses|text[]|List of responses for the model treatments|
+|custom_treatment_type_list|text[]|Treatment types + patient treatment status (Excluding "Not Provided")|
+|raw_data_resources|text[]|List of resources (calculated from raw data links) the model links to|
+|cancer_annotation_resources|text[]|List of resources (calculated from cancer annotation links) the model links to|
+|model_availability|text|Model availability status, i.e. if the model is still available to purchase.|
+|date_submitted|text|Date of submission to the resource|
+|scores|json|Model characterizations scores|
 
 
 
@@ -889,6 +1074,8 @@ Helper table to show results in a search
 |Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
 |-----|-----|-----|-----|
 |pdcm_model_id|model_information|id|fk_search_index_model|
+
+
 
 
 ---
@@ -930,8 +1117,11 @@ Treatment name
 |Column Name|Data Type|Comment|
 |-----|-----|-----|
 |id 🔑|bigint|Internal identifier|
-|name|text|treatment name, can be surgery, radiotherapy, drug name or drug combination ( (radiotherapy, chemotherapy, targeted therapy, hormone-therapy))|
-|data_source|text|Abbreviation of the provider. Here due to mapping, but might change if treatment names do not change between providers|
+|name|text|Treatment name. If `term_id` is not null, `name` corresponds to the ontology term found in the mapping process|
+|term_id|text|Id of the ontology term for this treatment|
+|types|text[]|List of treatment types associated to the treatment|
+|external_db_links|json|JSON column with links to external resources|
+|aliases|text[]|List of names for the treatment as we got them from the providers|
 
 
 
@@ -999,11 +1189,6 @@ Mapping between treatments and ontology terms
 
 
 
-#### Relations
-|Column Name|Foreign Table|Foreign Table Primary Key|Foreign Key Name|
-|-----|-----|-----|-----|
-|treatment_id|treatment|id|fk_treatment_to_ontology_treatment|
-|ontology_term_id|ontology_term_treatment|id|fk_treatment_to_ontology_ontology_term_treatment|
 
 
 ---
@@ -1080,3 +1265,23 @@ Tumour type
 
 
 ## Views
+### molecular_characterization_vw
+
+Molecular characterization
+
+  Molecular characterization with model external ids.
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|model_id|text|Full name of the model used by provider|
+|data_source|character varying|Data source of the model (provider abbreviation)|
+|source|text|Sample origin (patient, xenograft, cell, unknown)|
+|sample_id|text|Sample external id|
+|xenograft_passage|character varying|Unique identifier for the xenograft sample. Given by the provider|
+|raw_data_url|text|Identifiers used to build links to external resources with raw data|
+|data_type|text|Molecular data type|
+|platform_name|text|Platform instrument_model|
+|molecular_characterization_id|bigint|Reference to the molecular_characterization_type table|
+|external_db_links|json|JSON column with links to external resources|
+
