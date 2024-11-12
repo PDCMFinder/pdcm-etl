@@ -46,7 +46,7 @@ def create_search_index_max_pdx_score_df():
         'expression',
         'biomarker',
         'patient treatment',
-        'dosing studies',
+        'model treatment',
         'publication']
 
     raw_data_resources_all = [
@@ -206,7 +206,7 @@ def create_search_index_some_invalid_data_df():
         'expression',
         'biomarker',
         'patient treatment',
-        'dosing studies',
+        'model treatment',
         'publication']
 
     data = [(

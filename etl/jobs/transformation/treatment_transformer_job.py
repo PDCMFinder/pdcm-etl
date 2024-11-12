@@ -46,19 +46,19 @@ def transform_treatment(
     )
     unmapped_treatments_df = unmapped_treatments_df.withColumn("aliases", lit(None))
 
-    aggrgegated_treatments_df: DataFrame = mapped_treatments_df.groupBy(
+    aggregated_treatments_df: DataFrame = mapped_treatments_df.groupBy(
         "term_name", "term_id", "treatment_types", "class"
     ).agg(array_distinct(collect_list("name")).alias("aliases"))
 
     # Change name to unify later
-    aggrgegated_treatments_df = aggrgegated_treatments_df.withColumnRenamed(
+    aggregated_treatments_df = aggregated_treatments_df.withColumnRenamed(
         "term_name", "name"
     )
 
     unmapped_treatments_df = unmapped_treatments_df.drop("term_name")
     unmapped_treatments_df = unmapped_treatments_df.withColumn("term_id", lit(None))
 
-    treatment_df: DataFrame = aggrgegated_treatments_df.unionAll(unmapped_treatments_df)
+    treatment_df: DataFrame = aggregated_treatments_df.unionAll(unmapped_treatments_df)
 
     treatment_df = treatment_df.withColumnRenamed("treatment_types", "types")
 

@@ -79,46 +79,60 @@ def find_chembl_links(treatment_names_df: DataFrame, resource) -> DataFrame:
 # Returns None if no match found
 def get_chembl_id(treatment_name: str) -> str:
     chembl_id = find_chembl_id_by_name(treatment_name)
-    print(f"By name {treatment_name} is {chembl_id}")
+    # print(f"By name {treatment_name} is {chembl_id}")
     if chembl_id is None:
         chembl_id = find_chembl_id_by_synonym(treatment_name)
-        print(f"By synonym {treatment_name} is {chembl_id}")
+        # print(f"By synonym {treatment_name} is {chembl_id}")
     return chembl_id
 
 
 def find_chembl_id_by_name(input: str) -> str:
     chembl_id = None
     url = f"https://www.ebi.ac.uk/chembl/api/data/molecule?pref_name__iexact={input}&format=json"
-    
+
     try:
         response = requests.get(url, timeout=10)  # Add a timeout to avoid long waits
         if response.status_code == 200:  # Ensure the request was successful
             data = response.json()
-            
+
             # Check if 'page_meta' exists safely
-            if data and "page_meta" in data and data["page_meta"].get("total_count", 0) == 1:
+            if (
+                data
+                and "page_meta" in data
+                and data["page_meta"].get("total_count", 0) == 1
+            ):
                 chembl_id = data["molecules"][0].get("molecule_chembl_id", None)
         else:
-            print(f"Failed to retrieve data for {input}, status code: {response.status_code}")
+            print(
+                f"Failed to retrieve data for {input}, status code: {response.status_code}"
+            )
     except requests.exceptions.RequestException as e:
         # Handle connection errors or other request issues
         print(f"An error occurred: {e}")
-    
+
     return chembl_id
 
 
 def find_chembl_id_by_synonym(input: str) -> str:
     chembl_id = None
     url = f"https://www.ebi.ac.uk/chembl/api/data/molecule/search?q={input}&format=json"
-    
+
     try:
-        response = requests.get(url, timeout=10)  # Add a timeout to avoid hanging requests
+        response = requests.get(
+            url, timeout=10
+        )  # Add a timeout to avoid hanging requests
         if response.status_code == 200:  # Ensure the request was successful
             data = response.json()
 
             # Safely check for 'page_meta' and 'molecules' in the response
-            if data and "page_meta" in data and data["page_meta"].get("total_count", 0) > 0:
-                for molecule in data.get("molecules", []):  # Safely get 'molecules' list
+            if (
+                data
+                and "page_meta" in data
+                and data["page_meta"].get("total_count", 0) > 0
+            ):
+                for molecule in data.get(
+                    "molecules", []
+                ):  # Safely get 'molecules' list
                     synonyms = molecule.get("molecule_synonyms", [])
                     # Check if any synonyms match the input
                     matching_synonyms = [
@@ -130,11 +144,13 @@ def find_chembl_id_by_synonym(input: str) -> str:
                         chembl_id = molecule.get("molecule_chembl_id", None)
                         break  # Stop after finding the first matching synonym
         else:
-            print(f"Failed to retrieve data for {input}, status code: {response.status_code}")
+            print(
+                f"Failed to retrieve data for {input}, status code: {response.status_code}"
+            )
     except requests.exceptions.RequestException as e:
         # Handle any network issues or connection errors
         print(f"An error occurred: {e}")
-    
+
     return chembl_id
 
 
@@ -168,13 +184,15 @@ def find_pubchem_id_by_name(input: str) -> str:
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{input}/cids/TXT"
 
     try:
-        response = requests.get(url, timeout=10)  # Add a timeout to prevent indefinite waiting
+        response = requests.get(
+            url, timeout=10
+        )  # Add a timeout to prevent indefinite waiting
 
         if response.status_code == 200:  # Ensure response is successful
             response_entries = response.text.split("\n")
             if response_entries:
                 pubchem_id = response_entries[0]  # Take the first entry if available
-                
+
     except requests.ConnectTimeout:
         # Handle connection timeout and return None
         print(f"Connection to PubChem timed out for {input}.")
@@ -194,6 +212,10 @@ def create_treatment_links_column(links_df: DataFrame) -> DataFrame:
     links_json_entry_column_df = links_df.withColumn(
         "json_entry", to_json(struct("resource_label", "link"))
     )
+
+    # Avoids issues when a treatment name appears more than once (rare scenario where the official name for the treatment is not mapped
+    # but the alias is)
+    links_json_entry_column_df = links_json_entry_column_df.dropDuplicates()
 
     treatment_names_links_column_df = links_json_entry_column_df.groupby("name").agg(
         concat_ws(", ", collect_list(links_json_entry_column_df.json_entry)).alias(

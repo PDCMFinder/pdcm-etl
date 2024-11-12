@@ -239,8 +239,8 @@ def add_dataset_available(df: DataFrame, search_index_molecular_char_df: DataFra
         when(
             col("model_treatments").isNotNull() & (size("model_treatments") > 0),
             when(col("dataset_available").isNotNull(),
-                 concat(col("dataset_available"), array(lit("dosing studies")))).otherwise(
-                array(lit("dosing studies")))
+                 concat(col("dataset_available"), array(lit("model treatment")))).otherwise(
+                array(lit("model treatment")))
         ).otherwise(col("dataset_available"))
     )
 

@@ -95,6 +95,15 @@ ALTER TABLE molecular_characterization ADD CONSTRAINT pk_molecular_characterizat
 --ALTER TABLE expression_molecular_data ADD CONSTRAINT pk_expression_molecular_data PRIMARY KEY (id);
 --ALTER TABLE mutation_measurement_data ADD CONSTRAINT pk_mutation_measurement_data PRIMARY KEY (id);
 
+CREATE INDEX expression_molecular_data_hgnc_symbol_idx
+  ON expression_molecular_data (hgnc_symbol);
+
+CREATE INDEX mutation_measurement_data_hgnc_symbol_idx
+  ON mutation_measurement_data (hgnc_symbol);
+
+CREATE INDEX cna_molecular_data_hgnc_symbol_idx
+  ON cna_molecular_data (hgnc_symbol);
+
 CREATE INDEX idx_cna_mol_char ON cna_molecular_data(molecular_characterization_id);
 CREATE INDEX idx_biomarker_mol_char ON biomarker_molecular_data(molecular_characterization_id);
 CREATE INDEX idx_expression_mol_char ON expression_molecular_data(molecular_characterization_id);
