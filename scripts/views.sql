@@ -1132,7 +1132,7 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_dataset_availability AS
   GROUP BY (unnest(search_index.dataset_available));
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_dataset_availability IS 'Count of models per available datasets';
-COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.dataset_availability IS 'Cancer system';
+COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.dataset_availability IS 'Available dataset';
 COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.count IS 'Number of models';
 
 -- dosing_studies materialized view: Treatment information linked to the model
@@ -1455,28 +1455,6 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_provider IS
 
 COMMENT ON COLUMN pdcm_api.models_by_provider.provider IS 'Provider';
 COMMENT ON COLUMN pdcm_api.models_by_provider.count IS 'Number of models';
-
-
--- models_by_available_data materialized view: model count by available data for Data Overview page
-
-DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_available_data;
-
-CREATE materialized VIEW pdcm_api.models_by_available_data AS
-SELECT
-  available_data,
-  count(1)
-FROM
-  (select UNNEST(dataset_available) available_data from search_index) a
-GROUP BY
-  available_data;
-
-COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_available_data IS
-  $$Models by available_data
-
-  Count of models by available data$$;
-
-COMMENT ON COLUMN pdcm_api.models_by_available_data.available_data IS 'Available data';
-COMMENT ON COLUMN pdcm_api.models_by_available_data.count IS 'Number of models';
 
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
 
