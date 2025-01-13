@@ -1411,6 +1411,73 @@ COMMENT ON COLUMN pdcm_api.drug_dosing_extended.histology IS 'Diagnosis at time 
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.entries IS 'Information about each individual treatment used';
 
+-- DATA OVERVIEW PAGE VIEWS
+
+-- models_by_diagnosis materialized view: model count by diagnosis for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_diagnosis;
+
+CREATE materialized VIEW pdcm_api.models_by_diagnosis AS
+SELECT
+  histology as diagnosis,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  histology;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_diagnosis IS
+  $$Models by diagnosis
+
+  Count of models by diagnosis$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_diagnosis.diagnosis IS 'Diagnosis';
+COMMENT ON COLUMN pdcm_api.models_by_diagnosis.count IS 'Number of models';
+
+
+-- models_by_provider materialized view: model count by provider for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_provider;
+
+CREATE materialized VIEW pdcm_api.models_by_provider AS
+SELECT
+  data_source as provider,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  provider;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_provider IS
+  $$Models by provider
+
+  Count of models by provider$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_provider.provider IS 'Provider';
+COMMENT ON COLUMN pdcm_api.models_by_provider.count IS 'Number of models';
+
+
+-- models_by_available_data materialized view: model count by available data for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_available_data;
+
+CREATE materialized VIEW pdcm_api.models_by_available_data AS
+SELECT
+  available_data,
+  count(1)
+FROM
+  (select UNNEST(dataset_available) available_data from search_index) a
+GROUP BY
+  available_data;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_available_data IS
+  $$Models by available_data
+
+  Count of models by available data$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_available_data.available_data IS 'Available data';
+COMMENT ON COLUMN pdcm_api.models_by_available_data.count IS 'Number of models';
+
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_primary_site;
