@@ -1456,6 +1456,55 @@ COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_provider IS
 COMMENT ON COLUMN pdcm_api.models_by_provider.provider IS 'Provider';
 COMMENT ON COLUMN pdcm_api.models_by_provider.count IS 'Number of models';
 
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.related_models;
+
+CREATE materialized VIEW pdcm_api.related_models AS
+SELECT external_model_id, ARRAY_AGG(node_label) models FROM (
+	SELECT external_model_id, node->>'node_label'  AS node_label
+	FROM 
+	(
+		SELECT knowledge_graph, json_array_elements(knowledge_graph->'nodes') AS node, external_model_id
+		FROM model_information
+		where knowledge_graph->'nodes' IS NOT NULL AND json_typeof(knowledge_graph->'nodes') = 'array'
+	) AS nodes
+	WHERE node->>'node_type' = 'model'
+	AND external_model_id != node->>'node_label'
+	) sub 
+group BY external_model_id;
+
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.related_models IS
+  $$Related models
+
+  Models directly or indirectly related to a model$$;
+
+COMMENT ON COLUMN pdcm_api.related_models.external_model_id IS 'Model';
+COMMENT ON COLUMN pdcm_api.related_models.models IS 'Comma separate list of related models';
+
+
+-- models_by_rare_cancer materialized view: model count by rare cancer for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_rare_cancer;
+
+CREATE materialized VIEW pdcm_api.models_by_rare_cancer AS
+SELECT  name, count(1) 
+FROM (
+	SELECT name, external_model_id, histology 
+	FROM rare_cancers rc
+	LEFT JOIN search_index si on lower(histology) = rc.name
+	WHERE external_model_id IS NOT NULL
+	) sub 
+GROUP BY name;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_rare_cancer IS
+  $$Models by rare cancer
+
+  Count of models by rare cancer$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.name IS 'Rare cancer name';
+COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.count IS 'Number of models';
+
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
 
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_primary_site;
