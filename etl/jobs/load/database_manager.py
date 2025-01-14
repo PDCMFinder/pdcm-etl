@@ -75,7 +75,7 @@ def run_updates(connection):
             # Call the procedure that calculates the knowledge graphs directly. Otherwhise there are some conflicts with the transaction managments
             # and the commits in the procedure that help with the memory issues.
             cursor.execute("call pdcm_api.update_knowledge_graphs();")
-            
+
     except psycopg2.errors.InvalidTransactionTermination as e:
         print(f"Invalid transaction termination error: {e}")
         # This error can be ignored because the function commits internally
@@ -84,6 +84,27 @@ def run_updates(connection):
     finally:
         end = time.time()
         print("Updates applied in {0} seconds".format(round(end - start, 4)))
+
+
+def insert_data(connection):
+    start = time.time()
+    print("Inserting static data")
+
+    try:
+        with connection.cursor() as cursor:
+            # Enable autocommit to allow the function to handle its own commits
+            connection.autocommit = True
+
+            cursor.execute(open("scripts/data.sql", "r").read())
+
+    except psycopg2.errors.InvalidTransactionTermination as e:
+        print(f"Invalid transaction termination error: {e}")
+        # This error can be ignored because the function commits internally
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        end = time.time()
+        print("Insert applied in {0} seconds".format(round(end - start, 4)))
 
 
 def create_views(connection):
@@ -101,7 +122,9 @@ def create_data_visualization_views(connection):
     with connection.cursor() as cursor:
         cursor.execute(open("scripts/data_visualization_views.sql", "r").read())
     end = time.time()
-    print("Data visualization views created in {0} seconds".format(round(end - start, 4)))
+    print(
+        "Data visualization views created in {0} seconds".format(round(end - start, 4))
+    )
 
 
 def recreate_tables(connection):

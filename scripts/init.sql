@@ -1169,6 +1169,13 @@ COMMENT ON COLUMN edge.previous_node IS 'Reference to the previous node.';
 COMMENT ON COLUMN edge.next_node IS 'Reference to the next node.';
 COMMENT ON COLUMN edge.edge_label IS 'Label of the relation.';
 
+DROP TABLE IF EXISTS rare_cancers CASCADE;
+CREATE TABLE rare_cancers (
+    name TEXT
+);
+COMMENT ON TABLE rare_cancers IS 'List of rare cancers';
+COMMENT ON COLUMN rare_cancers.name IS 'Cancer name';
+
 --- PostgreSQL functions
 
 -- Returns a JSON object with all the model parents connected to _model

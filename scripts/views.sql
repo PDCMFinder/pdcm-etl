@@ -1132,7 +1132,7 @@ CREATE MATERIALIZED VIEW pdcm_api.models_by_dataset_availability AS
   GROUP BY (unnest(search_index.dataset_available));
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_dataset_availability IS 'Count of models per available datasets';
-COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.dataset_availability IS 'Cancer system';
+COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.dataset_availability IS 'Available dataset';
 COMMENT ON COLUMN pdcm_api.models_by_dataset_availability.count IS 'Number of models';
 
 -- dosing_studies materialized view: Treatment information linked to the model
@@ -1410,6 +1410,100 @@ COMMENT ON COLUMN pdcm_api.drug_dosing_extended.data_source IS 'Data source of t
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.histology IS 'Diagnosis at time of collection of the patient tumor';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.response IS 'Response of prior treatment';
 COMMENT ON COLUMN pdcm_api.drug_dosing_extended.entries IS 'Information about each individual treatment used';
+
+-- DATA OVERVIEW PAGE VIEWS
+
+-- models_by_diagnosis materialized view: model count by diagnosis for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_diagnosis;
+
+CREATE materialized VIEW pdcm_api.models_by_diagnosis AS
+SELECT
+  histology as diagnosis,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  histology;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_diagnosis IS
+  $$Models by diagnosis
+
+  Count of models by diagnosis$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_diagnosis.diagnosis IS 'Diagnosis';
+COMMENT ON COLUMN pdcm_api.models_by_diagnosis.count IS 'Number of models';
+
+
+-- models_by_provider materialized view: model count by provider for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_provider;
+
+CREATE materialized VIEW pdcm_api.models_by_provider AS
+SELECT
+  data_source as provider,
+  count(1)
+FROM
+  search_index
+GROUP BY
+  provider;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_provider IS
+  $$Models by provider
+
+  Count of models by provider$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_provider.provider IS 'Provider';
+COMMENT ON COLUMN pdcm_api.models_by_provider.count IS 'Number of models';
+
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.related_models;
+
+CREATE materialized VIEW pdcm_api.related_models AS
+SELECT external_model_id, ARRAY_AGG(node_label) models FROM (
+	SELECT external_model_id, node->>'node_label'  AS node_label
+	FROM 
+	(
+		SELECT knowledge_graph, json_array_elements(knowledge_graph->'nodes') AS node, external_model_id
+		FROM model_information
+		where knowledge_graph->'nodes' IS NOT NULL AND json_typeof(knowledge_graph->'nodes') = 'array'
+	) AS nodes
+	WHERE node->>'node_type' = 'model'
+	AND external_model_id != node->>'node_label'
+	) sub 
+group BY external_model_id;
+
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.related_models IS
+  $$Related models
+
+  Models directly or indirectly related to a model$$;
+
+COMMENT ON COLUMN pdcm_api.related_models.external_model_id IS 'Model';
+COMMENT ON COLUMN pdcm_api.related_models.models IS 'Comma separate list of related models';
+
+
+-- models_by_rare_cancer materialized view: model count by rare cancer for Data Overview page
+
+DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_rare_cancer;
+
+CREATE materialized VIEW pdcm_api.models_by_rare_cancer AS
+SELECT  name, count(1) 
+FROM (
+	SELECT name, external_model_id, histology 
+	FROM rare_cancers rc
+	LEFT JOIN search_index si on lower(histology) = rc.name
+	WHERE external_model_id IS NOT NULL
+	) sub 
+GROUP BY name;
+
+COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_rare_cancer IS
+  $$Models by rare cancer
+
+  Count of models by rare cancer$$;
+
+COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.name IS 'Rare cancer name';
+COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.count IS 'Number of models';
 
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
 
