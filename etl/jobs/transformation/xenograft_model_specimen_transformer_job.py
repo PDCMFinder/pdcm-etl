@@ -3,7 +3,7 @@ import sys
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.constants import Constants
-from etl.jobs.util.cleaner import init_cap_and_trim_all
+from etl.jobs.util.cleaner import init_cap_and_trim_all, trim_all
 from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
@@ -35,8 +35,12 @@ def main(argv):
     raw_model_df = spark.read.parquet(raw_model_parquet_path)
     engraftment_site_df = spark.read.parquet(engraftment_site_parquet_path)
     engraftment_type_df = spark.read.parquet(engraftment_type_parquet_path)
-    engraftment_sample_type_df = spark.read.parquet(engraftment_sample_type_parquet_path)
-    engraftment_sample_state_df = spark.read.parquet(engraftment_sample_state_parquet_path)
+    engraftment_sample_type_df = spark.read.parquet(
+        engraftment_sample_type_parquet_path
+    )
+    engraftment_sample_state_df = spark.read.parquet(
+        engraftment_sample_state_parquet_path
+    )
     model_df = spark.read.parquet(model_parquet_path)
     host_strain_df = spark.read.parquet(host_strain_parquet_path)
 
@@ -47,26 +51,31 @@ def main(argv):
         engraftment_sample_type_df,
         engraftment_sample_state_df,
         model_df,
-        host_strain_df)
+        host_strain_df,
+    )
     specimen_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_specimen(
-        raw_model_df: DataFrame,
-        engraftment_site_df: DataFrame,
-        engraftment_type_df: DataFrame,
-        engraftment_sample_type_df: DataFrame,
-        engraftment_sample_state_df: DataFrame,
-        model_df: DataFrame,
-        host_strain_df: DataFrame) -> DataFrame:
-
+    raw_model_df: DataFrame,
+    engraftment_site_df: DataFrame,
+    engraftment_type_df: DataFrame,
+    engraftment_sample_type_df: DataFrame,
+    engraftment_sample_state_df: DataFrame,
+    model_df: DataFrame,
+    host_strain_df: DataFrame,
+) -> DataFrame:
     specimen_df = clean_data_before_join(raw_model_df)
     specimen_df = add_id(specimen_df, "id")
 
     specimen_df = set_fk_engraftment_site(specimen_df, engraftment_site_df)
     specimen_df = set_fk_engraftment_type(specimen_df, engraftment_type_df)
-    specimen_df = set_fk_engraftment_sample_type(specimen_df, engraftment_sample_type_df)
-    specimen_df = set_fk_engraftment_sample_state(specimen_df, engraftment_sample_state_df)
+    specimen_df = set_fk_engraftment_sample_type(
+        specimen_df, engraftment_sample_type_df
+    )
+    specimen_df = set_fk_engraftment_sample_state(
+        specimen_df, engraftment_sample_state_df
+    )
     specimen_df = set_fk_model(specimen_df, model_df)
     specimen_df = set_fk_host_strain(specimen_df, host_strain_df)
 
@@ -82,36 +91,79 @@ def clean_data_before_join(raw_model_df: DataFrame) -> DataFrame:
         "engraftment_type",
         "sample_type",
         "sample_state",
-        Constants.DATA_SOURCE_COLUMN
+        Constants.DATA_SOURCE_COLUMN,
     ).drop_duplicates()
-    specimen_df = specimen_df.withColumn("engraftment_site", init_cap_and_trim_all("engraftment_site"))
-    specimen_df = specimen_df.withColumn("engraftment_type", init_cap_and_trim_all("engraftment_type"))
-    specimen_df = specimen_df.withColumn("sample_type", init_cap_and_trim_all("sample_type"))
+    specimen_df = specimen_df.withColumn(
+        "engraftment_site", init_cap_and_trim_all("engraftment_site")
+    )
+    specimen_df = specimen_df.withColumn(
+        "engraftment_type", init_cap_and_trim_all("engraftment_type")
+    )
+    specimen_df = specimen_df.withColumn(
+        "sample_type", init_cap_and_trim_all("sample_type")
+    )
+    specimen_df = specimen_df.withColumn(
+        "host_strain_nomenclature", trim_all("host_strain_nomenclature")
+    )
     return specimen_df
 
 
-def set_fk_engraftment_site(specimen_df: DataFrame, engraftment_site_df: DataFrame) -> DataFrame:
+def set_fk_engraftment_site(
+    specimen_df: DataFrame, engraftment_site_df: DataFrame
+) -> DataFrame:
     specimen_df = transform_to_fk(
-        specimen_df, engraftment_site_df, "engraftment_site", "name", "id", "engraftment_site_id")
+        specimen_df,
+        engraftment_site_df,
+        "engraftment_site",
+        "name",
+        "id",
+        "engraftment_site_id",
+    )
     return specimen_df
 
 
-def set_fk_engraftment_type(specimen_df: DataFrame, engraftment_type_df: DataFrame) -> DataFrame:
+def set_fk_engraftment_type(
+    specimen_df: DataFrame, engraftment_type_df: DataFrame
+) -> DataFrame:
     specimen_df = transform_to_fk(
-        specimen_df, engraftment_type_df, "engraftment_type", "name", "id", "engraftment_type_id")
+        specimen_df,
+        engraftment_type_df,
+        "engraftment_type",
+        "name",
+        "id",
+        "engraftment_type_id",
+    )
     return specimen_df
 
 
-def set_fk_engraftment_sample_type(specimen_df: DataFrame, engraftment_material_df: DataFrame) -> DataFrame:
+def set_fk_engraftment_sample_type(
+    specimen_df: DataFrame, engraftment_material_df: DataFrame
+) -> DataFrame:
     specimen_df = transform_to_fk(
-        specimen_df, engraftment_material_df, "sample_type", "name", "id", "engraftment_sample_type_id")
+        specimen_df,
+        engraftment_material_df,
+        "sample_type",
+        "name",
+        "id",
+        "engraftment_sample_type_id",
+    )
     return specimen_df
 
 
-def set_fk_engraftment_sample_state(specimen_df: DataFrame, engraftment_sample_state_df: DataFrame) -> DataFrame:
-    specimen_df = specimen_df.withColumn("sample_state", init_cap_and_trim_all("sample_state"))
+def set_fk_engraftment_sample_state(
+    specimen_df: DataFrame, engraftment_sample_state_df: DataFrame
+) -> DataFrame:
+    specimen_df = specimen_df.withColumn(
+        "sample_state", init_cap_and_trim_all("sample_state")
+    )
     specimen_df = transform_to_fk(
-        specimen_df, engraftment_sample_state_df, "sample_state", "name", "id", "engraftment_sample_state_id")
+        specimen_df,
+        engraftment_sample_state_df,
+        "sample_state",
+        "name",
+        "id",
+        "engraftment_sample_state_id",
+    )
     return specimen_df
 
 
@@ -119,9 +171,14 @@ def set_fk_host_strain(specimen_df: DataFrame, host_strain_df: DataFrame) -> Dat
     # Using manual join because it's practical to keep both name and nomenclature after the join
     host_strain_df = host_strain_df.withColumnRenamed("id", "host_strain_id")
     host_strain_df = host_strain_df.withColumnRenamed("name", "host_strain_name")
-    host_strain_df = host_strain_df.withColumnRenamed("nomenclature", "host_strain_nomenclature")
+    host_strain_df = host_strain_df.withColumnRenamed(
+        "nomenclature", "host_strain_nomenclature"
+    )
     specimen_df = specimen_df.join(
-        host_strain_df, specimen_df.host_strain_nomenclature == host_strain_df.host_strain_nomenclature, how='left')
+        host_strain_df,
+        specimen_df.host_strain_nomenclature == host_strain_df.host_strain_nomenclature,
+        how="left",
+    )
 
     specimen_df = specimen_df.drop(host_strain_df.host_strain_nomenclature)
 
@@ -133,7 +190,9 @@ def set_fk_model(specimen_df: DataFrame, model_df: DataFrame) -> DataFrame:
     model_df = model_df.withColumnRenamed("data_source", Constants.DATA_SOURCE_COLUMN)
     model_df = model_df.withColumnRenamed("id", "model_id")
     specimen_df = specimen_df.withColumnRenamed("model_id", "external_model_id")
-    specimen_df = specimen_df.join(model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how='left')
+    specimen_df = specimen_df.join(
+        model_df, on=["external_model_id", Constants.DATA_SOURCE_COLUMN], how="left"
+    )
     return specimen_df
 
 
