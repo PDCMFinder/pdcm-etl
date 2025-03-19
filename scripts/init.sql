@@ -957,6 +957,8 @@ CREATE TABLE search_index (
     cancer_annotation_resources TEXT[],
     model_availability TEXT,
     date_submitted TEXT,
+    model_generator BOOLEAN,
+    view_data_at TEXT,
     scores JSON
 );
 
@@ -1027,6 +1029,8 @@ COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calcula
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
 COMMENT ON COLUMN search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
 COMMENT ON COLUMN search_index.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN search_index.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN search_index.view_data_at IS 'Label of the centre/institute where data is accessible';
 COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 
 
