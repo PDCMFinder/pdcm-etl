@@ -12,6 +12,7 @@ groups:
           - "provider_page_title"
           - "provider_description"
           - "pdcm_resource_description"
+          - "model_generator"
 
       - name: "model"
         type: "tsv"

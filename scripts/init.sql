@@ -33,7 +33,8 @@ CREATE TABLE provider_group (
     abbreviation TEXT,
     description TEXT,
     provider_type_id BIGINT,
-    project_group_id BIGINT
+    project_group_id BIGINT,
+    model_generator BOOLEAN
 );
 
 COMMENT ON TABLE provider_group IS 'Information of data providers';
