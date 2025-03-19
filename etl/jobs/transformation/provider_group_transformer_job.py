@@ -50,6 +50,7 @@ def extract_data_source(raw_source_df: DataFrame) -> DataFrame:
         trim_all("provider_type").alias("provider_type"),
         trim_all("project").alias("project"),
         "model_generator",
+        "view_data_at",
         Constants.DATA_SOURCE_COLUMN,
     ).drop_duplicates()
 
@@ -107,6 +108,7 @@ def get_columns_expected_order(provider_group_df: DataFrame) -> DataFrame:
         "project_group_id",
         "project_group_name",
         "model_generator",
+        "view_data_at",
         Constants.DATA_SOURCE_COLUMN,
     )
 

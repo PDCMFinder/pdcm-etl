@@ -976,6 +976,8 @@ COMMENT ON COLUMN pdcm_api.provider_group.abbreviation IS 'Provider abbreviation
 COMMENT ON COLUMN pdcm_api.provider_group.description IS 'A description of the provider';
 COMMENT ON COLUMN pdcm_api.provider_group.provider_type_id IS 'Reference to the provider type';
 COMMENT ON COLUMN pdcm_api.provider_group.project_group_id IS 'Reference to the project the provider belongs to';
+COMMENT ON COLUMN pdcm_api.provider_group.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN pdcm_api.provider_group.view_data_at IS 'Label of the centre/institute where data is accessible';
 
 -- project_group view: Project information
 

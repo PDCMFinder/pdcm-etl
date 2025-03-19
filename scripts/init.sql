@@ -34,7 +34,8 @@ CREATE TABLE provider_group (
     description TEXT,
     provider_type_id BIGINT,
     project_group_id BIGINT,
-    model_generator BOOLEAN
+    model_generator BOOLEAN,
+    view_data_at TEXT
 );
 
 COMMENT ON TABLE provider_group IS 'Information of data providers';
@@ -44,6 +45,8 @@ COMMENT ON COLUMN provider_group.abbreviation IS 'Provider abbreviation';
 COMMENT ON COLUMN provider_group.description IS 'A description of the provider';
 COMMENT ON COLUMN provider_group.provider_type_id IS 'Reference to the provider type';
 COMMENT ON COLUMN provider_group.project_group_id IS 'Reference to the project the provider belongs to';
+COMMENT ON COLUMN provider_group.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN provider_group.view_data_at IS 'Label of the centre/institute where data is accessible';
 
 DROP TABLE IF EXISTS patient CASCADE;
 

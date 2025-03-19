@@ -131,6 +131,7 @@ entities = {
             "provider_type_id",
             "project_group_id",
             "model_generator",
+            "view_data_at",
         ],
     },
     Constants.PUBLICATION_GROUP_ENTITY: {

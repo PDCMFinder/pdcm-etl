@@ -13,6 +13,7 @@ groups:
           - "provider_description"
           - "pdcm_resource_description"
           - "model_generator"
+          - "view_data_at"
 
       - name: "model"
         type: "tsv"
