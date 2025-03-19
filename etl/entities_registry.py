@@ -96,7 +96,7 @@ def get_all_entities_names_to_store_db():
 entities = {
     Constants.ETHNICITY_ENTITY: {
         "spark_job": etl.jobs.transformation.ethnicity_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.PATIENT_ENTITY: {
         "spark_job": etl.jobs.transformation.patient_transformer_job.main,
@@ -114,12 +114,12 @@ entities = {
             "smoking_status",
             "alcohol_status",
             "alcohol_frequency",
-            "family_history_of_cancer"
-        ]
+            "family_history_of_cancer",
+        ],
     },
     Constants.PROVIDER_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.provider_type_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.PROVIDER_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.provider_group_transformer_job.main,
@@ -129,16 +129,18 @@ entities = {
             "abbreviation",
             "description",
             "provider_type_id",
-            "project_group_id"
-        ]
+            "project_group_id",
+            "model_generator",
+            "view_data_at",
+        ],
     },
     Constants.PUBLICATION_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.publication_group_transformer_job.main,
-        "expected_database_columns": ["id", "pubmed_ids"]
+        "expected_database_columns": ["id", "pubmed_ids"],
     },
     Constants.INITIAL_MODEL_INFORMATION_ENTITY: {
         "spark_job": etl.jobs.transformation.initial_model_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.MODEL_INFORMATION_ENTITY: {
         "spark_job": etl.jobs.transformation.model_transformer_job.main,
@@ -163,16 +165,12 @@ entities = {
             "origin_patient_sample_id",
             "model_availability",
             "date_submitted",
-            "other_model_links"
-        ]
+            "other_model_links",
+        ],
     },
     Constants.LICENSE_ENTITY: {
         "spark_job": etl.jobs.transformation.license_transformer_job.main,
-        "expected_database_columns": [
-            "id",
-            "name",
-            "url"
-        ]
+        "expected_database_columns": ["id", "name", "url"],
     },
     Constants.CELL_MODEL_ENTITY: {
         "spark_job": etl.jobs.transformation.cell_model_transformer_job.main,
@@ -194,8 +192,8 @@ entities = {
             "contamination_details",
             "supplements",
             "drug",
-            "drug_concentration"
-        ]
+            "drug_concentration",
+        ],
     },
     Constants.CELL_SAMPLE_ENTITY: {
         "spark_job": etl.jobs.transformation.cell_sample_transformer_job.main,
@@ -203,20 +201,20 @@ entities = {
             "id",
             "external_cell_sample_id",
             "model_id",
-            "platform_id"
-        ]
+            "platform_id",
+        ],
     },
     Constants.CONTACT_PEOPLE_ENTITY: {
         "spark_job": etl.jobs.transformation.contact_people_transformer_job.main,
-        "expected_database_columns": ["id", "name_list", "email_list"]
+        "expected_database_columns": ["id", "name_list", "email_list"],
     },
     Constants.CONTACT_FORM_ENTITY: {
         "spark_job": etl.jobs.transformation.contact_form_transformer_job.main,
-        "expected_database_columns": ["id", "form_url"]
+        "expected_database_columns": ["id", "form_url"],
     },
     Constants.SOURCE_DATABASE_ENTITY: {
         "spark_job": etl.jobs.transformation.source_database_transformer_job.main,
-        "expected_database_columns": ["id", "database_url"]
+        "expected_database_columns": ["id", "database_url"],
     },
     Constants.QUALITY_ASSURANCE_ENTITY: {
         "spark_job": etl.jobs.transformation.quality_assurance_transformer_job.main,
@@ -232,16 +230,16 @@ entities = {
             "STR_analysis",
             "tumour_status",
             "model_purity",
-            "comments"
-        ]
+            "comments",
+        ],
     },
     Constants.TISSUE_ENTITY: {
         "spark_job": etl.jobs.transformation.tissue_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.TUMOUR_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.tumour_type_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.PATIENT_SAMPLE_ENTITY: {
         "spark_job": etl.jobs.transformation.patient_sample_transformer_job.main,
@@ -270,8 +268,8 @@ entities = {
             "response_to_treatment",
             "virology_status",
             "sharable",
-            "model_id"
-        ]
+            "model_id",
+        ],
     },
     Constants.XENOGRAFT_SAMPLE_ENTITY: {
         "spark_job": etl.jobs.transformation.xenograft_sample_transformer_job.main,
@@ -282,67 +280,74 @@ entities = {
             "host_strain_id",
             "model_id",
             "platform_id",
-        ]
+        ],
     },
     Constants.ENGRAFTMENT_SITE_ENTITY: {
         "spark_job": etl.jobs.transformation.engraftment_site_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.ENGRAFTMENT_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.engraftment_type_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.ENGRAFTMENT_SAMPLE_STATE_ENTITY: {
         "spark_job": etl.jobs.transformation.engraftment_sample_state_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.ENGRAFTMENT_SAMPLE_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.engraftment_sample_type_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.ACCESSIBILITY_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.accessibility_group_transformer_job.main,
         "expected_database_columns": [
             "id",
             "europdx_access_modalities",
-            "accessibility"
-        ]
+            "accessibility",
+        ],
     },
     Constants.HOST_STRAIN_ENTITY: {
         "spark_job": etl.jobs.transformation.host_strain_transformer_job.main,
-        "expected_database_columns": ["id", "name", "nomenclature"]
+        "expected_database_columns": ["id", "name", "nomenclature"],
     },
     Constants.PROJECT_GROUP_ENTITY: {
         "spark_job": etl.jobs.transformation.project_group_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_transformer_job.main,
-        "expected_database_columns": ["id", "name", "term_id", "types", "external_db_links", "aliases"]
+        "expected_database_columns": [
+            "id",
+            "name",
+            "term_id",
+            "types",
+            "external_db_links",
+            "aliases",
+        ],
     },
     Constants.TREATMENT_NAME_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_name_helper_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_name_harmonisation_helper_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.TREATMENT_TYPE_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_type_helper_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.RESPONSE_ENTITY: {
         "spark_job": etl.jobs.transformation.response_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.RESPONSE_CLASSIFICATION_ENTITY: {
         "spark_job": etl.jobs.transformation.response_classification_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY: {
         "spark_job": etl.jobs.transformation.molecular_characterization_type_transformer_job.main,
-        "expected_database_columns": ["id", "name"]
+        "expected_database_columns": ["id", "name"],
     },
     Constants.MOLECULAR_CHARACTERIZATION_ENTITY: {
         "spark_job": etl.jobs.transformation.molecular_characterization_transformer_job.main,
@@ -354,8 +359,8 @@ entities = {
             "patient_sample_id",
             "xenograft_sample_id",
             "cell_sample_id",
-            "external_db_links"
-        ]
+            "external_db_links",
+        ],
     },
     Constants.PLATFORM_ENTITY: {
         "spark_job": etl.jobs.transformation.platform_transformer_job.main,
@@ -364,28 +369,28 @@ entities = {
             "library_strategy",
             "provider_group_id",
             "instrument_model",
-            "library_selection"
-        ]
+            "library_selection",
+        ],
     },
     Constants.GENE_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.gene_helper_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.INITIAL_CNA_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.initial_cna_molecular_data_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.INITIAL_BIOMARKER_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.initial_biomarker_molecular_data_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.INITIAL_EXPRESSION_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.initial_expression_molecular_data_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.INITIAL_MUTATION_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.initial_mutation_molecular_data_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.CNA_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.cna_molecular_data_transformer_job.main,
@@ -407,8 +412,8 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
-            "external_db_links"
-        ]
+            "external_db_links",
+        ],
     },
     Constants.BIOMARKER_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.biomarker_molecular_data_transformer_job.main,
@@ -421,8 +426,8 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
-            "external_db_links"
-        ]
+            "external_db_links",
+        ],
     },
     Constants.IMMUNEMARKER_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.immunemarker_molecular_data_transformer_job.main,
@@ -433,8 +438,8 @@ entities = {
             "marker_value",
             "essential_or_additional_details",
             "molecular_characterization_id",
-            "data_source"
-        ]
+            "data_source",
+        ],
     },
     Constants.EXPRESSION_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.expression_molecular_data_transformer_job.main,
@@ -456,8 +461,8 @@ entities = {
             "harmonisation_result",
             "molecular_characterization_id",
             "data_source",
-            "external_db_links"
-        ]
+            "external_db_links",
+        ],
     },
     Constants.MUTATION_MEASUREMENT_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.mutation_measurement_data_transformer_job.main,
@@ -487,8 +492,8 @@ entities = {
             "non_harmonised_symbol",
             "harmonisation_result",
             "data_source",
-            "external_db_links"
-        ]
+            "external_db_links",
+        ],
     },
     Constants.GENE_MARKER_ENTITY: {
         "spark_job": etl.jobs.transformation.gene_marker_transformer_job.main,
@@ -503,8 +508,8 @@ entities = {
             "refseq_ids",
             "alias_names",
             "ensembl_gene_id",
-            "ncbi_gene_id"
-        ]
+            "ncbi_gene_id",
+        ],
     },
     Constants.IMAGE_STUDY_ENTITY: {
         "spark_job": etl.jobs.transformation.image_study_transformer_job.main,
@@ -520,8 +525,8 @@ entities = {
             "sample_preparation_protocol",
             "imaging_instrument",
             "image_acquisition_parameters",
-            "imaging_method"
-        ]
+            "imaging_method",
+        ],
     },
     Constants.MODEL_IMAGE_MODULE: {
         "spark_job": etl.jobs.transformation.model_image_transformer_job.main,
@@ -533,24 +538,31 @@ entities = {
             "sample_type",
             "passage",
             "magnification",
-            "staining"
-        ]
+            "staining",
+        ],
     },
     Constants.ONTOLOGY_TERM_DIAGNOSIS_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_diagnosis_transformer_job.main,
-        "expected_database_columns": ["id", "term_id", "term_name", "term_url", "is_a", "ancestors"]
+        "expected_database_columns": [
+            "id",
+            "term_id",
+            "term_name",
+            "term_url",
+            "is_a",
+            "ancestors",
+        ],
     },
     Constants.ONTOLOGY_TERM_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_treatment_transformer_job.main,
-        "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
+        "expected_database_columns": ["id", "term_id", "term_name", "is_a"],
     },
     Constants.ONTOLOGY_TERM_REGIMEN_ENTITY: {
         "spark_job": etl.jobs.transformation.ontology_term_regimen_transformer_job.main,
-        "expected_database_columns": ["id", "term_id", "term_name", "is_a"]
+        "expected_database_columns": ["id", "term_id", "term_name", "is_a"],
     },
     Constants.REGIMENT_TO_TREATMENT_ENTITY: {
         "spark_job": etl.jobs.transformation.regimen_to_treatment_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.XENOGRAFT_MODEL_SPECIMEN_ENTITY: {
         "spark_job": etl.jobs.transformation.xenograft_model_specimen_transformer_job.main,
@@ -562,12 +574,12 @@ entities = {
             "engraftment_sample_type_id",
             "engraftment_sample_state_id",
             "host_strain_id",
-            "model_id"
-        ]
+            "model_id",
+        ],
     },
     Constants.SAMPLE_TO_ONTOLOGY_ENTITY: {
         "spark_job": etl.jobs.transformation.sample_to_ontology_transformer_job.main,
-        "expected_database_columns": ["id", "sample_id", "ontology_term_id"]
+        "expected_database_columns": ["id", "sample_id", "ontology_term_id"],
     },
     Constants.TREATMENT_PROTOCOL_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_protocol_transformer_job.main,
@@ -577,12 +589,12 @@ entities = {
             "patient_id",
             "treatment_target",
             "response_id",
-            "response_classification_id"
-        ]
+            "response_classification_id",
+        ],
     },
     Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_and_component_helper_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
     Constants.TREATMENT_COMPONENT_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_component_transformer_job.main,
@@ -590,34 +602,29 @@ entities = {
             "id",
             "dose",
             "treatment_protocol_id",
-            "treatment_id"
-        ]
+            "treatment_id",
+        ],
     },
     Constants.TREATMENT_AGGREGATOR_HELPER_ENTITY: {
         "spark_job": etl.jobs.transformation.treatment_aggregator_helper_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
-
     Constants.MODEL_METADATA: {
         "spark_job": etl.jobs.transformation.model_metadata_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
-
     Constants.SEARCH_INDEX_PATIENT_SAMPLE_ENTITY: {
         "spark_job": etl.jobs.transformation.search_index_patient_sample_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
-
     Constants.SEARCH_INDEX_MOLECULAR_CHARACTERIZATION_ENTITY: {
         "spark_job": etl.jobs.transformation.search_index_molecular_characterization_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
-
     Constants.SEARCH_INDEX_MOLECULAR_DATA_ENTITY: {
         "spark_job": etl.jobs.transformation.search_index_molecular_data_transformer_job.main,
-        "expected_database_columns": []
+        "expected_database_columns": [],
     },
-
     Constants.SEARCH_INDEX_ENTITY: {
         "spark_job": etl.jobs.transformation.search_index_transformer_job.main,
         "expected_database_columns": [
@@ -687,8 +694,8 @@ entities = {
             "cancer_annotation_resources",
             "model_availability",
             "date_submitted",
-            "scores"
-        ]
+            "scores",
+        ],
     },
     Constants.SEARCH_FACET_ENTITY: {
         "spark_job": etl.jobs.transformation.search_facet_transformer_job.main,
@@ -703,23 +710,20 @@ entities = {
             "any_operator",
             "all_operator",
             "is_boolean",
-            "facet_type"
-        ]
+            "facet_type",
+        ],
     },
     Constants.MOLECULAR_DATA_RESTRICTION_ENTITY: {
         "spark_job": etl.jobs.transformation.molecular_data_restriction_transformer_job.main,
-        "expected_database_columns": [
-            "data_source",
-            "molecular_data_table"
-        ]
+        "expected_database_columns": ["data_source", "molecular_data_table"],
     },
     Constants.AVAILABLE_MOLECULAR_DATA_COLUMNS_ENTITY: {
         "spark_job": etl.jobs.transformation.available_molecular_data_columns_transformer_job.main,
         "expected_database_columns": [
             "data_source",
             "not_empty_cols",
-            "molecular_characterization_type"
-        ]
+            "molecular_characterization_type",
+        ],
     },
     Constants.NODE_ENTITY: {
         "spark_job": etl.jobs.transformation.nodes_transformer_job.main,
@@ -728,17 +732,11 @@ entities = {
             "node_type",
             "node_label",
             "data_source",
-            "data"
-        ]
+            "data",
+        ],
     },
     Constants.EDGE_ENTITY: {
         "spark_job": etl.jobs.transformation.edges_transformer_job.main,
-        "expected_database_columns": [
-            "previous_node",
-            "next_node",
-            "edge_label"
-        ]
-    }
-
+        "expected_database_columns": ["previous_node", "next_node", "edge_label"],
+    },
 }
-

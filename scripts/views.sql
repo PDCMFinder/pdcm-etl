@@ -976,6 +976,8 @@ COMMENT ON COLUMN pdcm_api.provider_group.abbreviation IS 'Provider abbreviation
 COMMENT ON COLUMN pdcm_api.provider_group.description IS 'A description of the provider';
 COMMENT ON COLUMN pdcm_api.provider_group.provider_type_id IS 'Reference to the provider type';
 COMMENT ON COLUMN pdcm_api.provider_group.project_group_id IS 'Reference to the project the provider belongs to';
+COMMENT ON COLUMN pdcm_api.provider_group.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN pdcm_api.provider_group.view_data_at IS 'Label of the centre/institute where data is accessible';
 
 -- project_group view: Project information
 
@@ -1488,21 +1490,21 @@ COMMENT ON COLUMN pdcm_api.related_models.models IS 'Comma separate list of rela
 DROP MATERIALIZED VIEW IF EXISTS pdcm_api.models_by_rare_cancer;
 
 CREATE materialized VIEW pdcm_api.models_by_rare_cancer AS
-SELECT  name, count(1) 
+SELECT  histology, count(1) 
 FROM (
 	SELECT name, external_model_id, histology 
 	FROM rare_cancers rc
 	LEFT JOIN search_index si on lower(histology) = rc.name
 	WHERE external_model_id IS NOT NULL
 	) sub 
-GROUP BY name;
+GROUP BY histology;
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.models_by_rare_cancer IS
   $$Models by rare cancer
 
   Count of models by rare cancer$$;
 
-COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.name IS 'Rare cancer name';
+COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.histology IS 'Rare cancer name';
 COMMENT ON COLUMN pdcm_api.models_by_rare_cancer.count IS 'Number of models';
 
 -- models_by_primary_site materialized view: model count by primary site for Data Overview page
