@@ -1145,6 +1145,7 @@ CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
   SELECT model_id,
         protocol_id,
     response,
+    passage_range,
         (
           SELECT jsonb_agg(sub)
           FROM  
@@ -1161,12 +1162,14 @@ CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
                 protocol_id,
                 treatment,
                 response,
-                dose
+                dose,
+                passage_range
           FROM   (SELECT model_id,
                         tp.id         protocol_id,
                         r.NAME        response,
                         tc.dose       dose,
-                        t.NAME        treatment
+                        t.NAME        treatment,
+                        tp.passage_range passage_range
                   FROM   model_information m,
                         treatment_protocol tp,
                         response r,
@@ -1179,13 +1182,15 @@ CREATE MATERIALIZED VIEW pdcm_api.dosing_studies AS
                         AND tc.treatment_id = t.id) a)b
   GROUP  BY model_id,
             protocol_id,
-            response;
+            response,
+            passage_range;
 
 COMMENT ON MATERIALIZED VIEW pdcm_api.dosing_studies IS 'Dosing studies section data';
 COMMENT ON COLUMN pdcm_api.dosing_studies.model_id IS 'Reference to the model_information table';
 COMMENT ON COLUMN pdcm_api.dosing_studies.protocol_id IS 'Reference to the treatment_protocol table';
 COMMENT ON COLUMN pdcm_api.dosing_studies.response IS 'Response to the treatment';
 COMMENT ON COLUMN pdcm_api.dosing_studies.entries IS 'Information about each individual treatment used';
+COMMENT ON COLUMN pdcm_api.dosing_studies.passage_range IS 'Passage range';
 
 -- patient_treatment materialized view: Treatment information linked to the patient
 

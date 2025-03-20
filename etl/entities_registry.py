@@ -590,6 +590,7 @@ entities = {
             "treatment_target",
             "response_id",
             "response_classification_id",
+            "passage_range",
         ],
     },
     Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY: {

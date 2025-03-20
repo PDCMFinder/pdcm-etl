@@ -860,7 +860,8 @@ CREATE TABLE treatment_protocol (
     patient_id BIGINT,
     treatment_target TEXT,
     response_id BIGINT,
-    response_classification_id BIGINT
+    response_classification_id BIGINT,
+    passage_range TEXT
 );
 
 COMMENT ON TABLE treatment_protocol IS 'The specifics of drug(s) and timing of administering the drugs';
@@ -870,7 +871,7 @@ COMMENT ON COLUMN treatment_protocol.patient_id IS 'Reference to the patient tab
 COMMENT ON COLUMN treatment_protocol.treatment_target IS 'Patient or model';
 COMMENT ON COLUMN treatment_protocol.response_id IS 'Reference to the response table';
 COMMENT ON COLUMN treatment_protocol.response_classification_id IS 'Reference to the response_classification table';
-
+COMMENT ON COLUMN treatment_protocol.passage_range IS 'Passage range (applies only to model treatment)';
 
 DROP TABLE IF EXISTS treatment_component CASCADE;
 

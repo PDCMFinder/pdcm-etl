@@ -35,30 +35,43 @@ def main(argv):
     model_df = spark.read.parquet(model_parquet_path)
     patient_df = spark.read.parquet(patient_parquet_path)
     response_df = spark.read.parquet(response_parquet_path)
-    response_classification_df = spark.read.parquet(response_classification_parquet_path)
+    response_classification_df = spark.read.parquet(
+        response_classification_parquet_path
+    )
     treatment_protocol_df = transform_protocol(
-        raw_drug_dosing_df, raw_patient_treatment_df, model_df, patient_df, response_df, response_classification_df)
+        raw_drug_dosing_df,
+        raw_patient_treatment_df,
+        model_df,
+        patient_df,
+        response_df,
+        response_classification_df,
+    )
     treatment_protocol_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_protocol(
-        raw_drug_dosing_df: DataFrame,
-        raw_patient_treatment_df: DataFrame,
-        model_df: DataFrame,
-        patient_df: DataFrame,
-        response_df: DataFrame,
-        response_classification_df: DataFrame) -> DataFrame:
+    raw_drug_dosing_df: DataFrame,
+    raw_patient_treatment_df: DataFrame,
+    model_df: DataFrame,
+    patient_df: DataFrame,
+    response_df: DataFrame,
+    response_classification_df: DataFrame,
+) -> DataFrame:
     treatment_protocol = get_data_from_drug_dosing(raw_drug_dosing_df, model_df).union(
         get_data_from_patient_treatment(raw_patient_treatment_df, patient_df)
     )
     treatment_protocol = treatment_protocol.drop_duplicates()
     treatment_protocol = set_fk_response(treatment_protocol, response_df)
-    treatment_protocol = set_fk_response_classification(treatment_protocol, response_classification_df)
+    treatment_protocol = set_fk_response_classification(
+        treatment_protocol, response_classification_df
+    )
     treatment_protocol = add_id(treatment_protocol, "id")
     return treatment_protocol
 
 
-def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) -> DataFrame:
+def get_data_from_drug_dosing(
+    drug_dosing_df: DataFrame, model_df: DataFrame
+) -> DataFrame:
     model_df = model_df.select("id", "external_model_id")
     data_from_drug_dosing = drug_dosing_df.select(
         "model_id",
@@ -66,13 +79,25 @@ def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) ->
         "treatment_dose",
         "treatment_response",
         "response_classification",
-        Constants.DATA_SOURCE_COLUMN)
+        "passage_range",
+        Constants.DATA_SOURCE_COLUMN,
+    )
     data_from_drug_dosing = data_from_drug_dosing.withColumn("patient_id", lit(None))
-    data_from_drug_dosing = data_from_drug_dosing.withColumn("treatment_target", lit("drug dosing"))
+    data_from_drug_dosing = data_from_drug_dosing.withColumn(
+        "treatment_target", lit("drug dosing")
+    )
 
-    data_from_drug_dosing = data_from_drug_dosing.withColumnRenamed("model_id", "external_model_id")
+    data_from_drug_dosing = data_from_drug_dosing.withColumnRenamed(
+        "model_id", "external_model_id"
+    )
     data_from_drug_dosing = transform_to_fk(
-        data_from_drug_dosing, model_df, "external_model_id", "external_model_id", "id", "model_id")
+        data_from_drug_dosing,
+        model_df,
+        "external_model_id",
+        "external_model_id",
+        "id",
+        "model_id",
+    )
     data_from_drug_dosing = data_from_drug_dosing.select(
         "model_id",
         "patient_id",
@@ -81,11 +106,15 @@ def get_data_from_drug_dosing(drug_dosing_df: DataFrame, model_df: DataFrame) ->
         "treatment_response",
         "response_classification",
         "treatment_target",
-        Constants.DATA_SOURCE_COLUMN)
+        "passage_range",
+        Constants.DATA_SOURCE_COLUMN,
+    )
     return data_from_drug_dosing
 
 
-def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df: DataFrame) -> DataFrame:
+def get_data_from_patient_treatment(
+    patient_treatment_df: DataFrame, patient_df: DataFrame
+) -> DataFrame:
     patient_df = patient_df.select("id", "external_patient_id")
     data_from_patient_treatment = patient_treatment_df.select(
         "patient_id",
@@ -93,13 +122,30 @@ def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df:
         "treatment_dose",
         "treatment_response",
         "response_classification",
-        Constants.DATA_SOURCE_COLUMN)
-    data_from_patient_treatment = data_from_patient_treatment.withColumn("model_id", lit(None))
-    data_from_patient_treatment = data_from_patient_treatment.withColumn("treatment_target", lit("patient"))
+        Constants.DATA_SOURCE_COLUMN,
+    )
+    data_from_patient_treatment = data_from_patient_treatment.withColumn(
+        "model_id", lit(None)
+    )
+    data_from_patient_treatment = data_from_patient_treatment.withColumn(
+        "treatment_target", lit("patient")
+    )
 
-    data_from_patient_treatment = data_from_patient_treatment.withColumnRenamed("patient_id", "external_patient_id")
+    data_from_patient_treatment = data_from_patient_treatment.withColumnRenamed(
+        "patient_id", "external_patient_id"
+    )
+    data_from_patient_treatment = data_from_patient_treatment.withColumn(
+        "passage_range", lit(None)
+    )
+
     data_from_patient_treatment = transform_to_fk(
-        data_from_patient_treatment, patient_df, "external_patient_id", "external_patient_id", "id", "patient_id")
+        data_from_patient_treatment,
+        patient_df,
+        "external_patient_id",
+        "external_patient_id",
+        "id",
+        "patient_id",
+    )
     data_from_patient_treatment = data_from_patient_treatment.select(
         "model_id",
         "patient_id",
@@ -107,24 +153,38 @@ def get_data_from_patient_treatment(patient_treatment_df: DataFrame, patient_df:
         "treatment_dose",
         "treatment_response",
         "response_classification",
+        "passage_range",
         "treatment_target",
-        Constants.DATA_SOURCE_COLUMN)
+        Constants.DATA_SOURCE_COLUMN,
+    )
     return data_from_patient_treatment
 
 
 def set_fk_response(treatment_protocol: DataFrame, response_df: DataFrame) -> DataFrame:
     treatment_protocol = treatment_protocol.withColumn(
-        "treatment_response", init_cap_and_trim_all("treatment_response"))
+        "treatment_response", init_cap_and_trim_all("treatment_response")
+    )
     response_df = response_df.withColumn("name", init_cap_and_trim_all("name"))
     treatment_protocol = transform_to_fk(
-        treatment_protocol, response_df, "treatment_response", "name", "id", "response_id")
+        treatment_protocol,
+        response_df,
+        "treatment_response",
+        "name",
+        "id",
+        "response_id",
+    )
     return treatment_protocol
 
 
-def set_fk_response_classification(treatment_protocol: DataFrame, response_classification_df: DataFrame) -> DataFrame:
+def set_fk_response_classification(
+    treatment_protocol: DataFrame, response_classification_df: DataFrame
+) -> DataFrame:
     treatment_protocol = treatment_protocol.withColumn(
-        "response_classification", init_cap_and_trim_all("response_classification"))
-    response_classification_df = response_classification_df.withColumn("name", init_cap_and_trim_all("name"))
+        "response_classification", init_cap_and_trim_all("response_classification")
+    )
+    response_classification_df = response_classification_df.withColumn(
+        "name", init_cap_and_trim_all("name")
+    )
 
     treatment_protocol = transform_to_fk(
         treatment_protocol,
@@ -132,7 +192,8 @@ def set_fk_response_classification(treatment_protocol: DataFrame, response_class
         "response_classification",
         "name",
         "id",
-        "response_classification_id")
+        "response_classification_id",
+    )
     return treatment_protocol
 
 
