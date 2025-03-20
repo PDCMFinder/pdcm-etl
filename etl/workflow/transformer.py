@@ -242,9 +242,6 @@ class TransformTreatmentNameHelper(TransformEntity):
     entity_name = Constants.TREATMENT_NAME_HELPER_ENTITY
 
 
-
-
-
 class TransformMolecularCharacterizationType(TransformEntity):
     entity_name = Constants.MOLECULAR_CHARACTERIZATION_TYPE_ENTITY
 
@@ -441,14 +438,13 @@ class TransformSampleToOntology(TransformEntity):
     entity_name = Constants.SAMPLE_TO_ONTOLOGY_ENTITY
 
 
-
 # Helper transformation to harmonise the treatment names
 class TransformTreatmentNameHarmonisation(TransformEntity):
     requiredTasks = [
         TransformTreatmentNameHelper(),
         ExtractMappingTreatment(),
         TransformOntologyTermTreatment(),
-        TransformOntologyTermRegimen()
+        TransformOntologyTermRegimen(),
     ]
     entity_name = Constants.TREATMENT_NAME_HARMONISATION_HELPER_ENTITY
 
@@ -458,16 +454,18 @@ class TransformTreatmentTypeHelper(TransformEntity):
     requiredTasks = [TransformTreatmentNameHarmonisation()]
     entity_name = Constants.TREATMENT_TYPE_HELPER_ENTITY
 
+
 class TransformTreatment(TransformEntity):
     requiredTasks = [TransformTreatmentTypeHelper(), ExtractExternalResources()]
     entity_name = Constants.TREATMENT_ENTITY
 
 
-
-
-
 class TransformTreatmentComponent(TransformEntity):
-    requiredTasks = [TransformTreatmentAndComponentHelper(), TransformTreatment(), TransformTreatmentNameHarmonisation()]
+    requiredTasks = [
+        TransformTreatmentAndComponentHelper(),
+        TransformTreatment(),
+        TransformTreatmentNameHarmonisation(),
+    ]
     entity_name = Constants.TREATMENT_COMPONENT_ENTITY
 
 
@@ -481,9 +479,6 @@ class TransformTreatmentAggregatorHelper(TransformEntity):
         TransformResponse(),
     ]
     entity_name = Constants.TREATMENT_AGGREGATOR_HELPER_ENTITY
-
-
-
 
 
 class TransformSearchIndexPatientSample(TransformEntity):
@@ -515,6 +510,7 @@ class TransformModelMetadata(TransformEntity):
         TransformModelImage(),
         TransformTreatmentAggregatorHelper(),
         TransformSearchIndexMolecularCharacterization(),
+        TransformProviderGroup(),
     ]
     entity_name = Constants.MODEL_METADATA
 

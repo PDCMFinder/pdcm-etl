@@ -860,7 +860,8 @@ CREATE TABLE treatment_protocol (
     patient_id BIGINT,
     treatment_target TEXT,
     response_id BIGINT,
-    response_classification_id BIGINT
+    response_classification_id BIGINT,
+    passage_range TEXT
 );
 
 COMMENT ON TABLE treatment_protocol IS 'The specifics of drug(s) and timing of administering the drugs';
@@ -870,7 +871,7 @@ COMMENT ON COLUMN treatment_protocol.patient_id IS 'Reference to the patient tab
 COMMENT ON COLUMN treatment_protocol.treatment_target IS 'Patient or model';
 COMMENT ON COLUMN treatment_protocol.response_id IS 'Reference to the response table';
 COMMENT ON COLUMN treatment_protocol.response_classification_id IS 'Reference to the response_classification table';
-
+COMMENT ON COLUMN treatment_protocol.passage_range IS 'Passage range (applies only to model treatment)';
 
 DROP TABLE IF EXISTS treatment_component CASCADE;
 
@@ -957,6 +958,8 @@ CREATE TABLE search_index (
     cancer_annotation_resources TEXT[],
     model_availability TEXT,
     date_submitted TEXT,
+    model_generator BOOLEAN,
+    view_data_at TEXT,
     scores JSON
 );
 
@@ -1027,6 +1030,8 @@ COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calcula
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
 COMMENT ON COLUMN search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
 COMMENT ON COLUMN search_index.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN search_index.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN search_index.view_data_at IS 'Label of the centre/institute where data is accessible';
 COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 
 

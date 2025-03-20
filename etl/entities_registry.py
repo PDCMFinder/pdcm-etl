@@ -590,6 +590,7 @@ entities = {
             "treatment_target",
             "response_id",
             "response_classification_id",
+            "passage_range",
         ],
     },
     Constants.TREATMENT_AND_COMPONENT_HELPER_ENTITY: {
@@ -694,6 +695,8 @@ entities = {
             "cancer_annotation_resources",
             "model_availability",
             "date_submitted",
+            "model_generator",
+            "view_data_at",
             "scores",
         ],
     },
