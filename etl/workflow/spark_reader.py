@@ -47,23 +47,40 @@ def clean_column_names(df: DataFrame):
 def read_files(session, path_patterns, schema):
     start = time.time()
 
-    df = session.read.option('sep', '\t').option('header', True).option('schema', schema).csv(
-        [p.replace("'", "") for p in path_patterns])
+    df = (
+        session.read.option("sep", "\t")
+        .option("header", True)
+        .option("schema", schema)
+        .csv([p.replace("'", "") for p in path_patterns])
+    )
     df = clean_column_names(df)
     df = select_rows_with_data(df, schema.fieldNames())
-    datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(ROOT_FOLDER.replace("/", "\\/"))
+    datasource_pattern = "{0}\\/([a-zA-Z-]+)(\\/)".format(
+        ROOT_FOLDER.replace("/", "\\/")
+    )
     df = df.withColumn("_data_source", lit(input_file_name()))
-    df = df.withColumn(Constants.DATA_SOURCE_COLUMN, regexp_extract("_data_source", datasource_pattern, 1))
+    df = df.withColumn(
+        Constants.DATA_SOURCE_COLUMN,
+        regexp_extract("_data_source", datasource_pattern, 1),
+    )
     df = df.drop("_data_source")
 
     end = time.time()
     logger.info(
-        "Read from path {0} count: {1} in {2} seconds".format(path_patterns, df.count(), round(end - start, 4)))
+        "Read from path {0} count: {1} in {2} seconds".format(
+            path_patterns, df.count(), round(end - start, 4)
+        )
+    )
     return df
 
 
-def read_json(session, json_content):
-    df = session.read.option("multiline", True).json(session.sparkContext.parallelize([json_content]))
+def read_json(session, json_content, schema=None):
+    df_reader = session.read.option("multiline", True)
+
+    if schema:
+        df_reader = df_reader.schema(schema)
+
+    df = df_reader.json(session.sparkContext.parallelize([json_content]))
     return df
 
 
@@ -75,19 +92,23 @@ class ReadByModuleAndPathPatterns(PySparkTask):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.raw_folder_name))
+            "{0}/{1}/{2}".format(
+                self.data_dir_out, Constants.RAW_DIRECTORY, self.raw_folder_name
+            )
+        )
 
     def app_options(self):
         return [
             f"'{','.join([p for p in self.path_patterns])}'",
-            ','.join(self.columns_to_read),
-            self.output().path]
+            ",".join(self.columns_to_read),
+            self.output().path,
+        ]
 
     def main(self, sc: SparkContext, *args):
         spark = SparkSession(sc)
         print(f"input: {args}")
-        path_patterns = args[0].split(',')
-        columns_to_read = args[1].split(',')
+        path_patterns = args[0].split(",")
+        columns_to_read = args[1].split(",")
         output_path = args[2]
 
         schema = build_schema_from_cols(columns_to_read)
@@ -96,10 +117,18 @@ class ReadByModuleAndPathPatterns(PySparkTask):
             if path_patterns == ["''"]:
                 raise IOError("Empty path")
             df = read_files(spark, path_patterns, schema)
-        except (Py4JJavaError, IllegalArgumentException, FileNotFoundError, IOError) as error:
-            no_empty_patterns = list(filter(lambda x: x != '', path_patterns))
-            if "java.io.FileNotFoundException" in str(error) or len(no_empty_patterns) == 0 or error.__class__ in [
-                FileNotFoundError, IOError]:
+        except (
+            Py4JJavaError,
+            IllegalArgumentException,
+            FileNotFoundError,
+            IOError,
+        ) as error:
+            no_empty_patterns = list(filter(lambda x: x != "", path_patterns))
+            if (
+                "java.io.FileNotFoundException" in str(error)
+                or len(no_empty_patterns) == 0
+                or error.__class__ in [FileNotFoundError, IOError]
+            ):
                 empty_df = spark.createDataFrame(sc.emptyRDD(), schema)
                 df = empty_df
                 df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(""))
@@ -116,14 +145,20 @@ def build_path_patterns(data_dir, providers, file_patterns):
         matching_providers = []
         for provider in providers:
             current_file_pattern = str(file_pattern).replace("$provider", provider)
-            if glob.glob("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)):
-                paths_patterns.append("{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern))
+            if glob.glob(
+                "{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)
+            ):
+                paths_patterns.append(
+                    "{0}/{1}/{2}".format(data_dir_root, provider, current_file_pattern)
+                )
     return paths_patterns
 
 
 def build_path_pattern_by_provider(data_dir, provider, file_pattern):
     data_dir_root = "{0}/{1}".format(data_dir, ROOT_FOLDER)
-    path_pattern = "{0}/{1}/{2}".format(data_dir_root, provider, file_pattern.replace("$provider", provider))
+    path_pattern = "{0}/{1}/{2}".format(
+        data_dir_root, provider, file_pattern.replace("$provider", provider)
+    )
     return path_pattern
 
 
@@ -133,7 +168,9 @@ def get_tsv_extraction_task_by_module(data_dir, providers, data_dir_out, module_
     columns = module["columns"]
     path_patterns = build_path_patterns(data_dir, list(providers), file_patterns)
     print(f"from get_tsv_extraction_task_by_module: {path_patterns}")
-    return ReadByModuleAndPathPatterns(module_name, path_patterns, columns, data_dir_out)
+    return ReadByModuleAndPathPatterns(
+        module_name, path_patterns, columns, data_dir_out
+    )
 
 
 def extract_provider_name(path: str):
@@ -156,37 +193,50 @@ class ReadYamlsByModule(PySparkTask):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}/{2}".format(self.data_dir_out, Constants.RAW_DIRECTORY, self.raw_folder_name))
+            "{0}/{1}/{2}".format(
+                self.data_dir_out, Constants.RAW_DIRECTORY, self.raw_folder_name
+            )
+        )
 
     def app_options(self):
         return [
-            ','.join(self.yaml_paths),
-            ','.join(self.columns_to_read),
-            self.output().path]
+            ",".join(self.yaml_paths),
+            ",".join(self.columns_to_read),
+            self.output().path,
+        ]
 
     def main(self, sc, *args):
         spark = SparkSession(sc)
 
-        yaml_file_paths = args[0].split(',')
-        columns_to_read = args[1].split(',')
+        yaml_file_paths = args[0].split(",")
+        columns_to_read = args[1].split(",")
         output_path = args[2]
 
         all_json_and_providers = []
 
         for yaml_file_path in yaml_file_paths:
-            with open(yaml_file_path, 'r') as stream:
+            with open(yaml_file_path, "r") as stream:
                 yaml_as_json = get_json_by_yaml(stream)
-                json_content_and_provider = (yaml_as_json, extract_provider_name(yaml_file_path))
+                json_content_and_provider = (
+                    yaml_as_json,
+                    extract_provider_name(yaml_file_path),
+                )
                 all_json_and_providers.append(json_content_and_provider)
 
-        source_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), build_schema_from_cols(columns_to_read))
-        source_df = source_df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(None).astype(StringType()))
+        schema = build_schema_from_cols(columns_to_read)
+
+        source_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema)
+
+        source_df = source_df.withColumn(
+            Constants.DATA_SOURCE_COLUMN, lit(None).astype(StringType())
+        )
         for json_and_provider in all_json_and_providers:
             json_content = json_and_provider[0]
             provider = json_and_provider[1]
-            df = read_json(spark, json_content)
+            df = read_json(spark, json_content, schema)
             df = df.select(columns_to_read)
             df = df.withColumn(Constants.DATA_SOURCE_COLUMN, lit(provider))
+
             source_df = source_df.union(df)
 
         source_df.write.mode("overwrite").parquet(output_path)

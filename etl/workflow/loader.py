@@ -4,8 +4,17 @@ from luigi.contrib.spark import SparkSubmitTask
 from etl.constants import Constants
 from etl.entities_registry import get_all_entities_names_to_store_db
 from etl.entities_task_index import get_transformation_class_by_entity_name
-from etl.jobs.load.database_manager import copy_entity_to_database, create_data_visualization_views, get_database_connection, \
-    create_indexes, create_fks, recreate_tables, create_views, run_updates
+from etl.jobs.load.database_manager import (
+    copy_entity_to_database,
+    create_data_visualization_views,
+    get_database_connection,
+    create_indexes,
+    create_fks,
+    insert_data,
+    recreate_tables,
+    create_views,
+    run_updates,
+)
 from etl.jobs.util.file_manager import copy_directory
 from etl.workflow.config import PdcmConfig
 from etl.workflow.reporter import WriteReleaseInfoCsv
@@ -15,20 +24,20 @@ class ParquetToCsv(SparkSubmitTask):
     data_dir_out = luigi.Parameter()
     name = luigi.Parameter()
 
-    app = 'etl/jobs/util/parquet_to_tsv_converter.py'
+    app = "etl/jobs/util/parquet_to_tsv_converter.py"
 
     def requires(self):
         return get_transformation_class_by_entity_name(self.name)
 
     def app_options(self):
-        return [
-            self.input().path,
-            self.name,
-            self.output().path
-        ]
+        return [self.input().path, self.name, self.output().path]
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}/{2}".format(self.data_dir_out, Constants.DATABASE_FORMATTED, self.name))
+        return PdcmConfig().get_target(
+            "{0}/{1}/{2}".format(
+                self.data_dir_out, Constants.DATABASE_FORMATTED, self.name
+            )
+        )
 
 
 class CopyEntityFromCsvToDb(luigi.Task):
@@ -45,19 +54,30 @@ class CopyEntityFromCsvToDb(luigi.Task):
     env = luigi.Parameter()
 
     def requires(self):
-        return {'parquetToCsvDependency': ParquetToCsv(name=self.entity_name),
-                'recreateTablesDependency': RecreateTables()}
+        return {
+            "parquetToCsvDependency": ParquetToCsv(name=self.entity_name),
+            "recreateTablesDependency": RecreateTables(),
+        }
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}/{4}".format(self.data_dir_out, "database", self.env, "copied", self.entity_name))
+            "{0}/{1}_{2}/{3}/{4}".format(
+                self.data_dir_out, "database", self.env, "copied", self.entity_name
+            )
+        )
 
     def run(self):
         copy_entity_to_database(
-            self.entity_name, self.input()['parquetToCsvDependency'].path, self.db_host, self.db_port, self.db_name,
-            self.db_user, self.db_password)
+            self.entity_name,
+            self.input()["parquetToCsvDependency"].path,
+            self.db_host,
+            self.db_port,
+            self.db_name,
+            self.db_user,
+            self.db_password,
+        )
 
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Entity {0} copied".format(self.entity_name))
 
 
@@ -79,12 +99,17 @@ class RecreateTables(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "tables_recreated"))
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "tables_recreated"
+            )
+        )
 
     def run(self):
-        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+        connection = get_database_connection(
+            self.db_host, self.db_port, self.db_name, self.db_user, self.db_password
+        )
         recreate_tables(connection)
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Tables recreated")
         connection.commit()
         connection.close()
@@ -106,14 +131,19 @@ class CreateFksAndIndexes(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "fks_indexes_created"))
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "fks_indexes_created"
+            )
+        )
 
     def run(self):
-        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+        connection = get_database_connection(
+            self.db_host, self.db_port, self.db_name, self.db_user, self.db_password
+        )
 
         create_indexes(connection)
         create_fks(connection)
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Fks and indexes created")
         connection.commit()
         connection.close()
@@ -127,7 +157,10 @@ class CopyAll(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "all_entities_copied"))
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "all_entities_copied"
+            )
+        )
 
     def requires(self):
         return get_all_copying_tasks()
@@ -135,7 +168,7 @@ class CopyAll(luigi.Task):
     def run(self):
         yield get_all_copying_tasks()
 
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("All entities copied")
 
 
@@ -145,7 +178,9 @@ class Cache(luigi.Task):
     data_dir_out = luigi.Parameter()
 
     def output(self):
-        return PdcmConfig().get_target("{0}/{1}".format(self.data_dir_out, "cache_checks_executed"))
+        return PdcmConfig().get_target(
+            "{0}/{1}".format(self.data_dir_out, "cache_checks_executed")
+        )
 
     def run(self):
         use_cache = False
@@ -153,10 +188,12 @@ class Cache(luigi.Task):
             use_cache = "yes" == str(self.cache).lower()
         if use_cache:
             copy_directory(self.cache_dir, self.data_dir_out)
-        with self.output().open('w') as outfile:
-            outfile.write("use_cache: {0}. folder: {1}".format(use_cache, self.cache_dir))
-            
-            
+        with self.output().open("w") as outfile:
+            outfile.write(
+                "use_cache: {0}. folder: {1}".format(use_cache, self.cache_dir)
+            )
+
+
 class RunUpdates(luigi.Task):
     db_host = luigi.Parameter()
     db_port = luigi.Parameter()
@@ -173,24 +210,70 @@ class RunUpdates(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "tables_updated"))
-        
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "tables_updated"
+            )
+        )
+
     def requires(self):
         return CopyAll()
 
     def run(self):
         print("\n\n********** Updating tables ***********\n")
 
-        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+        connection = get_database_connection(
+            self.db_host, self.db_port, self.db_name, self.db_user, self.db_password
+        )
 
         run_updates(connection)
         connection.commit()
         connection.close()
 
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Tables updated")
 
         print("\n********** End Tables Update ***********\n")
+
+
+class InsertData(luigi.Task):
+    db_host = luigi.Parameter()
+    db_port = luigi.Parameter()
+    db_name = luigi.Parameter()
+    db_user = luigi.Parameter()
+    db_password = luigi.Parameter()
+    data_dir_out = luigi.Parameter()
+    data_dir = luigi.Parameter()
+    data_dir = luigi.Parameter()
+    env = luigi.Parameter()
+    """
+        Insert static data.
+    """
+
+    def output(self):
+        return PdcmConfig().get_target(
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "tables_inserted"
+            )
+        )
+
+    def requires(self):
+        return CopyAll()
+
+    def run(self):
+        print("\n\n********** Inserting data ***********\n")
+
+        connection = get_database_connection(
+            self.db_host, self.db_port, self.db_name, self.db_user, self.db_password
+        )
+
+        insert_data(connection)
+        connection.commit()
+        connection.close()
+
+        with self.output().open("w") as outfile:
+            outfile.write("Data inserted")
+
+        print("\n********** End Data insertion ***********\n")
 
 
 class CreateDataVisualizationViews(luigi.Task):
@@ -209,8 +292,14 @@ class CreateDataVisualizationViews(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "data_visualization_views_created"))
-        
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out,
+                "database",
+                self.env,
+                "data_visualization_views_created",
+            )
+        )
+
     def requires(self):
         # CreateFksAndIndexes not really needed as dependency, but this allows to have less memory load
         # when running this task
@@ -219,13 +308,15 @@ class CreateDataVisualizationViews(luigi.Task):
     def run(self):
         print("\n\n********** Creating data visualization views ***********\n")
 
-        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+        connection = get_database_connection(
+            self.db_host, self.db_port, self.db_name, self.db_user, self.db_password
+        )
 
         create_data_visualization_views(connection)
         connection.commit()
         connection.close()
 
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Data visualization views created")
 
         print("\n********** End data visualization views ***********\n")
@@ -245,21 +336,26 @@ class CreateViews(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "views_created"))
-    
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "views_created"
+            )
+        )
+
     def requires(self):
         return [RunUpdates()]
 
     def run(self):
         print("\n\n********** Loading views ***********\n")
 
-        connection = get_database_connection(self.db_host, self.db_port, self.db_name, self.db_user, self.db_password)
+        connection = get_database_connection(
+            self.db_host, self.db_port, self.db_name, self.db_user, self.db_password
+        )
 
         create_views(connection)
         connection.commit()
         connection.close()
 
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Views created")
 
         print("\n********** End Loading views ***********\n")
@@ -267,25 +363,29 @@ class CreateViews(luigi.Task):
 
 class LoadPublicDBObjects(luigi.Task):
     """
-        Loads all the objects (views and materialized views) that are going to be exposed in the schema created for the api.
+    Loads all the objects (views and materialized views) that are going to be exposed in the schema created for the api.
     """
+
     data_dir_out = luigi.Parameter()
     env = luigi.Parameter()
 
     def requires(self):
-        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates()]
+        return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates(), InsertData()]
         # Temporarily remove  CreateDataVisualizationViews as it takes a lot to run in the cluster.
         # return [CreateFksAndIndexes(), LoadReleaseInfo(), RunUpdates(), CreateDataVisualizationViews()]
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, "all_public_DB_objects_loaded"))
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, "all_public_DB_objects_loaded"
+            )
+        )
 
     def run(self):
         print("\n\n********** Loading all public DB objects ***********\n")
         # yield [CreateMaterializedViews(), CreateViews()]
         yield [CreateViews()]
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("all public DB objects loaded")
 
         print("\n********** End Loading all public DB objects ***********\n")
@@ -308,15 +408,23 @@ class LoadReleaseInfo(luigi.Task):
 
     def output(self):
         return PdcmConfig().get_target(
-            "{0}/{1}_{2}/{3}".format(self.data_dir_out, "database", self.env, Constants.RELEASE_INFO_ENTITY))
+            "{0}/{1}_{2}/{3}".format(
+                self.data_dir_out, "database", self.env, Constants.RELEASE_INFO_ENTITY
+            )
+        )
 
     def run(self):
-
         copy_entity_to_database(
-            Constants.RELEASE_INFO_ENTITY, self.input().path, self.db_host, self.db_port, self.db_name,
-            self.db_user, self.db_password)
+            Constants.RELEASE_INFO_ENTITY,
+            self.input().path,
+            self.db_host,
+            self.db_port,
+            self.db_name,
+            self.db_user,
+            self.db_password,
+        )
 
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             outfile.write("Entity {0} copied".format(Constants.RELEASE_INFO_ENTITY))
 
 

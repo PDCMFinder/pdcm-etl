@@ -33,7 +33,9 @@ CREATE TABLE provider_group (
     abbreviation TEXT,
     description TEXT,
     provider_type_id BIGINT,
-    project_group_id BIGINT
+    project_group_id BIGINT,
+    model_generator BOOLEAN,
+    view_data_at TEXT
 );
 
 COMMENT ON TABLE provider_group IS 'Information of data providers';
@@ -43,6 +45,8 @@ COMMENT ON COLUMN provider_group.abbreviation IS 'Provider abbreviation';
 COMMENT ON COLUMN provider_group.description IS 'A description of the provider';
 COMMENT ON COLUMN provider_group.provider_type_id IS 'Reference to the provider type';
 COMMENT ON COLUMN provider_group.project_group_id IS 'Reference to the project the provider belongs to';
+COMMENT ON COLUMN provider_group.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN provider_group.view_data_at IS 'Label of the centre/institute where data is accessible';
 
 DROP TABLE IF EXISTS patient CASCADE;
 
@@ -856,7 +860,8 @@ CREATE TABLE treatment_protocol (
     patient_id BIGINT,
     treatment_target TEXT,
     response_id BIGINT,
-    response_classification_id BIGINT
+    response_classification_id BIGINT,
+    passage_range TEXT
 );
 
 COMMENT ON TABLE treatment_protocol IS 'The specifics of drug(s) and timing of administering the drugs';
@@ -866,7 +871,7 @@ COMMENT ON COLUMN treatment_protocol.patient_id IS 'Reference to the patient tab
 COMMENT ON COLUMN treatment_protocol.treatment_target IS 'Patient or model';
 COMMENT ON COLUMN treatment_protocol.response_id IS 'Reference to the response table';
 COMMENT ON COLUMN treatment_protocol.response_classification_id IS 'Reference to the response_classification table';
-
+COMMENT ON COLUMN treatment_protocol.passage_range IS 'Passage range (applies only to model treatment)';
 
 DROP TABLE IF EXISTS treatment_component CASCADE;
 
@@ -953,6 +958,8 @@ CREATE TABLE search_index (
     cancer_annotation_resources TEXT[],
     model_availability TEXT,
     date_submitted TEXT,
+    model_generator BOOLEAN,
+    view_data_at TEXT,
     scores JSON
 );
 
@@ -1023,6 +1030,8 @@ COMMENT ON COLUMN search_index.raw_data_resources IS 'List of resources (calcula
 COMMENT ON COLUMN search_index.cancer_annotation_resources IS 'List of resources (calculated from cancer annotation links) the model links to';
 COMMENT ON COLUMN search_index.model_availability IS 'Model availability status, i.e. if the model is still available to purchase.';
 COMMENT ON COLUMN search_index.date_submitted IS 'Date of submission to the resource';
+COMMENT ON COLUMN search_index.model_generator IS 'Indicates if this provider is the one generating the models';
+COMMENT ON COLUMN search_index.view_data_at IS 'Label of the centre/institute where data is accessible';
 COMMENT ON COLUMN search_index.scores IS 'Model characterizations scores';
 
 
@@ -1168,6 +1177,13 @@ COMMENT ON TABLE edge IS 'Represents the connection between nodes';
 COMMENT ON COLUMN edge.previous_node IS 'Reference to the previous node.';
 COMMENT ON COLUMN edge.next_node IS 'Reference to the next node.';
 COMMENT ON COLUMN edge.edge_label IS 'Label of the relation.';
+
+DROP TABLE IF EXISTS rare_cancers CASCADE;
+CREATE TABLE rare_cancers (
+    name TEXT
+);
+COMMENT ON TABLE rare_cancers IS 'List of rare cancers';
+COMMENT ON COLUMN rare_cancers.name IS 'Cancer name';
 
 --- PostgreSQL functions
 

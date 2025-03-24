@@ -1,11 +1,10 @@
 import sys
 
 from pyspark.sql import DataFrame, SparkSession, Column
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 
 from etl.constants import Constants
 from etl.jobs.util.cleaner import trim_all
-from etl.jobs.util.dataframe_functions import transform_to_fk
 from etl.jobs.util.id_assigner import add_id
 
 
@@ -25,12 +24,15 @@ def main(argv):
     raw_source_df = spark.read.parquet(raw_source_parquet_path)
     provider_type_df = spark.read.parquet(provider_type_parquet_path)
     project_group_df = spark.read.parquet(project_group_parquet_path)
-    provider_group_df = transform_provider_group(raw_source_df, provider_type_df, project_group_df)
+    provider_group_df = transform_provider_group(
+        raw_source_df, provider_type_df, project_group_df
+    )
     provider_group_df.write.mode("overwrite").parquet(output_path)
 
 
 def transform_provider_group(
-        raw_source_df: DataFrame, provider_type_df: DataFrame, project_group_df: DataFrame) -> DataFrame:
+    raw_source_df: DataFrame, provider_type_df: DataFrame, project_group_df: DataFrame
+) -> DataFrame:
     provider_group_df = extract_data_source(raw_source_df)
     provider_group_df = set_fk_provider_type(provider_group_df, provider_type_df)
     provider_group_df = set_fk_project_group(provider_group_df, project_group_df)
@@ -47,8 +49,15 @@ def extract_data_source(raw_source_df: DataFrame) -> DataFrame:
         trim_all("provider_description").alias("provider_description"),
         trim_all("provider_type").alias("provider_type"),
         trim_all("project").alias("project"),
-        Constants.DATA_SOURCE_COLUMN
+        "model_generator",
+        "view_data_at",
+        Constants.DATA_SOURCE_COLUMN,
     ).drop_duplicates()
+
+    provider_group_df = provider_group_df.withColumn(
+        "model_generator",
+        when(col("model_generator").eqNullSafe("true"), True).otherwise(False),
+    )
     return provider_group_df
 
 
@@ -57,20 +66,26 @@ def format_column(column_name) -> Column:
 
 
 def join_sharing_loader(
-        data_from_sharing_df: DataFrame,
-        data_from_loader_df: DataFrame) -> DataFrame:
+    data_from_sharing_df: DataFrame, data_from_loader_df: DataFrame
+) -> DataFrame:
     data_from_loader_ref_df = data_from_loader_df.withColumnRenamed(
-        "abbreviation", "provider_abbreviation")
+        "abbreviation", "provider_abbreviation"
+    )
     join_sharing_loader_df = data_from_sharing_df.join(
-        data_from_loader_ref_df, on=[Constants.DATA_SOURCE_COLUMN])
-    join_sharing_loader_df = join_sharing_loader_df.withColumnRenamed("provider_name", "name")
+        data_from_loader_ref_df, on=[Constants.DATA_SOURCE_COLUMN]
+    )
+    join_sharing_loader_df = join_sharing_loader_df.withColumnRenamed(
+        "provider_name", "name"
+    )
     return join_sharing_loader_df
 
 
 def set_fk_provider_type(provider_group_df, provider_type_df):
     provider_type_df = provider_type_df.withColumnRenamed("id", "provider_type_id")
     provider_type_df = provider_type_df.withColumnRenamed("name", "provider_type_name")
-    provider_group_df = provider_group_df.join(provider_type_df, on=Constants.DATA_SOURCE_COLUMN, how='left')
+    provider_group_df = provider_group_df.join(
+        provider_type_df, on=Constants.DATA_SOURCE_COLUMN, how="left"
+    )
     provider_group_df = provider_group_df.withColumnRenamed("provider_name", "name")
     return provider_group_df
 
@@ -79,7 +94,7 @@ def set_fk_project_group(provider_group_df, project_group_df):
     project_group_df = project_group_df.withColumnRenamed("name", "project_group_name")
     project_group_df = project_group_df.withColumnRenamed("id", "project_group_id")
     cond = project_group_df.project_group_name == provider_group_df.project
-    provider_group_df = provider_group_df.join(project_group_df, on=[cond], how='left')
+    provider_group_df = provider_group_df.join(project_group_df, on=[cond], how="left")
     return provider_group_df
 
 
@@ -92,7 +107,9 @@ def get_columns_expected_order(provider_group_df: DataFrame) -> DataFrame:
         "provider_type_id",
         "project_group_id",
         "project_group_name",
-        Constants.DATA_SOURCE_COLUMN
+        "model_generator",
+        "view_data_at",
+        Constants.DATA_SOURCE_COLUMN,
     )
 
 
