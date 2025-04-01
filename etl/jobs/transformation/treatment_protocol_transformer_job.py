@@ -153,8 +153,8 @@ def get_data_from_patient_treatment(
         "treatment_dose",
         "treatment_response",
         "response_classification",
-        "passage_range",
         "treatment_target",
+        "passage_range",
         Constants.DATA_SOURCE_COLUMN,
     )
     return data_from_patient_treatment
