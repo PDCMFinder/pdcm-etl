@@ -958,6 +958,7 @@ CREATE TABLE search_index (
     cancer_annotation_resources TEXT[],
     model_availability TEXT,
     date_submitted TEXT,
+    email_list TEXT,
     model_generator BOOLEAN,
     view_data_at TEXT,
     scores JSON

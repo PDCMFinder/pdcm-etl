@@ -695,6 +695,7 @@ entities = {
             "cancer_annotation_resources",
             "model_availability",
             "date_submitted",
+            "email_list",
             "model_generator",
             "view_data_at",
             "scores",
