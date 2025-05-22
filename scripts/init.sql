@@ -517,6 +517,7 @@ DROP TABLE IF EXISTS platform CASCADE;
 
 CREATE TABLE platform (
     id BIGINT NOT NULL,
+    platform_id TEXT,
     library_strategy TEXT,
     provider_group_id BIGINT,
     instrument_model TEXT,
