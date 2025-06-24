@@ -171,6 +171,7 @@ def get_formatted_model(model_df: DataFrame) -> DataFrame:
         "drug_concentration",
         "model_availability",
         "date_submitted",
+        "email_list",
         Constants.DATA_SOURCE_COLUMN,
     )
     return model_df

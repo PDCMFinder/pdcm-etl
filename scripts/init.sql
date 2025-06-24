@@ -517,6 +517,7 @@ DROP TABLE IF EXISTS platform CASCADE;
 
 CREATE TABLE platform (
     id BIGINT NOT NULL,
+    platform_id TEXT,
     library_strategy TEXT,
     provider_group_id BIGINT,
     instrument_model TEXT,
@@ -958,6 +959,7 @@ CREATE TABLE search_index (
     cancer_annotation_resources TEXT[],
     model_availability TEXT,
     date_submitted TEXT,
+    email_list TEXT,
     model_generator BOOLEAN,
     view_data_at TEXT,
     scores JSON

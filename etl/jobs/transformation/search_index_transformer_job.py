@@ -128,6 +128,7 @@ def transform_search_index(
             "custom_treatment_type_list",
             "license_name",
             "license_url",
+            "email_list",
             "raw_data_resources",
             "cancer_annotation_resources",
             "model_availability",

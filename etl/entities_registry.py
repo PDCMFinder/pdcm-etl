@@ -366,6 +366,7 @@ entities = {
         "spark_job": etl.jobs.transformation.platform_transformer_job.main,
         "expected_database_columns": [
             "id",
+            "platform_id",
             "library_strategy",
             "provider_group_id",
             "instrument_model",
@@ -695,6 +696,7 @@ entities = {
             "cancer_annotation_resources",
             "model_availability",
             "date_submitted",
+            "email_list",
             "model_generator",
             "view_data_at",
             "scores",
