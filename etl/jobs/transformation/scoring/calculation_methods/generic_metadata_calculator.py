@@ -6,11 +6,11 @@ from pyspark.sql.types import StructType, StructField, LongType, IntegerType
 
 # Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
 # resources connectedness. A weight is assigned manually to each one:
-metadata_score_weight = 0.9
-raw_data_score_weight = 0.07
-cancer_annotation_score_weight = 0.03
+metadata_score_weight = 1
+raw_data_score_weight = 0
+cancer_annotation_score_weight = 0
 
-columns_with_multiple_values = ['quality_assurance', 'xenograft_model_specimens']
+columns_with_multiple_values = ["quality_assurance", "xenograft_model_specimens"]
 
 
 def get_list_resources_available_molecular_data(resources_df: DataFrame):
@@ -33,19 +33,23 @@ def get_metadata_max_score(column_weights):
         if value is None:
             value = 0
         total_score += value
-    
+
     return total_score
 
 
 def is_valid_value(attribute_value: str) -> bool:
-    lc_attribute_value = attribute_value.lower() if attribute_value is not None else ''
-    return (lc_attribute_value != ''
-            and lc_attribute_value != 'not provided'
-            and lc_attribute_value != 'not collected'
-            and lc_attribute_value != 'unknown')
+    lc_attribute_value = attribute_value.lower() if attribute_value is not None else ""
+    return (
+        lc_attribute_value != ""
+        and lc_attribute_value != "not provided"
+        and lc_attribute_value != "not collected"
+        and lc_attribute_value != "unknown"
+    )
 
 
-def calculate_score_single_value_column(column_name: str, column_value: str, column_weights) -> float:
+def calculate_score_single_value_column(
+    column_name: str, column_value: str, column_weights
+) -> float:
     column_weight = column_weights.get(column_name)
     if is_valid_value(column_value):
         return column_weight
@@ -53,9 +57,11 @@ def calculate_score_single_value_column(column_name: str, column_value: str, col
         return 0
 
 
-def calculate_score_multiple_value_column(column_name: str, column_value: str, column_weights) -> float:
+def calculate_score_multiple_value_column(
+    column_name: str, column_value: str, column_weights
+) -> float:
     score = 0
-    if column_value == '[]' or column_value is None:
+    if column_value == "[]" or column_value is None:
         return score
 
     # `column_value` is expected to be a string representing a JSON array with
@@ -67,7 +73,6 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str, c
     rows_count = len(json_array)
     for obj in json_array:
         for attribute, value in obj.items():
-
             if attribute not in valid_elements_per_column:
                 valid_elements_per_column[attribute] = 0
 
@@ -86,13 +91,19 @@ def calculate_score_multiple_value_column(column_name: str, column_value: str, c
     return score
 
 
-def calculate_score_by_column(column_name: str, column_value: str, column_weights) -> float:
+def calculate_score_by_column(
+    column_name: str, column_value: str, column_weights
+) -> float:
     score = 0
     if column_name in column_weights.keys():
         if is_valid_value(column_value):
-            score += calculate_score_single_value_column(column_name, column_value, column_weights)
+            score += calculate_score_single_value_column(
+                column_name, column_value, column_weights
+            )
     elif column_name in columns_with_multiple_values:
-        score += calculate_score_multiple_value_column(column_name, column_value, column_weights)
+        score += calculate_score_multiple_value_column(
+            column_name, column_value, column_weights
+        )
     return score
 
 
@@ -100,7 +111,9 @@ def calculate_metadata_score(row, column_weights):
     score = 0
     row_as_dict = row.asDict()
     for column_name in row_as_dict:
-        score += calculate_score_by_column(column_name, row_as_dict[column_name], column_weights)
+        score += calculate_score_by_column(
+            column_name, row_as_dict[column_name], column_weights
+        )
     return score / get_metadata_max_score(column_weights) * 100
 
 
@@ -130,10 +143,14 @@ def calculate_cancer_annotation_score(row, total_cancer_annotation_resources):
 def calculate_score_for_row(row, total_cancer_annotation_resources, column_weights):
     columns = {"pdcm_model_id": row["pdcm_model_id"]}
 
-    metadata_score = calculate_metadata_score(row, column_weights) * metadata_score_weight
+    metadata_score = (
+        calculate_metadata_score(row, column_weights) * metadata_score_weight
+    )
     raw_data_score = calculate_raw_data_score(row) * raw_data_score_weight
-    cancer_annotation_score = calculate_cancer_annotation_score(
-        row, total_cancer_annotation_resources) * cancer_annotation_score_weight
+    cancer_annotation_score = (
+        calculate_cancer_annotation_score(row, total_cancer_annotation_resources)
+        * cancer_annotation_score_weight
+    )
 
     score = int(metadata_score + raw_data_score + cancer_annotation_score)
 
@@ -142,21 +159,31 @@ def calculate_score_for_row(row, total_cancer_annotation_resources, column_weigh
     return output
 
 
-def calculate_model_metadata_score(input_df: DataFrame, raw_external_resources_df: DataFrame, column_weights: dict) -> DataFrame:
+def calculate_model_metadata_score(
+    input_df: DataFrame, raw_external_resources_df: DataFrame, column_weights: dict
+) -> DataFrame:
     """
-    Calculates metadata score. It receives a dataframe `input_df` (a subset of `search_index_df` filtered by a model type) 
+    Calculates metadata score. It receives a dataframe `input_df` (a subset of `search_index_df` filtered by a model type)
     and returns a dataset with (pdcm_model_id, score)
     """
     input_df = input_df.drop_duplicates()
-    
-    total_cancer_annotation_resources = count_cancer_annotation_resources(raw_external_resources_df)
 
-    rdd_with_score = input_df.rdd.map(lambda x: calculate_score_for_row(x, total_cancer_annotation_resources, column_weights))
+    total_cancer_annotation_resources = count_cancer_annotation_resources(
+        raw_external_resources_df
+    )
 
-    score_schema = StructType([
-        StructField('pdcm_model_id', LongType(), True),
-        StructField('score', IntegerType(), True)
-    ])
+    rdd_with_score = input_df.rdd.map(
+        lambda x: calculate_score_for_row(
+            x, total_cancer_annotation_resources, column_weights
+        )
+    )
+
+    score_schema = StructType(
+        [
+            StructField("pdcm_model_id", LongType(), True),
+            StructField("score", IntegerType(), True),
+        ]
+    )
 
     score_df = rdd_with_score.toDF(score_schema)
 
