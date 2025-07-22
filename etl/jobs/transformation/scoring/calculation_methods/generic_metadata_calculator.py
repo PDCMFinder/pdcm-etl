@@ -6,9 +6,9 @@ from pyspark.sql.types import StructType, StructField, LongType, IntegerType
 
 # Final score is calculated in 3 parts: metadata, raw data resources connectedness, and cancer annotation
 # resources connectedness. A weight is assigned manually to each one:
-metadata_score_weight = 0.9
-raw_data_score_weight = 0.07
-cancer_annotation_score_weight = 0.03
+metadata_score_weight = 1
+raw_data_score_weight = 0
+cancer_annotation_score_weight = 0
 
 columns_with_multiple_values = ["quality_assurance", "xenograft_model_specimens"]
 
