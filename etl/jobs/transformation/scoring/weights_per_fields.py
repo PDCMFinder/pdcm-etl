@@ -30,8 +30,7 @@ common_weights = {
     "quality_assurance.STR_analysis": 0,
     "quality_assurance.comments": 0,
     "supplier": 0,
-    "supplier_type": 0
-
+    "supplier_type": 0,
 }
 
 # Weights for fields that only apply to PDX models
@@ -54,8 +53,8 @@ in_vitro_only_weights = {
     "growth_properties": 1,
     "growth_media": 1,
     "media_id": 1,
-    "plate_coating": 1, 
-    "other_plate_coating" :1,
+    "plate_coating": 1,
+    "other_plate_coating": 1,
     "passage_number": 1,
     "contaminated": 1,
     "contamination_details": 0.5,
@@ -66,4 +65,3 @@ in_vitro_only_weights = {
     "quality_assurance.tumour_status": 1,
     "quality_assurance.model_purity": 1,
 }
-

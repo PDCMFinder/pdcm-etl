@@ -10,6 +10,7 @@ SELECT
   CASE
     WHEN mol_char.data_type = 'biomarker' THEN 'bio markers' ELSE mol_char.data_type 
   END AS data_type,
+  pf.platform_id AS platform_id,
  	pf.instrument_model AS platform_name,
 	mol_char.id AS molecular_characterization_id,
   external_db_links
