@@ -752,7 +752,34 @@ Institution public database
 |database_url|text|Link of the institution public database|
 
 
+---
+### pre-clinical_image
 
+Pre-clinical Image
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|Internal identifier|
+|model_id|bigint|Reference to model_information_table|
+|passage_number|text|Passage number|
+|engraftment_site|text|Organ or anatomical site used for the PDX tumour engraftment|
+|treatment_id|bigint|Reference to treatment table|
+|modality|text|PET, MRI, CT, BLI, etc|
+|contrast_sequence_used|text|Contrast or sequence used for image generation|
+|number_of_images|integer|Number of images available for the contrast/sequence used|
+|project_id|bigint|Reference to preclinical_project table|
+
+---
+### preclinical_project
+
+Pre-clinical project
+
+#### Columns
+|Column Name|Data Type|Comment|
+|-----|-----|-----|
+|id|bigint|Internal identifier|
+|project_url|text|Project URL|
 
 
 
